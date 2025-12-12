@@ -19,7 +19,10 @@
 ### 3. Catalog Service (`catalog-service`)
 *   **Port**: 8082
 *   **Responsibility**: Managing the "Menu" of services and garments.
-*   **Entities**: `cci_service` (Repairs), `cci_garment_type` (Pants, Shirts).
+*   **Entities**: `GarmentType` (code, name), `Service` (price, duration).
+*   **Endpoints**:
+    *   `GET /catalog/garments`: List active garment types.
+    *   `GET /catalog/services`: List active services/repairs.
 
 ### 4. Sales Service (`sales-service`)
 *   **Port**: 8083

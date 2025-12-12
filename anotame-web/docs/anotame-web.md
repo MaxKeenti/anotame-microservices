@@ -26,6 +26,12 @@
     *   `ui/`: Atomic components (Buttons, Inputs).
 
 ## Key Features
-1.  **Server Side Rendering (SSR)**: Standard for all pages.
-2.  **Layouts**: `DashboardLayout` provides persistent Sidebar and Header.
-3.  **Responsiveness**: Mobile-first design using standard Tailwind breakpoints.
+1.  **Authentication (JWT)**:
+    *   `AuthContext`: Global state for User/Token.
+    *   `AuthProvider`: Wraps RootLayout.
+    *   `/login`: Custom login page with redirect logic.
+2.  **Dashboard**:
+    *   `/dashboard`: Overview with KPIs (Revenue, Orders).
+    *   `/dashboard/orders/new`: Complex form for creating tickets.
+3.  **Layouts**: `DashboardLayout` provides persistent Sidebar and Header.
+4.  **Responsiveness**: Mobile-first design using standard Tailwind breakpoints.
