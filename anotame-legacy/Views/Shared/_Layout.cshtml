@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Content/css/all.css" rel="stylesheet">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Hilván</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @RenderSection("miscss", false)
+    <link href="~/Content/CssPrivate/editable-select.css" rel="stylesheet" />
+    <link href="~/Content/CssPrivate/Menu.css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div id="divMenu" class="menu">
+            <div id="divHome" class="menubtn">
+                <a href="@Url.Action("Index","Home")"><i id="icoHome" class="fas fa-home  menuicon fa-3x"></i></a>
+            </div>
+            <div id="divNota" class="menubtn">
+                <a href="@Url.Action("Create","Nota")"><i id="icoNota" class="fas fa-sticky-note  menuicon fa-3x"></i></a>
+            </div>
+            <div id="divCliente" class="menubtn">
+                <a href="@Url.Action("Create","Clientes")"><i id="icoCliente" class="fas fa-user-alt menuicon fa-3x"></i></a>
+            </div>
+            <div id="divPrenda" class="menubtn">
+                <a href="@Url.Action("Create","Prenda")"><i id="icoPrenda" class="fas fa-tshirt menuicon fa-3x"></i></a>
+            </div>
+            <div id="divTipoPrenda" class="menubtn">
+                <a href="@Url.Action("Create","TipoPrenda")"><i id="icoTipoPrenda" class="fas fa-swatchbook menuicon fa-3x"></i></a>
+            </div>
+            <div id="divArreglo" class="menubtn">
+                <a href="@Url.Action("Create","Arreglo")"><i id="icoArreglo" class="fas fa-cut menuicon fa-3x"></i></a>
+            </div>
+            @*<div id="divPrecio">
+                 <a href="@Url.Action("Create","Precio")"><i id="icoPrecio" class="fas fa-cash-register menuicon fa-3x"></i></a>
+              </div>*@
+        </div>
+    </div>
+
+    <div id="footer" class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - El Hilván</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Scripts/PrivateJavascripts/MyAjax.js")
+    @RenderSection("scripts", required: false)
+    @RenderSection("misjava", false)
+    <script src="~/Scripts/PrivateJavascripts/editable-select.js"></script>
+</body>
+</html>

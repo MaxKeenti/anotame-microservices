@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Content/css/all.css" rel="stylesheet">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Mi aplicación ASP.NET</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    @*<div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @html.actionlink("nombre de la aplicación", "index", "home", new { area = "" }, new { @class = "navbar-brand" })
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@html.actionlink("inicio", "index", "home")</li>
+                        <li>@html.actionlink("acerca de", "about", "home")</li>
+                        <li>@html.actionlink("contacto", "contact", "home")</li>
+                    </ul>
+                </div>
+            </div>
+        </div>*@
+
+    <div>
+        <div id="divMenu" class="menu">
+            @*<img id="imgLogo" src="~/Content/Images/Thread.png">*@
+            <div id="divHome">
+                <a href="@Url.Action("Index","Home")"><i id="icoHome" class="fas fa-home  menuicon fa-3x"></i></a>
+            </div>
+            <div id="divNota">
+                @*<a href="@Url.Action("Create","Nota")"></a>*@
+                @*<input id="btna1" type="button" class="menuboton" value="Crear">
+                    <input id="btna2" type="button" class="menuboton" value="Editar">
+                    <input id="btna3" type="button" class="menuboton" value="Eliminar">
+                    <input id="btna4" type="button" class="menuboton" value="Ver">*@
+
+                <a href="@Url.Action("Create","Nota")"><i id="icoNota" class="fas fa-sticky-note  menuicon fa-3x"></i></a>
+            </div>
+            <div id="divCliente">
+                @*<input id="btnb1" type="button" class="menuboton" value="Crear" />
+                    <input id="btnb2" type="button" class="menuboton" value="Editar" />
+                        <input id="btnb3" type="button" class="menuboton" value="Eliminar" />
+                        <input id="btnb4" type="button" class="menuboton" value="Ver" />*@
+                <a href="@Url.Action("Create","Clientes")"><i id="icoCliente" class="fa fa-user-alt menuicon fa-3x"></i></a>
+            </div>
+            <div id="divPrenda">
+                @*<input id="btnc1" type="button" class="menuboton" value="Crear">
+                    <input id="btnc2" type="button" class="menuboton" value="Editar">
+                    <input id="btnc3" type="button" class="menuboton" value="Eliminar">
+                    <input id="btnc4" type="button" class="menuboton" value="Ver">*@
+                <a href="@Url.Action("Create","Prenda")"><i id="icoPrenda" class="fa fa-tshirt menuicon fa-3x"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - El Hilván</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,96 @@
+﻿@model IEnumerable<Anotame.Models.Prenda>
+
+@{
+    Layout = null;
+    ViewBag.Title = "Index";
+}
+
+@*<h2>Index</h2>*@
+
+@*<p>
+        @Html.ActionLink("Create New", "Create")
+    </p>*@
+<div class="row">
+    <div class="col-md-6">
+        <h2>Índice de prendas</h2>
+    </div>
+    <div class="col-md-12 row">
+        <label class="control-label col-md-3">Buscar prenda:</label>
+        <div class="col-md-9 row">
+            <div class="col-md-6">
+                <select class="form-control" id="drpOpciones">
+                    <option value="0">Seleccionar Opción</option>
+                    <option value="1">Por Prenda</option>
+                    <option value="2">Por Arreglo</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input placeholder="Escribe el nombre" class="form-control" id="BusqPrendT" readonly="readonly" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table" id="tblPrenda">
+    <thead>
+        <tr>
+            <th>
+                Precio
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Arreglo)
+            </th>
+
+            <th>
+                Tipo de prenda
+            </th>
+            <th>
+                Editar
+            </th>
+            <th>
+                Eliminar
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cantidad)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Arreglo.Nombre)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.TipoPrenda.Nombre)
+                </td>
+
+                <td>
+                    @{
+                        var editUrl = Url.Action("Edit", new { id = item.id });
+                        var deleteUrl = Url.Action("Delete", new { id = item.id });
+                    }
+                    @*@Html.ActionLink("Editar", "Edit", new { id = item.id })*@
+                    <button type="button" class="btn btn-primary nticon btnEditPrd" data-url="@editUrl">
+                        <i id="icoEdit" class="fas fa-pen notaicon fa-2x"></i>
+                    </button>
+                </td>
+
+                <td>
+                    @*@Html.ActionLink("Details", "Details", new { id=item.id }) |
+                        @Html.ActionLink("Eliminar", "Delete", new { id = item.id })*@
+                    <button type="button" class="btn btn-primary nticon btnDeletePrd" data-url="@deleteUrl">
+                        <i id="icoDelete" class="fas fa-trash notaicon fa-2x"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>

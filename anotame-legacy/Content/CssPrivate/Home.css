@@ -1,0 +1,92 @@
+﻿#divMenu {
+    display: none;
+}
+
+
+body {
+    /*background-image: url("~/Content/Images/HiloBck.png");*/
+    /*background-image: url('../Images/HiloBck.jpg') !important;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100%;*/
+    background: linear-gradient(to bottom, #004e89, #0099ff) !important;
+    font-family: Comfortaa !important;
+    color: black !important;
+    height: 100%;
+    width: 100%;
+}
+
+h1 {
+    font-family: Fredoka One !important;
+    font-size: 72px;
+    background: -webkit-linear-gradient(#ff4400, #f57e00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2, h4, h5, h6 {
+    font-family: Fredoka One !important;
+    background: -webkit-linear-gradient(#004e89, #0099ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h3 {
+    font-family: Fredoka One !important;
+    background: -webkit-linear-gradient(#bc4e9c, #f80759);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#btnMamutish {
+    padding: 0px 0px 0px 0px !important;
+    border-radius: 8px
+}
+
+#divMamutish {
+    margin-left: 110px;
+    height: 210px;
+    width: 210px;
+}
+
+#divPapureos {
+    padding-left: 10px;
+    height: 210px;
+    width: 210px;
+}
+
+#btnPapureos {
+    padding: 0px 0px 0px 0px !important;
+    border-radius: 8px
+}
+
+#divMarisol {
+    padding-left: 10px;
+    height: 210px;
+    width: 210px;
+}
+
+#btnMarisol {
+    padding: 0px 0px 0px 0px !important;
+    border-radius: 8px
+}
+
+#divLuz {
+    padding-left: 10px;
+    height: 210px;
+    width: 210px;
+}
+
+#btnLuz {
+    padding: 0px 0px 0px 0px !important;
+    border-radius: 8px
+}
+
+#imgLogo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 25%;
+    height: 25%;
+    border-radius: 8px;
+}

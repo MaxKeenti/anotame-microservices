@@ -1,0 +1,785 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="AnotameModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Arreglo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="80" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Clientes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="60" Nullable="false" />
+          <Property Name="Direccion" Type="nvarchar(max)" />
+          <Property Name="Telefono" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Empleados">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Contraseña" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Empresa">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Dueño" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="RFC" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="CURP" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Telefono" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Direccion" Type="nvarchar" MaxLength="180" Nullable="false" />
+          <Property Name="Rep_Datos" Type="nvarchar" MaxLength="180" Nullable="false" />
+          <Property Name="Incorp_Fiscal" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Nota">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FechaEntrega" Type="datetime" Nullable="false" />
+          <Property Name="FechaRecibido" Type="datetime" Nullable="false" />
+          <Property Name="idEmpresa" Type="int" Nullable="false" />
+          <Property Name="Folio" Type="int" Nullable="false" />
+          <Property Name="idClientes" Type="int" Nullable="false" />
+          <Property Name="Total" Type="money" Nullable="false" />
+          <Property Name="idEmpleado" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="NotaPrenda">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idNota" Type="int" />
+          <Property Name="idPrenda" Type="int" Nullable="false" />
+          <Property Name="Descripcion" Type="nvarchar(max)" />
+          <Property Name="CantidadPrendas" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Prenda">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="idTipoPrenda" Type="int" Nullable="false" />
+          <Property Name="idArreglo" Type="int" Nullable="false" />
+          <Property Name="Cantidad" Type="money" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TipoPrenda">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK_Nota_Clientes">
+          <End Role="Clientes" Type="Self.Clientes" Multiplicity="1" />
+          <End Role="Nota" Type="Self.Nota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Clientes">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Nota">
+              <PropertyRef Name="idClientes" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Nota_Empleados">
+          <End Role="Empleados" Type="Self.Empleados" Multiplicity="1" />
+          <End Role="Nota" Type="Self.Nota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Nota">
+              <PropertyRef Name="idEmpleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Nota_Empresa">
+          <End Role="Empresa" Type="Self.Empresa" Multiplicity="1" />
+          <End Role="Nota" Type="Self.Nota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Empresa">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Nota">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_NotaPrenda_Nota">
+          <End Role="Nota" Type="Self.Nota" Multiplicity="0..1" />
+          <End Role="NotaPrenda" Type="Self.NotaPrenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Nota">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="NotaPrenda">
+              <PropertyRef Name="idNota" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_NotaPrenda_Prenda">
+          <End Role="Prenda" Type="Self.Prenda" Multiplicity="1" />
+          <End Role="NotaPrenda" Type="Self.NotaPrenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Prenda">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="NotaPrenda">
+              <PropertyRef Name="idPrenda" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Prenda_Arreglo">
+          <End Role="Arreglo" Type="Self.Arreglo" Multiplicity="1" />
+          <End Role="Prenda" Type="Self.Prenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Arreglo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Prenda">
+              <PropertyRef Name="idArreglo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Prenda_TipoPrenda">
+          <End Role="TipoPrenda" Type="Self.TipoPrenda" Multiplicity="1" />
+          <End Role="Prenda" Type="Self.Prenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TipoPrenda">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Prenda">
+              <PropertyRef Name="idTipoPrenda" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="BusquedaAr" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="BusquedaClient" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="BusquedaEmpleado" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="BusquedaPr" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="BusquedaPrAr" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="BusquedaTipoPr" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Nombre" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="Cliente" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Cliente" Type="int" Mode="In" />
+        </Function>
+        <Function Name="EditFindNotaPrenda" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="NotaPrenda" Type="int" Mode="In" />
+        </Function>
+        <Function Name="NotaConImpor" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="PrecioNotaPrenda" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Prenda" Type="int" Mode="In" />
+          <Parameter Name="Arreglo" Type="int" Mode="In" />
+        </Function>
+        <Function Name="TipoArregloYPrecio" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Prenda" Type="int" Mode="In" />
+        </Function>
+        <EntityContainer Name="AnotameModelStoreContainer">
+          <EntitySet Name="Arreglo" EntityType="Self.Arreglo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Clientes" EntityType="Self.Clientes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Empleados" EntityType="Self.Empleados" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Empresa" EntityType="Self.Empresa" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Nota" EntityType="Self.Nota" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NotaPrenda" EntityType="Self.NotaPrenda" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Prenda" EntityType="Self.Prenda" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TipoPrenda" EntityType="Self.TipoPrenda" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Nota_Clientes" Association="Self.FK_Nota_Clientes">
+            <End Role="Clientes" EntitySet="Clientes" />
+            <End Role="Nota" EntitySet="Nota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Nota_Empleados" Association="Self.FK_Nota_Empleados">
+            <End Role="Empleados" EntitySet="Empleados" />
+            <End Role="Nota" EntitySet="Nota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Nota_Empresa" Association="Self.FK_Nota_Empresa">
+            <End Role="Empresa" EntitySet="Empresa" />
+            <End Role="Nota" EntitySet="Nota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_NotaPrenda_Nota" Association="Self.FK_NotaPrenda_Nota">
+            <End Role="Nota" EntitySet="Nota" />
+            <End Role="NotaPrenda" EntitySet="NotaPrenda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_NotaPrenda_Prenda" Association="Self.FK_NotaPrenda_Prenda">
+            <End Role="Prenda" EntitySet="Prenda" />
+            <End Role="NotaPrenda" EntitySet="NotaPrenda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Prenda_Arreglo" Association="Self.FK_Prenda_Arreglo">
+            <End Role="Arreglo" EntitySet="Arreglo" />
+            <End Role="Prenda" EntitySet="Prenda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Prenda_TipoPrenda" Association="Self.FK_Prenda_TipoPrenda">
+            <End Role="TipoPrenda" EntitySet="TipoPrenda" />
+            <End Role="Prenda" EntitySet="Prenda" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="AnotameModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Arreglo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="80" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Prenda" Relationship="Self.FK_Prenda_Arreglo" FromRole="Arreglo" ToRole="Prenda" />
+        </EntityType>
+        <EntityType Name="Clientes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="60" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Direccion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Telefono" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Nota" Relationship="Self.FK_Nota_Clientes" FromRole="Clientes" ToRole="Nota" />
+        </EntityType>
+        <EntityType Name="Empleados">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Contraseña" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Nota" Relationship="Self.FK_Nota_Empleados" FromRole="Empleados" ToRole="Nota" />
+        </EntityType>
+        <EntityType Name="Empresa">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Dueño" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RFC" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CURP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Telefono" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Direccion" Type="String" MaxLength="180" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Rep_Datos" Type="String" MaxLength="180" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Incorp_Fiscal" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Nota" Relationship="Self.FK_Nota_Empresa" FromRole="Empresa" ToRole="Nota" />
+        </EntityType>
+        <EntityType Name="Nota">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FechaEntrega" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FechaRecibido" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="idEmpresa" Type="Int32" Nullable="false" />
+          <Property Name="Folio" Type="Int32" Nullable="false" />
+          <Property Name="idClientes" Type="Int32" Nullable="false" />
+          <Property Name="Total" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
+          <Property Name="idEmpleado" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Clientes" Relationship="Self.FK_Nota_Clientes" FromRole="Nota" ToRole="Clientes" />
+          <NavigationProperty Name="Empleados" Relationship="Self.FK_Nota_Empleados" FromRole="Nota" ToRole="Empleados" />
+          <NavigationProperty Name="Empresa" Relationship="Self.FK_Nota_Empresa" FromRole="Nota" ToRole="Empresa" />
+          <NavigationProperty Name="NotaPrenda" Relationship="Self.FK_NotaPrenda_Nota" FromRole="Nota" ToRole="NotaPrenda" />
+        </EntityType>
+        <EntityType Name="NotaPrenda">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idNota" Type="Int32" />
+          <Property Name="idPrenda" Type="Int32" Nullable="false" />
+          <Property Name="Descripcion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CantidadPrendas" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Nota" Relationship="Self.FK_NotaPrenda_Nota" FromRole="NotaPrenda" ToRole="Nota" />
+          <NavigationProperty Name="Prenda" Relationship="Self.FK_NotaPrenda_Prenda" FromRole="NotaPrenda" ToRole="Prenda" />
+        </EntityType>
+        <EntityType Name="Prenda">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="idTipoPrenda" Type="Int32" Nullable="false" />
+          <Property Name="idArreglo" Type="Int32" Nullable="false" />
+          <Property Name="Cantidad" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
+          <NavigationProperty Name="Arreglo" Relationship="Self.FK_Prenda_Arreglo" FromRole="Prenda" ToRole="Arreglo" />
+          <NavigationProperty Name="NotaPrenda" Relationship="Self.FK_NotaPrenda_Prenda" FromRole="Prenda" ToRole="NotaPrenda" />
+          <NavigationProperty Name="TipoPrenda" Relationship="Self.FK_Prenda_TipoPrenda" FromRole="Prenda" ToRole="TipoPrenda" />
+        </EntityType>
+        <EntityType Name="TipoPrenda">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Prenda" Relationship="Self.FK_Prenda_TipoPrenda" FromRole="TipoPrenda" ToRole="Prenda" />
+        </EntityType>
+        <Association Name="FK_Prenda_Arreglo">
+          <End Role="Arreglo" Type="Self.Arreglo" Multiplicity="1" />
+          <End Role="Prenda" Type="Self.Prenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Arreglo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Prenda">
+              <PropertyRef Name="idArreglo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Nota_Clientes">
+          <End Role="Clientes" Type="Self.Clientes" Multiplicity="1" />
+          <End Role="Nota" Type="Self.Nota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Clientes">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Nota">
+              <PropertyRef Name="idClientes" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Nota_Empleados">
+          <End Role="Empleados" Type="Self.Empleados" Multiplicity="1" />
+          <End Role="Nota" Type="Self.Nota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Nota">
+              <PropertyRef Name="idEmpleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Nota_Empresa">
+          <End Role="Empresa" Type="Self.Empresa" Multiplicity="1" />
+          <End Role="Nota" Type="Self.Nota" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Empresa">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Nota">
+              <PropertyRef Name="idEmpresa" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_NotaPrenda_Nota">
+          <End Role="Nota" Type="Self.Nota" Multiplicity="0..1" />
+          <End Role="NotaPrenda" Type="Self.NotaPrenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Nota">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="NotaPrenda">
+              <PropertyRef Name="idNota" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_NotaPrenda_Prenda">
+          <End Role="Prenda" Type="Self.Prenda" Multiplicity="1" />
+          <End Role="NotaPrenda" Type="Self.NotaPrenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Prenda">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="NotaPrenda">
+              <PropertyRef Name="idPrenda" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Prenda_TipoPrenda">
+          <End Role="TipoPrenda" Type="Self.TipoPrenda" Multiplicity="1" />
+          <End Role="Prenda" Type="Self.Prenda" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TipoPrenda">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Prenda">
+              <PropertyRef Name="idTipoPrenda" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="AnotameEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Arreglo" EntityType="Self.Arreglo" />
+          <EntitySet Name="Clientes" EntityType="Self.Clientes" />
+          <EntitySet Name="Empleados" EntityType="Self.Empleados" />
+          <EntitySet Name="Empresa" EntityType="Self.Empresa" />
+          <EntitySet Name="Nota" EntityType="Self.Nota" />
+          <EntitySet Name="NotaPrenda" EntityType="Self.NotaPrenda" />
+          <EntitySet Name="Prenda" EntityType="Self.Prenda" />
+          <EntitySet Name="TipoPrenda" EntityType="Self.TipoPrenda" />
+          <AssociationSet Name="FK_Prenda_Arreglo" Association="Self.FK_Prenda_Arreglo">
+            <End Role="Arreglo" EntitySet="Arreglo" />
+            <End Role="Prenda" EntitySet="Prenda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Nota_Clientes" Association="Self.FK_Nota_Clientes">
+            <End Role="Clientes" EntitySet="Clientes" />
+            <End Role="Nota" EntitySet="Nota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Nota_Empleados" Association="Self.FK_Nota_Empleados">
+            <End Role="Empleados" EntitySet="Empleados" />
+            <End Role="Nota" EntitySet="Nota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Nota_Empresa" Association="Self.FK_Nota_Empresa">
+            <End Role="Empresa" EntitySet="Empresa" />
+            <End Role="Nota" EntitySet="Nota" />
+          </AssociationSet>
+          <AssociationSet Name="FK_NotaPrenda_Nota" Association="Self.FK_NotaPrenda_Nota">
+            <End Role="Nota" EntitySet="Nota" />
+            <End Role="NotaPrenda" EntitySet="NotaPrenda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_NotaPrenda_Prenda" Association="Self.FK_NotaPrenda_Prenda">
+            <End Role="Prenda" EntitySet="Prenda" />
+            <End Role="NotaPrenda" EntitySet="NotaPrenda" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Prenda_TipoPrenda" Association="Self.FK_Prenda_TipoPrenda">
+            <End Role="TipoPrenda" EntitySet="TipoPrenda" />
+            <End Role="Prenda" EntitySet="Prenda" />
+          </AssociationSet>
+          <FunctionImport Name="BusquedaAr" ReturnType="Collection(AnotameModel.BusquedaAr_Result)">
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="BusquedaClient" ReturnType="Collection(AnotameModel.BusquedaClient_Result)">
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="BusquedaEmpleado" ReturnType="Collection(AnotameModel.BusquedaEmpleado_Result)">
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="BusquedaPr" ReturnType="Collection(AnotameModel.BusquedaPr_Result)">
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="BusquedaPrAr" ReturnType="Collection(AnotameModel.BusquedaPrAr_Result)">
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="BusquedaTipoPr" ReturnType="Collection(AnotameModel.BusquedaTipoPr_Result)">
+            <Parameter Name="Nombre" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="Cliente" ReturnType="Collection(AnotameModel.Cliente_Result)">
+            <Parameter Name="Cliente" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="EditFindNotaPrenda" ReturnType="Collection(AnotameModel.EditFindNotaPrenda_Result)">
+            <Parameter Name="NotaPrenda" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="NotaConImpor" ReturnType="Collection(AnotameModel.NotaConImpor_Result)" />
+          <FunctionImport Name="PrecioNotaPrenda" ReturnType="Collection(AnotameModel.PrecioNotaPrenda_Result)">
+            <Parameter Name="Prenda" Mode="In" Type="Int32" />
+            <Parameter Name="Arreglo" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="TipoArregloYPrecio" ReturnType="Collection(AnotameModel.TipoArregloYPrecio_Result)">
+            <Parameter Name="Prenda" Mode="In" Type="Int32" />
+          </FunctionImport>
+        </EntityContainer>
+        <ComplexType Name="BusquedaAr_Result">
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="Nombre" Nullable="false" MaxLength="80" />
+        </ComplexType>
+        <ComplexType Name="BusquedaClient_Result">
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="Nombre" Nullable="false" MaxLength="60" />
+          <Property Type="String" Name="Direccion" Nullable="true" />
+          <Property Type="Int64" Name="Telefono" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="BusquedaEmpleado_Result">
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="Nombre" Nullable="false" MaxLength="50" />
+          <Property Type="String" Name="Contraseña" Nullable="false" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="BusquedaPr_Result">
+          <Property Type="Int32" Name="idPrenda" Nullable="false" />
+          <Property Type="Decimal" Name="Cantidad" Nullable="false" Precision="19" />
+          <Property Type="String" Name="Prenda" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Arreglo" Nullable="false" MaxLength="80" />
+        </ComplexType>
+        <ComplexType Name="BusquedaPrAr_Result">
+          <Property Type="Int32" Name="idPrenda" Nullable="false" />
+          <Property Type="Decimal" Name="Cantidad" Nullable="false" Precision="19" />
+          <Property Type="String" Name="Prenda" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Arreglo" Nullable="false" MaxLength="80" />
+        </ComplexType>
+        <ComplexType Name="BusquedaTipoPr_Result">
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="Nombre" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="Cliente_Result">
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="Nombre" Nullable="false" MaxLength="60" />
+          <Property Type="String" Name="Direccion" Nullable="true" />
+          <Property Type="Int64" Name="Telefono" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="EditFindNotaPrenda_Result">
+          <Property Type="Int32" Name="idNotaPrenda" Nullable="false" />
+          <Property Type="Int32" Name="idPrenda" Nullable="false" />
+          <Property Type="Int32" Name="idTipoPrenda" Nullable="false" />
+          <Property Type="Int32" Name="idArreglo" Nullable="false" />
+          <Property Type="Int32" Name="CantidadPrendas" Nullable="false" />
+          <Property Type="String" Name="Prenda" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Arreglo" Nullable="false" MaxLength="80" />
+          <Property Type="String" Name="Descripcion" Nullable="true" />
+          <Property Type="Decimal" Name="Precio" Nullable="false" Precision="19" />
+          <Property Type="Decimal" Name="Importe" Nullable="true" Precision="19" />
+        </ComplexType>
+        <ComplexType Name="NotaConImpor_Result">
+          <Property Type="Int32" Name="idNotaPrenda" Nullable="false" />
+          <Property Type="Int32" Name="idPrenda" Nullable="false" />
+          <Property Type="Int32" Name="idArreglo" Nullable="false" />
+          <Property Type="Int32" Name="CantidadPrendas" Nullable="false" />
+          <Property Type="String" Name="Prenda" Nullable="true" MaxLength="133" />
+          <Property Type="String" Name="Descripcion" Nullable="true" />
+          <Property Type="Decimal" Name="Precio" Nullable="false" Precision="19" />
+          <Property Type="Decimal" Name="Importe" Nullable="true" Precision="19" />
+        </ComplexType>
+        <ComplexType Name="PrecioNotaPrenda_Result">
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="Int32" Name="idTipoPrenda" Nullable="false" />
+          <Property Type="Int32" Name="idArreglo" Nullable="false" />
+          <Property Type="Decimal" Name="Cantidad" Nullable="false" Precision="19" />
+        </ComplexType>
+        <ComplexType Name="TipoArregloYPrecio_Result">
+          <Property Type="String" Name="TipoArreglo" Nullable="false" MaxLength="80" />
+          <Property Type="Int32" Name="Id" Nullable="false" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="AnotameModelStoreContainer" CdmEntityContainer="AnotameEntities">
+          <EntitySetMapping Name="Arreglo">
+            <EntityTypeMapping TypeName="AnotameModel.Arreglo">
+              <MappingFragment StoreEntitySet="Arreglo">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Clientes">
+            <EntityTypeMapping TypeName="AnotameModel.Clientes">
+              <MappingFragment StoreEntitySet="Clientes">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Telefono" ColumnName="Telefono" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Empleados">
+            <EntityTypeMapping TypeName="AnotameModel.Empleados">
+              <MappingFragment StoreEntitySet="Empleados">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Contraseña" ColumnName="Contraseña" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Empresa">
+            <EntityTypeMapping TypeName="AnotameModel.Empresa">
+              <MappingFragment StoreEntitySet="Empresa">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Dueño" ColumnName="Dueño" />
+                <ScalarProperty Name="RFC" ColumnName="RFC" />
+                <ScalarProperty Name="CURP" ColumnName="CURP" />
+                <ScalarProperty Name="Telefono" ColumnName="Telefono" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Rep_Datos" ColumnName="Rep_Datos" />
+                <ScalarProperty Name="Incorp_Fiscal" ColumnName="Incorp_Fiscal" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Nota">
+            <EntityTypeMapping TypeName="AnotameModel.Nota">
+              <MappingFragment StoreEntitySet="Nota">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="FechaEntrega" ColumnName="FechaEntrega" />
+                <ScalarProperty Name="FechaRecibido" ColumnName="FechaRecibido" />
+                <ScalarProperty Name="idEmpresa" ColumnName="idEmpresa" />
+                <ScalarProperty Name="Folio" ColumnName="Folio" />
+                <ScalarProperty Name="idClientes" ColumnName="idClientes" />
+                <ScalarProperty Name="Total" ColumnName="Total" />
+                <ScalarProperty Name="idEmpleado" ColumnName="idEmpleado" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="NotaPrenda">
+            <EntityTypeMapping TypeName="AnotameModel.NotaPrenda">
+              <MappingFragment StoreEntitySet="NotaPrenda">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="idNota" ColumnName="idNota" />
+                <ScalarProperty Name="idPrenda" ColumnName="idPrenda" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="CantidadPrendas" ColumnName="CantidadPrendas" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Prenda">
+            <EntityTypeMapping TypeName="AnotameModel.Prenda">
+              <MappingFragment StoreEntitySet="Prenda">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="idTipoPrenda" ColumnName="idTipoPrenda" />
+                <ScalarProperty Name="idArreglo" ColumnName="idArreglo" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TipoPrenda">
+            <EntityTypeMapping TypeName="AnotameModel.TipoPrenda">
+              <MappingFragment StoreEntitySet="TipoPrenda">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="BusquedaAr" FunctionName="AnotameModel.Store.BusquedaAr">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.BusquedaAr_Result">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BusquedaClient" FunctionName="AnotameModel.Store.BusquedaClient">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.BusquedaClient_Result">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Telefono" ColumnName="Telefono" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BusquedaEmpleado" FunctionName="AnotameModel.Store.BusquedaEmpleado">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.BusquedaEmpleado_Result">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Contraseña" ColumnName="Contraseña" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BusquedaPr" FunctionName="AnotameModel.Store.BusquedaPr">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.BusquedaPr_Result">
+                <ScalarProperty Name="idPrenda" ColumnName="idPrenda" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+                <ScalarProperty Name="Prenda" ColumnName="Prenda" />
+                <ScalarProperty Name="Arreglo" ColumnName="Arreglo" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BusquedaPrAr" FunctionName="AnotameModel.Store.BusquedaPrAr">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.BusquedaPrAr_Result">
+                <ScalarProperty Name="idPrenda" ColumnName="idPrenda" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+                <ScalarProperty Name="Prenda" ColumnName="Prenda" />
+                <ScalarProperty Name="Arreglo" ColumnName="Arreglo" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="BusquedaTipoPr" FunctionName="AnotameModel.Store.BusquedaTipoPr">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.BusquedaTipoPr_Result">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Cliente" FunctionName="AnotameModel.Store.Cliente">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.Cliente_Result">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Direccion" ColumnName="Direccion" />
+                <ScalarProperty Name="Telefono" ColumnName="Telefono" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="EditFindNotaPrenda" FunctionName="AnotameModel.Store.EditFindNotaPrenda">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.EditFindNotaPrenda_Result">
+                <ScalarProperty Name="idNotaPrenda" ColumnName="idNotaPrenda" />
+                <ScalarProperty Name="idPrenda" ColumnName="idPrenda" />
+                <ScalarProperty Name="idTipoPrenda" ColumnName="idTipoPrenda" />
+                <ScalarProperty Name="idArreglo" ColumnName="idArreglo" />
+                <ScalarProperty Name="CantidadPrendas" ColumnName="CantidadPrendas" />
+                <ScalarProperty Name="Prenda" ColumnName="Prenda" />
+                <ScalarProperty Name="Arreglo" ColumnName="Arreglo" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="Importe" ColumnName="Importe" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="NotaConImpor" FunctionName="AnotameModel.Store.NotaConImpor">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.NotaConImpor_Result">
+                <ScalarProperty Name="idNotaPrenda" ColumnName="idNotaPrenda" />
+                <ScalarProperty Name="idPrenda" ColumnName="idPrenda" />
+                <ScalarProperty Name="idArreglo" ColumnName="idArreglo" />
+                <ScalarProperty Name="CantidadPrendas" ColumnName="CantidadPrendas" />
+                <ScalarProperty Name="Prenda" ColumnName="Prenda" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Precio" ColumnName="Precio" />
+                <ScalarProperty Name="Importe" ColumnName="Importe" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="PrecioNotaPrenda" FunctionName="AnotameModel.Store.PrecioNotaPrenda">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.PrecioNotaPrenda_Result">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="idTipoPrenda" ColumnName="idTipoPrenda" />
+                <ScalarProperty Name="idArreglo" ColumnName="idArreglo" />
+                <ScalarProperty Name="Cantidad" ColumnName="Cantidad" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="TipoArregloYPrecio" FunctionName="AnotameModel.Store.TipoArregloYPrecio">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AnotameModel.TipoArregloYPrecio_Result">
+                <ScalarProperty Name="TipoArreglo" ColumnName="TipoArreglo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
