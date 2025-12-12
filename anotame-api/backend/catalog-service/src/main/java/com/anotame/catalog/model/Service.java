@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +16,8 @@ import java.util.UUID;
 @Table(name = "cci_service")
 @Getter
 @Setter
-@Where(clause = "is_deleted = false")
+@SQLDelete(sql = "UPDATE cci_service SET is_deleted = true, deleted_at = NOW() WHERE id_service = ?")
+@SQLRestriction("is_deleted = false")
 public class Service {
 
     @Id

@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,7 +15,8 @@ import java.util.UUID;
 @Table(name = "cci_garment_type")
 @Getter
 @Setter
-@Where(clause = "is_deleted = false") // Soft delete filter
+@SQLDelete(sql = "UPDATE cci_garment_type SET is_deleted = true, deleted_at = NOW() WHERE id_garment_type = ?")
+@SQLRestriction("is_deleted = false")
 public class GarmentType {
 
     @Id
