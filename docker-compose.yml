@@ -1,0 +1,79 @@
+services:
+  # ========================================================================================
+  # DATABASE SERVICE (PostgreSQL + PostGIS)
+  # ========================================================================================
+  anotame-db:
+    image: postgis/postgis:16-3.4
+    container_name: anotame-db
+    restart: always
+    environment:
+      POSTGRES_USER: admin           # TODO: Move to .env for production
+      POSTGRES_PASSWORD: password    # TODO: Move to .env for production
+      POSTGRES_DB: anotame
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mount the init script to automatically create the schema on first run
+      - ./anotame-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - anotame-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d anotame"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================================================================
+  # DB GUI (PgAdmin 4) - Optional, helpful for verification
+  # ========================================================================================
+  anotame-pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: anotame-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@anotame.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "5050:80"
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
+
+  # ========================================================================================
+  # BACKEND API (Spring Boot) - Placeholder
+  # ========================================================================================
+  # anotame-api:
+  #   build: ./anotame-api
+  #   container_name: anotame-api
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+  #     SPRING_DATASOURCE_USERNAME: admin
+  #     SPRING_DATASOURCE_PASSWORD: password
+  #   networks:
+  #     - anotame-network
+  #   depends_on:
+  #     anotame-db:
+  #       condition: service_healthy
+
+  # ========================================================================================
+  # FRONTEND (NextJS) - Placeholder
+  # ========================================================================================
+  # anotame-web:
+  #   build: ./anotame-web
+  #   container_name: anotame-web
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - anotame-network
+
+volumes:
+  postgres_data:
+
+networks:
+  anotame-network:
+    driver: bridge
