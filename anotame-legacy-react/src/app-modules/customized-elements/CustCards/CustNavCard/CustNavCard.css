@@ -1,0 +1,13 @@
+.card-header {
+    background-color: #ff4400 !important;
+    border-top-left-radius: 5px !important;
+    border-top-right-radius: 5px !important;
+}
+
+.nav-link {
+    color: white !important;
+}
+
+.nav-link.active {
+    color: #ff4400 !important;
+}

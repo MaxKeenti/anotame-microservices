@@ -37,7 +37,48 @@ The legacy system modeled establishment constraints like working days, holidays,
 
 ---
 
-## 3. Deprecated / Excluded Modules
+## 3. Operations & Cashier (Priority: High)
+The legacy system (and specifically the React legacy app) contains the blueprint for the physical receipt and payment logic.
+
+### Missing Functionality
+-   **Ticket/Receipt Printing**: Need to implement the plain-text receipt format found in `anotame-legacy-react/.../NotaTable.jsx`.
+    -   *Format*: Columns for Qty, Item, Repairs, Price. Sections for Customer, Dates, and Totals.
+-   **Payments**: The React app tracks `amountLeft` and `paidInFull`. This logic needs to be ported to `tco_order` in the Sales service.
+-   **Establishment Configuration**: UI to update Branch/Establishment details for the receipt header.
+
+---
+
+## 4. Deprecated / Excluded Modules
 The following modules existed in the legacy system but have been **intentionally excluded** from the migration roadmap.
 
 *   **Appointment Management (Citas)**: The functionality for scheduling customer drop-offs/pickups (`tci05_cita`) is considered deprecated and will not be implemented in the modern architecture.
+
+---
+
+## 5. Data Constraints & Requirements (From React Legacy)
+Analysis of `ClientDataForm.jsx` and `GarmentDataForm.jsx` reveals the following constraints that must be enforced for receipt generation.
+
+### Client Data (`ClientDataForm.jsx`)
+| Field | Type | Required | Notes |
+| :--- | :--- | :--- | :--- |
+| `clientName` | String | **Yes** | "Nombre" |
+| `clientFirstLastName`| String | No* | "Apellido Paterno" (Validation implies required but prop is optional) |
+| `clientSecondLastName`| String | No* | "Apellido Materno" |
+| `telefonNumber` | Number | No | "Número de teléfono" |
+| `folio` | String | **Yes** | Unique identifier for the order |
+| `receivedDate` | Date | **Yes** | Defaults to Today (YYYY-MM-DD) |
+| `deliveryDate` | DateTime | **Yes** | Defaults to Today + 18:00 |
+
+### Garment Data (`GarmentDataForm.jsx`)
+| Field | Type | Required | Notes |
+| :--- | :--- | :--- | :--- |
+| `garmentQuantity` | Number | **Yes** | |
+| `garmentType` | String | **Yes** | e.g. "Pants", "Shirt" |
+| `garmentRepair` | Array | No | List of repair names (e.g. "Hemming") |
+| `garmentDescription`| String | No | Additional details |
+| `garmentRepairCost` | Decimal| **Yes** | Cost per unit |
+| `garmentRepairAmount`| Decimal| **Yes** | Calculated: `Quantity * Cost` |
+
+**Business Logic**:
+-   `garmentRepairAmount` is auto-calculated when quantity or cost changes.
+-   `garmentCosts` (Total) is the sum of all item amounts.

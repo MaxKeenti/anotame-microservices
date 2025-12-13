@@ -1,0 +1,14 @@
+.custom-h1 {
+    font-family: "Fredoka", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+    font-size: 3.2em;
+    line-height: 1.1;
+    font-size: 72px;
+    background: -webkit-linear-gradient(#ff4400, #f57e00);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
