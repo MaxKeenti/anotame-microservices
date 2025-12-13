@@ -1,7 +1,7 @@
 # Anotame API Architecture (Spring Boot)
 
 ## Technology Stack
-*   **Language**: Java 17+
+*   **Language**: Java 21+
 *   **Framework**: Spring Boot 3.2.3
 *   **Build Tool**: Maven (Multi-Module Project)
 *   **Database**: PostgreSQL 16 + PostGIS
@@ -15,11 +15,13 @@
 *   **Port**: 8081 (default)
 *   **Responsibility**: Authentication, Authorization, User Management.
 *   **Entities**: `tca_user` (Users), `cca_role` (Roles).
+*   **Architecture**: Hexagonal (Ports & Adapters).
 
 ### 3. Catalog Service (`catalog-service`)
 *   **Port**: 8082
 *   **Responsibility**: Managing the "Menu" of services and garments.
 *   **Entities**: `GarmentType` (code, name), `Service` (price, duration).
+*   **Architecture**: Hexagonal (Ports & Adapters).
 *   **Endpoints**:
     *   `GET /catalog/garments`: List active garment types.
     *   `GET /catalog/services`: List active services/repairs.
@@ -28,6 +30,7 @@
 *   **Port**: 8083
 *   **Responsibility**: Core transactional logic (Orders, Customers).
 *   **Entities**: `tco_order` (The Ticket), `tco_customer` (The Client Profile), `tco_order_history` (Workflow).
+*   **Architecture**: Hexagonal (Ports & Adapters).
 
 ### 5. Operations Service (`operations-service`)
 *   **Port**: 8084
@@ -35,13 +38,13 @@
 *   **Entities**: `tce_establishment`, `tce_branch`, `tce_employee_assignment`.
 
 *   **Architecture Patterns**:
-    *   **Controller-Service-Repository**: Standard Spring layering.
+    *   **Hexagonal Architecture**: Domain logic decoupled from Frameworks/DB via Ports & Adapters.
     *   **DTOs**: Dedicated DTOs for API requests/responses.
     *   **Seeders**: `CommandLineRunner` in `catalog-service` to init data.
     *   **Stateless**: No server-side sessions. All auth is via Bearer Tokens (JWT).
 
-## Implementation Status (Phase 2 Complete)
-*   [x] **Identity Service**: Full JWT Implementation (Register/Login). Port 8081.
-*   [x] **Catalog Service**: Entities Management + Data Seeder. Port 8082.
-*   [x] **Sales Service**: Order Creation + Customer Resolution. Port 8083.
+## Implementation Status
+*   [x] **Identity Service**: Refactored to Hexagonal. Login/Register active.
+*   [x] **Catalog Service**: Refactored to Hexagonal. Seeding active.
+*   [x] **Sales Service**: Refactored to Hexagonal. Order Processing active.
 *   [ ] **Operations Service**: Pending implementation.

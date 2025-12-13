@@ -52,7 +52,14 @@ Following the "Bounded Context" advice, we will **NOT** have a single shared "Pe
 *   **Structure**: Maven Multi-Module Project initialized.
 *   **Modules**: `identity-service`, `catalog-service`, `sales-service`, `operations-service` scaffolds created.
 
-### Phase 3: Frontend Implementation (NextJS) [IN PROGRESS]
+### Phase 3: Backend Refactor (Hexagonal Architecture) [COMPLETED]
+*   **Goal**: Decouple Domain Logic from Infrastructure (Spring/JPA) using Ports & Adapters.
+*   **Changes**:
+    *   Moved to **JDK 21**.
+    *   Refactored `identity-service`, `catalog-service`, and `sales-service`.
+    *   Implemented Repository Ports and Persistence Adapters.
+
+### Phase 4: Frontend Implementation (NextJS) [IN PROGRESS]
 1.  **Design System**: [Done] Tailwind theme, Fonts (Inter/Outfit), and Global CSS.
 2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
 3.  **Auth Integration**: [Pending] Login screens consuming Identity Service.
