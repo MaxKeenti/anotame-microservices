@@ -32,27 +32,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (creds: LoginRequest) => {
     setIsLoading(true);
-    // TODO: Replace with actual API call to identity-service
-    // Mock Login Logic
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate latency
-    
-    const mockUser: User = {
-      id: "uuid-123",
-      username: creds.username,
-      email: "demo@anotame.com",
-      role: "ADMIN",
-      firstName: "Admin",
-      lastName: "User",
-    };
-    
-    const mockToken = "jwt-token-placeholder";
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(creds),
+      });
 
-    localStorage.setItem("token", mockToken);
-    localStorage.setItem("user", JSON.stringify(mockUser));
-    setUser(mockUser);
-    
-    setIsLoading(false);
-    router.push("/dashboard");
+      if (!res.ok) {
+        throw new Error("Login failed");
+      }
+
+      const data: { token: string } = await res.json();
+      const token = data.token;
+      
+      // Store token
+      localStorage.setItem("token", token);
+      
+      // In a real app, we would decode the token to get user details
+      // For now, we'll set a placeholder user based on the username
+      const userObj: User = {
+        id: "placeholder-id",
+        username: creds.username,
+        email: "user@anotame.com",
+        role: "EMPLOYEE", // Default
+        firstName: creds.username,
+        lastName: "",
+      };
+      
+      localStorage.setItem("user", JSON.stringify(userObj));
+      setUser(userObj);
+      
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Invalid credentials");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {

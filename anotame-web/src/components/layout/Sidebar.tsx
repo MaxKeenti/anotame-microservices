@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
   { name: "Overview", href: "/dashboard", icon: "Home" },
@@ -13,6 +14,7 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   return (
     <aside className="w-64 bg-card border-r border-border h-screen flex flex-col fixed left-0 top-0">
@@ -43,7 +45,10 @@ export function Sidebar() {
       </nav>
       
       <div className="p-4 border-t border-border">
-        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
+        <button 
+          onClick={logout}
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+        >
           Log Out
         </button>
       </div>
