@@ -62,8 +62,9 @@ public class SalesService {
     }
 
     private Customer resolveCustomer(CustomerDto dto) {
-        if (dto.getId() != null) {
-            return customerRepository.findById(dto.getId())
+        UUID customerId = dto.getId();
+        if (customerId != null) {
+            return customerRepository.findById(customerId)
                     .orElseThrow(() -> new RuntimeException("Customer not found"));
         }
 
