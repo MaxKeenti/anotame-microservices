@@ -19,7 +19,8 @@ CREATE TABLE cca_role (
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ -- Soft Delete
+    deleted_at TIMESTAMPTZ, -- Soft Delete
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 -- Service/Repair (cci_service)
@@ -33,7 +34,8 @@ CREATE TABLE cci_service (
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 -- Garment Type (cci_garment_type)
@@ -45,7 +47,8 @@ CREATE TABLE cci_garment_type (
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 -- =========================================================================================
@@ -81,6 +84,7 @@ CREATE TABLE tce_establishment (
     name VARCHAR(150) NOT NULL,
     tax_info JSONB, -- { "rfc": "...", "regime": "..." }
     owner_name VARCHAR(150),
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     deleted_at TIMESTAMPTZ
@@ -93,6 +97,7 @@ CREATE TABLE tce_branch (
     name VARCHAR(150) NOT NULL,
     location GEOMETRY(Point, 4326),
     timezone VARCHAR(50) DEFAULT 'America/Mexico_City',
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     deleted_at TIMESTAMPTZ
@@ -202,6 +207,11 @@ CREATE TABLE tco_item_service (
 -- =========================================================================================
 -- INDEXES & SEEDS
 -- =========================================================================================
+-- Seed Establishment
+INSERT INTO tce_establishment (id_establishment, name, is_active) VALUES ('b8c6e2a1-7d3f-4e5a-9c8b-1a2f3d4e5f6a', 'Anotame Inc.', true);
+
+-- Seed Branch
+INSERT INTO tce_branch (id_branch, id_establishment, name, is_active) VALUES ('ea22f4a4-5504-43d9-92f9-30cc17b234d1', 'b8c6e2a1-7d3f-4e5a-9c8b-1a2f3d4e5f6a', 'Main Branch', true);
 
 CREATE INDEX idx_order_customer ON tco_order(id_customer);
 CREATE INDEX idx_order_status ON tco_order(current_status);

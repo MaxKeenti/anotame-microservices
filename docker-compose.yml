@@ -7,11 +7,11 @@ services:
     container_name: anotame-db
     restart: always
     environment:
-      POSTGRES_USER: admin           # TODO: Move to .env for production
-      POSTGRES_PASSWORD: password    # TODO: Move to .env for production
+      POSTGRES_USER: admin # TODO: Move to .env for production
+      POSTGRES_PASSWORD: password # TODO: Move to .env for production
       POSTGRES_DB: anotame
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       # Mount the init script to automatically create the schema on first run
       - ./anotame-db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -19,7 +19,7 @@ services:
     networks:
       - anotame-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d anotame"]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d anotame" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,38 +41,87 @@ services:
     depends_on:
       anotame-db:
         condition: service_healthy
-
   # ========================================================================================
-  # BACKEND API (Spring Boot) - Placeholder
+  # BACKEND MICROSERVICES
   # ========================================================================================
-  # anotame-api:
-  #   build: ./anotame-api
-  #   container_name: anotame-api
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
-  #     SPRING_DATASOURCE_USERNAME: admin
-  #     SPRING_DATASOURCE_PASSWORD: password
-  #   networks:
-  #     - anotame-network
-  #   depends_on:
-  #     anotame-db:
-  #       condition: service_healthy
+  identity-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: identity-service/Dockerfile
+    container_name: identity-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
 
+  catalog-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: catalog-service/Dockerfile
+    container_name: catalog-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
+
+  sales-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: sales-service/Dockerfile
+    container_name: sales-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
   # ========================================================================================
   # FRONTEND (NextJS) - Placeholder
   # ========================================================================================
-  # anotame-web:
-  #   build: ./anotame-web
-  #   container_name: anotame-web
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - anotame-network
+  anotame-web:
+    build:
+      context: ./anotame-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_IDENTITY_URL: http://localhost:8081
+        NEXT_PUBLIC_CATALOG_URL: http://localhost:8082
+        NEXT_PUBLIC_SALES_URL: http://localhost:8083
+    container_name: anotame-web
+    ports:
+      - "3000:3000"
+    networks:
+      - anotame-network
+    depends_on:
+      - identity-service
+      - catalog-service
+      - sales-service
 
 volumes:
   postgres_data:
+
 
 networks:
   anotame-network:

@@ -1,35 +1,50 @@
 # Anotame API Architecture (Spring Boot)
 
 ## Technology Stack
-*   **Language**: Java 17+
-*   **Framework**: Spring Boot 3
-*   **Data Access**: Spring Data JPA
-*   **Security**: Spring Security + JWT
-*   **Build Tool**: Maven
+*   **Language**: Java 21+
+*   **Framework**: Spring Boot 3.2.3
+*   **Build Tool**: Maven (Multi-Module Project)
+*   **Database**: PostgreSQL 16 + PostGIS
 
-## Microservices Breakdown
+## Project Modules (`anotame-api/backend`)
 
-### 1. Identity Service (`identity-service`)
+### 1. Parent (`anotame-parent`)
+*   Manages versioning and common dependencies (Lombok, Spring Cloud, JPA).
+
+### 2. Identity Service (`identity-service`)
+*   **Port**: 8081 (default)
 *   **Responsibility**: Authentication, Authorization, User Management.
 *   **Entities**: `tca_user` (Users), `cca_role` (Roles).
-*   **Endpoints**: `/auth/login`, `/auth/refresh`, `/users`.
+*   **Architecture**: Hexagonal (Ports & Adapters).
 
-### 2. Catalog Service (`catalog-service`)
-*   **Responsibility**: Managing the "Menu" of services and garments. Read-heavy.
-*   **Entities**: `cci_service` (Repairs), `cci_garment_type` (Pants, Shirts).
-*   **Endpoints**: `/catalog/services`, `/catalog/garments`.
+### 3. Catalog Service (`catalog-service`)
+*   **Port**: 8082
+*   **Responsibility**: Managing the "Menu" of services and garments.
+*   **Entities**: `GarmentType` (code, name), `Service` (price, duration).
+*   **Architecture**: Hexagonal (Ports & Adapters).
+*   **Endpoints**:
+    *   `GET /catalog/garments`: List active garment types.
+    *   `GET /catalog/services`: List active services/repairs.
 
-### 3. Sales Service (`sales-service`)
-*   **Responsibility**: Core transactional logic. Managing Customers (CRM) and Orders.
+### 4. Sales Service (`sales-service`)
+*   **Port**: 8083
+*   **Responsibility**: Core transactional logic (Orders, Customers).
 *   **Entities**: `tco_order` (The Ticket), `tco_customer` (The Client Profile), `tco_order_history` (Workflow).
-*   **Endpoints**: `/orders` (Create/Track), `/customers` (CRM).
+*   **Architecture**: Hexagonal (Ports & Adapters).
 
-### 4. Operations Service (`operations-service`)
+### 5. Operations Service (`operations-service`)
+*   **Port**: 8084
 *   **Responsibility**: Managing physical stores and staff assignments.
 *   **Entities**: `tce_establishment`, `tce_branch`, `tce_employee_assignment`.
-*   **Endpoints**: `/branches`, `/staff`.
 
-## Architecture patterns
-*   **Controller-Service-Repository**: Standard Spring layering.
-*   **DTOs**: Never expose Entities directly. Use Request/Response DTOs.
-*   **Stateless**: No server-side sessions. All auth is via Bearer Tokens (JWT).
+*   **Architecture Patterns**:
+    *   **Hexagonal Architecture**: Domain logic decoupled from Frameworks/DB via Ports & Adapters.
+    *   **DTOs**: Dedicated DTOs for API requests/responses.
+    *   **Seeders**: `CommandLineRunner` in `catalog-service` to init data.
+    *   **Stateless**: No server-side sessions. All auth is via Bearer Tokens (JWT).
+
+## Implementation Status
+*   [x] **Identity Service**: Refactored to Hexagonal. Login/Register active.
+*   [x] **Catalog Service**: Refactored to Hexagonal. Seeding active.
+*   [x] **Sales Service**: Refactored to Hexagonal. Order Processing active.
+*   [ ] **Operations Service**: Pending implementation.

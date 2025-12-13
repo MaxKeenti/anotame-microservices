@@ -43,19 +43,25 @@ Following the "Bounded Context" advice, we will **NOT** have a single shared "Pe
 
 ## 3. Implementation Roadmap
 
-### Phase 1: Database Design & Core Setup
-1.  **Schema Definition**: Create `anotame-db/init.sql` implementing the Bounded Context schema with `UUID` and `deleted_at`.
-2.  **Repo Setup**: Initialize the multi-module structure.
+### Phase 1: Database Design & Core Setup [COMPLETED]
+1.  **Schema Definition**: `anotame-db/init.sql` created with Bounded Contexts, UUIDs, and Soft Deletes.
+2.  **Repo Structure**: Monorepo established.
+3.  **Infrastructure**: `docker-compose.yml` running Postgres + PostGIS.
 
-### Phase 2: Backend Microservices (Spring Boot)
-| Service | Responsibility | key Domains |
-| :--- | :--- | :--- |
-| **Identity Service** | Auth, Internal Users (Employees/Admins). | `tca_user`, `tca_role` |
-| **Catalog Service** | Services (Arreglos), Garment Types, Prices. | `cci_service`, `cci_garment` |
-| **Operations Service** | Branches, Employees, Schedules. | `tce_branch`, `tce_establishment` |
-| **Sales Service** | Customers, Orders, Garments, Order History. | `tco_order`, `tco_customer` |
+### Phase 2: Backend Microservices (Spring Boot) [COMPLETED]
+*   **Structure**: Maven Multi-Module Project initialized.
+*   **Modules**: `identity-service`, `catalog-service`, `sales-service`, `operations-service` scaffolds created.
 
-### Phase 3: Frontend Implementation (NextJS)
-1.  **Design System**: Setup Tailwind and basic Layouts.
-2.  **Auth Integration**: Login screens consuming Identity Service.
-3.  **Dashboard**: Operations views consuming the microservices.
+### Phase 3: Backend Refactor (Hexagonal Architecture) [COMPLETED]
+*   **Goal**: Decouple Domain Logic from Infrastructure (Spring/JPA) using Ports & Adapters.
+*   **Changes**:
+    *   Moved to **JDK 21**.
+    *   Refactored `identity-service`, `catalog-service`, and `sales-service`.
+    *   Implemented Repository Ports and Persistence Adapters.
+
+### Phase 4: Frontend Implementation (NextJS) [IN PROGRESS]
+1.  **Design System**: [Done] Tailwind theme, Fonts (Inter/Outfit), and Global CSS.
+2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
+3.  **Auth Integration**: [Done] Login & Register screens consuming Identity Service.
+4.  **Dashboard**: [Done] Operations views (KPIs, Recent Orders) consuming microservices.
+5.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
