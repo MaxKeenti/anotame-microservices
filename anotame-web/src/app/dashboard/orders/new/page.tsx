@@ -240,13 +240,19 @@ RESTANTE: $${calculateBalance().toFixed(2)}
 
   if (createdOrderTicket) {
       return (
-          <div className="max-w-md mx-auto space-y-6 pt-10 text-center">
-              <h1 className="text-3xl font-bold text-green-600">Order Created!</h1>
-              <p className="text-xl">Ticket: {createdOrderTicket}</p>
-              <div className="flex justify-center gap-4">
-                  <Button size="lg" onClick={handlePrint}>Print Ticket</Button>
-                  <Button variant="outline" onClick={() => router.push("/dashboard")}>Go to Dashboard</Button>
-              </div>
+          <div className="max-w-md mx-auto pt-10">
+              <Card>
+                  <CardHeader>
+                      <CardTitle className="text-center text-green-600 text-3xl">Order Created!</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6 text-center">
+                      <p className="text-xl">Ticket: <span className="font-mono font-bold">{createdOrderTicket}</span></p>
+                      <div className="flex justify-center gap-4">
+                          <Button size="lg" onClick={handlePrint}>Print Ticket</Button>
+                          <Button variant="outline" onClick={() => router.push("/dashboard")}>Go to Dashboard</Button>
+                      </div>
+                  </CardContent>
+              </Card>
           </div>
       );
   }

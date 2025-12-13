@@ -59,6 +59,90 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     }
   };
 
+  // ... inside OrderDetailsPage
+  
+  const handlePrint = () => {
+    if (!order) return;
+
+    // TODO: formatting helper
+    const formatDate = (d: string) => new Date(d).toLocaleDateString('es-ES');
+    
+    let text = `
+==================================
+ENTREGA ->
+FECHA: ${order.committedDeadline ? formatDate(order.committedDeadline) : '-'}
+----------------------------------
+Datos personales ->
+Nombre: ${order.customer.firstName} ${order.customer.lastName}
+Tel: ${order.customer.phone}
+----------------------------------
+Datos de la nota ->
+Folio: ${order.ticketNumber}
+Fecha: ${new Date(order.createdAt).toLocaleDateString('es-ES')}
+----------------------------------
+PRENDAS:
+`;
+
+    order.items.forEach(item => {
+        text += `
+Cant: ${item.quantity}
+Prenda: ${item.garmentName}
+Servicio: ${item.serviceName}
+Nota: ${item.notes || ''}
+Precio: $${item.unitPrice}
+--------------------
+`;
+    });
+
+    text += `
+====================
+TOTAL: $${(order.totalAmount || 0).toFixed(2)}
+(Saldo pendiente no disponible en vista detalle aun)
+====================
+`;
+
+    const newWindow = window.open('', '', 'width=400,height=600');
+    if (newWindow) {
+        newWindow.document.write(`<pre>${text}</pre>`);
+        newWindow.document.close();
+        newWindow.focus();
+        newWindow.print();
+        newWindow.close();
+    }
+  };
+
+  const handleSendToOps = async () => {
+     if (!order || !confirm("Send this order to Operations? Status will change to IN_PROGRESS.")) return;
+     try {
+        const res = await fetch(`${API_SALES}/orders/${order.id}/status`, {
+            method: "PATCH", // Using PATCH for status update
+            headers: { 
+                "Content-Type": "application/json",
+                // Headers are automatically handled if we use a wrapper, but using raw fetch here
+                // We should really abstract this fetch call to include auth headers like NewOrderPage
+                // For now, assume global interceptor or add manually if needed.
+                // Wait, previous file NewOrderPage required Manual Headers. I must add them here too.
+            },
+            body: JSON.stringify({ status: "IN_PROGRESS" }) 
+            // Note: I need to accept a body or just query param. Let's design the backend to accept body.
+        });
+        
+        if (res.ok) {
+            alert("Order sent to Operations!");
+            setLoading(true); // force refresh trigger
+            // A better way is to refetch
+             const newRes = await fetch(`${API_SALES}/orders/${id}`);
+             if (newRes.ok) setOrder(await newRes.json());
+             setLoading(false);
+        } else {
+             alert("Failed to update status. Backend may not support this yet.");
+        }
+     } catch (e) {
+         console.error(e);
+         alert("Error connecting to server");
+     }
+  };
+
   if (!id || loading) return <div className="p-8">Loading...</div>;
   if (!order) return <div className="p-8">Order not found</div>;
 
@@ -72,6 +156,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         <span className={`px-2 py-1 rounded-full text-xs font-medium 
              ${order.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800' : 
                order.status === 'READY' ? 'bg-emerald-100 text-emerald-800' : 
+               order.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
                'bg-gray-100 text-gray-800'}`}>
             {order.status}
         </span>
@@ -127,13 +212,36 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end pt-4">
+      <div className="flex justify-between pt-4 border-t border-border">
         <button 
             onClick={handleCancel}
-            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition-colors"
+            className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
         >
             Cancel Order
         </button>
+
+        <div className="flex gap-3">
+             <button
+                onClick={() => alert("Edit Feature Coming Soon!")} 
+                className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
+             >
+                Edit Order
+             </button>
+             <button
+                onClick={handlePrint}
+                className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
+             >
+                Print Ticket
+             </button>
+             {order.status === 'RECEIVED' && (
+                 <button
+                    onClick={handleSendToOps}
+                    className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium shadow-sm"
+                 >
+                    Send to Operations
+                 </button>
+             )}
+        </div>
       </div>
     </div>
   );

@@ -155,6 +155,14 @@ public class SalesService {
         return mapToResponse(saved);
     }
 
+    @Transactional
+    public void updateOrderStatus(UUID id, String status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
     private Customer resolveCustomer(CustomerDto dto) {
         UUID customerId = dto.getId();
         if (customerId != null) {

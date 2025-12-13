@@ -47,4 +47,13 @@ public class OrdersController {
         salesService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+    @org.springframework.web.bind.annotation.PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(
+            @org.springframework.web.bind.annotation.PathVariable java.util.UUID id,
+            @RequestBody java.util.Map<String, String> payload) {
+        String status = payload.get("status");
+        salesService.updateOrderStatus(id, status);
+        return ResponseEntity.ok().build();
+    }
 }
