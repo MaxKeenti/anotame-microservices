@@ -6,10 +6,10 @@ import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
   { name: "Overview", href: "/dashboard", icon: "Home" },
-  { name: "New Order", href: "/dashboard/orders/new", icon: "PlusCircle" },
-  { name: "Active Orders", href: "/dashboard/orders", icon: "ClipboardList" },
-  { name: "Customers", href: "/dashboard/customers", icon: "Users" },
-  { name: "Services", href: "/dashboard/services", icon: "Tag" },
+  { name: "Orders", href: "/dashboard/orders", icon: "ClipboardList" },
+  { name: "Work Orders", href: "/dashboard/operations", icon: "Activity" },
+  { name: "Garments", href: "/dashboard/catalog/garments", icon: "Shirt" },
+  { name: "Services", href: "/dashboard/catalog/services", icon: "Tag" },
 ];
 
 export function Sidebar() {

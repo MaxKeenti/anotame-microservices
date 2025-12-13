@@ -61,3 +61,34 @@ export interface OrderResponse {
     items: OrderItemResponse[];
     createdAt: string;
 }
+
+export interface GarmentTypeRequest {
+  code: string;
+  name: string;
+  description: string;
+}
+
+export interface ServiceRequest {
+  code: string;
+  name: string;
+  description: string;
+  defaultDurationMin: number;
+  basePrice: number;
+}
+
+export interface WorkOrderItem {
+    id: string;
+    salesOrderItemId: string;
+    serviceName: string;
+    currentStage: string;
+    notes: string;
+}
+
+export interface WorkOrder {
+    id: string;
+    salesOrderId: string;
+    status: string; // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+    items: WorkOrderItem[];
+    createdAt: string;
+    updatedAt: string;
+}
