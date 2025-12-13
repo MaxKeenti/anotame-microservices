@@ -10,4 +10,6 @@ public class CreateOrderRequest {
     private List<OrderItemDto> items;
     private LocalDateTime committedDeadline;
     private String notes;
+    private java.math.BigDecimal amountPaid;
+    private String paymentMethod;
 }

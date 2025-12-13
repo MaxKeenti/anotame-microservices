@@ -55,6 +55,12 @@ public class Order {
     @Column(name = "notes")
     private String notes;
 
+    @Column(name = "amount_paid", precision = 19, scale = 4)
+    private BigDecimal amountPaid = BigDecimal.ZERO;
+
+    @Column(name = "payment_method")
+    private String paymentMethod; // CASH, CARD, TRANSFER
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
