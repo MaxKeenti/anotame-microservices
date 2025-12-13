@@ -34,7 +34,14 @@
 *   **Responsibility**: Managing physical stores and staff assignments.
 *   **Entities**: `tce_establishment`, `tce_branch`, `tce_employee_assignment`.
 
-## Architecture patterns
-*   **Controller-Service-Repository**: Standard Spring layering.
-*   **DTOs**: Never expose Entities directly. Use Request/Response DTOs.
-*   **Stateless**: No server-side sessions. All auth is via Bearer Tokens (JWT).
+*   **Architecture Patterns**:
+    *   **Controller-Service-Repository**: Standard Spring layering.
+    *   **DTOs**: Dedicated DTOs for API requests/responses.
+    *   **Seeders**: `CommandLineRunner` in `catalog-service` to init data.
+    *   **Stateless**: No server-side sessions. All auth is via Bearer Tokens (JWT).
+
+## Implementation Status (Phase 2 Complete)
+*   [x] **Identity Service**: Full JWT Implementation (Register/Login). Port 8081.
+*   [x] **Catalog Service**: Entities Management + Data Seeder. Port 8082.
+*   [x] **Sales Service**: Order Creation + Customer Resolution. Port 8083.
+*   [ ] **Operations Service**: Pending implementation.

@@ -27,11 +27,11 @@
 
 ## Key Features
 1.  **Authentication (JWT)**:
-    *   `AuthContext`: Global state for User/Token.
-    *   `AuthProvider`: Wraps RootLayout.
-    *   `/login`: Custom login page with redirect logic.
+    *   `AuthContext`: Connects to `identity-service` (Port 8081) for real login.
+    *   `AuthProvider`: Manages Token storage (localStorage) and Router protection.
+    *   `/login`: Functional Login Form.
 2.  **Dashboard**:
-    *   `/dashboard`: Overview with KPIs (Revenue, Orders).
-    *   `/dashboard/orders/new`: Complex form for creating tickets.
+    *   `/dashboard`: Overview with KPIs.
+    *   `/dashboard/orders/new`: Full integration with `catalog-service` (Port 8082) for fetching items and `sales-service` (Port 8083) for submitting orders.
 3.  **Layouts**: `DashboardLayout` provides persistent Sidebar and Header.
 4.  **Responsiveness**: Mobile-first design using standard Tailwind breakpoints.
