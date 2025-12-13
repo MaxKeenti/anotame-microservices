@@ -24,11 +24,17 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
 
     @Override
     public Optional<GarmentType> findById(UUID id) {
+        if (id == null) {
+            return Optional.empty();
+        }
         return repository.findById(id);
     }
 
     @Override
     public GarmentType save(GarmentType garmentType) {
+        if (garmentType == null) {
+            return null;
+        }
         return repository.save(garmentType);
     }
 }

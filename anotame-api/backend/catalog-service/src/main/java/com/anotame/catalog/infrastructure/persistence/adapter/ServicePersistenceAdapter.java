@@ -24,11 +24,17 @@ public class ServicePersistenceAdapter implements ServiceRepositoryPort {
 
     @Override
     public Optional<Service> findById(UUID id) {
+        if (id == null) {
+            return Optional.empty();
+        }
         return repository.findById(id);
     }
 
     @Override
     public Service save(Service service) {
+        if (service == null) {
+            return null;
+        }
         return repository.save(service);
     }
 }

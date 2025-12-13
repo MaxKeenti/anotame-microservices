@@ -13,6 +13,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
 
     @Override
     public Order save(Order order) {
+        if (order == null) {
+            return null;
+        }
         return orderRepository.save(order);
     }
 }

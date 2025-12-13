@@ -16,16 +16,25 @@ public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
     @Override
     public Optional<Customer> findById(UUID id) {
+        if (id == null) {
+            return Optional.empty();
+        }
         return customerRepository.findById(id);
     }
 
     @Override
     public Optional<Customer> findByEmail(String email) {
+        if (email == null) {
+            return Optional.empty();
+        }
         return customerRepository.findByEmail(email);
     }
 
     @Override
     public Customer save(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
         return customerRepository.save(customer);
     }
 }
