@@ -21,18 +21,30 @@ public class WorkOrderPersistenceAdapter implements WorkOrderRepositoryPort {
 
     @Override
     public WorkOrder save(WorkOrder workOrder) {
+        if (workOrder == null) {
+            return null;
+        }
         WorkOrderJpa entity = toJpa(workOrder);
+        if (entity == null) {
+            return null;
+        }
         WorkOrderJpa savedEntity = workOrderRepository.save(entity);
         return toDomain(savedEntity);
     }
 
     @Override
     public Optional<WorkOrder> findById(UUID id) {
+        if (id == null) {
+            return Optional.empty();
+        }
         return workOrderRepository.findById(id).map(this::toDomain);
     }
 
     @Override
     public Optional<WorkOrder> findBySalesOrderId(UUID salesOrderId) {
+        if (salesOrderId == null) {
+            return Optional.empty();
+        }
         return workOrderRepository.findBySalesOrderId(salesOrderId).map(this::toDomain);
     }
 
