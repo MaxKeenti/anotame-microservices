@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User, LoginRequest } from "@/types/auth";
+import { User, LoginRequest, RegisterRequest } from "@/types/auth";
 import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (creds: LoginRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -72,6 +73,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const register = async (data: RegisterRequest) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        throw new Error("Registration failed");
+      }
+
+      const resData: { token: string } = await res.json();
+      const token = resData.token;
+      
+      localStorage.setItem("token", token);
+      
+      const userObj: User = {
+        id: "placeholder-id", // In real app, unwrap token
+        username: data.username,
+        email: data.email,
+        role: "EMPLOYEE",
+        firstName: data.firstName,
+        lastName: data.lastName,
+      };
+      
+      localStorage.setItem("user", JSON.stringify(userObj));
+      setUser(userObj);
+      
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error; // Let component handle UI error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -80,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

@@ -30,6 +30,7 @@
     *   `AuthContext`: Connects to `identity-service` (Port 8081) for real login.
     *   `AuthProvider`: Manages Token storage (localStorage) and Router protection.
     *   `/login`: Functional Login Form.
+    *   `/register`: Functional Registration Form.
 2.  **Dashboard**:
     *   `/dashboard`: Overview with KPIs.
     *   `/dashboard/orders/new`: Full integration with `catalog-service` (Port 8082) for fetching items and `sales-service` (Port 8083) for submitting orders.
