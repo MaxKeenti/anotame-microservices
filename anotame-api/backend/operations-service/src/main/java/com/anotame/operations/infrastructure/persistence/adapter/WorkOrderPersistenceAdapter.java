@@ -48,6 +48,20 @@ public class WorkOrderPersistenceAdapter implements WorkOrderRepositoryPort {
         return workOrderRepository.findBySalesOrderId(salesOrderId).map(this::toDomain);
     }
 
+    @Override
+    public java.util.List<WorkOrder> findAll() {
+        return workOrderRepository.findAll().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void delete(UUID id) {
+        if (id != null) {
+            workOrderRepository.deleteById(id);
+        }
+    }
+
     // Mappers
     private WorkOrderJpa toJpa(WorkOrder domain) {
         WorkOrderJpa entity = new WorkOrderJpa();

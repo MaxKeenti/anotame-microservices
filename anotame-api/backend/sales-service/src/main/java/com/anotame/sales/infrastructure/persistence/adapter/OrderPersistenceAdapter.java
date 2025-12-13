@@ -23,4 +23,23 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     public java.util.List<Order> findAll() {
         return orderRepository.findAll();
     }
+
+    @Override
+    public java.util.Optional<Order> findById(java.util.UUID id) {
+        if (id == null) {
+            return java.util.Optional.empty();
+        }
+        return orderRepository.findById(id);
+    }
+
+    @Override
+    public void delete(java.util.UUID id) {
+        if (id != null) {
+            orderRepository.findById(id).ifPresent(order -> {
+                order.setDeleted(true);
+                order.setDeletedAt(java.time.LocalDateTime.now());
+                orderRepository.save(order);
+            });
+        }
+    }
 }

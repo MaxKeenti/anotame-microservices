@@ -28,4 +28,23 @@ public class OrdersController {
     public ResponseEntity<java.util.List<com.anotame.sales.application.dto.OrderResponse>> getOrders() {
         return ResponseEntity.ok(salesService.getAllOrders());
     }
+
+    @org.springframework.web.bind.annotation.GetMapping("/{id}")
+    public ResponseEntity<com.anotame.sales.application.dto.OrderResponse> getOrder(
+            @org.springframework.web.bind.annotation.PathVariable java.util.UUID id) {
+        return ResponseEntity.ok(salesService.getOrder(id));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/{id}")
+    public ResponseEntity<com.anotame.sales.application.dto.OrderResponse> updateOrder(
+            @org.springframework.web.bind.annotation.PathVariable java.util.UUID id,
+            @RequestBody CreateOrderRequest request) {
+        return ResponseEntity.ok(salesService.updateOrder(id, request));
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrder(@org.springframework.web.bind.annotation.PathVariable java.util.UUID id) {
+        salesService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
+    }
 }

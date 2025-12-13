@@ -11,4 +11,6 @@ public interface GarmentRepositoryPort {
     Optional<GarmentType> findById(UUID id);
 
     GarmentType save(GarmentType garmentType);
+
+    void delete(UUID id);
 }

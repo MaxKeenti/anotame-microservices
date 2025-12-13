@@ -37,4 +37,14 @@ public class ServicePersistenceAdapter implements ServiceRepositoryPort {
         }
         return repository.save(service);
     }
+
+    @Override
+    public void delete(UUID id) {
+        if (id != null) {
+            repository.findById(id).ifPresent(service -> {
+                service.setActive(false);
+                repository.save(service);
+            });
+        }
+    }
 }

@@ -6,4 +6,8 @@ public interface OrderRepositoryPort {
     Order save(Order order);
 
     java.util.List<Order> findAll();
+
+    java.util.Optional<Order> findById(java.util.UUID id);
+
+    void delete(java.util.UUID id);
 }

@@ -103,6 +103,58 @@ public class SalesService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public com.anotame.sales.application.dto.OrderResponse getOrder(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return mapToResponse(order);
+    }
+
+    @Transactional
+    public void deleteOrder(UUID id) {
+        orderRepository.delete(id);
+    }
+
+    @Transactional
+    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, CreateOrderRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Update fields
+        if (request.getNotes() != null) {
+            order.setNotes(request.getNotes());
+        }
+        if (request.getCommittedDeadline() != null) {
+            order.setCommittedDeadline(request.getCommittedDeadline());
+        }
+
+        // For items, we replace them
+        // Note: This is a heavy operation, effectively replacing the order content
+        order.getItems().clear();
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (OrderItemDto itemDto : request.getItems()) {
+            OrderItem item = new OrderItem();
+            item.setGarmentTypeId(itemDto.getGarmentTypeId());
+            item.setGarmentName(itemDto.getGarmentName());
+            item.setServiceId(itemDto.getServiceId());
+            item.setServiceName(itemDto.getServiceName());
+            item.setUnitPrice(itemDto.getUnitPrice());
+            item.setQuantity(itemDto.getQuantity());
+            item.setNotes(itemDto.getNotes());
+
+            BigDecimal subtotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setSubtotal(subtotal);
+
+            order.addItem(item);
+            total = total.add(subtotal);
+        }
+        order.setTotalAmount(total);
+
+        Order saved = orderRepository.save(order);
+        return mapToResponse(saved);
+    }
+
     private Customer resolveCustomer(CustomerDto dto) {
         UUID customerId = dto.getId();
         if (customerId != null) {

@@ -39,6 +39,52 @@ public class CatalogController {
         return ResponseEntity.ok(response);
     }
 
+    // --- Garments ---
+
+    @org.springframework.web.bind.annotation.PostMapping("/garments")
+    public ResponseEntity<GarmentTypeResponse> createGarment(
+            @org.springframework.web.bind.annotation.RequestBody com.anotame.catalog.dto.GarmentTypeRequest request) {
+        GarmentType created = catalogService.createGarment(request);
+        return ResponseEntity.ok(mapToGarmentDto(created));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/garments/{id}")
+    public ResponseEntity<GarmentTypeResponse> updateGarment(
+            @org.springframework.web.bind.annotation.PathVariable java.util.UUID id,
+            @org.springframework.web.bind.annotation.RequestBody com.anotame.catalog.dto.GarmentTypeRequest request) {
+        GarmentType updated = catalogService.updateGarment(id, request);
+        return ResponseEntity.ok(mapToGarmentDto(updated));
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/garments/{id}")
+    public ResponseEntity<Void> deleteGarment(@org.springframework.web.bind.annotation.PathVariable java.util.UUID id) {
+        catalogService.deleteGarment(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // --- Services ---
+
+    @org.springframework.web.bind.annotation.PostMapping("/services")
+    public ResponseEntity<ServiceResponse> createService(
+            @org.springframework.web.bind.annotation.RequestBody com.anotame.catalog.dto.ServiceRequest request) {
+        Service created = catalogService.createService(request);
+        return ResponseEntity.ok(mapToServiceDto(created));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/services/{id}")
+    public ResponseEntity<ServiceResponse> updateService(
+            @org.springframework.web.bind.annotation.PathVariable java.util.UUID id,
+            @org.springframework.web.bind.annotation.RequestBody com.anotame.catalog.dto.ServiceRequest request) {
+        Service updated = catalogService.updateService(id, request);
+        return ResponseEntity.ok(mapToServiceDto(updated));
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/services/{id}")
+    public ResponseEntity<Void> deleteService(@org.springframework.web.bind.annotation.PathVariable java.util.UUID id) {
+        catalogService.deleteService(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // Simple Mappers (Can be replaced by MapStruct later)
     private GarmentTypeResponse mapToGarmentDto(GarmentType entity) {
         GarmentTypeResponse dto = new GarmentTypeResponse();

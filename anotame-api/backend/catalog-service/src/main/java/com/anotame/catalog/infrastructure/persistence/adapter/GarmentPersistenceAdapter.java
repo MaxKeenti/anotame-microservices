@@ -37,4 +37,14 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
         }
         return repository.save(garmentType);
     }
+
+    @Override
+    public void delete(UUID id) {
+        if (id != null) {
+            repository.findById(id).ifPresent(garment -> {
+                garment.setActive(false);
+                repository.save(garment);
+            });
+        }
+    }
 }

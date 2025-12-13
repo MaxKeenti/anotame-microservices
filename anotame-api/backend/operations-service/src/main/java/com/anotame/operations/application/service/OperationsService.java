@@ -43,4 +43,12 @@ public class OperationsService {
         workOrder.setUpdatedAt(LocalDateTime.now());
         return workOrderRepositoryPort.save(workOrder);
     }
+
+    public List<WorkOrder> getAllWorkOrders() {
+        return workOrderRepositoryPort.findAll();
+    }
+
+    public void deleteWorkOrder(UUID id) {
+        workOrderRepositoryPort.delete(id);
+    }
 }

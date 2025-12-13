@@ -43,4 +43,15 @@ public class OperationsController {
     public ResponseEntity<WorkOrder> updateStatus(@PathVariable UUID id, @RequestParam String status) {
         return ResponseEntity.ok(operationsService.updateStatus(id, status));
     }
+
+    @GetMapping
+    public ResponseEntity<List<WorkOrder>> getAllWorkOrders() {
+        return ResponseEntity.ok(operationsService.getAllWorkOrders());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWorkOrder(@PathVariable UUID id) {
+        operationsService.deleteWorkOrder(id);
+        return ResponseEntity.noContent().build();
+    }
 }

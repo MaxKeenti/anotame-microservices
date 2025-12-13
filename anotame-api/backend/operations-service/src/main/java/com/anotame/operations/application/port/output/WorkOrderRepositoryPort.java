@@ -10,4 +10,8 @@ public interface WorkOrderRepositoryPort {
     Optional<WorkOrder> findById(UUID id);
 
     Optional<WorkOrder> findBySalesOrderId(UUID salesOrderId);
+
+    java.util.List<WorkOrder> findAll();
+
+    void delete(UUID id);
 }
