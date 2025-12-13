@@ -64,6 +64,10 @@ public class SalesService {
         return orderRepository.save(order);
     }
 
+    public java.util.List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
     private Customer resolveCustomer(CustomerDto dto) {
         UUID customerId = dto.getId();
         if (customerId != null) {

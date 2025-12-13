@@ -18,4 +18,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         }
         return orderRepository.save(order);
     }
+
+    @Override
+    public java.util.List<Order> findAll() {
+        return orderRepository.findAll();
+    }
 }

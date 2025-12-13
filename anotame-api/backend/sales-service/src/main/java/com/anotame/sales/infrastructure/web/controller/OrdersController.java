@@ -23,4 +23,9 @@ public class OrdersController {
         Order nOrder = salesService.createOrder(request, username);
         return ResponseEntity.ok(nOrder);
     }
+
+    @org.springframework.web.bind.annotation.GetMapping
+    public ResponseEntity<java.util.List<Order>> getOrders() {
+        return ResponseEntity.ok(salesService.getAllOrders());
+    }
 }
