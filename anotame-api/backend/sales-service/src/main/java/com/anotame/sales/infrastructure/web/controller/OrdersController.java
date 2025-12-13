@@ -25,7 +25,7 @@ public class OrdersController {
     }
 
     @org.springframework.web.bind.annotation.GetMapping
-    public ResponseEntity<java.util.List<Order>> getOrders() {
+    public ResponseEntity<java.util.List<com.anotame.sales.application.dto.OrderResponse>> getOrders() {
         return ResponseEntity.ok(salesService.getAllOrders());
     }
 }

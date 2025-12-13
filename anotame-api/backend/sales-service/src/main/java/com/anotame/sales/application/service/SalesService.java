@@ -64,8 +64,43 @@ public class SalesService {
         return orderRepository.save(order);
     }
 
-    public java.util.List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    @Transactional(readOnly = true)
+    public java.util.List<com.anotame.sales.application.dto.OrderResponse> getAllOrders() {
+        return orderRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    private com.anotame.sales.application.dto.OrderResponse mapToResponse(Order order) {
+        CustomerDto custDto = new CustomerDto();
+        custDto.setId(order.getCustomer().getId());
+        custDto.setFirstName(order.getCustomer().getFirstName());
+        custDto.setLastName(order.getCustomer().getLastName());
+        custDto.setEmail(order.getCustomer().getEmail());
+
+        java.util.List<com.anotame.sales.application.dto.OrderItemResponse> items = order.getItems().stream()
+                .map(item -> com.anotame.sales.application.dto.OrderItemResponse.builder()
+                        .id(item.getId())
+                        .garmentName(item.getGarmentName())
+                        .serviceName(item.getServiceName())
+                        .unitPrice(item.getUnitPrice())
+                        .quantity(item.getQuantity())
+                        .subtotal(item.getSubtotal())
+                        .notes(item.getNotes())
+                        .build())
+                .collect(java.util.stream.Collectors.toList());
+
+        return com.anotame.sales.application.dto.OrderResponse.builder()
+                .id(order.getId())
+                .ticketNumber(order.getTicketNumber())
+                .customer(custDto)
+                .committedDeadline(order.getCommittedDeadline())
+                .status(order.getStatus())
+                .totalAmount(order.getTotalAmount())
+                .notes(order.getNotes())
+                .items(items)
+                .createdAt(order.getCreatedAt())
+                .build();
     }
 
     private Customer resolveCustomer(CustomerDto dto) {

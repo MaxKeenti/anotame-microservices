@@ -39,3 +39,25 @@ export interface CreateOrderRequest {
   committedDeadline: string; // ISO Date String
   notes: string;
 }
+
+export interface OrderItemResponse {
+  id: string;
+  garmentName: string;
+  serviceName: string;
+  unitPrice: number;
+  quantity: number;
+  subtotal: number;
+  notes: string;
+}
+
+export interface OrderResponse {
+    id: string;
+    ticketNumber: string;
+    customer: CustomerDto;
+    committedDeadline: string;
+    status: string;
+    totalAmount: number;
+    notes: string;
+    items: OrderItemResponse[];
+    createdAt: string;
+}

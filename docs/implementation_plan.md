@@ -63,4 +63,4 @@ Following the "Bounded Context" advice, we will **NOT** have a single shared "Pe
 1.  **Design System**: [Done] Tailwind theme, Fonts (Inter/Outfit), and Global CSS.
 2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
 3.  **Auth Integration**: [Done] Login & Register screens consuming Identity Service.
-4.  **Dashboard**: [In Progress] Implement Orders List API in Backend, then consume in Frontend.
+4.  **Dashboard**: [Done] Operations views (KPIs, Recent Orders) consuming microservices.
