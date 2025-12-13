@@ -1,6 +1,6 @@
-package com.anotame.identity.security;
+package com.anotame.identity.infrastructure.security;
 
-import com.anotame.identity.repository.UserRepository;
+import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

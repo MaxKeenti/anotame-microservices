@@ -1,12 +1,12 @@
-package com.anotame.identity.service;
+package com.anotame.identity.application.service;
 
-import com.anotame.identity.dto.AuthResponse;
-import com.anotame.identity.dto.LoginRequest;
-import com.anotame.identity.dto.RegisterRequest;
-import com.anotame.identity.model.User;
-import com.anotame.identity.repository.RoleRepository;
-import com.anotame.identity.repository.UserRepository;
-import com.anotame.identity.security.JwtUtils;
+import com.anotame.identity.application.dto.AuthResponse;
+import com.anotame.identity.application.dto.LoginRequest;
+import com.anotame.identity.application.dto.RegisterRequest;
+import com.anotame.identity.domain.model.User;
+import com.anotame.identity.infrastructure.persistence.repository.RoleRepository;
+import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
+import com.anotame.identity.infrastructure.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,10 +40,10 @@ public class AuthService {
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
 
                 System.out.println("DEBUG: Finding Role EMPLOYEE");
-                com.anotame.identity.model.Role role = roleRepository.findByCode("EMPLOYEE")
+                com.anotame.identity.domain.model.Role role = roleRepository.findByCode("EMPLOYEE")
                                 .orElseGet(() -> {
                                         System.out.println("DEBUG: Role EMPLOYEE NOT FOUND! Creating it...");
-                                        var newRole = new com.anotame.identity.model.Role();
+                                        var newRole = new com.anotame.identity.domain.model.Role();
                                         newRole.setCode("EMPLOYEE");
                                         newRole.setName("Staff");
                                         newRole.setDescription("Auto-created Staff Role");

@@ -1,4 +1,4 @@
-package com.anotame.catalog;
+package com.anotame.catalog.infrastructure.persistence;
 
 import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.domain.model.Service;

@@ -1,4 +1,4 @@
-package com.anotame.identity.dto;
+package com.anotame.identity.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private String token;
+public class LoginRequest {
+    private String username;
+    private String password;
 }

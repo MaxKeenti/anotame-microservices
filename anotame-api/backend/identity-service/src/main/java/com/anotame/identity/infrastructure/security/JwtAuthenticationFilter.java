@@ -1,4 +1,4 @@
-package com.anotame.identity.security;
+package com.anotame.identity.infrastructure.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

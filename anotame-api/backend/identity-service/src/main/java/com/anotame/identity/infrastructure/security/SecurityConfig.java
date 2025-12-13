@@ -1,4 +1,4 @@
-package com.anotame.identity.security;
+package com.anotame.identity.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

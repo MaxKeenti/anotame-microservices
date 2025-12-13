@@ -1,9 +1,9 @@
-package com.anotame.identity.controller;
+package com.anotame.identity.infrastructure.web.controller;
 
-import com.anotame.identity.dto.AuthResponse;
-import com.anotame.identity.dto.LoginRequest;
-import com.anotame.identity.dto.RegisterRequest;
-import com.anotame.identity.service.AuthService;
+import com.anotame.identity.application.dto.AuthResponse;
+import com.anotame.identity.application.dto.LoginRequest;
+import com.anotame.identity.application.dto.RegisterRequest;
+import com.anotame.identity.application.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

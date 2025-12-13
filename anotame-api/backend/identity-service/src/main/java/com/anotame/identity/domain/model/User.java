@@ -1,4 +1,4 @@
-package com.anotame.identity.model;
+package com.anotame.identity.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

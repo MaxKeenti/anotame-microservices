@@ -1,4 +1,4 @@
-package com.anotame.identity.dto;
+package com.anotame.identity.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
+public class RegisterRequest {
+    private String firstName;
+    private String lastName;
     private String username;
+    private String email;
     private String password;
 }

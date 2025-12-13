@@ -1,6 +1,6 @@
-package com.anotame.identity.repository;
+package com.anotame.identity.infrastructure.persistence.repository;
 
-import com.anotame.identity.model.Role;
+import com.anotame.identity.domain.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
