@@ -82,3 +82,22 @@ Analysis of `ClientDataForm.jsx` and `GarmentDataForm.jsx` reveals the following
 **Business Logic**:
 -   `garmentRepairAmount` is auto-calculated when quantity or cost changes.
 -   `garmentCosts` (Total) is the sum of all item amounts.
+
+---
+
+## 6. Modern App Gap Verification
+Comparison with `sales-service` and `anotame-web` reveals the following concrete implementation gaps to be addressed in the next cycle.
+
+### Backend (`sales-service`)
+-   **Payment Tracking**: `Order` entity has `totalAmount` but lacks `amountPaid`, `balance`, or `paymentStatus`.
+    -   *Action*: Add `amount_paid` (Decimal) and `payment_method` (Enum/String) to `tco_order`.
+-   **Ticket Number**: `ticketNumber` exists but generation strategy needs to match legacy "Folio" if manual override is required (Legacy allowed manual, Modern is auto).
+-   **Client Fields**: Modern `Customer` uses single `lastName`. Legacy splits `First` and `Second` last name. (Low criticality, can map both to `lastName`).
+
+### Frontend (`NewOrderPage`)
+-   **Payment Inputs**: No UI to capture "Advance Payment" or "Paid in Full".
+-   **Receipt Generation**: No "Print" button or logic to format the `plain-text` receipt.
+-   **Item Structure**: Modern forces 1 Service per Item. Legacy allowed multiple repairs per Garment. **[DEFERRED]** This will be addressed after core payment and printing features are stable.
+
+## 7. Deferred / Future Enhancements
+-   **Multiple Repairs per Item**: Allowing a single garment to have multiple service types attached (e.g. "Pants" -> "Hem" + "Patch"). Currently leveraging 1:1 mapping.
