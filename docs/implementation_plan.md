@@ -64,3 +64,4 @@ Following the "Bounded Context" advice, we will **NOT** have a single shared "Pe
 2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
 3.  **Auth Integration**: [Done] Login & Register screens consuming Identity Service.
 4.  **Dashboard**: [Done] Operations views (KPIs, Recent Orders) consuming microservices.
+5.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
