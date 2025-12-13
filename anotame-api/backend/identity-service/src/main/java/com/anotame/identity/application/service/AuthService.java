@@ -75,8 +75,19 @@ public class AuthService {
                 );
 
                 var jwtToken = jwtUtils.generateToken(userDetails);
+
+                var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .role(user.getRole().getCode())
+                                .build();
+
                 return AuthResponse.builder()
                                 .token(jwtToken)
+                                .user(userResponse)
                                 .build();
         }
 }
