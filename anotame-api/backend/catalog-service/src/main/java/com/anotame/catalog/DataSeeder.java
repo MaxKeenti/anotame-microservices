@@ -1,9 +1,9 @@
 package com.anotame.catalog;
 
-import com.anotame.catalog.model.GarmentType;
-import com.anotame.catalog.model.Service;
-import com.anotame.catalog.repository.GarmentTypeRepository;
-import com.anotame.catalog.repository.ServiceRepository;
+import com.anotame.catalog.domain.model.GarmentType;
+import com.anotame.catalog.domain.model.Service;
+import com.anotame.catalog.infrastructure.persistence.repository.GarmentTypeRepository;
+import com.anotame.catalog.infrastructure.persistence.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

@@ -7,11 +7,11 @@ services:
     container_name: anotame-db
     restart: always
     environment:
-      POSTGRES_USER: admin           # TODO: Move to .env for production
-      POSTGRES_PASSWORD: password    # TODO: Move to .env for production
+      POSTGRES_USER: admin # TODO: Move to .env for production
+      POSTGRES_PASSWORD: password # TODO: Move to .env for production
       POSTGRES_DB: anotame
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       # Mount the init script to automatically create the schema on first run
       - ./anotame-db/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -19,7 +19,7 @@ services:
     networks:
       - anotame-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d anotame"]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d anotame" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,7 +41,6 @@ services:
     depends_on:
       anotame-db:
         condition: service_healthy
-
   # ========================================================================================
   # BACKEND API (Spring Boot) - Placeholder
   # ========================================================================================
@@ -73,6 +72,7 @@ services:
 
 volumes:
   postgres_data:
+
 
 networks:
   anotame-network:
