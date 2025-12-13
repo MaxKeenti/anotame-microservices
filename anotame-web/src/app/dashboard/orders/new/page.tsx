@@ -27,6 +27,74 @@ export default function NewOrderPage() {
   const [deadline, setDeadline] = useState("");
   const [notes, setNotes] = useState("");
   
+  const [items, setItems] = useState<Array<{
+    tempId: number;
+    garmentId: string;
+    serviceId: string;
+    notes: string;
+    price: number;
+  }>>([]);
+
+  // Fetch Catalog Data on Mount
+  useEffect(() => {
+    async function fetchCatalog() {
+      try {
+        const [garmentRes, serviceRes] = await Promise.all([
+          fetch(`${API_CATALOG}/catalog/garments`),
+          fetch(`${API_CATALOG}/catalog/services`)
+        ]);
+
+        if (garmentRes.ok && serviceRes.ok) {
+          setGarmentTypes(await garmentRes.json());
+          setServices(await serviceRes.json());
+        } else {
+          console.error("Failed to fetch catalog data");
+        }
+      } catch (err) {
+        console.error("Error connecting to catalog service", err);
+      } finally {
+        setIsCatalogLoading(false);
+      }
+    }
+    fetchCatalog();
+  }, []);
+
+  const addItem = () => {
+    // Default to first available options if loaded
+    const defaultGarment = garmentTypes[0]?.id || "";
+    const defaultService = services[0]?.id || "";
+    const defaultPrice = services[0]?.basePrice || 0;
+
+    setItems([
+      ...items, 
+      { 
+        tempId: Date.now(), 
+        garmentId: defaultGarment, 
+        serviceId: defaultService, 
+        notes: "",
+        price: defaultPrice
+      }
+    ]);
+  };
+
+  const removeItem = (id: number) => {
+    setItems(items.filter(i => i.tempId !== id));
+  };
+
+  const updateItem = (id: number, field: string, value: any) => {
+    setItems(items.map(item => {
+      if (item.tempId === id) {
+        const updated = { ...item, [field]: value };
+        // Update price if service changes
+        if (field === 'serviceId') {
+          const service = services.find(s => s.id === value);
+          if (service) updated.price = service.basePrice;
+        }
+        return updated;
+      }
+      return item;
+    }));
+  };
   // Payment State
   const [amountPaid, setAmountPaid] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
@@ -143,6 +211,9 @@ RESTANTE: $${calculateBalance().toFixed(2)}
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "X-User-Name": user?.username || "Anonymous",
+                "X-User-Id": user?.id || "unknown",
+                "X-User-Role": user?.role || "USER"
             },
             body: JSON.stringify(payload)
         });
