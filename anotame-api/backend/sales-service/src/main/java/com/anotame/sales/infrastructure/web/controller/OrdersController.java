@@ -18,8 +18,9 @@ public class OrdersController {
     private final SalesService salesService;
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request) {
-        Order nOrder = salesService.createOrder(request);
+    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request,
+            @org.springframework.web.bind.annotation.RequestHeader("X-User-Name") String username) {
+        Order nOrder = salesService.createOrder(request, username);
         return ResponseEntity.ok(nOrder);
     }
 }

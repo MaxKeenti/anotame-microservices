@@ -9,7 +9,6 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -28,7 +27,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password; // BCrypt Encoded
 
     @Column(name = "first_name")
@@ -43,10 +42,10 @@ public class User {
     @Column(name = "is_active")
     private boolean active = true;
 
-    // Many-to-Many with Role
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "tca_user_role_assignment", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
-    private Set<Role> roles;
+    // Many-to-One with Role (One Role per User in this design)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_role", nullable = false)
+    private Role role;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -12,8 +12,8 @@ import java.util.UUID;
 @Table(name = "cca_role")
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE cca_role SET is_deleted = true WHERE id_role = ?")
-@SQLRestriction("is_deleted = false")
+// @SQLDelete(sql = "UPDATE cca_role SET is_deleted = true WHERE id_role = ?")
+// @SQLRestriction("is_deleted = false")
 public class Role {
 
     @Id

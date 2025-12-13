@@ -24,7 +24,7 @@ public class SalesService {
     private final CustomerRepositoryPort customerRepository;
 
     @Transactional
-    public Order createOrder(CreateOrderRequest request) {
+    public Order createOrder(CreateOrderRequest request, String username) {
         // 1. Resolve or Create Customer
         Customer customer = resolveCustomer(request.getCustomer());
 
@@ -34,6 +34,9 @@ public class SalesService {
         order.setCommittedDeadline(request.getCommittedDeadline());
         order.setNotes(request.getNotes());
         order.setTicketNumber("ORD-" + System.currentTimeMillis() % 10000); // Simple ID generation
+        order.setFolioBranch(1); // Default Folio for test
+        order.setBranchId(UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1")); // Default Branch
+        order.setCreatedBy(UUID.nameUUIDFromBytes(username.getBytes())); // Deterministic UUID from username
         order.setCreatedAt(LocalDateTime.now());
 
         // 3. Add Items & Calculate Total

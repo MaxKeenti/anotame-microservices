@@ -4,6 +4,7 @@ import com.anotame.identity.dto.AuthResponse;
 import com.anotame.identity.dto.LoginRequest;
 import com.anotame.identity.dto.RegisterRequest;
 import com.anotame.identity.model.User;
+import com.anotame.identity.repository.RoleRepository;
 import com.anotame.identity.repository.UserRepository;
 import com.anotame.identity.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class AuthService {
 
+        private final RoleRepository roleRepository;
         private final UserRepository userRepository;
         private final PasswordEncoder passwordEncoder;
         private final JwtUtils jwtUtils;
@@ -36,6 +38,19 @@ public class AuthService {
                 user.setUsername(request.getUsername());
                 user.setEmail(request.getEmail());
                 user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+                System.out.println("DEBUG: Finding Role EMPLOYEE");
+                com.anotame.identity.model.Role role = roleRepository.findByCode("EMPLOYEE")
+                                .orElseGet(() -> {
+                                        System.out.println("DEBUG: Role EMPLOYEE NOT FOUND! Creating it...");
+                                        var newRole = new com.anotame.identity.model.Role();
+                                        newRole.setCode("EMPLOYEE");
+                                        newRole.setName("Staff");
+                                        newRole.setDescription("Auto-created Staff Role");
+                                        return roleRepository.save(newRole);
+                                });
+                System.out.println("DEBUG: Found/Created Role: " + role.getId());
+                user.setRole(role);
 
                 userRepository.save(user);
 

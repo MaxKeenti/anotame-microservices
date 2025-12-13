@@ -33,6 +33,12 @@ public class Order {
     @Column(name = "ticket_number", unique = true)
     private String ticketNumber;
 
+    @Column(name = "folio_branch", nullable = false)
+    private Integer folioBranch;
+
+    @Column(name = "id_branch", nullable = false)
+    private UUID branchId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_customer", nullable = false)
     private Customer customer;
@@ -56,7 +62,7 @@ public class Order {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "created_by") // User ID from Auth Context
+    @Column(name = "created_by_user_id", nullable = false) // User ID from Auth Context
     private UUID createdBy;
 
     @UpdateTimestamp

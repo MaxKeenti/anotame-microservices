@@ -24,6 +24,7 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_order", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Order order;
 
     // References to Catalog Service IDs (Loose coupling)
