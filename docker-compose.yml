@@ -42,23 +42,62 @@ services:
       anotame-db:
         condition: service_healthy
   # ========================================================================================
-  # BACKEND API (Spring Boot) - Placeholder
+  # BACKEND MICROSERVICES
   # ========================================================================================
-  # anotame-api:
-  #   build: ./anotame-api
-  #   container_name: anotame-api
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
-  #     SPRING_DATASOURCE_USERNAME: admin
-  #     SPRING_DATASOURCE_PASSWORD: password
-  #   networks:
-  #     - anotame-network
-  #   depends_on:
-  #     anotame-db:
-  #       condition: service_healthy
+  identity-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: identity-service/Dockerfile
+    container_name: identity-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
 
+  catalog-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: catalog-service/Dockerfile
+    container_name: catalog-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
+
+  sales-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: sales-service/Dockerfile
+    container_name: sales-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://anotame-db:5432/anotame
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
   # ========================================================================================
   # FRONTEND (NextJS) - Placeholder
   # ========================================================================================
