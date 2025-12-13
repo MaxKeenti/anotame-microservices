@@ -7,3 +7,15 @@ services:
       - 'POSTGRES_USER=myuser'
     ports:
       - '5432'
+  operations-service:
+    build:
+      context: .
+      dockerfile: operations-service/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - postgres
