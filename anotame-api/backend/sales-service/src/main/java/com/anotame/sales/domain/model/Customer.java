@@ -33,10 +33,12 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
-    private String phone;
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
-    private String address;
+    @Column(columnDefinition = "jsonb")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    private java.util.Map<String, Object> preferences;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

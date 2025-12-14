@@ -171,8 +171,8 @@ public class SalesService {
         }
 
         // Check by existing unique fields
-        if (dto.getEmail() != null) {
-            var existing = customerRepository.findByEmail(dto.getEmail());
+        if (dto.getPhoneNumber() != null) {
+            var existing = customerRepository.findByPhoneNumber(dto.getPhoneNumber()); // Assuming port has this
             if (existing.isPresent())
                 return existing.get();
         }
@@ -182,8 +182,8 @@ public class SalesService {
         newCustomer.setFirstName(dto.getFirstName());
         newCustomer.setLastName(dto.getLastName());
         newCustomer.setEmail(dto.getEmail());
-        newCustomer.setPhone(dto.getPhone());
-        newCustomer.setAddress(dto.getAddress());
+        newCustomer.setPhoneNumber(dto.getPhoneNumber());
+        newCustomer.setPreferences(dto.getPreferences());
 
         return customerRepository.save(newCustomer);
     }
