@@ -19,8 +19,8 @@ export interface CustomerDto {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
-  address: string;
+  phoneNumber: string;
+  preferences?: Record<string, any>;
 }
 
 export interface OrderItemDto {

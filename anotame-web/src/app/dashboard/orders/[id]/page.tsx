@@ -74,7 +74,7 @@ FECHA: ${order.committedDeadline ? formatDate(order.committedDeadline) : '-'}
 ----------------------------------
 Datos personales ->
 Nombre: ${order.customer.firstName} ${order.customer.lastName}
-Tel: ${order.customer.phone}
+Tel: ${order.customer.phoneNumber}
 ----------------------------------
 Datos de la nota ->
 Folio: ${order.ticketNumber}
@@ -169,7 +169,7 @@ TOTAL: $${(order.totalAmount || 0).toFixed(2)}
           <div className="space-y-2 text-sm">
             <p><span className="text-muted-foreground">Name:</span> {order.customer.firstName} {order.customer.lastName}</p>
             <p><span className="text-muted-foreground">Email:</span> {order.customer.email}</p>
-            <p><span className="text-muted-foreground">Phone:</span> {order.customer.phone}</p>
+            <p><span className="text-muted-foreground">Phone:</span> {order.customer.phoneNumber}</p>
           </div>
         </div>
 

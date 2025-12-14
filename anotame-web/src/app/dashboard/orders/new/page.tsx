@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { GarmentTypeResponse, ServiceResponse, CreateOrderRequest, OrderItemDto } from "@/types/dtos";
+import { GarmentTypeResponse, ServiceResponse, CreateOrderRequest, OrderItemDto, CustomerDto } from "@/types/dtos";
 import { API_CATALOG, API_SALES } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { searchCustomers } from "@/services/sales/customers";
+
+import { Modal } from "@/components/ui/Modal";
+import { CustomerForm } from "@/components/customers/CustomerForm";
 
 export default function NewOrderPage() {
   const router = useRouter();
@@ -20,12 +24,50 @@ export default function NewOrderPage() {
   const [services, setServices] = useState<ServiceResponse[]>([]);
 
   // Form State
+  const [customerId, setCustomerId] = useState<string | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<CustomerDto[]>([]);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [deadline, setDeadline] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Search logic
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.length > 2) {
+        const results = await searchCustomers(searchQuery);
+        setSearchResults(results);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // If user clears, maybe reset specific customer connection?
+    // For now simplistic: just search.
+    if (query.length === 0) {
+        setCustomerId(undefined);
+    }
+  };
+
+  const selectCustomer = (c: CustomerDto) => {
+      setCustomerId(c.id);
+      setFirstName(c.firstName);
+      setLastName(c.lastName);
+      setPhone(c.phoneNumber); // Update mapping from dto
+      setEmail(c.email);
+      setSearchQuery(""); // Clear search to hide results
+      setSearchResults([]);
+  };
   
   const [items, setItems] = useState<Array<{
     tempId: number;
@@ -193,11 +235,11 @@ RESTANTE: $${calculateBalance().toFixed(2)}
 
     const payload: CreateOrderRequest & { amountPaid: number; paymentMethod: string } = {
         customer: {
+            id: customerId,
             firstName,
             lastName,
             email,
-            phone,
-            address: "Walk-in"
+            phoneNumber: phone,
         },
         items: orderItems,
         committedDeadline: deadline ? new Date(deadline).toISOString() : new Date().toISOString(),
@@ -271,11 +313,56 @@ RESTANTE: $${calculateBalance().toFixed(2)}
           <CardHeader>
             <CardTitle>Customer Details</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <Input label="First Name" placeholder="Jane" required value={firstName} onChange={e => setFirstName(e.target.value)} />
-            <Input label="Last Name" placeholder="Doe" required value={lastName} onChange={e => setLastName(e.target.value)} />
-            <Input label="Phone" placeholder="555-0123" required value={phone} onChange={e => setPhone(e.target.value)} />
-            <Input label="Email" type="email" placeholder="jane@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+          <CardContent className="space-y-4">
+             {/* Search */}
+             <div className="flex gap-2 items-end">
+                <div className="relative flex-1">
+                    <Input 
+                        label="Search Customer (Name/Phone)" 
+                        placeholder="Type to search..." 
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                    />
+                    {searchResults.length > 0 && (
+                        <div className="absolute z-10 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
+                            {searchResults.map(c => (
+                                <div 
+                                    key={c.id} 
+                                    className="p-2 hover:bg-secondary cursor-pointer"
+                                    onClick={() => selectCustomer(c)}
+                                >
+                                    <div className="font-bold">{c.firstName} {c.lastName}</div>
+                                    <div className="text-xs text-muted-foreground">{c.phoneNumber} | {c.email}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <Button type="button" onClick={() => setIsCustomerModalOpen(true)}>
+                    + New Customer
+                </Button>
+             </div>
+
+             <Modal 
+                isOpen={isCustomerModalOpen} 
+                onClose={() => setIsCustomerModalOpen(false)}
+                title="Add New Customer"
+            >
+                <CustomerForm 
+                    onSuccess={(c) => {
+                        selectCustomer(c);
+                        setIsCustomerModalOpen(false);
+                    }}
+                    onCancel={() => setIsCustomerModalOpen(false)}
+                />
+            </Modal>
+
+             <div className="grid grid-cols-2 gap-4">
+                <Input label="First Name" placeholder="Jane" required value={firstName} onChange={e => setFirstName(e.target.value)} />
+                <Input label="Last Name" placeholder="Doe" required value={lastName} onChange={e => setLastName(e.target.value)} />
+                <Input label="Phone" placeholder="555-0123" required value={phone} onChange={e => setPhone(e.target.value)} />
+                <Input label="Email" type="email" placeholder="jane@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+             </div>
           </CardContent>
         </Card>
 
