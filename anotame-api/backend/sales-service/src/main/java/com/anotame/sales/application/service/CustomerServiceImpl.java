@@ -51,6 +51,42 @@ public class CustomerServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public CustomerDto updateCustomer(UUID id, CustomerDto dto) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        if (dto.getEmail() != null && !dto.getEmail().equals(customer.getEmail())) {
+            if (customerRepository.findByEmail(dto.getEmail()).isPresent()) {
+                throw new RuntimeException("Email already in use");
+            }
+            customer.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(customer.getPhoneNumber())) {
+            if (customerRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
+                throw new RuntimeException("Phone number already in use");
+            }
+            customer.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        customer.setFirstName(dto.getFirstName());
+        customer.setLastName(dto.getLastName());
+        // null-safe update for preferences if needed, or just overwrite
+        customer.setPreferences(dto.getPreferences());
+
+        Customer saved = customerRepository.save(customer);
+        return mapToDto(saved);
+    }
+
+    @Transactional
+    public void deleteCustomer(UUID id) {
+        if (customerRepository.findById(id).isEmpty()) {
+            throw new RuntimeException("Customer not found");
+        }
+        customerRepository.deleteById(id);
+    }
+
     private CustomerDto mapToDto(Customer customer) {
         CustomerDto dto = new CustomerDto();
         dto.setId(customer.getId());

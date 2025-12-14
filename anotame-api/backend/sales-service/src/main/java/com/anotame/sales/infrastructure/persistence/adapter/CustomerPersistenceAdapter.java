@@ -25,34 +25,23 @@ public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
     @Override
     public Optional<Customer> findByEmail(String email) {
-        if (email == null) {
+        if (email == null)
             return Optional.empty();
-        }
-        // JpaRepo doesn't have findByEmail by default unless added.
-        // My CustomerJpaRepository didn't define findByEmail explicitly? I need to
-        // check.
-        // It defined existsByEmail. I need to add findByEmail/Phone to JpaRepo too!
-        // But for now let's assume I fix JpaRepo or use example matches.
-        // Better: Update JpaRepo first or concurrently.
-        return customerRepository.findAll().stream()
-                .filter(c -> email.equals(c.getEmail()))
-                .findFirst();
-        // Optimally, add findByEmail to JpaRepository. I will do that in next step.
+        return customerRepository.findByEmail(email);
     }
 
     @Override
     public Optional<Customer> findByPhoneNumber(String phoneNumber) {
         if (phoneNumber == null)
             return Optional.empty();
-        return customerRepository.findAll().stream()
-                .filter(c -> phoneNumber.equals(c.getPhoneNumber()))
-                .findFirst();
+        return customerRepository.findByPhoneNumber(phoneNumber);
     }
 
     @Override
     public List<Customer> search(String query) {
-        if (query == null || query.isBlank())
-            return List.of();
+        if (query == null || query.isBlank()) {
+            return customerRepository.findAll();
+        }
         return customerRepository.search(query);
     }
 
@@ -62,5 +51,12 @@ public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
             return null;
         }
         return customerRepository.save(customer);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        if (id != null) {
+            customerRepository.deleteById(id);
+        }
     }
 }

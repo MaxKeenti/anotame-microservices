@@ -10,6 +10,7 @@ const menuItems = [
   { name: "Work Orders", href: "/dashboard/operations", icon: "Activity" },
   { name: "Garments", href: "/dashboard/catalog/garments", icon: "Shirt" },
   { name: "Services", href: "/dashboard/catalog/services", icon: "Tag" },
+  { name: "Customers", href: "/dashboard/customers", icon: "Users" },
 ];
 
 export function Sidebar() {

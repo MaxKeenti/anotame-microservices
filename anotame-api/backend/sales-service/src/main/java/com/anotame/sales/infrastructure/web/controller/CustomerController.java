@@ -31,4 +31,15 @@ public class CustomerController {
     public ResponseEntity<List<CustomerDto>> searchCustomers(@RequestParam String query) {
         return ResponseEntity.ok(customerService.searchCustomers(query));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable UUID id, @RequestBody CustomerDto customerDto) {
+        return ResponseEntity.ok(customerService.updateCustomer(id, customerDto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable UUID id) {
+        customerService.deleteCustomer(id);
+        return ResponseEntity.noContent().build();
+    }
 }

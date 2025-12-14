@@ -14,4 +14,6 @@ public interface CustomerRepositoryPort {
     java.util.List<Customer> search(String query);
 
     Customer save(Customer customer);
+
+    void deleteById(UUID id);
 }

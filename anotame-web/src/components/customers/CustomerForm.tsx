@@ -1,26 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { createCustomer } from "@/services/sales/customers";
+import { createCustomer, updateCustomer } from "@/services/sales/customers";
 import { CustomerDto } from "@/types/dtos";
 import { useAuth } from "@/context/AuthContext";
 
 interface CustomerFormProps {
+  initialData?: CustomerDto;
   onSuccess: (customer: CustomerDto) => void;
   onCancel: () => void;
 }
 
-export function CustomerForm({ onSuccess, onCancel }: CustomerFormProps) {
+export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormProps) {
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState(initialData?.firstName || "");
+  const [lastName, setLastName] = useState(initialData?.lastName || "");
+  const [phone, setPhone] = useState(initialData?.phoneNumber || "");
+  const [email, setEmail] = useState(initialData?.email || "");
+
+  // Update state if initialData changes (e.g. modal re-open with different customer)
+  useEffect(() => {
+    if (initialData) {
+        setFirstName(initialData.firstName);
+        setLastName(initialData.lastName);
+        setPhone(initialData.phoneNumber);
+        setEmail(initialData.email);
+    } else {
+        setFirstName("");
+        setLastName("");
+        setPhone("");
+        setEmail("");
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,17 +45,24 @@ export function CustomerForm({ onSuccess, onCancel }: CustomerFormProps) {
 
     try {
       const payload: CustomerDto = {
+        id: initialData?.id,
         firstName,
         lastName,
         email,
         phoneNumber: phone
       };
 
-      const result = await createCustomer(payload, token || undefined);
+      let result;
+      if (initialData?.id) {
+          result = await updateCustomer(initialData.id, payload, token || undefined);
+      } else {
+          result = await createCustomer(payload, token || undefined);
+      }
+
       if (result) {
         onSuccess(result);
       } else {
-        setError("Failed to create customer. Please check if email/phone already exists.");
+        setError("Failed to save customer. Please check input.");
       }
     } catch (err) {
       console.error(err);
@@ -95,7 +118,7 @@ export function CustomerForm({ onSuccess, onCancel }: CustomerFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Saving..." : "Create Customer"}
+          {isLoading ? "Saving..." : (initialData ? "Update Customer" : "Create Customer")}
         </Button>
       </div>
     </form>
