@@ -12,13 +12,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Allow for development
+@CrossOrigin(originPatterns = "*") // Allow for development
 public class CustomerController {
 
     private final CustomerServiceImpl customerService;
 
     @PostMapping
-    public ResponseEntity<CustomerDto> createCustomer(@RequestBody CustomerDto customerDto) {
+    public ResponseEntity<CustomerDto> createCustomer(@jakarta.validation.Valid @RequestBody CustomerDto customerDto) {
         return ResponseEntity.ok(customerService.createCustomer(customerDto));
     }
 
@@ -33,7 +33,8 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable UUID id, @RequestBody CustomerDto customerDto) {
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable UUID id,
+            @jakarta.validation.Valid @RequestBody CustomerDto customerDto) {
         return ResponseEntity.ok(customerService.updateCustomer(id, customerDto));
     }
 
