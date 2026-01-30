@@ -23,6 +23,6 @@ RUN mvn clean package -pl catalog-service -am -DskipTests
 # Run Stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/catalog-service/target/*.jar app.jar
+COPY --from=build /app/catalog-service/target/quarkus-app/ /app/
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/quarkus-run.jar"]

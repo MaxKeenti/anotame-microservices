@@ -4,21 +4,23 @@ import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.domain.model.Service;
 import com.anotame.catalog.infrastructure.persistence.repository.GarmentTypeRepository;
 import com.anotame.catalog.infrastructure.persistence.repository.ServiceRepository;
+import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-@Component
+@ApplicationScoped
 @RequiredArgsConstructor
-public class DataSeeder implements CommandLineRunner {
+public class DataSeeder {
 
     private final GarmentTypeRepository garmentTypeRepository;
     private final ServiceRepository serviceRepository;
 
-    @Override
-    public void run(String... args) throws Exception {
+    @Transactional
+    public void onStart(@Observes StartupEvent ev) {
         seedGarments();
         seedServices();
     }
@@ -57,7 +59,7 @@ public class DataSeeder implements CommandLineRunner {
         g.setName(name);
         g.setDescription(desc);
         g.setActive(true);
-        garmentTypeRepository.save(g);
+        garmentTypeRepository.persist(g);
     }
 
     private void createService(String code, String name, String desc, int duration, BigDecimal price) {
@@ -68,6 +70,6 @@ public class DataSeeder implements CommandLineRunner {
         s.setDefaultDurationMin(duration);
         s.setBasePrice(price);
         s.setActive(true);
-        serviceRepository.save(s);
+        serviceRepository.persist(s);
     }
 }

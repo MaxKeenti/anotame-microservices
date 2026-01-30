@@ -1,15 +1,20 @@
 package com.anotame.catalog.infrastructure.persistence.repository;
 
 import com.anotame.catalog.domain.model.GarmentType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 import java.util.UUID;
 
-@Repository
-public interface GarmentTypeRepository extends JpaRepository<GarmentType, UUID> {
-    List<GarmentType> findByActiveTrue();
+@ApplicationScoped
+public class GarmentTypeRepository implements PanacheRepositoryBase<GarmentType, UUID> {
 
-    boolean existsByCode(String code);
+    public List<GarmentType> findByActiveTrue() {
+        return find("active", true).list();
+    }
+
+    public boolean existsByCode(String code) {
+        return count("code", code) > 0;
+    }
 }
