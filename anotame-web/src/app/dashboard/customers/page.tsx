@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -10,11 +11,12 @@ import { CustomerDto } from "@/types/dtos";
 import { useAuth } from "@/context/AuthContext";
 
 export default function CustomersPage() {
+  const router = useRouter();
   const { token } = useAuth();
   const [customers, setCustomers] = useState<CustomerDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<CustomerDto | undefined>(undefined);
@@ -36,8 +38,7 @@ export default function CustomersPage() {
   };
 
   const handleCreateClick = () => {
-    setEditingCustomer(undefined);
-    setIsModalOpen(true);
+    router.push("/dashboard/customers/new");
   };
 
   const handleEditClick = (customer: CustomerDto) => {
@@ -47,12 +48,12 @@ export default function CustomersPage() {
 
   const handleDeleteClick = async (id: string) => {
     if (confirm("Are you sure you want to delete this customer?")) {
-        const success = await deleteCustomer(id, token || undefined);
-        if (success) {
-            fetchCustomers(searchQuery);
-        } else {
-            alert("Failed to delete customer");
-        }
+      const success = await deleteCustomer(id, token || undefined);
+      if (success) {
+        fetchCustomers(searchQuery);
+      } else {
+        alert("Failed to delete customer");
+      }
     }
   };
 
@@ -65,21 +66,21 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-            <h1 className="text-3xl font-heading font-bold text-foreground">Customers</h1>
-            <p className="text-muted-foreground">Manage your customer base.</p>
+          <h1 className="text-3xl font-heading font-bold text-foreground">Customers</h1>
+          <p className="text-muted-foreground">Manage your customer base.</p>
         </div>
         <Button onClick={handleCreateClick}>+ New Customer</Button>
       </div>
 
       <div className="flex gap-2">
         <form onSubmit={handleSearch} className="flex-1 flex gap-2">
-            <Input 
-                placeholder="Search customers..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-md"
-            />
-            <Button type="submit" variant="secondary">Search</Button>
+          <Input
+            placeholder="Search customers..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-md"
+          />
+          <Button type="submit" variant="secondary">Search</Button>
         </form>
       </div>
 
@@ -123,9 +124,9 @@ export default function CustomersPage() {
         title={editingCustomer ? "Edit Customer" : "New Customer"}
       >
         <CustomerForm
-            initialData={editingCustomer}
-            onSuccess={handleFormSuccess}
-            onCancel={() => setIsModalOpen(false)}
+          initialData={editingCustomer}
+          onSuccess={handleFormSuccess}
+          onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
     </div>

@@ -59,3 +59,7 @@ This script will:
     *   `sales-service`
 *   `docker-compose.yml`: Orchestration configuration.
 *   `test_integration.sh`: End-to-end verification script.
+
+## Known Issues
+
+*   **Data Loss on Navigation**: When creating a new customer from the Order Creation page, the application redirects to a new page, causing any unsaved order details to be lost.

@@ -26,15 +26,15 @@ export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormP
   // Update state if initialData changes (e.g. modal re-open with different customer)
   useEffect(() => {
     if (initialData) {
-        setFirstName(initialData.firstName);
-        setLastName(initialData.lastName);
-        setPhone(initialData.phoneNumber);
-        setEmail(initialData.email);
+      setFirstName(initialData.firstName);
+      setLastName(initialData.lastName);
+      setPhone(initialData.phoneNumber);
+      setEmail(initialData.email);
     } else {
-        setFirstName("");
-        setLastName("");
-        setPhone("");
-        setEmail("");
+      setFirstName("");
+      setLastName("");
+      setPhone("");
+      setEmail("");
     }
   }, [initialData]);
 
@@ -54,19 +54,17 @@ export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormP
 
       let result;
       if (initialData?.id) {
-          result = await updateCustomer(initialData.id, payload, token || undefined);
+        result = await updateCustomer(initialData.id, payload, token || undefined);
       } else {
-          result = await createCustomer(payload, token || undefined);
+        result = await createCustomer(payload, token || undefined);
       }
 
       if (result) {
         onSuccess(result);
-      } else {
-        setError("Failed to save customer. Please check input.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("An unexpected error occurred.");
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -79,38 +77,38 @@ export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormP
           {error}
         </div>
       )}
-      
+
       <div className="grid grid-cols-2 gap-4">
-         <Input 
-            label="First Name" 
-            placeholder="Jane" 
-            required 
-            value={firstName} 
-            onChange={(e) => setFirstName(e.target.value)} 
-         />
-         <Input 
-            label="Last Name" 
-            placeholder="Doe" 
-            required 
-            value={lastName} 
-            onChange={(e) => setLastName(e.target.value)} 
-         />
+        <Input
+          label="First Name"
+          placeholder="Jane"
+          required
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+        <Input
+          label="Last Name"
+          placeholder="Doe"
+          required
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
       </div>
 
-      <Input 
-         label="Phone Number" 
-         placeholder="555-0123" 
-         required 
-         value={phone} 
-         onChange={(e) => setPhone(e.target.value)} 
+      <Input
+        label="Phone Number"
+        placeholder="555-0123"
+        required
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
       />
 
-      <Input 
-         label="Email" 
-         type="email" 
-         placeholder="jane@example.com" 
-         value={email} 
-         onChange={(e) => setEmail(e.target.value)} 
+      <Input
+        label="Email"
+        type="email"
+        placeholder="jane@example.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
 
       <div className="flex justify-end gap-2 pt-2">

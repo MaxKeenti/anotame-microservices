@@ -10,8 +10,7 @@ import { API_CATALOG, API_SALES } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { searchCustomers } from "@/services/sales/customers";
 
-import { Modal } from "@/components/ui/Modal";
-import { CustomerForm } from "@/components/customers/CustomerForm";
+
 
 export default function NewOrderPage() {
   const router = useRouter();
@@ -27,7 +26,6 @@ export default function NewOrderPage() {
   const [customerId, setCustomerId] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<CustomerDto[]>([]);
-  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -55,20 +53,20 @@ export default function NewOrderPage() {
     // If user clears, maybe reset specific customer connection?
     // For now simplistic: just search.
     if (query.length === 0) {
-        setCustomerId(undefined);
+      setCustomerId(undefined);
     }
   };
 
   const selectCustomer = (c: CustomerDto) => {
-      setCustomerId(c.id);
-      setFirstName(c.firstName);
-      setLastName(c.lastName);
-      setPhone(c.phoneNumber); // Update mapping from dto
-      setEmail(c.email);
-      setSearchQuery(""); // Clear search to hide results
-      setSearchResults([]);
+    setCustomerId(c.id);
+    setFirstName(c.firstName);
+    setLastName(c.lastName);
+    setPhone(c.phoneNumber); // Update mapping from dto
+    setEmail(c.email);
+    setSearchQuery(""); // Clear search to hide results
+    setSearchResults([]);
   };
-  
+
   const [items, setItems] = useState<Array<{
     tempId: number;
     garmentId: string;
@@ -108,11 +106,11 @@ export default function NewOrderPage() {
     const defaultPrice = services[0]?.basePrice || 0;
 
     setItems([
-      ...items, 
-      { 
-        tempId: Date.now(), 
-        garmentId: defaultGarment, 
-        serviceId: defaultService, 
+      ...items,
+      {
+        tempId: Date.now(),
+        garmentId: defaultGarment,
+        serviceId: defaultService,
         notes: "",
         price: defaultPrice
       }
@@ -160,7 +158,7 @@ export default function NewOrderPage() {
 
     // TODO: formatting helper
     const formatDate = (d: string) => new Date(d).toLocaleDateString('es-ES');
-    
+
     // Construct text receipt
     // In a real app, we might fetch the full order details again or use current state if it matches execution
     // For now, using current state as a proxy for the just-created order receipt
@@ -181,9 +179,9 @@ PRENDAS:
 `;
 
     items.forEach(item => {
-        const g = garmentTypes.find(x => x.id === item.garmentId)?.name || "N/A";
-        const s = services.find(x => x.id === item.serviceId)?.name || "N/A";
-        text += `
+      const g = garmentTypes.find(x => x.id === item.garmentId)?.name || "N/A";
+      const s = services.find(x => x.id === item.serviceId)?.name || "N/A";
+      text += `
 Cant: 1
 Prenda: ${g}
 Servicio: ${s}
@@ -203,11 +201,11 @@ RESTANTE: $${calculateBalance().toFixed(2)}
 
     const newWindow = window.open('', '', 'width=400,height=600');
     if (newWindow) {
-        newWindow.document.write(`<pre>${text}</pre>`);
-        newWindow.document.close();
-        newWindow.focus();
-        newWindow.print();
-        newWindow.close();
+      newWindow.document.write(`<pre>${text}</pre>`);
+      newWindow.document.close();
+      newWindow.focus();
+      newWindow.print();
+      newWindow.close();
     }
   };
 
@@ -220,59 +218,59 @@ RESTANTE: $${calculateBalance().toFixed(2)}
     setIsLoading(true);
 
     const orderItems: OrderItemDto[] = items.map(item => {
-        const g = garmentTypes.find(g => g.id === item.garmentId);
-        const s = services.find(s => s.id === item.serviceId);
-        return {
-            garmentTypeId: item.garmentId,
-            garmentName: g?.name || "Unknown",
-            serviceId: item.serviceId,
-            serviceName: s?.name || "Unknown",
-            unitPrice: item.price,
-            quantity: 1,
-            notes: item.notes
-        };
+      const g = garmentTypes.find(g => g.id === item.garmentId);
+      const s = services.find(s => s.id === item.serviceId);
+      return {
+        garmentTypeId: item.garmentId,
+        garmentName: g?.name || "Unknown",
+        serviceId: item.serviceId,
+        serviceName: s?.name || "Unknown",
+        unitPrice: item.price,
+        quantity: 1,
+        notes: item.notes
+      };
     });
 
     const payload: CreateOrderRequest & { amountPaid: number; paymentMethod: string } = {
-        customer: {
-            id: customerId,
-            firstName,
-            lastName,
-            email,
-            phoneNumber: phone,
-        },
-        items: orderItems,
-        committedDeadline: deadline ? new Date(deadline).toISOString() : new Date().toISOString(),
-        notes,
-        amountPaid: Number(amountPaid),
-        paymentMethod
+      customer: {
+        id: customerId,
+        firstName,
+        lastName,
+        email,
+        phoneNumber: phone,
+      },
+      items: orderItems,
+      committedDeadline: deadline ? new Date(deadline).toISOString() : new Date().toISOString(),
+      notes,
+      amountPaid: Number(amountPaid),
+      paymentMethod
     };
 
     try {
-        const res = await fetch(`${API_SALES}/orders`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-User-Name": user?.username || "Anonymous",
-                "X-User-Id": user?.id || "unknown",
-                "X-User-Role": user?.role || "USER"
-            },
-            body: JSON.stringify(payload)
-        });
+      const res = await fetch(`${API_SALES}/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Name": user?.username || "Anonymous",
+          "X-User-Id": user?.id || "unknown",
+          "X-User-Role": user?.role || "USER"
+        },
+        body: JSON.stringify(payload)
+      });
 
-        if (res.ok) {
-             const order = await res.json();
-             setCreatedOrderTicket(order.ticketNumber || "Ticket-Unknown");
-             alert(`Order Created! Ticket: ${order.ticketNumber}`);
-             // Don't auto-push, allow print
-        } else {
-             alert("Failed to create order");
-        }
+      if (res.ok) {
+        const order = await res.json();
+        setCreatedOrderTicket(order.ticketNumber || "Ticket-Unknown");
+        alert(`Order Created! Ticket: ${order.ticketNumber}`);
+        // Don't auto-push, allow print
+      } else {
+        alert("Failed to create order");
+      }
     } catch (err) {
-        console.error("Submit error", err);
-        alert("Error submitting order");
+      console.error("Submit error", err);
+      alert("Error submitting order");
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -281,22 +279,22 @@ RESTANTE: $${calculateBalance().toFixed(2)}
   }
 
   if (createdOrderTicket) {
-      return (
-          <div className="max-w-md mx-auto pt-10">
-              <Card>
-                  <CardHeader>
-                      <CardTitle className="text-center text-green-600 text-3xl">Order Created!</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6 text-center">
-                      <p className="text-xl">Ticket: <span className="font-mono font-bold">{createdOrderTicket}</span></p>
-                      <div className="flex justify-center gap-4">
-                          <Button size="lg" onClick={handlePrint}>Print Ticket</Button>
-                          <Button variant="outline" onClick={() => router.push("/dashboard")}>Go to Dashboard</Button>
-                      </div>
-                  </CardContent>
-              </Card>
-          </div>
-      );
+    return (
+      <div className="max-w-md mx-auto pt-10">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center text-green-600 text-3xl">Order Created!</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 text-center">
+            <p className="text-xl">Ticket: <span className="font-mono font-bold">{createdOrderTicket}</span></p>
+            <div className="flex justify-center gap-4">
+              <Button size="lg" onClick={handlePrint}>Print Ticket</Button>
+              <Button variant="outline" onClick={() => router.push("/dashboard")}>Go to Dashboard</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -314,55 +312,42 @@ RESTANTE: $${calculateBalance().toFixed(2)}
             <CardTitle>Customer Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-             {/* Search */}
-             <div className="flex gap-2 items-end">
-                <div className="relative flex-1">
-                    <Input 
-                        label="Search Customer (Name/Phone)" 
-                        placeholder="Type to search..." 
-                        value={searchQuery}
-                        onChange={(e) => handleSearch(e.target.value)}
-                    />
-                    {searchResults.length > 0 && (
-                        <div className="absolute z-10 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
-                            {searchResults.map(c => (
-                                <div 
-                                    key={c.id} 
-                                    className="p-2 hover:bg-secondary cursor-pointer"
-                                    onClick={() => selectCustomer(c)}
-                                >
-                                    <div className="font-bold">{c.firstName} {c.lastName}</div>
-                                    <div className="text-xs text-muted-foreground">{c.phoneNumber} | {c.email}</div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <Button type="button" onClick={() => setIsCustomerModalOpen(true)}>
-                    + New Customer
-                </Button>
-             </div>
-
-             <Modal 
-                isOpen={isCustomerModalOpen} 
-                onClose={() => setIsCustomerModalOpen(false)}
-                title="Add New Customer"
-            >
-                <CustomerForm 
-                    onSuccess={(c) => {
-                        selectCustomer(c);
-                        setIsCustomerModalOpen(false);
-                    }}
-                    onCancel={() => setIsCustomerModalOpen(false)}
+            {/* Search */}
+            <div className="flex gap-2 items-end">
+              <div className="relative flex-1">
+                <Input
+                  label="Search Customer (Name/Phone)"
+                  placeholder="Type to search..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
                 />
-            </Modal>
+                {searchResults.length > 0 && (
+                  <div className="absolute z-10 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
+                    {searchResults.map(c => (
+                      <div
+                        key={c.id}
+                        className="p-2 hover:bg-secondary cursor-pointer"
+                        onClick={() => selectCustomer(c)}
+                      >
+                        <div className="font-bold">{c.firstName} {c.lastName}</div>
+                        <div className="text-xs text-muted-foreground">{c.phoneNumber} | {c.email}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <Button type="button" onClick={() => router.push("/dashboard/customers/new")}>
+                + New Customer
+              </Button>
+            </div>
 
-             <div className="grid grid-cols-2 gap-4">
-                <Input label="First Name" placeholder="Jane" required value={firstName} onChange={e => setFirstName(e.target.value)} />
-                <Input label="Last Name" placeholder="Doe" required value={lastName} onChange={e => setLastName(e.target.value)} />
-                <Input label="Phone" placeholder="555-0123" required value={phone} onChange={e => setPhone(e.target.value)} />
-                <Input label="Email" type="email" placeholder="jane@example.com" value={email} onChange={e => setEmail(e.target.value)} />
-             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="First Name" placeholder="Jane" required value={firstName} onChange={e => setFirstName(e.target.value)} />
+              <Input label="Last Name" placeholder="Doe" required value={lastName} onChange={e => setLastName(e.target.value)} />
+              <Input label="Phone" placeholder="555-0123" required value={phone} onChange={e => setPhone(e.target.value)} />
+              <Input label="Email" type="email" placeholder="jane@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
           </CardContent>
         </Card>
 
@@ -378,40 +363,40 @@ RESTANTE: $${calculateBalance().toFixed(2)}
                 No items added. Click "Add Item" to start.
               </p>
             )}
-            
+
             {items.map((item) => (
               <div key={item.tempId} className="grid grid-cols-12 gap-4 items-start p-4 border border-border rounded-lg bg-secondary/10">
                 <div className="col-span-3">
                   <label className="text-xs font-medium mb-1 block">Garment</label>
-                  <select 
+                  <select
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={item.garmentId}
                     onChange={(e) => updateItem(item.tempId, 'garmentId', e.target.value)}
                   >
                     {garmentTypes.map(g => (
-                        <option key={g.id} value={g.id}>{g.name}</option>
+                      <option key={g.id} value={g.id}>{g.name}</option>
                     ))}
                   </select>
                 </div>
                 <div className="col-span-3">
                   <label className="text-xs font-medium mb-1 block">Service</label>
-                  <select 
+                  <select
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={item.serviceId}
                     onChange={(e) => updateItem(item.tempId, 'serviceId', e.target.value)}
                   >
-                     {services.map(s => (
-                        <option key={s.id} value={s.id}>{s.name} (${s.basePrice})</option>
+                    {services.map(s => (
+                      <option key={s.id} value={s.id}>{s.name} (${s.basePrice})</option>
                     ))}
                   </select>
                 </div>
                 <div className="col-span-5">
-                   <Input 
-                    label="Notes" 
-                    placeholder="e.g. Hem 1 inch" 
-                    value={item.notes} 
+                  <Input
+                    label="Notes"
+                    placeholder="e.g. Hem 1 inch"
+                    value={item.notes}
                     onChange={(e) => updateItem(item.tempId, 'notes', e.target.value)}
-                   />
+                  />
                 </div>
                 <div className="col-span-1 pt-6 flex justify-end">
                   <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700">
@@ -429,51 +414,51 @@ RESTANTE: $${calculateBalance().toFixed(2)}
             <CardTitle>Payment & Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-             <div className="grid grid-cols-3 gap-4">
-                 <Input 
-                    label="Amount Paid" 
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={amountPaid} 
-                    onChange={(e) => setAmountPaid(e.target.value)}
-                 />
-                 <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Payment Method</label>
-                    <select 
-                        className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                    >
-                        <option value="CASH">Cash</option>
-                        <option value="CARD">Card</option>
-                        <option value="TRANSFER">Transfer</option>
-                    </select>
-                 </div>
-                 <div className="flex flex-col gap-2 justify-end pb-2">
-                    <div className="text-sm font-bold">Balance Due:</div>
-                    <div className={`text-xl ${calculateBalance() > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        ${calculateBalance().toFixed(2)}
-                    </div>
-                 </div>
-             </div>
-
-             <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
-                 <Input 
-                    label="Deadline" 
-                    type="date"
-                    value={deadline} 
-                    onChange={(e) => setDeadline(e.target.value)}
-                    required
-                   />
-                 <Input 
-                    label="Internal Notes" 
-                    placeholder="Urgent..." 
-                    value={notes} 
-                    onChange={(e) => setNotes(e.target.value)}
-                   />
+            <div className="grid grid-cols-3 gap-4">
+              <Input
+                label="Amount Paid"
+                type="number"
+                min="0"
+                step="0.01"
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(e.target.value)}
+              />
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Payment Method</label>
+                <select
+                  className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <option value="CASH">Cash</option>
+                  <option value="CARD">Card</option>
+                  <option value="TRANSFER">Transfer</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-2 justify-end pb-2">
+                <div className="text-sm font-bold">Balance Due:</div>
+                <div className={`text-xl ${calculateBalance() > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  ${calculateBalance().toFixed(2)}
+                </div>
+              </div>
             </div>
-            
+
+            <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
+              <Input
+                label="Deadline"
+                type="date"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                required
+              />
+              <Input
+                label="Internal Notes"
+                placeholder="Urgent..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </div>
+
             <div className="flex justify-end items-center gap-4 text-xl font-bold pt-4">
               <span>Total Order:</span>
               <span>${calculateTotal().toFixed(2)}</span>
