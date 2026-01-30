@@ -7,26 +7,24 @@ import com.anotame.identity.domain.model.User;
 import com.anotame.identity.infrastructure.persistence.repository.RoleRepository;
 import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
 import com.anotame.identity.infrastructure.security.JwtUtils;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class AuthService {
 
         private final RoleRepository roleRepository;
         private final UserRepository userRepository;
-        private final PasswordEncoder passwordEncoder;
         private final JwtUtils jwtUtils;
-        private final AuthenticationManager authenticationManager;
 
+        @Transactional
         public AuthResponse register(RegisterRequest request) {
                 if (userRepository.existsByUsername(request.getUsername())) {
                         throw new RuntimeException("Username already taken");
@@ -37,44 +35,38 @@ public class AuthService {
                 user.setLastName(request.getLastName());
                 user.setUsername(request.getUsername());
                 user.setEmail(request.getEmail());
-                user.setPassword(passwordEncoder.encode(request.getPassword()));
+                user.setPassword(io.quarkus.elytron.security.common.BcryptUtil.bcryptHash(request.getPassword()));
 
-                System.out.println("DEBUG: Finding Role EMPLOYEE");
                 com.anotame.identity.domain.model.Role role = roleRepository.findByCode("EMPLOYEE")
                                 .orElseGet(() -> {
-                                        System.out.println("DEBUG: Role EMPLOYEE NOT FOUND! Creating it...");
                                         var newRole = new com.anotame.identity.domain.model.Role();
                                         newRole.setCode("EMPLOYEE");
                                         newRole.setName("Staff");
                                         newRole.setDescription("Auto-created Staff Role");
-                                        return roleRepository.save(newRole);
+                                        roleRepository.persist(newRole);
+                                        return newRole;
                                 });
-                System.out.println("DEBUG: Found/Created Role: " + role.getId());
                 user.setRole(role);
 
-                userRepository.save(user);
+                userRepository.persist(user);
 
-                // Return token immediately after register
                 return login(new LoginRequest(request.getUsername(), request.getPassword()));
         }
 
         public AuthResponse login(LoginRequest request) {
-                authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(
-                                                request.getUsername(),
-                                                request.getPassword()));
                 var user = userRepository.findByUsername(request.getUsername())
-                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-                // Create simple UserDetails impl (or use a wrapper class)
-                // For simplicity returning standard UserDetails here
-                UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                                user.getUsername(),
-                                user.getPassword(),
-                                new ArrayList<>() // Authorities/Roles to be mapped later
-                );
+                if (!io.quarkus.elytron.security.common.BcryptUtil.matches(request.getPassword(), user.getPassword())) {
+                        throw new RuntimeException("Invalid credentials");
+                }
 
-                var jwtToken = jwtUtils.generateToken(userDetails);
+                Set<String> roles = new HashSet<>();
+                if (user.getRole() != null) {
+                        roles.add(user.getRole().getCode());
+                }
+
+                var jwtToken = jwtUtils.generateToken(user.getUsername(), roles);
 
                 var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
                                 .id(user.getId())
@@ -82,7 +74,7 @@ public class AuthService {
                                 .email(user.getEmail())
                                 .firstName(user.getFirstName())
                                 .lastName(user.getLastName())
-                                .role(user.getRole().getCode())
+                                .role(user.getRole() != null ? user.getRole().getCode() : null)
                                 .build();
 
                 return AuthResponse.builder()

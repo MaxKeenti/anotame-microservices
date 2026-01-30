@@ -24,6 +24,6 @@ RUN mvn clean package -pl identity-service -am -DskipTests
 # Run Stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/identity-service/target/*.jar app.jar
+COPY --from=build /app/identity-service/target/quarkus-app/ /app/
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "quarkus-run.jar"]

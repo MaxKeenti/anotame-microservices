@@ -4,27 +4,27 @@ import com.anotame.identity.application.dto.AuthResponse;
 import com.anotame.identity.application.dto.LoginRequest;
 import com.anotame.identity.application.dto.RegisterRequest;
 import com.anotame.identity.application.service.AuthService;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/auth")
+@Path("/auth")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService service;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(service.register(request));
+    @POST
+    @Path("/register")
+    public AuthResponse register(RegisterRequest request) {
+        return service.register(request);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(service.login(request));
+    @POST
+    @Path("/login")
+    public AuthResponse login(LoginRequest request) {
+        return service.login(request);
     }
 }

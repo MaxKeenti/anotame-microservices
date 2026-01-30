@@ -5,14 +5,14 @@ import com.anotame.identity.application.dto.UserResponse;
 import com.anotame.identity.domain.model.User;
 import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Service;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class UserService {
 
@@ -24,25 +24,31 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse getUserById(@NonNull UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserResponse getUserById(UUID id) {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         return mapToResponse(user);
     }
 
-    public UserResponse updateUser(@NonNull UUID id, UpdateUserRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public UserResponse updateUser(UUID id, UpdateUserRequest request) {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
 
-        userRepository.save(user);
+        // userRepository.persist(user); // Not needed for updates within transaction
         return mapToResponse(user);
     }
 
-    public void deleteUser(@NonNull UUID id) {
+    @Transactional
+    public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }
 
