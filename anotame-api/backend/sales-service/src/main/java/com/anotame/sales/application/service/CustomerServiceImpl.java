@@ -4,14 +4,14 @@ import com.anotame.sales.application.dto.CustomerDto;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
 import com.anotame.sales.domain.model.Customer;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class CustomerServiceImpl {
 
@@ -37,14 +37,14 @@ public class CustomerServiceImpl {
         return mapToDto(saved);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CustomerDto getCustomer(UUID id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         return mapToDto(customer);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CustomerDto> searchCustomers(String query) {
         return customerRepository.search(query).stream()
                 .map(this::mapToDto)

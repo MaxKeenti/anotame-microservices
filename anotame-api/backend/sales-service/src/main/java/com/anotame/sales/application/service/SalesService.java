@@ -9,14 +9,14 @@ import com.anotame.sales.domain.model.OrderItem;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class SalesService {
 
@@ -64,7 +64,7 @@ public class SalesService {
         return orderRepository.save(order);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public java.util.List<com.anotame.sales.application.dto.OrderResponse> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(this::mapToResponse)
@@ -103,7 +103,7 @@ public class SalesService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public com.anotame.sales.application.dto.OrderResponse getOrder(UUID id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
