@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;

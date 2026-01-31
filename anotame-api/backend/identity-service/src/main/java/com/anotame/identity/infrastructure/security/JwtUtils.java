@@ -5,7 +5,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.Set;
 
 @ApplicationScoped

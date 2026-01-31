@@ -1,3 +1,5 @@
+package com.anotame.operations.infrastructure.persistence.adapter;
+
 import com.anotame.operations.application.port.output.WorkOrderRepositoryPort;
 import com.anotame.operations.domain.model.WorkOrder;
 import com.anotame.operations.domain.model.WorkOrderItem;

@@ -8,11 +8,9 @@ import com.anotame.identity.infrastructure.persistence.repository.RoleRepository
 import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
 import com.anotame.identity.infrastructure.security.JwtUtils;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 

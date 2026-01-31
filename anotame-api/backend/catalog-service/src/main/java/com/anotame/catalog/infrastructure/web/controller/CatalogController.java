@@ -8,7 +8,6 @@ import com.anotame.catalog.domain.model.Service;
 import lombok.RequiredArgsConstructor;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.stream.Collectors;
 
