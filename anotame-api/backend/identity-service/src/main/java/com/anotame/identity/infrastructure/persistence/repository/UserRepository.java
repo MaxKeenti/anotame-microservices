@@ -1,19 +1,28 @@
 package com.anotame.identity.infrastructure.persistence.repository;
 
 import com.anotame.identity.domain.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findByUsername(String username);
+@ApplicationScoped
+public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
-    Optional<User> findByEmail(String email);
+    public Optional<User> findByUsername(String username) {
+        return find("username", username).firstResultOptional();
+    }
 
-    boolean existsByUsername(String username);
+    public Optional<User> findByEmail(String email) {
+        return find("email", email).firstResultOptional();
+    }
 
-    boolean existsByEmail(String email);
+    public boolean existsByUsername(String username) {
+        return count("username", username) > 0;
+    }
+
+    public boolean existsByEmail(String email) {
+        return count("email", email) > 0;
+    }
 }

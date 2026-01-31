@@ -6,11 +6,11 @@ import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.dto.GarmentTypeRequest;
 import com.anotame.catalog.dto.ServiceRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class CatalogService {
 

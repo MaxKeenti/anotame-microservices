@@ -3,40 +3,41 @@ package com.anotame.identity.infrastructure.web.controller;
 import com.anotame.identity.application.dto.UpdateUserRequest;
 import com.anotame.identity.application.dto.UserResponse;
 import com.anotame.identity.application.service.UserService;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.NonNull;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/users")
+@Path("/users")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    @GET
+    public List<UserResponse> getAllUsers() {
+        return userService.getAllUsers();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable @NonNull UUID id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    @GET
+    @Path("/{id}")
+    public UserResponse getUserById(@PathParam("id") UUID id) {
+        return userService.getUserById(id);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable @NonNull UUID id,
-            @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+    @PUT
+    @Path("/{id}")
+    public UserResponse updateUser(@PathParam("id") UUID id, UpdateUserRequest request) {
+        return userService.updateUser(id, request);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable @NonNull UUID id) {
+    @DELETE
+    @Path("/{id}")
+    public void deleteUser(@PathParam("id") UUID id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
     }
 }

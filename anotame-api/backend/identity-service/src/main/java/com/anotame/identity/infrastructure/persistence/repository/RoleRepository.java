@@ -1,13 +1,16 @@
 package com.anotame.identity.infrastructure.persistence.repository;
 
 import com.anotame.identity.domain.model.Role;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface RoleRepository extends JpaRepository<Role, UUID> {
-    Optional<Role> findByCode(String code);
+@ApplicationScoped
+public class RoleRepository implements PanacheRepositoryBase<Role, UUID> {
+
+    public Optional<Role> findByCode(String code) {
+        return find("code", code).firstResultOptional();
+    }
 }

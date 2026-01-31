@@ -1,13 +1,13 @@
 package com.anotame.operations;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import io.quarkus.runtime.Quarkus;
+import io.quarkus.runtime.annotations.QuarkusMain;
 
-@SpringBootApplication
+@QuarkusMain
 public class OperationsServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OperationsServiceApplication.class, args);
+        Quarkus.run(args);
     }
 
 }
