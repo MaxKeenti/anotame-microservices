@@ -64,4 +64,11 @@ Following the "Bounded Context" advice, we will **NOT** have a single shared "Pe
 2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
 3.  **Auth Integration**: [Done] Login & Register screens consuming Identity Service.
 4.  **Dashboard**: [Done] Operations views (KPIs, Recent Orders) consuming microservices.
-5.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
+5.  **Customer Management**: [Done] Search, Create, Edit (`/dashboard/customers`).
+6.  **Order Management**: [Done] New Order creation (`/dashboard/orders/new`) with Payment support and Ticket Printing.
+7.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
+
+### Phase 5: Closing System Gaps (From Migration Analysis) [TODO]
+1.  **Work Scheduling**: Implement Days Off, Holidays, and Shifts (medium priority).
+2.  **Advanced Pricing**: Implement Multiple Price Lists and Temporal Validity (high priority).
+3.  **Refinement**: Polish Receipt printing layout and handle multiple repairs per item.
