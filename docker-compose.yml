@@ -98,6 +98,25 @@ services:
         condition: service_started
       catalog-service:
         condition: service_started
+
+  operations-service:
+    build:
+      context: ./anotame-api/backend
+      dockerfile: operations-service/Dockerfile
+    container_name: operations-service
+    ports:
+      - "8084:8084"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://anotame-db:5432/anotame
+      QUARKUS_DATASOURCE_USERNAME: admin
+      QUARKUS_DATASOURCE_PASSWORD: password
+    networks:
+      - anotame-network
+    depends_on:
+      anotame-db:
+        condition: service_healthy
+      sales-service:
+        condition: service_started
   # ========================================================================================
   # FRONTEND (NextJS) - Placeholder
   # ========================================================================================

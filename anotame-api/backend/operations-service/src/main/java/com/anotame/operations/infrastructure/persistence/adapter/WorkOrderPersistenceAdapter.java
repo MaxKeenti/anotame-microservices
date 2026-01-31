@@ -1,25 +1,25 @@
-package com.anotame.operations.infrastructure.persistence.adapter;
-
 import com.anotame.operations.application.port.output.WorkOrderRepositoryPort;
 import com.anotame.operations.domain.model.WorkOrder;
 import com.anotame.operations.domain.model.WorkOrderItem;
 import com.anotame.operations.infrastructure.persistence.entity.WorkOrderItemJpa;
 import com.anotame.operations.infrastructure.persistence.entity.WorkOrderJpa;
 import com.anotame.operations.infrastructure.persistence.repository.WorkOrderRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Component
+@ApplicationScoped
 @RequiredArgsConstructor
 public class WorkOrderPersistenceAdapter implements WorkOrderRepositoryPort {
 
     private final WorkOrderRepository workOrderRepository;
 
     @Override
+    @Transactional
     public WorkOrder save(WorkOrder workOrder) {
         if (workOrder == null) {
             return null;
@@ -28,8 +28,21 @@ public class WorkOrderPersistenceAdapter implements WorkOrderRepositoryPort {
         if (entity == null) {
             return null;
         }
-        WorkOrderJpa savedEntity = workOrderRepository.save(entity);
-        return toDomain(savedEntity);
+
+        if (entity.getId() == null) {
+            workOrderRepository.persist(entity);
+        } else {
+            // If entity already has ID, it might be managed or detached.
+            // If it matches existing row, persist might throw if detached or if duplicate
+            // ID.
+            // Panache doesn't have explicit update() besides just setting fields on managed
+            // entity.
+            // But if we reconstruct Jpa entity from Domain, it's detached.
+            // We must merge. PanacheRepository.getEntityManager().merge(entity)
+            workOrderRepository.getEntityManager().merge(entity);
+        }
+
+        return toDomain(entity);
     }
 
     @Override
@@ -37,7 +50,7 @@ public class WorkOrderPersistenceAdapter implements WorkOrderRepositoryPort {
         if (id == null) {
             return Optional.empty();
         }
-        return workOrderRepository.findById(id).map(this::toDomain);
+        return workOrderRepository.findByIdOptional(id).map(this::toDomain);
     }
 
     @Override
@@ -50,12 +63,13 @@ public class WorkOrderPersistenceAdapter implements WorkOrderRepositoryPort {
 
     @Override
     public java.util.List<WorkOrder> findAll() {
-        return workOrderRepository.findAll().stream()
+        return workOrderRepository.listAll().stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
         if (id != null) {
             workOrderRepository.deleteById(id);

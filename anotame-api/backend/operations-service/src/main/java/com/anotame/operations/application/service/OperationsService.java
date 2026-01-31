@@ -3,15 +3,15 @@ package com.anotame.operations.application.service;
 import com.anotame.operations.application.port.output.WorkOrderRepositoryPort;
 import com.anotame.operations.domain.model.WorkOrder;
 import com.anotame.operations.domain.model.WorkOrderItem;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class OperationsService {
 

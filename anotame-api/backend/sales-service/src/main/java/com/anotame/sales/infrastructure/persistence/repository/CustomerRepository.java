@@ -12,6 +12,9 @@ import java.util.UUID;
 public class CustomerRepository implements PanacheRepositoryBase<CustomerEntity, UUID> {
 
     public List<CustomerEntity> search(String query) {
+        if (query == null) {
+            query = "";
+        }
         String q = "%" + query.toLowerCase() + "%";
         return list(
                 "LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR phoneNumber LIKE ?1 OR LOWER(email) LIKE ?1",

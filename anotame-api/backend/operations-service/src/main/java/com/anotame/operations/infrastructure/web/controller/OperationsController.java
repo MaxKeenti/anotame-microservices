@@ -5,23 +5,25 @@ import com.anotame.operations.domain.model.WorkOrder;
 import com.anotame.operations.domain.model.WorkOrderItem;
 import com.anotame.operations.infrastructure.web.dto.CreateWorkOrderRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/operations/work-orders")
+@Path("/operations/work-orders")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 public class OperationsController {
 
     private final OperationsService operationsService;
 
-    @PostMapping
-    public ResponseEntity<WorkOrder> createWorkOrder(@RequestBody CreateWorkOrderRequest request) {
+    @POST
+    public Response createWorkOrder(CreateWorkOrderRequest request) {
         List<WorkOrderItem> items = request.getItems().stream().map(dto -> {
             WorkOrderItem item = new WorkOrderItem();
             item.setSalesOrderItemId(dto.getSalesOrderItemId());
@@ -31,27 +33,29 @@ public class OperationsController {
         }).collect(Collectors.toList());
 
         WorkOrder createdOrder = operationsService.createWorkOrder(request.getSalesOrderId(), items);
-        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        return Response.status(Response.Status.CREATED).entity(createdOrder).build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<WorkOrder> getWorkOrder(@PathVariable UUID id) {
-        return ResponseEntity.ok(operationsService.getWorkOrder(id));
+    @GET
+    @Path("/{id}")
+    public WorkOrder getWorkOrder(@PathParam("id") UUID id) {
+        return operationsService.getWorkOrder(id);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<WorkOrder> updateStatus(@PathVariable UUID id, @RequestParam String status) {
-        return ResponseEntity.ok(operationsService.updateStatus(id, status));
+    @PATCH
+    @Path("/{id}/status")
+    public WorkOrder updateStatus(@PathParam("id") UUID id, @QueryParam("status") String status) {
+        return operationsService.updateStatus(id, status);
     }
 
-    @GetMapping
-    public ResponseEntity<List<WorkOrder>> getAllWorkOrders() {
-        return ResponseEntity.ok(operationsService.getAllWorkOrders());
+    @GET
+    public List<WorkOrder> getAllWorkOrders() {
+        return operationsService.getAllWorkOrders();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkOrder(@PathVariable UUID id) {
+    @DELETE
+    @Path("/{id}")
+    public void deleteWorkOrder(@PathParam("id") UUID id) {
         operationsService.deleteWorkOrder(id);
-        return ResponseEntity.noContent().build();
     }
 }
