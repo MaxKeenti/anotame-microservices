@@ -175,61 +175,46 @@ export default function NewOrderPage() {
     return Math.max(0, total - paid);
   };
 
-  // Ticket Printing Logic (Ported from Legacy)
-  const handlePrint = () => {
+  // Ticket Printing Logic
+  const handlePrint = async () => {
     if (!createdOrderTicket) return;
 
-    // TODO: formatting helper
-    const formatDate = (d: string) => new Date(d).toLocaleDateString('es-ES');
+    // Dynamic import to avoid SSR issues if used elsewhere, though here it's client comp
+    const { generateReceiptHtml } = await import("@/utils/receipt-generator");
 
-    // Construct text receipt
-    // In a real app, we might fetch the full order details again or use current state if it matches execution
-    // For now, using current state as a proxy for the just-created order receipt
-    let text = `
-==================================
-ENTREGA ->
-FECHA: ${formatDate(deadline)}
-----------------------------------
-Datos personales ->
-Nombre: ${firstName} ${lastName}
-Tel: ${phone}
-----------------------------------
-Datos de la nota ->
-Folio: ${createdOrderTicket}
-Fecha: ${new Date().toLocaleDateString('es-ES')}
-----------------------------------
-PRENDAS:
-`;
-
-    items.forEach(item => {
-      const g = garmentTypes.find(x => x.id === item.garmentId)?.name || "N/A";
-      const s = services.find(x => x.id === item.serviceId)?.name || "N/A";
-      text += `
-Cant: 1
-Prenda: ${g}
-Servicio: ${s}
-Nota: ${item.notes}
-Precio: $${item.price}
-${item.adj ? `Ajuste: $${item.adj} (${item.adjReason})` : ''}
---------------------
-`;
+    const receiptHtml = generateReceiptHtml({
+      ticketNumber: createdOrderTicket,
+      customerName: `${firstName} ${lastName}`,
+      phone: phone,
+      deadline: deadline || new Date().toISOString(),
+      items: items.map(i => {
+        const g = garmentTypes.find(x => x.id === i.garmentId)?.name || "N/A";
+        const s = services.find(x => x.id === i.serviceId)?.name || "N/A";
+        return {
+          garment: g,
+          service: s,
+          notes: i.notes,
+          price: Number(i.price),
+          adjustment: i.adj ? Number(i.adj) : undefined,
+          adjustmentReason: i.adjReason
+        };
+      }),
+      total: calculateTotal(),
+      amountPaid: Number(amountPaid) || 0,
+      balance: calculateBalance()
     });
 
-    text += `
-====================
-TOTAL: $${calculateTotal().toFixed(2)}
-ANTICIPO: $${Number(amountPaid).toFixed(2)}
-RESTANTE: $${calculateBalance().toFixed(2)}
-====================
-`;
-
-    const newWindow = window.open('', '', 'width=400,height=600');
+    const newWindow = window.open('', '_blank', 'width=400,height=600');
     if (newWindow) {
-      newWindow.document.write(`<pre>${text}</pre>`);
+      newWindow.document.write(receiptHtml);
       newWindow.document.close();
-      newWindow.focus();
-      newWindow.print();
-      newWindow.close();
+
+      // Wait for images/styles to load (if any)
+      newWindow.setTimeout(() => {
+        newWindow.focus();
+        newWindow.print();
+        newWindow.close();
+      }, 250);
     }
   };
 
@@ -443,8 +428,13 @@ RESTANTE: $${calculateBalance().toFixed(2)}
                     />
                   </div>
                 </div>
-                <div className="col-span-1 pt-6 flex justify-end">
-                  <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700">
+                <div className="col-span-1 pt-6 flex justify-end gap-2">
+                  <button type="button" onClick={() => {
+                    setItems([...items, { ...item, tempId: Date.now() }]);
+                  }} className="text-blue-500 hover:text-blue-700" title="Duplicate">
+                    📋
+                  </button>
+                  <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700" title="Remove">
                     &times;
                   </button>
                 </div>
