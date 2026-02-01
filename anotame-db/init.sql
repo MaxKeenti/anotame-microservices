@@ -137,6 +137,38 @@ CREATE TABLE tce_employee_assignment (
     UNIQUE(id_user, id_branch)
 );
 
+-- Work Days (top_work_day)
+CREATE TABLE top_work_day (
+    id_work_day UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    day_of_week INT NOT NULL CHECK (day_of_week BETWEEN 1 AND 7), -- 1=Monday, 7=Sunday
+    is_open BOOLEAN DEFAULT TRUE NOT NULL,
+    open_time TIME DEFAULT '09:00:00',
+    close_time TIME DEFAULT '18:00:00',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(day_of_week)
+);
+
+-- Holidays (top_holiday)
+CREATE TABLE top_holiday (
+    id_holiday UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    holiday_date DATE NOT NULL UNIQUE,
+    description VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Shifts (top_shift)
+CREATE TABLE top_shift (
+    id_shift UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_user UUID NOT NULL REFERENCES tca_user(id_user),
+    day_of_week INT NOT NULL CHECK (day_of_week BETWEEN 1 AND 7),
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- =========================================================================================
 -- 4. SALES CONTEXT (Orders & Customers)
 -- =========================================================================================

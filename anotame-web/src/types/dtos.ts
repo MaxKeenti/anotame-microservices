@@ -120,3 +120,17 @@ export interface PriceListRequest {
   priority: number;
   items?: Array<{ serviceId: string; price: number }>;
 }
+
+export interface WorkDay {
+  id?: string;
+  dayOfWeek: number; // 1=Mon, 7=Sun
+  open: boolean;
+  openTime?: string; // HH:mm:ss
+  closeTime?: string; // HH:mm:ss
+}
+
+export interface Holiday {
+  id?: string;
+  date: string; // YYYY-MM-DD
+  description: string;
+}

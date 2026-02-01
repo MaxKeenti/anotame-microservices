@@ -68,7 +68,7 @@ Following the "Bounded Context" advice, we will **NOT** have a single shared "Pe
 6.  **Order Management**: [Done] New Order creation (`/dashboard/orders/new`) with Payment support and Ticket Printing.
 7.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
 
-### Phase 5: Closing System Gaps (From Migration Analysis) [TODO]
-1.  **Work Scheduling**: Implement Days Off, Holidays, and Shifts (medium priority).
-2.  **Advanced Pricing**: Implement Multiple Price Lists and Temporal Validity (high priority).
+### Phase 5: Closing System Gaps (From Migration Analysis) [IN PROGRESS]
+1.  **Work Scheduling**: Implement Days Off, Holidays, and Shifts (medium priority). [NEXT]
+2.  **Advanced Pricing**: Implement Multiple Price Lists and Temporal Validity. [DONE]
 3.  **Refinement**: Polish Receipt printing layout and handle multiple repairs per item.

@@ -11,6 +11,7 @@ const menuItems = [
   { name: "Garments", href: "/dashboard/catalog/garments", icon: "Shirt" },
   { name: "Services", href: "/dashboard/catalog/services", icon: "Tag" },
   { name: "Price Lists", href: "/dashboard/catalog/pricelists", icon: "DollarSign" },
+  { name: "Scheduling", href: "/dashboard/admin/schedule", icon: "Calendar" },
   { name: "Customers", href: "/dashboard/customers", icon: "Users" },
 ];
 
@@ -34,8 +35,8 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 }`}
             >
               {/* Icon Placeholder */}
