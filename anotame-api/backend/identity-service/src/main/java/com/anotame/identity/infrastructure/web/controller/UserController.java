@@ -23,6 +23,11 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @POST
+    public UserResponse createUser(com.anotame.identity.application.dto.CreateUserRequest request) {
+        return userService.createUser(request);
+    }
+
     @GET
     @Path("/{id}")
     public UserResponse getUserById(@PathParam("id") UUID id) {

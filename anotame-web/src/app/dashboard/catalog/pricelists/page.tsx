@@ -7,8 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { getPriceLists, deletePriceList } from "@/services/catalog/pricelists";
 import { PriceListResponse } from "@/types/dtos";
 
+import { useAuth } from "@/context/AuthContext";
+
 export default function PriceListsPage() {
     const router = useRouter();
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'ADMIN';
+
     const [lists, setLists] = useState<PriceListResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -41,9 +46,11 @@ export default function PriceListsPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">Price Lists</h1>
-                <Button onClick={() => router.push("/dashboard/catalog/pricelists/new")}>
-                    + New Price List
-                </Button>
+                {isAdmin && (
+                    <Button onClick={() => router.push("/dashboard/catalog/pricelists/new")}>
+                        + New Price List
+                    </Button>
+                )}
             </div>
 
             <Card>
@@ -65,7 +72,7 @@ export default function PriceListsPage() {
                                         <th className="p-4">Valid From</th>
                                         <th className="p-4">Valid To</th>
                                         <th className="p-4">Status</th>
-                                        <th className="p-4 text-right">Actions</th>
+                                        {isAdmin && <th className="p-4 text-right">Actions</th>}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -84,22 +91,24 @@ export default function PriceListsPage() {
                                                     <span className="text-gray-500">Inactive</span>
                                                 )}
                                             </td>
-                                            <td className="p-4 text-right space-x-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => router.push(`/dashboard/catalog/pricelists/${list.id}`)}
-                                                >
-                                                    View
-                                                </Button>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(list.id)}
-                                                >
-                                                    Delete
-                                                </Button>
-                                            </td>
+                                            {isAdmin && (
+                                                <td className="p-4 text-right space-x-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => router.push(`/dashboard/catalog/pricelists/${list.id}`)}
+                                                    >
+                                                        View
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        onClick={() => handleDelete(list.id)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                 </tbody>

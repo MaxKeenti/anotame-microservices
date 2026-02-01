@@ -13,12 +13,13 @@ const menuItems = [
   { name: "Price Lists", href: "/dashboard/catalog/pricelists", icon: "DollarSign" },
   { name: "Scheduling", href: "/dashboard/admin/schedule", icon: "Calendar" },
   { name: "Settings", href: "/dashboard/admin/settings", icon: "Settings" },
+  { name: "Employees", href: "/dashboard/admin/users", icon: "Users" },
   { name: "Customers", href: "/dashboard/customers", icon: "Users" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <aside className="w-64 bg-card border-r border-border h-screen flex flex-col fixed left-0 top-0">
@@ -29,7 +30,16 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => {
+        {menuItems.filter(item => {
+          // RBAC Logic
+          const isAdmin = user?.role === 'ADMIN';
+
+          // Explicit Logic
+          const adminOnly = ["Employees", "Settings", "Scheduling", "Price Lists"];
+          if (adminOnly.includes(item.name)) return isAdmin;
+
+          return true;
+        }).map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

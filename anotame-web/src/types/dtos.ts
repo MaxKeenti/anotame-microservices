@@ -142,3 +142,21 @@ export interface Establishment {
   taxInfo?: string; // JSON
   active: boolean;
 }
+
+export interface UserResponse {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  password?: string; // Optional if we auto-generate or something, but usually required
+}

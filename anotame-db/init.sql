@@ -94,7 +94,8 @@ CREATE TABLE tca_user (
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 -- =========================================================================================
@@ -264,10 +265,10 @@ CREATE TABLE tco_order_item (
 -- INDEXES & SEEDS
 -- =========================================================================================
 -- Seed Establishment
-INSERT INTO tce_establishment (id_establishment, name, is_active) VALUES ('b8c6e2a1-7d3f-4e5a-9c8b-1a2f3d4e5f6a', 'Anotame Inc.', true);
+INSERT INTO tce_establishment (id_establishment, name, is_active) VALUES ('b8c6e2a1-7d3f-4e5a-9c8b-1a2f3d4e5f6a', 'El Hilvan', true);
 
 -- Seed Branch
-INSERT INTO tce_branch (id_branch, id_establishment, name, is_active) VALUES ('ea22f4a4-5504-43d9-92f9-30cc17b234d1', 'b8c6e2a1-7d3f-4e5a-9c8b-1a2f3d4e5f6a', 'Main Branch', true);
+INSERT INTO tce_branch (id_branch, id_establishment, name, is_active) VALUES ('ea22f4a4-5504-43d9-92f9-30cc17b234d1', 'b8c6e2a1-7d3f-4e5a-9c8b-1a2f3d4e5f6a', 'Oaxaca #113 Local C, Col. Heroes de Padierna, La Magdalena Contreras, CDMX', true);
 
 CREATE INDEX idx_order_customer ON tco_order(id_customer);
 CREATE INDEX idx_order_status ON tco_order(current_status);
@@ -277,7 +278,17 @@ CREATE INDEX idx_order_history_order ON tco_order_history(id_order);
 -- and Roles are now specific to the Identity Context.
 
 -- Seed: Roles
-INSERT INTO cca_role (code, name) VALUES ('ADMIN', 'Administrator'), ('EMPLOYEE', 'Staff');
+-- Seed: Roles with Fixed IDs for referencing
+INSERT INTO cca_role (id_role, code, name) VALUES 
+('11111111-1111-1111-1111-111111111111', 'ADMIN', 'Administrator'),
+('22222222-2222-2222-2222-222222222222', 'EMPLOYEE', 'Staff')
+ON CONFLICT (code) DO NOTHING;
+
+-- Seed: Admin User (password: 'admin')
+-- Requires pgcrypto extension enabled at top of file
+INSERT INTO tca_user (id_user, id_role, username, email, password_hash, first_name, last_name) VALUES
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'admin', 'admin@anotame.com', crypt('admin', gen_salt('bf')), 'System', 'Admin')
+ON CONFLICT (username) DO NOTHING;
 
 -- Seed: Garments
 INSERT INTO cci_garment_type (code, name) VALUES ('PANTS', 'Pants'), ('SHIRT', 'Shirt');

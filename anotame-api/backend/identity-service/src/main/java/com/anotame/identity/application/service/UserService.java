@@ -17,11 +17,34 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final com.anotame.identity.infrastructure.persistence.repository.RoleRepository roleRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public UserResponse createUser(com.anotame.identity.application.dto.CreateUserRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("Username already taken");
+        }
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPassword(io.quarkus.elytron.security.common.BcryptUtil.bcryptHash(request.getPassword()));
+
+        String roleCode = request.getRole() != null ? request.getRole().toUpperCase() : "EMPLOYEE";
+        com.anotame.identity.domain.model.Role role = roleRepository.findByCode(roleCode)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleCode));
+        user.setRole(role);
+
+        userRepository.persist(user);
+        return mapToResponse(user);
     }
 
     public UserResponse getUserById(UUID id) {
