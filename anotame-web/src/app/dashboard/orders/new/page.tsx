@@ -109,11 +109,33 @@ export default function NewOrderPage() {
     fetchCatalog();
   }, []);
 
+  // Filtering Logic
+  const getFilteredServices = (garmentId: string) => {
+    const garment = garmentTypes.find(g => g.id === garmentId);
+    if (!garment) return services; // Fallback
+
+    let prefix = "";
+    // Map Garment Code to Service Prefix
+    switch (garment.code) {
+      case "GT-PANT": prefix = "SRV-PANT"; break;
+      case "GT-BLUSA": prefix = "SRV-BLU"; break;
+      case "GT-FALDA": prefix = "SRV-FAL"; break;
+      case "GT-SACO": prefix = "SRV-SACO"; break;
+      case "GT-VAR": prefix = "SRV-VAR"; break;
+      default: return services; // Show all if unknown
+    }
+
+    return services.filter(s => s.code.startsWith(prefix));
+  };
+
   const addItem = () => {
     // Default to first available options if loaded
     const defaultGarment = garmentTypes[0]?.id || "";
-    const defaultService = services[0]?.id || "";
-    const defaultPrice = services[0]?.basePrice || 0;
+
+    // Filter services for default garment
+    const availableServices = getFilteredServices(defaultGarment);
+    const defaultService = availableServices[0]?.id || "";
+    const defaultPrice = availableServices[0]?.basePrice || 0;
 
     setItems([
       ...items,
@@ -144,20 +166,28 @@ export default function NewOrderPage() {
 
     const item = { ...updatedItems[index], [field]: finalValue };
 
-    // Auto-calculate price if Service changes
+    // Handling Garment Change -> Reset Service
+    if (field === 'garmentId') {
+      item.garmentId = value; // Set new garment
+      const availableServices = getFilteredServices(value);
+      // Reset service to first available
+      if (availableServices.length > 0) {
+        item.serviceId = availableServices[0].id;
+        item.price = availableServices[0].basePrice;
+      } else {
+        item.serviceId = "";
+        item.price = 0;
+      }
+    }
+
+    // Auto-calculate price if Service changes (or was reset above, but usually explicit change)
     if (field === 'serviceId') {
       try {
-        // Call Pricing Service
-        const res = await fetch(`${API_CATALOG}/pricing/calculate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ serviceId: value, date: new Date().toISOString() })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          // data.finalPrice contains the resolved price
-          item.price = data.finalPrice;
-        }
+        // Find locally first to be snappy
+        const s = services.find(x => x.id === value);
+        if (s) item.price = s.basePrice;
+
+        // Optionally Call Pricing Service for dynamic rules (skipping for now to rely on catalog base)
       } catch (e) {
         console.error("Pricing calc failed", e);
       }
@@ -408,7 +438,7 @@ export default function NewOrderPage() {
                     value={item.serviceId}
                     onChange={(e) => updateItem(item.tempId, 'serviceId', e.target.value)}
                   >
-                    {services.map(s => (
+                    {getFilteredServices(item.garmentId).map(s => (
                       <option key={s.id} value={s.id}>{s.name} (${s.basePrice})</option>
                     ))}
                   </select>
