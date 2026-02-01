@@ -129,130 +129,108 @@ export default function GarmentsPage() {
     }
   };
 
+  // Search Filter
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredGarments = garments.filter(g =>
+    g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    g.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">Prendas</h1>
+          <h1 className="text-3xl font-heading font-brand text-foreground">Prendas</h1>
           <p className="text-muted-foreground">Gestionar tipos de prendas (Camisas, Pantalones, etc).</p>
         </div>
         {isAdmin && (
-          <Button onClick={() => { resetForm(); setIsCreateModalOpen(true); }}>
-            + Agregar Prenda
-          </Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>+ Agregar Prenda</Button>
         )}
       </div>
 
-      <div className="bg-card border border-border rounded-xl  overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-              <tr>
-                <th className="px-6 py-3">Código</th>
-                <th className="px-6 py-3">Nombre</th>
-                <th className="px-6 py-3">Descripción</th>
-                {isAdmin && <th className="px-6 py-3 text-right">Acciones</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {loading ? <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">Cargando...</td></tr> :
-                garments.map(g => (
-                  <tr key={g.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-3 font-medium">{g.code}</td>
-                    <td className="px-6 py-3">{g.name}</td>
-                    <td className="px-6 py-3">{g.description}</td>
-                    {isAdmin && (
-                      <td className="px-6 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEditClick(g)}>Editar</Button>
-                          <Button variant="danger" size="sm" onClick={() => handleDeleteClick(g)}>Eliminar</Button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              {!loading && garments.length === 0 && <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">No se encontraron prendas.</td></tr>}
-            </tbody>
-          </table>
+      <div className="flex gap-4 mb-4">
+        <div className="flex-1 max-w-sm">
+          <Input
+            placeholder="Buscar por código o nombre..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
+      </div>
+
+      <div className="border border-border rounded-lg overflow-hidden">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
+            <tr>
+              <th className="px-4 py-3">Código</th>
+              <th className="px-4 py-3">Nombre</th>
+              <th className="px-4 py-3">Descripción</th>
+              {isAdmin && <th className="px-4 py-3 text-right">Acciones</th>}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {loading ? (
+              <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">Cargando...</td></tr>
+            ) : filteredGarments.length === 0 ? (
+              <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center text-muted-foreground">No se encontraron prendas.</td></tr>
+            ) : (
+              filteredGarments.map((garment) => (
+                <tr key={garment.id} className="hover:bg-secondary/10 transition-colors">
+                  <td className="px-4 py-3 font-mono font-medium">{garment.code}</td>
+                  <td className="px-4 py-3">{garment.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{garment.description}</td>
+                  {isAdmin && (
+                    <td className="px-4 py-3 text-right flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(garment)}>Editar</Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDeleteClick(garment)}>Eliminar</Button>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Create Modal */}
       <Modal
         isOpen={isCreateModalOpen}
-        onClose={resetForm}
-        title="Agregar Nueva Prenda"
-        description="Crear un nuevo tipo de prenda."
-        footer={
-          <>
-            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
-            <Button onClick={() => handleCreateSubmit()} disabled={isSubmitting}>
-              {isSubmitting ? "Guardando..." : "Crear Prenda"}
-            </Button>
-          </>
-        }
+        onClose={() => !isSubmitting && setIsCreateModalOpen(false)}
+        title="Crear Nueva Prenda"
       >
-        <form className="space-y-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Código"
-              placeholder="ej. CAMISA"
-              value={formData.code}
-              onChange={e => setFormData({ ...formData, code: e.target.value })}
-              required
-            />
-            <Input
-              label="Nombre"
-              placeholder="ej. Camisa"
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
+        <form onSubmit={handleCreateSubmit} className="space-y-4">
+          <Input label="Código (Único)" placeholder="GT-JEANS" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} required />
+          <Input label="Nombre" placeholder="Pantalón de Mezclilla" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+          <Input label="Descripción" placeholder="Todo tipo de pantalones..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+          <div className="flex justify-end pt-2">
+            <Button disabled={isSubmitting}>{isSubmitting ? "Guardando..." : "Crear"}</Button>
           </div>
-          <Input
-            label="Descripción"
-            placeholder="Descripción del tipo de prenda"
-            value={formData.description}
-            onChange={e => setFormData({ ...formData, description: e.target.value })}
-          />
         </form>
       </Modal>
 
       {/* Edit Modal */}
       <Modal
         isOpen={!!garmentToEdit}
-        onClose={resetForm}
+        onClose={() => !isSubmitting && setGarmentToEdit(null)}
         title="Editar Prenda"
-        description="Actualizar detalles del tipo de prenda."
-        footer={
-          <>
-            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
-            <Button onClick={() => handleEditSubmit()} disabled={isSubmitting}>
-              {isSubmitting ? "Guardando..." : "Guardar Cambios"}
-            </Button>
-          </>
-        }
       >
-        <form className="space-y-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Código"
-              value={formData.code}
-              onChange={e => setFormData({ ...formData, code: e.target.value })}
-              required
-            />
-            <Input
-              label="Nombre"
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-          </div>
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <Input
+            label="Nombre"
+            value={formData.name}
+            onChange={e => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+
           <Input
             label="Descripción"
             value={formData.description}
             onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
+          <div className="flex justify-end pt-2">
+            <Button disabled={isSubmitting}>{isSubmitting ? "Guardando..." : "Guardar"}</Button>
+          </div>
         </form>
       </Modal>
 
@@ -277,6 +255,6 @@ export default function GarmentsPage() {
           </p>
         </div>
       </Modal>
-    </div>
+    </div >
   );
 }
