@@ -18,12 +18,12 @@ export function Modal({ isOpen, onClose, title, children, footer, description }:
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    
+
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }
-    
+
     return () => {
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = 'unset';
@@ -35,22 +35,22 @@ export function Modal({ isOpen, onClose, title, children, footer, description }:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity" 
+      <div
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Modal Content */}
       <div className="relative z-50 w-full max-w-lg">
         <Card className="shadow-lg border-2">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>{title}</CardTitle>
-              <button 
+              <button
                 onClick={onClose}
                 className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
               >
-                <span className="sr-only">Close</span>
+                <span className="sr-only">Cerrar</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -69,7 +69,7 @@ export function Modal({ isOpen, onClose, title, children, footer, description }:
               </button>
             </div>
             {description && (
-               <p className="text-sm text-muted-foreground">{description}</p>
+              <p className="text-sm text-muted-foreground">{description}</p>
             )}
           </CardHeader>
           <CardContent>

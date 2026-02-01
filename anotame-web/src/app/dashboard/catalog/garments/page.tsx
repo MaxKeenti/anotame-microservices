@@ -133,12 +133,12 @@ export default function GarmentsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">Garments</h1>
-          <p className="text-muted-foreground">Manage types of garments (Shirts, Pants, etc).</p>
+          <h1 className="text-3xl font-heading font-bold text-foreground">Prendas</h1>
+          <p className="text-muted-foreground">Gestionar tipos de prendas (Camisas, Pantalones, etc).</p>
         </div>
         {isAdmin && (
           <Button onClick={() => { resetForm(); setIsCreateModalOpen(true); }}>
-            + Add Garment
+            + Agregar Prenda
           </Button>
         )}
       </div>
@@ -148,14 +148,14 @@ export default function GarmentsPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
               <tr>
-                <th className="px-6 py-3">Code</th>
-                <th className="px-6 py-3">Name</th>
-                <th className="px-6 py-3">Description</th>
-                {isAdmin && <th className="px-6 py-3 text-right">Actions</th>}
+                <th className="px-6 py-3">Código</th>
+                <th className="px-6 py-3">Nombre</th>
+                <th className="px-6 py-3">Descripción</th>
+                {isAdmin && <th className="px-6 py-3 text-right">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {loading ? <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">Loading...</td></tr> :
+              {loading ? <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">Cargando...</td></tr> :
                 garments.map(g => (
                   <tr key={g.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-3 font-medium">{g.code}</td>
@@ -164,14 +164,14 @@ export default function GarmentsPage() {
                     {isAdmin && (
                       <td className="px-6 py-3 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEditClick(g)}>Edit</Button>
-                          <Button variant="danger" size="sm" onClick={() => handleDeleteClick(g)}>Delete</Button>
+                          <Button variant="outline" size="sm" onClick={() => handleEditClick(g)}>Editar</Button>
+                          <Button variant="danger" size="sm" onClick={() => handleDeleteClick(g)}>Eliminar</Button>
                         </div>
                       </td>
                     )}
                   </tr>
                 ))}
-              {!loading && garments.length === 0 && <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">No garments found.</td></tr>}
+              {!loading && garments.length === 0 && <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">No se encontraron prendas.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -181,13 +181,13 @@ export default function GarmentsPage() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={resetForm}
-        title="Add New Garment"
-        description="Create a new garment type."
+        title="Agregar Nueva Prenda"
+        description="Crear un nuevo tipo de prenda."
         footer={
           <>
-            <Button variant="outline" onClick={resetForm}>Cancel</Button>
+            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
             <Button onClick={() => handleCreateSubmit()} disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Create Garment"}
+              {isSubmitting ? "Guardando..." : "Crear Prenda"}
             </Button>
           </>
         }
@@ -195,23 +195,23 @@ export default function GarmentsPage() {
         <form className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Code"
-              placeholder="e.g. SHIRT"
+              label="Código"
+              placeholder="ej. CAMISA"
               value={formData.code}
               onChange={e => setFormData({ ...formData, code: e.target.value })}
               required
             />
             <Input
-              label="Name"
-              placeholder="e.g. Shirt"
+              label="Nombre"
+              placeholder="ej. Camisa"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               required
             />
           </div>
           <Input
-            label="Description"
-            placeholder="Description of the garment type"
+            label="Descripción"
+            placeholder="Descripción del tipo de prenda"
             value={formData.description}
             onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
@@ -222,13 +222,13 @@ export default function GarmentsPage() {
       <Modal
         isOpen={!!garmentToEdit}
         onClose={resetForm}
-        title="Edit Garment"
-        description="Update garment type details."
+        title="Editar Prenda"
+        description="Actualizar detalles del tipo de prenda."
         footer={
           <>
-            <Button variant="outline" onClick={resetForm}>Cancel</Button>
+            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
             <Button onClick={() => handleEditSubmit()} disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? "Guardando..." : "Guardar Cambios"}
             </Button>
           </>
         }
@@ -236,20 +236,20 @@ export default function GarmentsPage() {
         <form className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Code"
+              label="Código"
               value={formData.code}
               onChange={e => setFormData({ ...formData, code: e.target.value })}
               required
             />
             <Input
-              label="Name"
+              label="Nombre"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               required
             />
           </div>
           <Input
-            label="Description"
+            label="Descripción"
             value={formData.description}
             onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
@@ -260,20 +260,20 @@ export default function GarmentsPage() {
       <Modal
         isOpen={!!garmentToDelete}
         onClose={() => setGarmentToDelete(null)}
-        title="Confirm Deletion"
-        description="Are you sure you want to delete this garment type?"
+        title="Confirmar Eliminación"
+        description="¿Estás seguro de que deseas eliminar este tipo de prenda?"
         footer={
           <>
-            <Button variant="outline" onClick={() => setGarmentToDelete(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setGarmentToDelete(null)}>Cancelar</Button>
             <Button variant="danger" onClick={confirmDelete} disabled={isSubmitting}>
-              {isSubmitting ? "Deleting..." : "Delete"}
+              {isSubmitting ? "Eliminando..." : "Eliminar"}
             </Button>
           </>
         }
       >
         <div className="py-4">
           <p className="text-sm">
-            You are about to delete <strong>{garmentToDelete?.name}</strong>.
+            Estás a punto de eliminar <strong>{garmentToDelete?.name}</strong>.
           </p>
         </div>
       </Modal>

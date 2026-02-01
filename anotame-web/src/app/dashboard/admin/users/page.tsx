@@ -53,58 +53,58 @@ export default function EmployeesPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Employee Management</h1>
+                <h1 className="text-3xl font-bold">Gestión de Empleados</h1>
                 <Button onClick={() => setShowForm(!showForm)}>
-                    {showForm ? "Cancel" : "+ Add Employee"}
+                    {showForm ? "Cancelar" : "+ Agregar Empleado"}
                 </Button>
             </div>
 
             {showForm && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Register New Employee</CardTitle>
+                        <CardTitle>Registrar Nuevo Empleado</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <Input
-                                    label="Username"
+                                    label="Usuario"
                                     value={formData.username}
                                     onChange={e => setFormData({ ...formData, username: e.target.value })}
                                     required
                                 />
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Role</label>
+                                    <label className="text-sm font-medium">Rol</label>
                                     <select
                                         className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                                         value={formData.role}
                                         onChange={e => setFormData({ ...formData, role: e.target.value })}
                                     >
-                                        <option value="EMPLOYEE">Employee</option>
-                                        <option value="ADMIN">Administrator</option>
+                                        <option value="EMPLOYEE">Empleado</option>
+                                        <option value="ADMIN">Administrador</option>
                                     </select>
                                 </div>
                                 <Input
-                                    label="First Name"
+                                    label="Nombre"
                                     value={formData.firstName}
                                     onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                                     required
                                 />
                                 <Input
-                                    label="Last Name"
+                                    label="Apellido"
                                     value={formData.lastName}
                                     onChange={e => setFormData({ ...formData, lastName: e.target.value })}
                                     required
                                 />
                                 <Input
-                                    label="Email"
+                                    label="Correo"
                                     type="email"
                                     value={formData.email}
                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                                     required
                                 />
                                 <Input
-                                    label="Password"
+                                    label="Contraseña"
                                     type="password"
                                     value={formData.password}
                                     onChange={e => setFormData({ ...formData, password: e.target.value })}
@@ -112,7 +112,7 @@ export default function EmployeesPage() {
                                 />
                             </div>
                             <div className="flex justify-end pt-4">
-                                <Button type="submit">Create User</Button>
+                                <Button type="submit">Crear Usuario</Button>
                             </div>
                         </form>
                     </CardContent>
@@ -122,16 +122,16 @@ export default function EmployeesPage() {
             <Card>
                 <CardContent className="p-0">
                     {isLoading ? (
-                        <div className="p-8 text-center">Loading...</div>
+                        <div className="p-8 text-center">Cargando...</div>
                     ) : (
                         <table className="w-full text-sm">
                             <thead className="border-b bg-muted/50">
                                 <tr className="text-left">
                                     <th className="p-4 font-medium">ID</th>
-                                    <th className="p-4 font-medium">Name</th>
-                                    <th className="p-4 font-medium">Username</th>
-                                    <th className="p-4 font-medium">Role</th>
-                                    <th className="p-4 font-medium">Email</th>
+                                    <th className="p-4 font-medium">Nombre</th>
+                                    <th className="p-4 font-medium">Usuario</th>
+                                    <th className="p-4 font-medium">Rol</th>
+                                    <th className="p-4 font-medium">Correo</th>
                                 </tr>
                             </thead>
                             <tbody>

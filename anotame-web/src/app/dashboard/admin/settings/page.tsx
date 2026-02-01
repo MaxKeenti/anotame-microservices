@@ -62,22 +62,22 @@ export default function SettingsPage() {
 
     return (
         <div className="max-w-3xl mx-auto space-y-6">
-            <h1 className="text-3xl font-bold">Establishment Settings</h1>
+            <h1 className="text-3xl font-bold">Configuración del Establecimiento</h1>
 
             <form onSubmit={handleSave} className="space-y-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>General Information</CardTitle>
+                        <CardTitle>Información General</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Input
-                            label="Store Name"
+                            label="Nombre de la Tienda"
                             value={settings.name}
                             onChange={e => setSettings({ ...settings, name: e.target.value })}
                             required
                         />
                         <Input
-                            label="Owner Full Name"
+                            label="Nombre del Propietario"
                             value={settings.ownerName || ""}
                             onChange={e => setSettings({ ...settings, ownerName: e.target.value })}
                         />
@@ -86,7 +86,7 @@ export default function SettingsPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Tax & Receipt Information</CardTitle>
+                        <CardTitle>Información Fiscal y de Recibos</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Input
@@ -95,12 +95,12 @@ export default function SettingsPage() {
                             onChange={e => setTaxData({ ...taxData, rfc: e.target.value })}
                         />
                         <Input
-                            label="Tax Regime"
+                            label="Régimen Fiscal"
                             value={taxData.regime || ""}
                             onChange={e => setTaxData({ ...taxData, regime: e.target.value })}
                         />
                         <Input
-                            label="Full Address (For Receipt)"
+                            label="Dirección Completa (Para Recibo)"
                             value={taxData.address || ""}
                             onChange={e => setTaxData({ ...taxData, address: e.target.value })}
                         />
@@ -108,8 +108,8 @@ export default function SettingsPage() {
                 </Card>
 
                 <div className="flex justify-end gap-4">
-                    <Button variant="outline" type="button" onClick={() => router.back()}>Cancel</Button>
-                    <Button type="submit" disabled={isLoading}>Save Changes</Button>
+                    <Button variant="outline" type="button" onClick={() => router.back()}>Cancelar</Button>
+                    <Button type="submit" disabled={isLoading}>Guardar Cambios</Button>
                 </div>
             </form>
         </div>

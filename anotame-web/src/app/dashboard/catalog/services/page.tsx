@@ -136,12 +136,12 @@ export default function ServicesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">Services</h1>
-          <p className="text-muted-foreground">Manage offered services and pricing.</p>
+          <h1 className="text-3xl font-heading font-bold text-foreground">Servicios</h1>
+          <p className="text-muted-foreground">Gestionar servicios ofrecidos y precios.</p>
         </div>
         {isAdmin && (
           <Button onClick={() => { resetForm(); setIsCreateModalOpen(true); }}>
-            + Add Service
+            + Agregar Servicio
           </Button>
         )}
       </div>
@@ -151,15 +151,15 @@ export default function ServicesPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
               <tr>
-                <th className="px-6 py-3">Code</th>
-                <th className="px-6 py-3">Name</th>
-                <th className="px-6 py-3">Duration (min)</th>
-                <th className="px-6 py-3">Price</th>
-                {isAdmin && <th className="px-6 py-3 text-right">Actions</th>}
+                <th className="px-6 py-3">Código</th>
+                <th className="px-6 py-3">Nombre</th>
+                <th className="px-6 py-3">Duración (min)</th>
+                <th className="px-6 py-3">Precio</th>
+                {isAdmin && <th className="px-6 py-3 text-right">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {loading ? <tr><td colSpan={isAdmin ? 5 : 4} className="p-4 text-center">Loading...</td></tr> :
+              {loading ? <tr><td colSpan={isAdmin ? 5 : 4} className="p-4 text-center">Cargando...</td></tr> :
                 services.map(s => (
                   <tr key={s.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-3 font-medium">{s.code}</td>
@@ -169,14 +169,14 @@ export default function ServicesPage() {
                     {isAdmin && (
                       <td className="px-6 py-3 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEditClick(s)}>Edit</Button>
-                          <Button variant="danger" size="sm" onClick={() => handleDeleteClick(s)}>Delete</Button>
+                          <Button variant="outline" size="sm" onClick={() => handleEditClick(s)}>Editar</Button>
+                          <Button variant="danger" size="sm" onClick={() => handleDeleteClick(s)}>Eliminar</Button>
                         </div>
                       </td>
                     )}
                   </tr>
                 ))}
-              {!loading && services.length === 0 && <tr><td colSpan={isAdmin ? 5 : 4} className="p-4 text-center">No services found.</td></tr>}
+              {!loading && services.length === 0 && <tr><td colSpan={isAdmin ? 5 : 4} className="p-4 text-center">No se encontraron servicios.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -186,13 +186,13 @@ export default function ServicesPage() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={resetForm}
-        title="Add New Service"
-        description="Create a new service offering."
+        title="Agregar Nuevo Servicio"
+        description="Crear una nueva oferta de servicio."
         footer={
           <>
-            <Button variant="outline" onClick={resetForm}>Cancel</Button>
+            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
             <Button onClick={() => handleCreateSubmit()} disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Create Service"}
+              {isSubmitting ? "Guardando..." : "Crear Servicio"}
             </Button>
           </>
         }
@@ -200,15 +200,15 @@ export default function ServicesPage() {
         <form className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Code"
-              placeholder="e.g. HEM"
+              label="Código"
+              placeholder="ej. BASTILLA"
               value={formData.code}
               onChange={e => setFormData({ ...formData, code: e.target.value })}
               required
             />
             <Input
-              label="Name"
-              placeholder="e.g. Hemming"
+              label="Nombre"
+              placeholder="ej. Bastilla"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               required
@@ -216,13 +216,13 @@ export default function ServicesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Duration (min)"
+              label="Duración (min)"
               type="number"
               value={formData.defaultDurationMin}
               onChange={e => setFormData({ ...formData, defaultDurationMin: parseInt(e.target.value) || 0 })}
             />
             <Input
-              label="Base Price"
+              label="Precio Base"
               type="number"
               step="0.01"
               value={formData.basePrice}
@@ -230,8 +230,8 @@ export default function ServicesPage() {
             />
           </div>
           <Input
-            label="Description"
-            placeholder="Description of the service"
+            label="Descripción"
+            placeholder="Descripción del servicio"
             value={formData.description}
             onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
@@ -242,13 +242,13 @@ export default function ServicesPage() {
       <Modal
         isOpen={!!serviceToEdit}
         onClose={resetForm}
-        title="Edit Service"
-        description="Update service details."
+        title="Editar Servicio"
+        description="Actualizar detalles del servicio."
         footer={
           <>
-            <Button variant="outline" onClick={resetForm}>Cancel</Button>
+            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
             <Button onClick={() => handleEditSubmit()} disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? "Guardando..." : "Guardar Cambios"}
             </Button>
           </>
         }
@@ -256,13 +256,13 @@ export default function ServicesPage() {
         <form className="space-y-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Code"
+              label="Código"
               value={formData.code}
               onChange={e => setFormData({ ...formData, code: e.target.value })}
               required
             />
             <Input
-              label="Name"
+              label="Nombre"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               required
@@ -270,13 +270,13 @@ export default function ServicesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Duration (min)"
+              label="Duración (min)"
               type="number"
               value={formData.defaultDurationMin}
               onChange={e => setFormData({ ...formData, defaultDurationMin: parseInt(e.target.value) || 0 })}
             />
             <Input
-              label="Base Price"
+              label="Precio Base"
               type="number"
               step="0.01"
               value={formData.basePrice}
@@ -284,7 +284,7 @@ export default function ServicesPage() {
             />
           </div>
           <Input
-            label="Description"
+            label="Descripción"
             value={formData.description}
             onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
@@ -295,20 +295,20 @@ export default function ServicesPage() {
       <Modal
         isOpen={!!serviceToDelete}
         onClose={() => setServiceToDelete(null)}
-        title="Confirm Deletion"
-        description="Are you sure you want to delete this service?"
+        title="Confirmar Eliminación"
+        description="¿Estás seguro de que deseas eliminar este servicio?"
         footer={
           <>
-            <Button variant="outline" onClick={() => setServiceToDelete(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setServiceToDelete(null)}>Cancelar</Button>
             <Button variant="danger" onClick={confirmDelete} disabled={isSubmitting}>
-              {isSubmitting ? "Deleting..." : "Delete"}
+              {isSubmitting ? "Eliminando..." : "Eliminar"}
             </Button>
           </>
         }
       >
         <div className="py-4">
           <p className="text-sm">
-            You are about to delete <strong>{serviceToDelete?.name}</strong>.
+            Estás a punto de eliminar <strong>{serviceToDelete?.name}</strong>.
           </p>
         </div>
       </Modal>

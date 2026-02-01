@@ -307,13 +307,13 @@ export default function NewOrderPage() {
       <div className="max-w-md mx-auto pt-10">
         <Card>
           <CardHeader>
-            <CardTitle className="text-center text-green-600 text-3xl">Order Created!</CardTitle>
+            <CardTitle className="text-center text-green-600 text-3xl">¡Pedido Creado!</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 text-center">
             <p className="text-xl">Ticket: <span className="font-mono font-bold">{createdOrderTicket}</span></p>
             <div className="flex justify-center gap-4">
-              <Button size="lg" onClick={handlePrint}>Print Ticket</Button>
-              <Button variant="outline" onClick={() => router.push("/dashboard")}>Go to Dashboard</Button>
+              <Button size="lg" onClick={handlePrint}>Imprimir Ticket</Button>
+              <Button variant="outline" onClick={() => router.push("/dashboard")}>Ir al Inicio</Button>
             </div>
           </CardContent>
         </Card>
@@ -323,25 +323,24 @@ export default function NewOrderPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* ... (Existing JSX for Header) ... */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-foreground">New Order</h1>
-        <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
+        <h1 className="text-3xl font-heading font-bold text-foreground">Nuevo Pedido</h1>
+        <Button variant="outline" onClick={() => router.back()}>Cancelar</Button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Customer Details */}
         <Card>
           <CardHeader>
-            <CardTitle>Customer Details</CardTitle>
+            <CardTitle>Datos del Cliente</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Search */}
             <div className="flex gap-2 items-end">
               <div className="relative flex-1">
                 <Input
-                  label="Search Customer (Name/Phone)"
-                  placeholder="Type to search..."
+                  label="Buscar Cliente (Nombre/Tel)"
+                  placeholder="Escribe para buscar..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                 />
@@ -361,16 +360,16 @@ export default function NewOrderPage() {
                 )}
               </div>
               <Button type="button" onClick={() => router.push("/dashboard/customers/new")}>
-                + New Customer
+                + Nuevo Cliente
               </Button>
             </div>
 
 
             <div className="grid grid-cols-2 gap-4">
-              <Input label="First Name" placeholder="Jane" required value={firstName} onChange={e => setFirstName(e.target.value)} />
-              <Input label="Last Name" placeholder="Doe" required value={lastName} onChange={e => setLastName(e.target.value)} />
-              <Input label="Phone" placeholder="555-0123" required value={phone} onChange={e => setPhone(e.target.value)} />
-              <Input label="Email" type="email" placeholder="jane@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+              <Input label="Nombre" placeholder="Juan" required value={firstName} onChange={e => setFirstName(e.target.value)} />
+              <Input label="Apellido" placeholder="Pérez" required value={lastName} onChange={e => setLastName(e.target.value)} />
+              <Input label="Teléfono" placeholder="555-0123" required value={phone} onChange={e => setPhone(e.target.value)} />
+              <Input label="Correo" type="email" placeholder="juan@ejemplo.com" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
           </CardContent>
         </Card>
@@ -378,20 +377,20 @@ export default function NewOrderPage() {
         {/* Order Items */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Garments & Services</CardTitle>
-            <Button type="button" size="sm" onClick={addItem}>+ Add Item</Button>
+            <CardTitle>Prendas y Servicios</CardTitle>
+            <Button type="button" size="sm" onClick={addItem}>+ Agregar Prenda</Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {items.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                No items added. Click "Add Item" to start.
+                No hay prendas. Clic en "+ Agregar Prenda" para iniciar.
               </p>
             )}
 
             {items.map((item) => (
               <div key={item.tempId} className="grid grid-cols-12 gap-4 items-start p-4 border border-border rounded-lg bg-secondary/10">
                 <div className="col-span-3">
-                  <label className="text-xs font-medium mb-1 block">Garment</label>
+                  <label className="text-xs font-medium mb-1 block">Prenda</label>
                   <select
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={item.garmentId}
@@ -403,7 +402,7 @@ export default function NewOrderPage() {
                   </select>
                 </div>
                 <div className="col-span-3">
-                  <label className="text-xs font-medium mb-1 block">Service</label>
+                  <label className="text-xs font-medium mb-1 block">Servicio</label>
                   <select
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={item.serviceId}
@@ -416,14 +415,14 @@ export default function NewOrderPage() {
                 </div>
                 <div className="col-span-3">
                   <Input
-                    label="Notes"
-                    placeholder="e.g. Hem 1 inch"
+                    label="Notas"
+                    placeholder="ej. Bastilla 1 pulgada"
                     value={item.notes}
                     onChange={(e) => updateItem(item.tempId, 'notes', e.target.value)}
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="text-xs font-medium mb-1 block">Adjust Price ($)</label>
+                  <label className="text-xs font-medium mb-1 block">Ajustar Precio ($)</label>
                   <div className="flex gap-1">
                     <input
                       type="number"
@@ -435,7 +434,7 @@ export default function NewOrderPage() {
                     <input
                       type="text"
                       className="w-full h-10 rounded-md border border-input px-2 text-sm"
-                      placeholder="Reason"
+                      placeholder="Razón"
                       value={item.adjReason || ""}
                       onChange={(e) => updateItem(item.tempId, 'adjReason', e.target.value)}
                     />
@@ -444,10 +443,10 @@ export default function NewOrderPage() {
                 <div className="col-span-1 pt-6 flex justify-end gap-2">
                   <button type="button" onClick={() => {
                     setItems([...items, { ...item, tempId: Date.now() }]);
-                  }} className="text-blue-500 hover:text-blue-700" title="Duplicate">
+                  }} className="text-blue-500 hover:text-blue-700" title="Duplicar">
                     📋
                   </button>
-                  <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700" title="Remove">
+                  <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700" title="Eliminar">
                     &times;
                   </button>
                 </div>
@@ -459,12 +458,12 @@ export default function NewOrderPage() {
         {/* Payment & Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Payment & Summary</CardTitle>
+            <CardTitle>Pago y Resumen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <Input
-                label="Amount Paid"
+                label="Monto Pagado"
                 type="number"
                 min="0"
                 step="0.01"
@@ -472,19 +471,19 @@ export default function NewOrderPage() {
                 onChange={(e) => setAmountPaid(e.target.value)}
               />
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Payment Method</label>
+                <label className="text-sm font-medium">Método de Pago</label>
                 <select
                   className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 >
-                  <option value="CASH">Cash</option>
-                  <option value="CARD">Card</option>
-                  <option value="TRANSFER">Transfer</option>
+                  <option value="CASH">Efectivo</option>
+                  <option value="CARD">Tarjeta</option>
+                  <option value="TRANSFER">Transferencia</option>
                 </select>
               </div>
               <div className="flex flex-col gap-2 justify-end pb-2">
-                <div className="text-sm font-bold">Balance Due:</div>
+                <div className="text-sm font-bold">Saldo Pendiente:</div>
                 <div className={`text-xl ${calculateBalance() > 0 ? 'text-red-600' : 'text-green-600'}`}>
                   ${calculateBalance().toFixed(2)}
                 </div>
@@ -493,22 +492,22 @@ export default function NewOrderPage() {
 
             <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
               <Input
-                label="Deadline"
+                label="Fecha de Entrega"
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
                 required
               />
               <Input
-                label="Internal Notes"
-                placeholder="Urgent..."
+                label="Notas Internas"
+                placeholder="Urgente..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
             </div>
 
             <div className="flex justify-end items-center gap-4 text-xl font-bold pt-4">
-              <span>Total Order:</span>
+              <span>Total del Pedido:</span>
               <span>${calculateTotal().toFixed(2)}</span>
             </div>
           </CardContent>
@@ -516,7 +515,7 @@ export default function NewOrderPage() {
 
         <div className="flex justify-end">
           <Button size="lg" disabled={isLoading || items.length === 0}>
-            {isLoading ? "Creating Ticket..." : "Create Ticket"}
+            {isLoading ? "Creando Ticket..." : "Crear Ticket"}
           </Button>
         </div>
       </form>

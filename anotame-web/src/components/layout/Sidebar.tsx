@@ -5,16 +5,16 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
-  { name: "Overview", href: "/dashboard", icon: "Home" },
-  { name: "Orders", href: "/dashboard/orders", icon: "ClipboardList" },
-  { name: "Work Orders", href: "/dashboard/operations", icon: "Activity" },
-  { name: "Garments", href: "/dashboard/catalog/garments", icon: "Shirt" },
-  { name: "Services", href: "/dashboard/catalog/services", icon: "Tag" },
-  { name: "Price Lists", href: "/dashboard/catalog/pricelists", icon: "DollarSign" },
-  { name: "Scheduling", href: "/dashboard/admin/schedule", icon: "Calendar" },
-  { name: "Settings", href: "/dashboard/admin/settings", icon: "Settings" },
-  { name: "Employees", href: "/dashboard/admin/users", icon: "Users" },
-  { name: "Customers", href: "/dashboard/customers", icon: "Users" },
+  { name: "Inicio", href: "/dashboard", icon: "Home" },
+  { name: "Pedidos", href: "/dashboard/orders", icon: "ClipboardList" },
+  { name: "Órdenes", href: "/dashboard/operations", icon: "Activity" },
+  { name: "Prendas", href: "/dashboard/catalog/garments", icon: "Shirt" },
+  { name: "Servicios", href: "/dashboard/catalog/services", icon: "Tag" },
+  { name: "Listas de Precios", href: "/dashboard/catalog/pricelists", icon: "DollarSign" },
+  { name: "Horarios", href: "/dashboard/admin/schedule", icon: "Calendar" },
+  { name: "Ajustes", href: "/dashboard/admin/settings", icon: "Settings" },
+  { name: "Empleados", href: "/dashboard/admin/users", icon: "Users" },
+  { name: "Clientes", href: "/dashboard/customers", icon: "Users" },
 ];
 
 export function Sidebar() {
@@ -35,7 +35,7 @@ export function Sidebar() {
           const isAdmin = user?.role === 'ADMIN';
 
           // Explicit Logic
-          const adminOnly = ["Employees", "Settings", "Scheduling", "Price Lists"];
+          const adminOnly = ["Empleados", "Ajustes", "Horarios", "Listas de Precios"];
           if (adminOnly.includes(item.name)) return isAdmin;
 
           return true;

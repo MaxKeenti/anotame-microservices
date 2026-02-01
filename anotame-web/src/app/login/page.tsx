@@ -24,41 +24,41 @@ export default function LoginPage() {
           <h1 className="text-3xl font-heading font-bold text-foreground">
             Anotame<span className="text-primary">.</span>
           </h1>
-          <CardTitle>Sign in to your account</CardTitle>
+          <CardTitle>Inicia sesión en tu cuenta</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Enter your credentials to access the dashboard
+            Ingresa tus credenciales para acceder
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Input 
-              label="Username" 
-              placeholder="admin" 
+            <Input
+              label="Usuario"
+              placeholder="admin"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
-            <Input 
-              label="Password" 
-              type="password" 
-              placeholder="••••••••" 
+            <Input
+              label="Contraseña"
+              type="password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            
-            <Button 
-              type="submit" 
-              className="w-full" 
+
+            <Button
+              type="submit"
+              className="w-full"
               size="lg"
               disabled={isLoading}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
             </Button>
-            
+
             <div className="text-center text-sm">
               <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
-                &larr; Back to Home
+                &larr; Volver al Inicio
               </Link>
             </div>
           </form>

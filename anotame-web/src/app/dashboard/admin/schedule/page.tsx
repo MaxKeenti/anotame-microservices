@@ -83,12 +83,12 @@ export default function SchedulePage() {
         }
     };
 
-    if (isLoading && workDays.length === 0) return <div className="p-8">Loading schedule...</div>;
+    if (isLoading && workDays.length === 0) return <div className="p-8">Cargando horario...</div>;
 
     return (
         <div className="space-y-6 max-w-5xl mx-auto">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Work Scheduling</h1>
+                <h1 className="text-3xl font-bold">Horarios de Trabajo</h1>
             </div>
 
             <div className="flex gap-4 border-b border-border">
@@ -96,27 +96,28 @@ export default function SchedulePage() {
                     className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === 'weekly' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
                     onClick={() => setActiveTab('weekly')}
                 >
-                    Weekly Hours
+                    Horario Semanal
                 </button>
                 <button
                     className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === 'holidays' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
                     onClick={() => setActiveTab('holidays')}
                 >
-                    Holidays & Exceptions
+                    Días Festivos y Excepciones
                 </button>
             </div>
 
             {activeTab === 'weekly' && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Standard Opening Hours</CardTitle>
+                        <CardTitle>Horario de Apertura Estándar</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
                             {workDays.map((day, index) => (
                                 <div key={day.dayOfWeek} className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/5">
                                     <div className="w-32 font-medium">
-                                        {DAYS[day.dayOfWeek - 1]}
+                                        {/* Simple translation mapping */}
+                                        {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][day.dayOfWeek - 1]}
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <input
@@ -126,7 +127,7 @@ export default function SchedulePage() {
                                             onChange={(e) => handleWorkDayChange(index, 'open', e.target.checked)}
                                         />
                                         <span className={day.open ? "text-green-600 font-bold" : "text-gray-400"}>
-                                            {day.open ? "Open" : "Closed"}
+                                            {day.open ? "Abierto" : "Cerrado"}
                                         </span>
                                     </div>
 
@@ -138,7 +139,7 @@ export default function SchedulePage() {
                                                 onChange={(e) => handleWorkDayChange(index, 'openTime', e.target.value)}
                                                 className="w-32"
                                             />
-                                            <span>to</span>
+                                            <span>a</span>
                                             <Input
                                                 type="time"
                                                 value={day.closeTime || "18:00"}
@@ -152,7 +153,7 @@ export default function SchedulePage() {
                         </div>
                         <div className="flex justify-end">
                             <Button onClick={saveWeeklySchedule} disabled={isLoading}>
-                                Save Changes
+                                Guardar Cambios
                             </Button>
                         </div>
                     </CardContent>
@@ -163,26 +164,26 @@ export default function SchedulePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Card className="md:col-span-1 h-fit">
                         <CardHeader>
-                            <CardTitle>Add Holiday</CardTitle>
+                            <CardTitle>Agregar Día Festivo</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={handleAddHoliday} className="space-y-4">
                                 <Input
-                                    label="Date"
+                                    label="Fecha"
                                     type="date"
                                     required
                                     value={newHolidayDate}
                                     onChange={e => setNewHolidayDate(e.target.value)}
                                 />
                                 <Input
-                                    label="Description"
-                                    placeholder="e.g. Christmas"
+                                    label="Descripción"
+                                    placeholder="ej. Navidad"
                                     required
                                     value={newHolidayDesc}
                                     onChange={e => setNewHolidayDesc(e.target.value)}
                                 />
                                 <Button type="submit" className="w-full">
-                                    Add Exception
+                                    Agregar Excepción
                                 </Button>
                             </form>
                         </CardContent>
@@ -190,19 +191,19 @@ export default function SchedulePage() {
 
                     <Card className="md:col-span-2">
                         <CardHeader>
-                            <CardTitle>Upcoming Holidays</CardTitle>
+                            <CardTitle>Próximos Días Festivos</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {holidays.length === 0 ? (
-                                <p className="text-muted-foreground">No holidays configured.</p>
+                                <p className="text-muted-foreground">No hay días festivos configurados.</p>
                             ) : (
                                 <div className="border rounded-md">
                                     <table className="w-full text-sm">
                                         <thead className="bg-secondary/20">
                                             <tr>
-                                                <th className="p-3 text-left">Date</th>
-                                                <th className="p-3 text-left">Description</th>
-                                                <th className="p-3 text-right">Actions</th>
+                                                <th className="p-3 text-left">Fecha</th>
+                                                <th className="p-3 text-left">Descripción</th>
+                                                <th className="p-3 text-right">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -220,7 +221,7 @@ export default function SchedulePage() {
                                                             size="sm"
                                                             onClick={() => h.id && handleDeleteHoliday(h.id)}
                                                         >
-                                                            Delete
+                                                            Eliminar
                                                         </Button>
                                                     </td>
                                                 </tr>

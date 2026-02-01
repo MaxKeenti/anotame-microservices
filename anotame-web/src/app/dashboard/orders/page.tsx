@@ -27,17 +27,28 @@ export default function ServicesPage() {
     fetchOrders();
   }, []);
 
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      'RECEIVED': 'RECIBIDO',
+      'IN_PROGRESS': 'EN PROGRESO',
+      'READY': 'LISTO',
+      'DELIVERED': 'ENTREGADO',
+      'CANCELLED': 'CANCELADO'
+    };
+    return map[status] || status;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-            <h1 className="text-3xl font-heading font-bold text-foreground">Orders</h1>
-            <p className="text-muted-foreground">View and manage customer orders.</p>
+          <h1 className="text-3xl font-heading font-bold text-foreground">Pedidos</h1>
+          <p className="text-muted-foreground">Ver y gestionar pedidos de clientes.</p>
         </div>
-        <Link 
+        <Link
           href="/dashboard/orders/new"
         >
-          <Button>+ New Order</Button>
+          <Button>+ Nuevo Pedido</Button>
         </Link>
       </div>
 
@@ -47,36 +58,36 @@ export default function ServicesPage() {
             <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
               <tr>
                 <th className="px-6 py-3">Ticket</th>
-                <th className="px-6 py-3">Customer</th>
-                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Cliente</th>
+                <th className="px-6 py-3">Estado</th>
                 <th className="px-6 py-3">Total</th>
-                <th className="px-6 py-3">Action</th>
+                <th className="px-6 py-3">Acción</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {loading ? <tr><td colSpan={5} className="p-4 text-center">Loading...</td></tr> : 
-               orders.map(o => (
-                <tr key={o.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-3 font-medium">{o.ticketNumber}</td>
-                  <td className="px-6 py-3">{o.customer.firstName} {o.customer.lastName}</td>
-                  <td className="px-6 py-3">
+              {loading ? <tr><td colSpan={5} className="p-4 text-center">Cargando...</td></tr> :
+                orders.map(o => (
+                  <tr key={o.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-3 font-medium">{o.ticketNumber}</td>
+                    <td className="px-6 py-3">{o.customer.firstName} {o.customer.lastName}</td>
+                    <td className="px-6 py-3">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                          ${o.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800' : 
-                            o.status === 'READY' ? 'bg-emerald-100 text-emerald-800' : 
-                            o.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 
-                            'bg-gray-100 text-gray-800'}`}>
-                      {o.status}
+                          ${o.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800' :
+                          o.status === 'READY' ? 'bg-emerald-100 text-emerald-800' :
+                            o.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'}`}>
+                        {getStatusLabel(o.status)}
                       </span>
-                  </td>
-                  <td className="px-6 py-3">${(o.totalAmount || 0).toFixed(2)}</td>
-                  <td className="px-6 py-3">
-                    <Link href={`/dashboard/orders/${o.id}`}>
-                        <Button variant="outline" size="sm">Details</Button>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {!loading && orders.length === 0 && <tr><td colSpan={5} className="p-4 text-center">No orders found.</td></tr>}
+                    </td>
+                    <td className="px-6 py-3">${(o.totalAmount || 0).toFixed(2)}</td>
+                    <td className="px-6 py-3">
+                      <Link href={`/dashboard/orders/${o.id}`}>
+                        <Button variant="outline" size="sm">Detalles</Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              {!loading && orders.length === 0 && <tr><td colSpan={5} className="p-4 text-center">No se encontraron pedidos.</td></tr>}
             </tbody>
           </table>
         </div>

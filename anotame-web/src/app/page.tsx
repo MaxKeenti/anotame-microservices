@@ -13,32 +13,32 @@ export default function Home() {
           Anotame<span className="text-primary">.com</span>
         </h1>
         <p className="text-xl text-muted-foreground max-w-md">
-          The management platform for modern tailor shops. 
-          Manage orders, customers, and services with elegance.
+          La plataforma de gestión para sastrerías modernas.
+          Gestione órdenes, clientes y servicios con elegancia.
         </p>
-        
+
         <div className="flex gap-4 mt-4">
           {!isLoading && (
             isAuthenticated ? (
-              <Link 
-                href="/dashboard" 
+              <Link
+                href="/dashboard"
                 className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
               >
-                Go to Dashboard
+                Ir al Tablero
               </Link>
             ) : (
               <>
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
                 >
-                  Create Account
+                  Crear Cuenta
                 </Link>
-                <Link 
+                <Link
                   href="/login"
                   className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors"
                 >
-                  Login
+                  Iniciar Sesión
                 </Link>
               </>
             )

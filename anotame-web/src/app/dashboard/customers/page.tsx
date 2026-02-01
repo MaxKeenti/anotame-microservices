@@ -66,21 +66,21 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">Customers</h1>
-          <p className="text-muted-foreground">Manage your customer base.</p>
+          <h1 className="text-3xl font-heading font-bold text-foreground">Clientes</h1>
+          <p className="text-muted-foreground">Gestionar base de datos de clientes.</p>
         </div>
-        <Button onClick={handleCreateClick}>+ New Customer</Button>
+        <Button onClick={handleCreateClick}>+ Nuevo Cliente</Button>
       </div>
 
       <div className="flex gap-2">
         <form onSubmit={handleSearch} className="flex-1 flex gap-2">
           <Input
-            placeholder="Search customers..."
+            placeholder="Buscar clientes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-md"
           />
-          <Button type="submit" variant="secondary">Search</Button>
+          <Button type="submit" variant="secondary">Buscar</Button>
         </form>
       </div>
 
@@ -89,17 +89,17 @@ export default function CustomersPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
               <tr>
-                <th className="px-6 py-3">Name</th>
-                <th className="px-6 py-3">Phone</th>
-                <th className="px-6 py-3">Email</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3">Nombre</th>
+                <th className="px-6 py-3">Teléfono</th>
+                <th className="px-6 py-3">Correo</th>
+                <th className="px-6 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {loading ? (
-                <tr><td colSpan={4} className="p-4 text-center">Loading...</td></tr>
+                <tr><td colSpan={4} className="p-4 text-center">Cargando...</td></tr>
               ) : customers.length === 0 ? (
-                <tr><td colSpan={4} className="p-4 text-center">No customers found.</td></tr>
+                <tr><td colSpan={4} className="p-4 text-center">No se encontraron clientes.</td></tr>
               ) : (
                 customers.map((c) => (
                   <tr key={c.id} className="hover:bg-muted/30 transition-colors">
@@ -107,8 +107,8 @@ export default function CustomersPage() {
                     <td className="px-6 py-3">{c.phoneNumber}</td>
                     <td className="px-6 py-3">{c.email || "-"}</td>
                     <td className="px-6 py-3 text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditClick(c)}>Edit</Button>
-                      <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => c.id && handleDeleteClick(c.id)}>Delete</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(c)}>Editar</Button>
+                      <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => c.id && handleDeleteClick(c.id)}>Eliminar</Button>
                     </td>
                   </tr>
                 ))
@@ -121,7 +121,7 @@ export default function CustomersPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingCustomer ? "Edit Customer" : "New Customer"}
+        title={editingCustomer ? "Editar Cliente" : "Nuevo Cliente"}
       >
         <CustomerForm
           initialData={editingCustomer}

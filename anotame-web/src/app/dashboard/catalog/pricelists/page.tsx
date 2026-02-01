@@ -45,34 +45,34 @@ export default function PriceListsPage() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Price Lists</h1>
+                <h1 className="text-3xl font-bold">Listas de Precios</h1>
                 {isAdmin && (
                     <Button onClick={() => router.push("/dashboard/catalog/pricelists/new")}>
-                        + New Price List
+                        + Nueva Lista
                     </Button>
                 )}
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Active Price Strategies</CardTitle>
+                    <CardTitle>Estrategias de Precios Activas</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <div>Loading...</div>
+                        <div>Cargando...</div>
                     ) : lists.length === 0 ? (
-                        <div className="text-muted-foreground">No price lists found.</div>
+                        <div className="text-muted-foreground">No se encontraron listas de precios.</div>
                     ) : (
                         <div className="border rounded-md">
                             <table className="w-full text-sm text-left">
                                 <thead className="bg-secondary/50 border-b">
                                     <tr>
-                                        <th className="p-4">Name</th>
-                                        <th className="p-4">Priority</th>
-                                        <th className="p-4">Valid From</th>
-                                        <th className="p-4">Valid To</th>
-                                        <th className="p-4">Status</th>
-                                        {isAdmin && <th className="p-4 text-right">Actions</th>}
+                                        <th className="p-4">Nombre</th>
+                                        <th className="p-4">Prioridad</th>
+                                        <th className="p-4">Válido Desde</th>
+                                        <th className="p-4">Válido Hasta</th>
+                                        <th className="p-4">Estado</th>
+                                        {isAdmin && <th className="p-4 text-right">Acciones</th>}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -82,13 +82,13 @@ export default function PriceListsPage() {
                                             <td className="p-4">{list.priority}</td>
                                             <td className="p-4">{new Date(list.validFrom).toLocaleDateString()}</td>
                                             <td className="p-4">
-                                                {list.validTo ? new Date(list.validTo).toLocaleDateString() : "Forever"}
+                                                {list.validTo ? new Date(list.validTo).toLocaleDateString() : "Permanente"}
                                             </td>
                                             <td className="p-4">
                                                 {list.active ? (
-                                                    <span className="text-green-600 font-bold">Active</span>
+                                                    <span className="text-green-600 font-bold">Activa</span>
                                                 ) : (
-                                                    <span className="text-gray-500">Inactive</span>
+                                                    <span className="text-gray-500">Inactiva</span>
                                                 )}
                                             </td>
                                             {isAdmin && (
@@ -98,14 +98,14 @@ export default function PriceListsPage() {
                                                         size="sm"
                                                         onClick={() => router.push(`/dashboard/catalog/pricelists/${list.id}`)}
                                                     >
-                                                        View
+                                                        Ver
                                                     </Button>
                                                     <Button
                                                         variant="danger"
                                                         size="sm"
                                                         onClick={() => handleDelete(list.id)}
                                                     >
-                                                        Delete
+                                                        Eliminar
                                                     </Button>
                                                 </td>
                                             )}

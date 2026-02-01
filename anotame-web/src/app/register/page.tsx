@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 export default function RegisterPage() {
   const { register, isLoading } = useAuth();
   const router = useRouter();
-  
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -34,7 +34,7 @@ export default function RegisterPage() {
     try {
       await register(formData);
     } catch (err) {
-        // Error logging is handled in context, but we show user feedback here
+      // Error logging is handled in context, but we show user feedback here
       setError("Registration failed. Please check your inputs.");
     }
   };
@@ -46,9 +46,9 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-heading font-bold text-foreground">
             Anotame<span className="text-primary">.</span>
           </h1>
-          <CardTitle>Create an account</CardTitle>
+          <CardTitle>Crear una cuenta</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Enter your details to get started
+            Ingresa tus datos para comenzar
           </p>
         </CardHeader>
         <CardContent>
@@ -58,76 +58,76 @@ export default function RegisterPage() {
                 {error}
               </div>
             )}
-            
+
             <div className="grid grid-cols-2 gap-4">
-              <Input 
-                label="First Name" 
+              <Input
+                label="Nombre"
                 name="firstName"
-                placeholder="John" 
+                placeholder="Juan"
                 value={formData.firstName}
                 onChange={handleChange}
                 required
               />
-              <Input 
-                label="Last Name" 
+              <Input
+                label="Apellido"
                 name="lastName"
-                placeholder="Doe" 
+                placeholder="Pérez"
                 value={formData.lastName}
                 onChange={handleChange}
                 required
               />
             </div>
 
-            <Input 
-              label="Email" 
+            <Input
+              label="Correo Electrónico"
               name="email"
               type="email"
-              placeholder="john@example.com" 
+              placeholder="juan@ejemplo.com"
               value={formData.email}
               onChange={handleChange}
               required
             />
 
-            <Input 
-              label="Username" 
+            <Input
+              label="Usuario"
               name="username"
-              placeholder="johndoe" 
+              placeholder="juanperez"
               value={formData.username}
               onChange={handleChange}
               required
             />
 
-            <Input 
-              label="Password" 
+            <Input
+              label="Contraseña"
               name="password"
-              type="password" 
-              placeholder="••••••••" 
+              type="password"
+              placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
               required
             />
-            
-            <Button 
-              type="submit" 
-              className="w-full mt-2" 
+
+            <Button
+              type="submit"
+              className="w-full mt-2"
               size="lg"
               disabled={isLoading}
             >
-              {isLoading ? "Creating Account..." : "Sign Up"}
+              {isLoading ? "Creando Cuenta..." : "Registrarse"}
             </Button>
-            
+
             <div className="text-center text-sm pt-2">
-              <span className="text-muted-foreground">Already have an account? </span>
+              <span className="text-muted-foreground">¿Ya tienes una cuenta? </span>
               <Link href="/login" className="text-primary font-medium hover:underline transition-colors">
-                Sign in
+                Inicia Sesión
               </Link>
             </div>
-            
-             <div className="text-center text-sm">
-                <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
-                  &larr; Back to Home
-                </Link>
-             </div>
+
+            <div className="text-center text-sm">
+              <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
+                &larr; Volver al Inicio
+              </Link>
+            </div>
 
           </form>
         </CardContent>
