@@ -51,6 +51,29 @@ CREATE TABLE cci_garment_type (
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
+-- Price Lists (tcc_price_list)
+CREATE TABLE tcc_price_list (
+    id_price_list UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(150) NOT NULL,
+    valid_from TIMESTAMPTZ NOT NULL,
+    valid_to TIMESTAMPTZ, -- Null = Forever
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    priority INT DEFAULT 0, -- Higher wins
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+
+-- Price List Items (tcc_price_list_item)
+CREATE TABLE tcc_price_list_item (
+    id_price_list_item UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_price_list UUID NOT NULL REFERENCES tcc_price_list(id_price_list),
+    id_service UUID NOT NULL REFERENCES cci_service(id_service),
+    price DECIMAL(19,4) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- =========================================================================================
 -- 2. IDENTITY CONTEXT (Auth & Employees)
 -- =========================================================================================
@@ -176,33 +199,34 @@ CREATE TABLE tco_order_history (
 );
 
 -- Order Item (tco_order_item)
+-- Synced with Java Entity: 1 Item = 1 Garment + 1 Service
 CREATE TABLE tco_order_item (
     id_order_item UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_order UUID NOT NULL REFERENCES tco_order(id_order) ON DELETE CASCADE,
     id_garment_type UUID NOT NULL REFERENCES cci_garment_type(id_garment_type),
+    id_service UUID NOT NULL REFERENCES cci_service(id_service), -- Added to match logic
+    
+    service_name VARCHAR(150),
+    garment_name VARCHAR(150),
     
     quantity INT DEFAULT 1 NOT NULL,
-    description TEXT,
-    item_status VARCHAR(50) DEFAULT 'PENDING', -- Granular status per item
+    unit_price DECIMAL(19,4) NOT NULL, -- Base/List price snapshot
+    subtotal DECIMAL(19,4) NOT NULL,
+    
+    -- Ad-Hoc Adjustments
+    adjustment_amount DECIMAL(19,4) DEFAULT 0.0, -- +/- Value
+    adjustment_reason VARCHAR(255),
+    
+    notes TEXT,
+    item_status VARCHAR(50) DEFAULT 'PENDING',
     
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
--- Item Service (tco_item_service)
-CREATE TABLE tco_item_service (
-    id_item_service UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    id_order_item UUID NOT NULL REFERENCES tco_order_item(id_order_item) ON DELETE CASCADE,
-    id_service UUID NOT NULL REFERENCES cci_service(id_service),
-    
-    -- Financial Snapshot
-    quoted_price DECIMAL(19,4) NOT NULL,
-    
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
-);
+-- tco_item_service deprecated in favor of unified tco_order_item model
 
 -- =========================================================================================
 -- INDEXES & SEEDS

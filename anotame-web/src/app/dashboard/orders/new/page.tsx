@@ -73,6 +73,8 @@ export default function NewOrderPage() {
     serviceId: string;
     notes: string;
     price: number;
+    adj?: number;
+    adjReason?: string;
   }>>([]);
 
   // Fetch Catalog Data on Mount
@@ -121,19 +123,40 @@ export default function NewOrderPage() {
     setItems(items.filter(i => i.tempId !== id));
   };
 
-  const updateItem = (id: number, field: string, value: any) => {
-    setItems(items.map(item => {
-      if (item.tempId === id) {
-        const updated = { ...item, [field]: value };
-        // Update price if service changes
-        if (field === 'serviceId') {
-          const service = services.find(s => s.id === value);
-          if (service) updated.price = service.basePrice;
+  const updateItem = async (id: number, field: string, value: any) => {
+    const updatedItems = [...items];
+    const index = updatedItems.findIndex(i => i.tempId === id);
+    if (index === -1) return;
+
+    // Constraint: Validations
+    let finalValue = value;
+    if (field === 'adj' || field === 'price') {
+      finalValue = value === "" ? 0 : parseFloat(value);
+    }
+
+    const item = { ...updatedItems[index], [field]: finalValue };
+
+    // Auto-calculate price if Service changes
+    if (field === 'serviceId') {
+      try {
+        // Call Pricing Service
+        const res = await fetch(`${API_CATALOG}/pricing/calculate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ serviceId: value, date: new Date().toISOString() })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // data.finalPrice contains the resolved price
+          item.price = data.finalPrice;
         }
-        return updated;
+      } catch (e) {
+        console.error("Pricing calc failed", e);
       }
-      return item;
-    }));
+    }
+
+    updatedItems[index] = item;
+    setItems(updatedItems);
   };
   // Payment State
   const [amountPaid, setAmountPaid] = useState("");
@@ -143,7 +166,7 @@ export default function NewOrderPage() {
   // ... (existing helper functions) ...
 
   const calculateTotal = () => {
-    return items.reduce((sum, item) => sum + Number(item.price), 0);
+    return items.reduce((sum, item) => sum + Number(item.price) + (Number(item.adj) || 0), 0);
   };
 
   const calculateBalance = () => {
@@ -187,6 +210,7 @@ Prenda: ${g}
 Servicio: ${s}
 Nota: ${item.notes}
 Precio: $${item.price}
+${item.adj ? `Ajuste: $${item.adj} (${item.adjReason})` : ''}
 --------------------
 `;
     });
@@ -227,7 +251,9 @@ RESTANTE: $${calculateBalance().toFixed(2)}
         serviceName: s?.name || "Unknown",
         unitPrice: item.price,
         quantity: 1,
-        notes: item.notes
+        notes: item.notes,
+        adjustmentAmount: Number(item.adj || 0),
+        adjustmentReason: item.adjReason
       };
     });
 
@@ -390,13 +416,32 @@ RESTANTE: $${calculateBalance().toFixed(2)}
                     ))}
                   </select>
                 </div>
-                <div className="col-span-5">
+                <div className="col-span-3">
                   <Input
                     label="Notes"
                     placeholder="e.g. Hem 1 inch"
                     value={item.notes}
                     onChange={(e) => updateItem(item.tempId, 'notes', e.target.value)}
                   />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-medium mb-1 block">Adjust Price ($)</label>
+                  <div className="flex gap-1">
+                    <input
+                      type="number"
+                      className="w-20 h-10 rounded-md border border-input px-2 text-sm"
+                      placeholder="+/- 0"
+                      value={item.adj || ""}
+                      onChange={(e) => updateItem(item.tempId, 'adj', e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      className="w-full h-10 rounded-md border border-input px-2 text-sm"
+                      placeholder="Reason"
+                      value={item.adjReason || ""}
+                      onChange={(e) => updateItem(item.tempId, 'adjReason', e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div className="col-span-1 pt-6 flex justify-end">
                   <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700">

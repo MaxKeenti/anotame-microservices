@@ -10,6 +10,7 @@ const menuItems = [
   { name: "Work Orders", href: "/dashboard/operations", icon: "Activity" },
   { name: "Garments", href: "/dashboard/catalog/garments", icon: "Shirt" },
   { name: "Services", href: "/dashboard/catalog/services", icon: "Tag" },
+  { name: "Price Lists", href: "/dashboard/catalog/pricelists", icon: "DollarSign" },
   { name: "Customers", href: "/dashboard/customers", icon: "Users" },
 ];
 
@@ -24,7 +25,7 @@ export function Sidebar() {
           Anotame<span className="text-primary">.</span>
         </h1>
       </div>
-      
+
       <nav className="flex-1 p-4 space-y-1">
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
@@ -32,11 +33,10 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                isActive
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
+                }`}
             >
               {/* Icon Placeholder */}
               <span>{item.name}</span>
@@ -44,9 +44,9 @@ export function Sidebar() {
           );
         })}
       </nav>
-      
+
       <div className="p-4 border-t border-border">
-        <button 
+        <button
           onClick={logout}
           className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
         >

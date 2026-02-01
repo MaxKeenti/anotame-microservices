@@ -46,6 +46,12 @@ public class OrderItemEntity {
     @Column(name = "subtotal", precision = 19, scale = 4)
     private BigDecimal subtotal;
 
+    @Column(name = "adjustment_amount", precision = 19, scale = 4)
+    private BigDecimal adjustmentAmount = BigDecimal.ZERO;
+
+    @Column(name = "adjustment_reason")
+    private String adjustmentReason;
+
     private String notes;
 
     @Column(name = "is_deleted")

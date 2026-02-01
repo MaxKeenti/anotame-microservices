@@ -51,8 +51,12 @@ public class SalesService {
             item.setUnitPrice(itemDto.getUnitPrice());
             item.setQuantity(itemDto.getQuantity());
             item.setNotes(itemDto.getNotes());
+            item.setAdjustmentAmount(
+                    itemDto.getAdjustmentAmount() != null ? itemDto.getAdjustmentAmount() : BigDecimal.ZERO);
+            item.setAdjustmentReason(itemDto.getAdjustmentReason());
 
-            BigDecimal subtotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal effectivePrice = item.getUnitPrice().add(item.getAdjustmentAmount());
+            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(item.getQuantity()));
             item.setSubtotal(subtotal);
 
             order.addItem(item); // bi-directional setting
@@ -142,8 +146,12 @@ public class SalesService {
             item.setUnitPrice(itemDto.getUnitPrice());
             item.setQuantity(itemDto.getQuantity());
             item.setNotes(itemDto.getNotes());
+            item.setAdjustmentAmount(
+                    itemDto.getAdjustmentAmount() != null ? itemDto.getAdjustmentAmount() : BigDecimal.ZERO);
+            item.setAdjustmentReason(itemDto.getAdjustmentReason());
 
-            BigDecimal subtotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal effectivePrice = item.getUnitPrice().add(item.getAdjustmentAmount());
+            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(item.getQuantity()));
             item.setSubtotal(subtotal);
 
             order.addItem(item);

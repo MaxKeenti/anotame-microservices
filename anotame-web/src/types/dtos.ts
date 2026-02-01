@@ -31,6 +31,8 @@ export interface OrderItemDto {
   unitPrice: number;
   quantity: number;
   notes: string;
+  adjustmentAmount?: number;
+  adjustmentReason?: string;
 }
 
 export interface CreateOrderRequest {
@@ -51,15 +53,15 @@ export interface OrderItemResponse {
 }
 
 export interface OrderResponse {
-    id: string;
-    ticketNumber: string;
-    customer: CustomerDto;
-    committedDeadline: string;
-    status: string;
-    totalAmount: number;
-    notes: string;
-    items: OrderItemResponse[];
-    createdAt: string;
+  id: string;
+  ticketNumber: string;
+  customer: CustomerDto;
+  committedDeadline: string;
+  status: string;
+  totalAmount: number;
+  notes: string;
+  items: OrderItemResponse[];
+  createdAt: string;
 }
 
 export interface GarmentTypeRequest {
@@ -77,18 +79,44 @@ export interface ServiceRequest {
 }
 
 export interface WorkOrderItem {
-    id: string;
-    salesOrderItemId: string;
-    serviceName: string;
-    currentStage: string;
-    notes: string;
+  id: string;
+  salesOrderItemId: string;
+  serviceName: string;
+  currentStage: string;
+  notes: string;
 }
 
 export interface WorkOrder {
-    id: string;
-    salesOrderId: string;
-    status: string; // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
-    items: WorkOrderItem[];
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  salesOrderId: string;
+  status: string; // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  items: WorkOrderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PriceListItemDto {
+  serviceId: string;
+  serviceName: string;
+  price: number;
+  basePrice: number;
+}
+
+export interface PriceListResponse {
+  id: string;
+  name: string;
+  validFrom: string;
+  validTo?: string;
+  active: boolean;
+  priority: number;
+  items?: PriceListItemDto[];
+}
+
+export interface PriceListRequest {
+  name: string;
+  validFrom: string;
+  validTo?: string;
+  active: boolean;
+  priority: number;
+  items?: Array<{ serviceId: string; price: number }>;
 }

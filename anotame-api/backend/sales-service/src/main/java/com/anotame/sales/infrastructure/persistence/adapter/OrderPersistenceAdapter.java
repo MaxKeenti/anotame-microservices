@@ -64,6 +64,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 ie.setUnitPrice(item.getUnitPrice());
                 ie.setQuantity(item.getQuantity());
                 ie.setSubtotal(item.getSubtotal());
+                ie.setAdjustmentAmount(item.getAdjustmentAmount());
+                ie.setAdjustmentReason(item.getAdjustmentReason());
                 ie.setNotes(item.getNotes());
                 entity.addItem(ie);
             }
@@ -138,6 +140,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 item.setUnitPrice(ie.getUnitPrice());
                 item.setQuantity(ie.getQuantity());
                 item.setSubtotal(ie.getSubtotal());
+                item.setAdjustmentAmount(ie.getAdjustmentAmount());
+                item.setAdjustmentReason(ie.getAdjustmentReason());
                 item.setNotes(ie.getNotes());
                 o.addItem(item);
             }

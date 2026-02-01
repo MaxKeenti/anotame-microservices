@@ -17,6 +17,8 @@ public class OrderItem {
     private BigDecimal unitPrice;
     private Integer quantity = 1;
     private BigDecimal subtotal;
+    private BigDecimal adjustmentAmount;
+    private String adjustmentReason;
     private String notes;
     private boolean deleted = false;
 }
