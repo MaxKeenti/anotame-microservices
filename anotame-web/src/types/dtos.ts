@@ -134,3 +134,11 @@ export interface Holiday {
   date: string; // YYYY-MM-DD
   description: string;
 }
+
+export interface Establishment {
+  id?: string;
+  name: string;
+  ownerName?: string;
+  taxInfo?: string; // JSON
+  active: boolean;
+}

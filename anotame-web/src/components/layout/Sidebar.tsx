@@ -12,6 +12,7 @@ const menuItems = [
   { name: "Services", href: "/dashboard/catalog/services", icon: "Tag" },
   { name: "Price Lists", href: "/dashboard/catalog/pricelists", icon: "DollarSign" },
   { name: "Scheduling", href: "/dashboard/admin/schedule", icon: "Calendar" },
+  { name: "Settings", href: "/dashboard/admin/settings", icon: "Settings" },
   { name: "Customers", href: "/dashboard/customers", icon: "Users" },
 ];
 

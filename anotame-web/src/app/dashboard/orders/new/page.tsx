@@ -9,6 +9,8 @@ import { GarmentTypeResponse, ServiceResponse, CreateOrderRequest, OrderItemDto,
 import { API_CATALOG, API_SALES } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { searchCustomers } from "@/services/sales/customers";
+import { getSettings } from "@/services/operations/establishment";
+import { Establishment } from "@/types/dtos";
 
 
 
@@ -18,9 +20,10 @@ export default function NewOrderPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCatalogLoading, setIsCatalogLoading] = useState(true);
 
-  // Catalog Data
+  // Catalog & Settings Data
   const [garmentTypes, setGarmentTypes] = useState<GarmentTypeResponse[]>([]);
   const [services, setServices] = useState<ServiceResponse[]>([]);
+  const [establishment, setEstablishment] = useState<Establishment | null>(null);
 
   // Form State
   const [customerId, setCustomerId] = useState<string | undefined>(undefined);
@@ -85,6 +88,11 @@ export default function NewOrderPage() {
           fetch(`${API_CATALOG}/catalog/garments`),
           fetch(`${API_CATALOG}/catalog/services`)
         ]);
+
+        try {
+          const settings = await getSettings();
+          setEstablishment(settings);
+        } catch (e) { console.warn("Could not load receipt settings"); }
 
         if (garmentRes.ok && serviceRes.ok) {
           setGarmentTypes(await garmentRes.json());
@@ -201,7 +209,12 @@ export default function NewOrderPage() {
       }),
       total: calculateTotal(),
       amountPaid: Number(amountPaid) || 0,
-      balance: calculateBalance()
+      balance: calculateBalance(),
+      establishment: {
+        name: establishment?.name || "ANOTAME Default",
+        address: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).address : undefined,
+        rfc: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).rfc : undefined
+      }
     });
 
     const newWindow = window.open('', '_blank', 'width=400,height=600');

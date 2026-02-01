@@ -1,29 +1,34 @@
 export const generateReceiptHtml = (data: {
-    ticketNumber: string;
-    customerName: string;
-    phone: string;
-    deadline: string;
-    items: Array<{
-        garment: string;
-        service: string;
-        notes?: string;
-        price: number;
-        adjustment?: number;
-        adjustmentReason?: string;
-    }>;
-    total: number;
-    amountPaid: number;
-    balance: number;
+  ticketNumber: string;
+  customerName: string;
+  phone: string;
+  deadline: string;
+  items: Array<{
+    garment: string;
+    service: string;
+    notes?: string;
+    price: number;
+    adjustment?: number;
+    adjustmentReason?: string;
+  }>;
+  balance: number;
+  total: number;
+  amountPaid: number;
+  establishment: {
+    name: string;
+    address?: string;
+    rfc?: string;
+  };
 }) => {
-    const date = new Date().toLocaleDateString('es-MX', {
-        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-    });
+  const date = new Date().toLocaleDateString('es-MX', {
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+  });
 
-    const formatDate = (d: string) => new Date(d).toLocaleDateString('es-MX', {
-        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-    });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('es-MX', {
+    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+  });
 
-    return `
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -82,8 +87,9 @@ export const generateReceiptHtml = (data: {
 </head>
 <body>
   <div class="header">
-    <h1>ANOTAME</h1>
-    <div>Sucursal Principal</div>
+    <h1>${data.establishment.name}</h1>
+    ${data.establishment.address ? `<div>${data.establishment.address}</div>` : ''}
+    ${data.establishment.rfc ? `<div>RFC: ${data.establishment.rfc}</div>` : ''}
     <div>${date}</div>
     <div><strong>Folio: ${data.ticketNumber}</strong></div>
   </div>
