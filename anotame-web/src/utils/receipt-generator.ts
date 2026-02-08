@@ -38,10 +38,11 @@ export const generateReceiptHtml = (data: {
   <title>Ticket ${data.ticketNumber}</title>
   <style>
     body {
-      font-family: 'Courier New', Courier, monospace;
-      width: 46mm;
+      font-family: Arial, Helvetica, sans-serif; /* Better legibility for thermal */
+      font-weight: 500; /* Slightly bolder */
+      width: 44mm; /* Reduced to avoid edge cutting */
       margin: 0;
-      padding: 5px;
+      padding: 0; /* Minimized padding */
       font-size: 11px;
       line-height: 1.2;
       word-wrap: break-word; /* Force wrapping */
@@ -87,7 +88,7 @@ export const generateReceiptHtml = (data: {
     }
     @media print {
       @page { margin: 0; }
-      body { margin: 0; padding: 2mm; width: 48mm; }
+      body { margin: 0; padding: 1mm; width: 44mm; }
     }
   </style>
 </head>
@@ -110,7 +111,7 @@ export const generateReceiptHtml = (data: {
     </div>
     <div class="row">
       <span>Tel:</span>
-      <span>${data.phone}</span>
+      <span>${data.phone || ''}</span>
     </div>
     <div class="row" style="margin-top: 5px; font-weight: bold;">
       <span>ENTREGA:</span>
