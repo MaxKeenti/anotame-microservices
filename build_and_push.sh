@@ -43,7 +43,7 @@ build_and_push() {
     # Build
     echo "Building $FULL_IMAGE_NAME..."
     # Note: We use the context directory as the build context
-    if docker build -t "$FULL_IMAGE_NAME" -f "$DOCKERFILE_PATH" "$DOCKER_CONTEXT"; then
+    if docker build --platform linux/amd64 -t "$FULL_IMAGE_NAME" -f "$DOCKERFILE_PATH" "$DOCKER_CONTEXT"; then
         echo "Build successful."
     else
         echo "Error: Build failed for $SERVICE_NAME"
@@ -61,17 +61,20 @@ build_and_push() {
     echo ""
 }
 
+# 0. Database (Custom Image with Schema)
+build_and_push "db" "anotame-db" "anotame-db/Dockerfile"
+
 # 1. Identity Service
-build_and_push "identity-service" "anotame-api/backend/identity-service" "anotame-api/backend/identity-service/Dockerfile"
+build_and_push "identity-service" "anotame-api/backend" "anotame-api/backend/identity-service/Dockerfile"
 
 # 2. Sales Service
-build_and_push "sales-service" "anotame-api/backend/sales-service" "anotame-api/backend/sales-service/Dockerfile"
+build_and_push "sales-service" "anotame-api/backend" "anotame-api/backend/sales-service/Dockerfile"
 
 # 3. Operations Service
-build_and_push "operations-service" "anotame-api/backend/operations-service" "anotame-api/backend/operations-service/Dockerfile"
+build_and_push "operations-service" "anotame-api/backend" "anotame-api/backend/operations-service/Dockerfile"
 
 # 4. Catalog Service
-build_and_push "catalog-service" "anotame-api/backend/catalog-service" "anotame-api/backend/catalog-service/Dockerfile"
+build_and_push "catalog-service" "anotame-api/backend" "anotame-api/backend/catalog-service/Dockerfile"
 
 # 5. Web Frontend
 build_and_push "web" "anotame-web" "anotame-web/Dockerfile"
