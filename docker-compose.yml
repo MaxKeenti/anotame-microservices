@@ -3,7 +3,7 @@ services:
   # DATABASE SERVICE (PostgreSQL + PostGIS)
   # ========================================================================================
   anotame-db:
-    image: postgis/postgis:16-3.4
+    image: postgres:16-alpine
     container_name: anotame-db
     restart: always
     environment:
