@@ -405,83 +405,126 @@ export default function NewOrderPage() {
         </Card>
 
         {/* Order Items */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Prendas y Servicios</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between bg-muted/20">
+            <div>
+              <CardTitle>Prendas y Servicios</CardTitle>
+              <p className="text-sm text-muted-foreground">Agrega las prendas que el cliente deja para servicio.</p>
+            </div>
             <Button type="button" size="sm" onClick={addItem}>+ Agregar Prenda</Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {items.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No hay prendas. Clic en "+ Agregar Prenda" para iniciar.
-              </p>
-            )}
-
-            {items.map((item) => (
-              <div key={item.tempId} className="grid grid-cols-12 gap-4 items-start p-4 border border-border rounded-lg bg-secondary/10">
-                <div className="col-span-3">
-                  <label className="text-xs font-medium mb-1 block">Prenda</label>
-                  <select
-                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    value={item.garmentId}
-                    onChange={(e) => updateItem(item.tempId, 'garmentId', e.target.value)}
-                  >
-                    {garmentTypes.map(g => (
-                      <option key={g.id} value={g.id}>{g.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-span-3">
-                  <label className="text-xs font-medium mb-1 block">Servicio</label>
-                  <select
-                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    value={item.serviceId}
-                    onChange={(e) => updateItem(item.tempId, 'serviceId', e.target.value)}
-                  >
-                    {getFilteredServices(item.garmentId).map(s => (
-                      <option key={s.id} value={s.id}>{s.name} (${s.basePrice})</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-span-3">
-                  <Input
-                    label="Notas"
-                    placeholder="ej. Bastilla 1 pulgada"
-                    value={item.notes}
-                    onChange={(e) => updateItem(item.tempId, 'notes', e.target.value)}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-medium mb-1 block">Ajustar Precio ($)</label>
-                  <div className="flex gap-1">
-                    <input
-                      type="number"
-                      className="w-20 h-10 rounded-md border border-input px-2 text-sm"
-                      placeholder="+/- 0"
-                      value={item.adj || ""}
-                      onChange={(e) => updateItem(item.tempId, 'adj', e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      className="w-full h-10 rounded-md border border-input px-2 text-sm"
-                      placeholder="Razón"
-                      value={item.adjReason || ""}
-                      onChange={(e) => updateItem(item.tempId, 'adjReason', e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="col-span-1 pt-6 flex justify-end gap-2">
-                  <button type="button" onClick={() => {
-                    setItems([...items, { ...item, tempId: Date.now() }]);
-                  }} className="text-blue-500 hover:text-blue-700" title="Duplicar">
-                    📋
-                  </button>
-                  <button type="button" onClick={() => removeItem(item.tempId)} className="text-red-500 hover:text-red-700" title="Eliminar">
-                    &times;
-                  </button>
-                </div>
+          <CardContent className="p-0">
+            {items.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground border-b border-border">
+                <p>No hay prendas en la orden.</p>
+                <p className="text-sm">Haz clic en <strong>+ Agregar Prenda</strong> para comenzar.</p>
               </div>
-            ))}
+            ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
+                  <tr>
+                    <th className="px-4 py-3 w-[20%]">Prenda</th>
+                    <th className="px-4 py-3 w-[25%]">Servicio</th>
+                    <th className="px-4 py-3 w-[25%]">Notas</th>
+                    <th className="px-4 py-3 w-[10%] text-center">Precio</th>
+                    <th className="px-4 py-3 w-[15%]">Ajustes ($)</th>
+                    <th className="px-4 py-3 w-[5%] text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {items.map((item) => (
+                    <tr key={item.tempId} className="hover:bg-muted/10 group transition-colors">
+                      <td className="p-3 align-top">
+                        <select
+                          className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-ring"
+                          value={item.garmentId}
+                          onChange={(e) => updateItem(item.tempId, 'garmentId', e.target.value)}
+                        >
+                          {garmentTypes.map(g => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="p-3 align-top">
+                        <select
+                          className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-ring"
+                          value={item.serviceId}
+                          onChange={(e) => updateItem(item.tempId, 'serviceId', e.target.value)}
+                        >
+                          {getFilteredServices(item.garmentId).map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                          ))}
+                        </select>
+                        <div className="text-xs text-muted-foreground mt-1 px-1">
+                           Base: ${services.find(s => s.id === item.serviceId)?.basePrice}
+                        </div>
+                      </td>
+                      <td className="p-3 align-top">
+                         <textarea
+                            className="w-full min-h-[38px] rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-1 focus:ring-ring resize-y"
+                            placeholder="Detalles..."
+                            rows={1}
+                            value={item.notes}
+                            onChange={(e) => updateItem(item.tempId, 'notes', e.target.value)}
+                         />
+                      </td>
+                      <td className="p-3 align-top text-center font-medium pt-4">
+                        ${Number(item.price).toFixed(2)}
+                      </td>
+                      <td className="p-3 align-top space-y-2">
+                        <div className="flex items-center gap-2">
+                           <span className="text-xs text-muted-foreground w-4 text-center">+/-</span>
+                           <input
+                              type="number"
+                              className="w-full h-8 rounded-md border border-input px-2 text-sm"
+                              placeholder="0.00"
+                              value={item.adj || ""}
+                              onChange={(e) => updateItem(item.tempId, 'adj', e.target.value)}
+                           />
+                        </div>
+                        <input
+                           type="text"
+                           className="w-full h-8 rounded-md border border-input px-2 text-xs"
+                           placeholder="Razón del ajuste"
+                           value={item.adjReason || ""}
+                           onChange={(e) => updateItem(item.tempId, 'adjReason', e.target.value)}
+                        />
+                      </td>
+                      <td className="p-3 align-top text-center">
+                        <div className="flex flex-col gap-1 items-center justify-center pt-1">
+                           <button 
+                             type="button" 
+                             onClick={() => removeItem(item.tempId)}
+                             className="text-muted-foreground hover:text-destructive p-1 rounded-md hover:bg-destructive/10 transition-colors"
+                             title="Eliminar Fila"
+                           >
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                           </button>
+                           <button
+                             type="button"
+                             onClick={() => setItems([...items, { ...item, tempId: Date.now() }])}
+                             className="text-muted-foreground hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 transition-colors"
+                             title="Duplicar Fila"
+                           >
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                           </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="bg-muted/10 font-medium">
+                      <td colSpan={3} className="px-4 py-3 text-right">TOTAL ESTIMADO</td>
+                      <td className="px-4 py-3 text-center text-lg">${calculateTotal().toFixed(2)}</td>
+                      <td colSpan={2}></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            )}
+            <div className="p-4 border-t border-border bg-muted/10 flex justify-center">
+               <Button type="button" variant="outline" size="sm" onClick={addItem}>+ Agregar Otra Prenda</Button>
+            </div>
           </CardContent>
         </Card>
 
