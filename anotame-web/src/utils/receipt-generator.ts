@@ -18,6 +18,8 @@ export const generateReceiptHtml = (data: {
     name: string;
     address?: string;
     rfc?: string;
+    taxRegime?: string;
+    contactPhone?: string;
   };
 }) => {
   const date = new Date().toLocaleDateString('es-MX', {
@@ -42,7 +44,8 @@ export const generateReceiptHtml = (data: {
       padding: 5px;
       font-size: 12px;
       line-height: 1.2;
-      word-wrap: break-word;
+      word-wrap: break-word; /* Force wrapping */
+      overflow-wrap: break-word;
     }
     .header {
       text-align: center;
@@ -50,16 +53,18 @@ export const generateReceiptHtml = (data: {
     }
     .header h1 {
       margin: 0;
-      font-size: 18px;
+      font-size: 18px; /* Kept per user req */
     }
     .section {
       margin-bottom: 10px;
       border-bottom: 1px dashed #000;
       padding-bottom: 5px;
     }
+    /* Simple flex for alignment, but allow wrapping */
     .row {
       display: flex;
       justify-content: space-between;
+      flex-wrap: wrap; /* Key for small width */
     }
     .item {
       margin-bottom: 5px;
@@ -90,15 +95,18 @@ export const generateReceiptHtml = (data: {
   <div class="header">
     <h1>${data.establishment.name}</h1>
     ${data.establishment.address ? `<div>${data.establishment.address}</div>` : ''}
+    ${data.establishment.contactPhone ? `<div>Tel: ${data.establishment.contactPhone}</div>` : ''}
     ${data.establishment.rfc ? `<div>RFC: ${data.establishment.rfc}</div>` : ''}
-    <div>${date}</div>
+    ${data.establishment.taxRegime ? `<div>Régimen: ${data.establishment.taxRegime}</div>` : ''}
+    
+    <div style="margin-top: 5px;">${date}</div>
     <div><strong>Folio: ${data.ticketNumber}</strong></div>
   </div>
 
   <div class="section">
     <div class="row">
       <span>Cliente:</span>
-      <span>${data.customerName}</span>
+      <span style="text-align: right;">${data.customerName}</span>
     </div>
     <div class="row">
       <span>Tel:</span>
@@ -114,7 +122,7 @@ export const generateReceiptHtml = (data: {
     ${data.items.map(item => `
       <div class="item">
         <div class="item-header row">
-          <span>${item.garment}</span>
+          <span style="flex: 1; margin-right: 5px;">${item.garment}</span>
           <span>$${item.price.toFixed(2)}</span>
         </div>
         <div class="item-detail">

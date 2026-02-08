@@ -19,7 +19,7 @@ export default function SettingsPage() {
     });
 
     // Helper for Form
-    const [taxData, setTaxData] = useState<{ rfc?: string, regime?: string, address?: string }>({});
+    const [taxData, setTaxData] = useState<{ rfc?: string, regime?: string, address?: string, contactPhone?: string }>({});
 
     useEffect(() => {
         loadData();
@@ -103,6 +103,11 @@ export default function SettingsPage() {
                             label="Dirección Completa (Para Recibo)"
                             value={taxData.address || ""}
                             onChange={e => setTaxData({ ...taxData, address: e.target.value })}
+                        />
+                        <Input
+                            label="Teléfono / Contacto (Para Recibo)"
+                            value={taxData.contactPhone || ""}
+                            onChange={e => setTaxData({ ...taxData, contactPhone: e.target.value })}
                         />
                     </CardContent>
                 </Card>

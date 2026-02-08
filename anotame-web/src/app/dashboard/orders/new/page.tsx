@@ -243,7 +243,9 @@ export default function NewOrderPage() {
       establishment: {
         name: establishment?.name || "ANOTAME Default",
         address: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).address : undefined,
-        rfc: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).rfc : undefined
+        rfc: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).rfc : undefined,
+        taxRegime: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).regime : undefined,
+        contactPhone: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).contactPhone : undefined,
       }
     });
 
@@ -420,110 +422,110 @@ export default function NewOrderPage() {
                 <p className="text-sm">Haz clic en <strong>+ Agregar Prenda</strong> para comenzar.</p>
               </div>
             ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
-                  <tr>
-                    <th className="px-4 py-3 w-[20%]">Prenda</th>
-                    <th className="px-4 py-3 w-[25%]">Servicio</th>
-                    <th className="px-4 py-3 w-[25%]">Notas</th>
-                    <th className="px-4 py-3 w-[10%] text-center">Precio</th>
-                    <th className="px-4 py-3 w-[15%]">Ajustes ($)</th>
-                    <th className="px-4 py-3 w-[5%] text-center">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {items.map((item) => (
-                    <tr key={item.tempId} className="hover:bg-muted/10 group transition-colors">
-                      <td className="p-3 align-top">
-                        <select
-                          className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-ring"
-                          value={item.garmentId}
-                          onChange={(e) => updateItem(item.tempId, 'garmentId', e.target.value)}
-                        >
-                          {garmentTypes.map(g => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="p-3 align-top">
-                        <select
-                          className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-ring"
-                          value={item.serviceId}
-                          onChange={(e) => updateItem(item.tempId, 'serviceId', e.target.value)}
-                        >
-                          {getFilteredServices(item.garmentId).map(s => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                          ))}
-                        </select>
-                        <div className="text-xs text-muted-foreground mt-1 px-1">
-                           Base: ${services.find(s => s.id === item.serviceId)?.basePrice}
-                        </div>
-                      </td>
-                      <td className="p-3 align-top">
-                         <textarea
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
+                    <tr>
+                      <th className="px-4 py-3 w-[20%]">Prenda</th>
+                      <th className="px-4 py-3 w-[25%]">Servicio</th>
+                      <th className="px-4 py-3 w-[25%]">Notas</th>
+                      <th className="px-4 py-3 w-[10%] text-center">Precio</th>
+                      <th className="px-4 py-3 w-[15%]">Ajustes ($)</th>
+                      <th className="px-4 py-3 w-[5%] text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {items.map((item) => (
+                      <tr key={item.tempId} className="hover:bg-muted/10 group transition-colors">
+                        <td className="p-3 align-top">
+                          <select
+                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-ring"
+                            value={item.garmentId}
+                            onChange={(e) => updateItem(item.tempId, 'garmentId', e.target.value)}
+                          >
+                            {garmentTypes.map(g => (
+                              <option key={g.id} value={g.id}>{g.name}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="p-3 align-top">
+                          <select
+                            className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-ring"
+                            value={item.serviceId}
+                            onChange={(e) => updateItem(item.tempId, 'serviceId', e.target.value)}
+                          >
+                            {getFilteredServices(item.garmentId).map(s => (
+                              <option key={s.id} value={s.id}>{s.name}</option>
+                            ))}
+                          </select>
+                          <div className="text-xs text-muted-foreground mt-1 px-1">
+                            Base: ${services.find(s => s.id === item.serviceId)?.basePrice}
+                          </div>
+                        </td>
+                        <td className="p-3 align-top">
+                          <textarea
                             className="w-full min-h-[38px] rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-1 focus:ring-ring resize-y"
                             placeholder="Detalles..."
                             rows={1}
                             value={item.notes}
                             onChange={(e) => updateItem(item.tempId, 'notes', e.target.value)}
-                         />
-                      </td>
-                      <td className="p-3 align-top text-center font-medium pt-4">
-                        ${Number(item.price).toFixed(2)}
-                      </td>
-                      <td className="p-3 align-top space-y-2">
-                        <div className="flex items-center gap-2">
-                           <span className="text-xs text-muted-foreground w-4 text-center">+/-</span>
-                           <input
+                          />
+                        </td>
+                        <td className="p-3 align-top text-center font-medium pt-4">
+                          ${Number(item.price).toFixed(2)}
+                        </td>
+                        <td className="p-3 align-top space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground w-4 text-center">+/-</span>
+                            <input
                               type="number"
                               className="w-full h-8 rounded-md border border-input px-2 text-sm"
                               placeholder="0.00"
                               value={item.adj || ""}
                               onChange={(e) => updateItem(item.tempId, 'adj', e.target.value)}
-                           />
-                        </div>
-                        <input
-                           type="text"
-                           className="w-full h-8 rounded-md border border-input px-2 text-xs"
-                           placeholder="Razón del ajuste"
-                           value={item.adjReason || ""}
-                           onChange={(e) => updateItem(item.tempId, 'adjReason', e.target.value)}
-                        />
-                      </td>
-                      <td className="p-3 align-top text-center">
-                        <div className="flex flex-col gap-1 items-center justify-center pt-1">
-                           <button 
-                             type="button" 
-                             onClick={() => removeItem(item.tempId)}
-                             className="text-muted-foreground hover:text-destructive p-1 rounded-md hover:bg-destructive/10 transition-colors"
-                             title="Eliminar Fila"
-                           >
-                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                           </button>
-                           <button
-                             type="button"
-                             onClick={() => setItems([...items, { ...item, tempId: Date.now() }])}
-                             className="text-muted-foreground hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 transition-colors"
-                             title="Duplicar Fila"
-                           >
-                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  <tr className="bg-muted/10 font-medium">
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            className="w-full h-8 rounded-md border border-input px-2 text-xs"
+                            placeholder="Razón del ajuste"
+                            value={item.adjReason || ""}
+                            onChange={(e) => updateItem(item.tempId, 'adjReason', e.target.value)}
+                          />
+                        </td>
+                        <td className="p-3 align-top text-center">
+                          <div className="flex flex-col gap-1 items-center justify-center pt-1">
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.tempId)}
+                              className="text-muted-foreground hover:text-destructive p-1 rounded-md hover:bg-destructive/10 transition-colors"
+                              title="Eliminar Fila"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setItems([...items, { ...item, tempId: Date.now() }])}
+                              className="text-muted-foreground hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 transition-colors"
+                              title="Duplicar Fila"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="bg-muted/10 font-medium">
                       <td colSpan={3} className="px-4 py-3 text-right">TOTAL ESTIMADO</td>
                       <td className="px-4 py-3 text-center text-lg">${calculateTotal().toFixed(2)}</td>
                       <td colSpan={2}></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             )}
             <div className="p-4 border-t border-border bg-muted/10 flex justify-center">
-               <Button type="button" variant="outline" size="sm" onClick={addItem}>+ Agregar Otra Prenda</Button>
+              <Button type="button" variant="outline" size="sm" onClick={addItem}>+ Agregar Otra Prenda</Button>
             </div>
           </CardContent>
         </Card>
