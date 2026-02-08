@@ -6,7 +6,113 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- CREATE EXTENSION IF NOT EXISTS postgis; -- Removed upon user request
 CREATE EXTENSION IF NOT EXISTS citext;
 
--- ... (skipping unchanged lines) ...
+-- =========================================================================================
+-- 1. CATALOG CONTEXT (Generic Config)
+-- =========================================================================================
+
+-- Roles (cca_role)
+CREATE TABLE cca_role (
+    id_role UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE, -- 'ADMIN', 'EMPLOYEE'
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ, -- Soft Delete
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+-- Service/Repair (cci_service)
+CREATE TABLE cci_service (
+    id_service UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE, -- 'HEMMING'
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    default_duration_min INT DEFAULT 30,
+    base_price DECIMAL(19,4) DEFAULT 0.0,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+-- Garment Type (cci_garment_type)
+CREATE TABLE cci_garment_type (
+    id_garment_type UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE, -- 'PANTS'
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+-- Price Lists (tcc_price_list)
+CREATE TABLE tcc_price_list (
+    id_price_list UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(150) NOT NULL,
+    valid_from TIMESTAMPTZ NOT NULL,
+    valid_to TIMESTAMPTZ, -- Null = Forever
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    priority INT DEFAULT 0, -- Higher wins
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+
+-- Price List Items (tcc_price_list_item)
+CREATE TABLE tcc_price_list_item (
+    id_price_list_item UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_price_list UUID NOT NULL REFERENCES tcc_price_list(id_price_list),
+    id_service UUID NOT NULL REFERENCES cci_service(id_service),
+    price DECIMAL(19,4) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- =========================================================================================
+-- 2. IDENTITY CONTEXT (Auth & Employees)
+-- =========================================================================================
+
+-- Internal Users / Employees (tca_user)
+-- Note: Customers are NOT here. This is for system access.
+CREATE TABLE tca_user (
+    id_user UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_role UUID NOT NULL REFERENCES cca_role(id_role),
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email CITEXT UNIQUE, 
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    
+    -- Audit
+    last_login_at TIMESTAMPTZ,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+-- =========================================================================================
+-- 3. ESTABLISHMENT CONTEXT (Operations)
+-- =========================================================================================
+
+-- Establishment (tce_establishment)
+CREATE TABLE tce_establishment (
+    id_establishment UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(150) NOT NULL,
+    tax_info JSONB, -- { "rfc": "...", "regime": "..." }
+    owner_name VARCHAR(150),
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
 
 -- Branch (tce_branch)
 CREATE TABLE tce_branch (
