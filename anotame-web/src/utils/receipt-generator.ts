@@ -37,11 +37,12 @@ export const generateReceiptHtml = (data: {
   <style>
     body {
       font-family: 'Courier New', Courier, monospace;
-      width: 80mm;
+      width: 48mm;
       margin: 0;
       padding: 5px;
       font-size: 12px;
       line-height: 1.2;
+      word-wrap: break-word;
     }
     .header {
       text-align: center;
@@ -81,7 +82,7 @@ export const generateReceiptHtml = (data: {
     }
     @media print {
       @page { margin: 0; }
-      body { margin: 0; padding: 2mm; }
+      body { margin: 0; padding: 2mm; width: 48mm; }
     }
   </style>
 </head>
