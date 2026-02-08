@@ -39,7 +39,7 @@ export const generateReceiptHtml = (data: {
   <style>
     body {
       font-family: 'Courier New', Courier, monospace;
-      width: 48mm;
+      width: 46mm;
       margin: 0;
       padding: 5px;
       font-size: 11px;
