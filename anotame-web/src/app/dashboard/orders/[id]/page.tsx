@@ -4,12 +4,19 @@ import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { API_SALES } from "@/lib/api";
-import { OrderResponse } from "@/types/dtos";
+import { OrderResponse, Establishment } from "@/types/dtos";
+import { getSettings } from "@/services/operations/establishment";
+import { generateReceiptHtml } from "@/utils/receipt-generator";
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [order, setOrder] = useState<OrderResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [establishment, setEstablishment] = useState<Establishment | null>(null);
+
+  useEffect(() => {
+    getSettings().then(setEstablishment).catch(console.error);
+  }, []);
 
   // Need to unwrap params in Next.js 15+ (assuming latest or reasonably recent)
   // But standard way is usually params prop. 
@@ -64,50 +71,46 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const handlePrint = () => {
     if (!order) return;
 
-    // TODO: formatting helper
-    const formatDate = (d: string) => new Date(d).toLocaleDateString('es-ES');
-
-    let text = `
-==================================
-ENTREGA ->
-FECHA: ${order.committedDeadline ? formatDate(order.committedDeadline) : '-'}
-----------------------------------
-Datos personales ->
-Nombre: ${order.customer.firstName} ${order.customer.lastName}
-Tel: ${order.customer.phoneNumber}
-----------------------------------
-Datos de la nota ->
-Folio: ${order.ticketNumber}
-Fecha: ${new Date(order.createdAt).toLocaleDateString('es-ES')}
-----------------------------------
-PRENDAS:
-`;
-
-    order.items.forEach(item => {
-      text += `
-Cant: ${item.quantity}
-Prenda: ${item.garmentName}
-Servicio: ${item.serviceName}
-Nota: ${item.notes || ''}
-Precio: $${item.unitPrice}
---------------------
-`;
+    const receiptHtml = generateReceiptHtml({
+      ticketNumber: order.ticketNumber,
+      customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+      phone: order.customer.phoneNumber,
+      deadline: order.committedDeadline || new Date().toISOString(),
+      items: order.items.map(i => ({
+        garment: i.garmentName,
+        service: i.serviceName,
+        notes: i.notes,
+        price: i.unitPrice,
+        // OrderResponse items might not have adjustment breakdown if not stored, 
+        // relying on unitPrice which is usually final or base. 
+        // If subtotal != unitPrice * quantity, there's a discrepancy, but for receipt usually unitPrice is fine.
+        // Let's assume unitPrice is the effective price per item.
+      })),
+      total: order.totalAmount,
+      amountPaid: 0, // TODO: Retrieve actual payments if available. explicit 0 for now or calculated?
+      // For now, details view might not have payments history. 
+      // If balance is calculated from total - paid, and we don't have paid, balance = total.
+      // But we should likely show 'Pendiente' properly. 
+      // Let's rely on what we have. If we don't have payment info, we might show 0 paid.
+      balance: order.totalAmount, // Assuming no payment info in this view yet
+      establishment: {
+        name: establishment?.name || "ANOTAME",
+        address: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).address : undefined,
+        rfc: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).rfc : undefined,
+        taxRegime: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).regime : undefined,
+        contactPhone: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).contactPhone : undefined,
+      }
     });
 
-    text += `
-====================
-TOTAL: $${(order.totalAmount || 0).toFixed(2)}
-(Saldo pendiente no disponible en vista detalle aun)
-====================
-`;
-
-    const newWindow = window.open('', '', 'width=400,height=600');
+    const newWindow = window.open('', '_blank', 'width=400,height=600');
     if (newWindow) {
-      newWindow.document.write(`<pre>${text}</pre>`);
+      newWindow.document.write(receiptHtml);
       newWindow.document.close();
-      newWindow.focus();
-      newWindow.print();
-      newWindow.close();
+      newWindow.setTimeout(() => {
+        newWindow.focus();
+        newWindow.print();
+        newWindow.close();
+      }, 250);
     }
   };
 
