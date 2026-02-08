@@ -12,4 +12,6 @@ public interface ServiceRepositoryPort {
     Optional<Service> findById(UUID id);
 
     Service save(Service service);
+
+    void delete(UUID id);
 }

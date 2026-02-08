@@ -1,0 +1,103 @@
+# Migration Gap Analysis & Future Roadmap
+
+**Status**: To Do (Future Dev Cycle)
+**Source**: Gap Analysis of `anotame-legacy` vs Modern Microservices
+
+## Overview
+This document outlines the functional modules present in the legacy system that have not yet been ported to the modern architecture. These modules are prioritized for future development cycles to achieve feature parity where relevant.
+
+## 1. Advanced Pricing Strategy (Priority: High)
+The legacy system supported dynamic "Price Lists" (`Lista de Precios`), allowing tailored pricing (e.g., Seasonal, VIP). The current system only supports a static `base_price`.
+
+### Missing Functionality
+-   **Multiple Price Lists**: Ability to define named lists (e.g., "Winter 2025", "VIP").
+-   **Temporal Validity**: Start and End dates for price lists.
+-   **Service-Specific Overrides**: assigning a specific price for a service within a list.
+
+### Legacy Tables Reference
+-   `tci03_lista_precio`
+-   `tci02_servicio_lista_precio`
+-   `tci01_estado_lista_precio`
+
+---
+
+## 2. Work Scheduling & Establishment Rules (Priority: Medium)
+The legacy system modeled establishment constraints like working days, holidays, and detailed employee shifts. The current system only tracks assignment periods.
+
+### Missing Functionality
+-   **Work Days definition**: Defining which days (Mon-Sun) are operational.
+-   **Holidays (Non-working days)**: Specific dates where the branch is closed.
+-   **Shifts**: Granular start/end times (e.g., 9:00 AM - 5:00 PM) assigned to employees.
+
+### Legacy Tables Reference
+-   `tce04_dia_laboral`
+-   `tce05_dia_descanso`
+-   `tce06_empleado_horario`
+-   `tce08_horario`
+
+---
+
+## 3. Operations & Cashier (Priority: High)
+The legacy system (and specifically the React legacy app) contains the blueprint for the physical receipt and payment logic.
+
+### Missing Functionality
+-   **Ticket/Receipt Printing**: Need to implement the plain-text receipt format found in `anotame-legacy-react/.../NotaTable.jsx`.
+    -   *Format*: Columns for Qty, Item, Repairs, Price. Sections for Customer, Dates, and Totals.
+-   **Payments**: The React app tracks `amountLeft` and `paidInFull`. This logic needs to be ported to `tco_order` in the Sales service.
+-   **Establishment Configuration**: UI to update Branch/Establishment details for the receipt header.
+
+---
+
+## 4. Deprecated / Excluded Modules
+The following modules existed in the legacy system but have been **intentionally excluded** from the migration roadmap.
+
+*   **Appointment Management (Citas)**: The functionality for scheduling customer drop-offs/pickups (`tci05_cita`) is considered deprecated and will not be implemented in the modern architecture.
+
+---
+
+## 5. Data Constraints & Requirements (From React Legacy)
+Analysis of `ClientDataForm.jsx` and `GarmentDataForm.jsx` reveals the following constraints that must be enforced for receipt generation.
+
+### Client Data (`ClientDataForm.jsx`)
+| Field | Type | Required | Notes |
+| :--- | :--- | :--- | :--- |
+| `clientName` | String | **Yes** | "Nombre" |
+| `clientFirstLastName`| String | No* | "Apellido Paterno" (Validation implies required but prop is optional) |
+| `clientSecondLastName`| String | No* | "Apellido Materno" |
+| `telefonNumber` | Number | No | "Número de teléfono" |
+| `folio` | String | **Yes** | Unique identifier for the order |
+| `receivedDate` | Date | **Yes** | Defaults to Today (YYYY-MM-DD) |
+| `deliveryDate` | DateTime | **Yes** | Defaults to Today + 18:00 |
+
+### Garment Data (`GarmentDataForm.jsx`)
+| Field | Type | Required | Notes |
+| :--- | :--- | :--- | :--- |
+| `garmentQuantity` | Number | **Yes** | |
+| `garmentType` | String | **Yes** | e.g. "Pants", "Shirt" |
+| `garmentRepair` | Array | No | List of repair names (e.g. "Hemming") |
+| `garmentDescription`| String | No | Additional details |
+| `garmentRepairCost` | Decimal| **Yes** | Cost per unit |
+| `garmentRepairAmount`| Decimal| **Yes** | Calculated: `Quantity * Cost` |
+
+**Business Logic**:
+-   `garmentRepairAmount` is auto-calculated when quantity or cost changes.
+-   `garmentCosts` (Total) is the sum of all item amounts.
+
+---
+
+## 6. Modern App Gap Verification
+
+### Backend (`sales-service`)
+-   **Payment Tracking**: [RESOLVED] `Order` entity now has `amountPaid`, `paymentMethod`.
+-   **Ticket Number**: [RESOLVED] Implemented with auto-generation.
+-   **Client Fields**: [RESOLVED] Mapped to `firstName` / `lastName`.
+
+### Frontend (`NewOrderPage`)
+-   **Payment Inputs**: [RESOLVED] Added Amount Imput and Payment Method selector.
+-   **Receipt Generation**: [RESOLVED] Added "Print Ticket" button using `window.print()`.
+-   **Item Structure**: Modern forces 1 Service per Item. Legacy allowed multiple repairs per Garment. **[DEFERRED]**
+
+## 7. Deferred / Future Enhancements
+-   **Multiple Repairs per Item**: Allowing a single garment to have multiple service types attached.
+-   **Advanced Pricing**: High priority gap (Section 1).
+-   **Work Scheduling**: Medium priority gap (Section 2).

@@ -13,4 +13,6 @@ public class OrderItemDto {
     private BigDecimal unitPrice;
     private Integer quantity;
     private String notes;
+    private BigDecimal adjustmentAmount; // Optional
+    private String adjustmentReason;
 }

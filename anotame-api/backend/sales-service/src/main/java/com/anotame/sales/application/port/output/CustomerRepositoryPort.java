@@ -9,5 +9,11 @@ public interface CustomerRepositoryPort {
 
     Optional<Customer> findByEmail(String email);
 
+    Optional<Customer> findByPhoneNumber(String phoneNumber);
+
+    java.util.List<Customer> search(String query);
+
     Customer save(Customer customer);
+
+    void deleteById(UUID id);
 }

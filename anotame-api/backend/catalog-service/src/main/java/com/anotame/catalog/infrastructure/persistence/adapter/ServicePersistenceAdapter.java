@@ -3,15 +3,15 @@ package com.anotame.catalog.infrastructure.persistence.adapter;
 import com.anotame.catalog.application.port.output.ServiceRepositoryPort;
 import com.anotame.catalog.domain.model.Service;
 import com.anotame.catalog.infrastructure.persistence.repository.ServiceRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-
 import java.util.UUID;
 
-@Component
+@ApplicationScoped
 @RequiredArgsConstructor
 public class ServicePersistenceAdapter implements ServiceRepositoryPort {
 
@@ -27,14 +27,28 @@ public class ServicePersistenceAdapter implements ServiceRepositoryPort {
         if (id == null) {
             return Optional.empty();
         }
-        return repository.findById(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
+    @Transactional
     public Service save(Service service) {
         if (service == null) {
             return null;
         }
-        return repository.save(service);
+        if (service.getId() == null) {
+            repository.persist(service);
+        }
+        return service;
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID id) {
+        if (id != null) {
+            repository.findByIdOptional(id).ifPresent(service -> {
+                service.setActive(false);
+            });
+        }
     }
 }

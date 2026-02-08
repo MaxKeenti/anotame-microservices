@@ -9,14 +9,14 @@ import com.anotame.sales.domain.model.OrderItem;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class SalesService {
 
@@ -51,8 +51,12 @@ public class SalesService {
             item.setUnitPrice(itemDto.getUnitPrice());
             item.setQuantity(itemDto.getQuantity());
             item.setNotes(itemDto.getNotes());
+            item.setAdjustmentAmount(
+                    itemDto.getAdjustmentAmount() != null ? itemDto.getAdjustmentAmount() : BigDecimal.ZERO);
+            item.setAdjustmentReason(itemDto.getAdjustmentReason());
 
-            BigDecimal subtotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal effectivePrice = item.getUnitPrice().add(item.getAdjustmentAmount());
+            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(item.getQuantity()));
             item.setSubtotal(subtotal);
 
             order.addItem(item); // bi-directional setting
@@ -64,7 +68,7 @@ public class SalesService {
         return orderRepository.save(order);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public java.util.List<com.anotame.sales.application.dto.OrderResponse> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(this::mapToResponse)
@@ -103,6 +107,70 @@ public class SalesService {
                 .build();
     }
 
+    @Transactional
+    public com.anotame.sales.application.dto.OrderResponse getOrder(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return mapToResponse(order);
+    }
+
+    @Transactional
+    public void deleteOrder(UUID id) {
+        orderRepository.delete(id);
+    }
+
+    @Transactional
+    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, CreateOrderRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Update fields
+        if (request.getNotes() != null) {
+            order.setNotes(request.getNotes());
+        }
+        if (request.getCommittedDeadline() != null) {
+            order.setCommittedDeadline(request.getCommittedDeadline());
+        }
+
+        // For items, we replace them
+        // Note: This is a heavy operation, effectively replacing the order content
+        order.getItems().clear();
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (OrderItemDto itemDto : request.getItems()) {
+            OrderItem item = new OrderItem();
+            item.setGarmentTypeId(itemDto.getGarmentTypeId());
+            item.setGarmentName(itemDto.getGarmentName());
+            item.setServiceId(itemDto.getServiceId());
+            item.setServiceName(itemDto.getServiceName());
+            item.setUnitPrice(itemDto.getUnitPrice());
+            item.setQuantity(itemDto.getQuantity());
+            item.setNotes(itemDto.getNotes());
+            item.setAdjustmentAmount(
+                    itemDto.getAdjustmentAmount() != null ? itemDto.getAdjustmentAmount() : BigDecimal.ZERO);
+            item.setAdjustmentReason(itemDto.getAdjustmentReason());
+
+            BigDecimal effectivePrice = item.getUnitPrice().add(item.getAdjustmentAmount());
+            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setSubtotal(subtotal);
+
+            order.addItem(item);
+            total = total.add(subtotal);
+        }
+        order.setTotalAmount(total);
+
+        Order saved = orderRepository.save(order);
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public void updateOrderStatus(UUID id, String status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
     private Customer resolveCustomer(CustomerDto dto) {
         UUID customerId = dto.getId();
         if (customerId != null) {
@@ -111,8 +179,8 @@ public class SalesService {
         }
 
         // Check by existing unique fields
-        if (dto.getEmail() != null) {
-            var existing = customerRepository.findByEmail(dto.getEmail());
+        if (dto.getPhoneNumber() != null) {
+            var existing = customerRepository.findByPhoneNumber(dto.getPhoneNumber()); // Assuming port has this
             if (existing.isPresent())
                 return existing.get();
         }
@@ -122,8 +190,8 @@ public class SalesService {
         newCustomer.setFirstName(dto.getFirstName());
         newCustomer.setLastName(dto.getLastName());
         newCustomer.setEmail(dto.getEmail());
-        newCustomer.setPhone(dto.getPhone());
-        newCustomer.setAddress(dto.getAddress());
+        newCustomer.setPhoneNumber(dto.getPhoneNumber());
+        newCustomer.setPreferences(dto.getPreferences());
 
         return customerRepository.save(newCustomer);
     }

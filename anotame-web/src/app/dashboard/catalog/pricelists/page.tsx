@@ -1,0 +1,122 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { getPriceLists, deletePriceList } from "@/services/catalog/pricelists";
+import { PriceListResponse } from "@/types/dtos";
+
+import { useAuth } from "@/context/AuthContext";
+
+export default function PriceListsPage() {
+    const router = useRouter();
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'ADMIN';
+
+    const [lists, setLists] = useState<PriceListResponse[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        loadLists();
+    }, []);
+
+    const loadLists = async () => {
+        try {
+            const data = await getPriceLists();
+            setLists(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this price list?")) return;
+        try {
+            await deletePriceList(id);
+            loadLists();
+        } catch (err) {
+            alert("Failed to delete");
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">Listas de Precios</h1>
+                {isAdmin && (
+                    <Button onClick={() => router.push("/dashboard/catalog/pricelists/new")}>
+                        + Nueva Lista
+                    </Button>
+                )}
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Estrategias de Precios Activas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {isLoading ? (
+                        <div>Cargando...</div>
+                    ) : lists.length === 0 ? (
+                        <div className="text-muted-foreground">No se encontraron listas de precios.</div>
+                    ) : (
+                        <div className="border rounded-md">
+                            <table className="w-full text-sm text-left">
+                                <thead className="bg-secondary/50 border-b">
+                                    <tr>
+                                        <th className="p-4">Nombre</th>
+                                        <th className="p-4">Prioridad</th>
+                                        <th className="p-4">Válido Desde</th>
+                                        <th className="p-4">Válido Hasta</th>
+                                        <th className="p-4">Estado</th>
+                                        {isAdmin && <th className="p-4 text-right">Acciones</th>}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {lists.map((list) => (
+                                        <tr key={list.id} className="border-b last:border-0 hover:bg-secondary/10">
+                                            <td className="p-4 font-medium">{list.name}</td>
+                                            <td className="p-4">{list.priority}</td>
+                                            <td className="p-4">{new Date(list.validFrom).toLocaleDateString()}</td>
+                                            <td className="p-4">
+                                                {list.validTo ? new Date(list.validTo).toLocaleDateString() : "Permanente"}
+                                            </td>
+                                            <td className="p-4">
+                                                {list.active ? (
+                                                    <span className="text-green-600 font-bold">Activa</span>
+                                                ) : (
+                                                    <span className="text-gray-500">Inactiva</span>
+                                                )}
+                                            </td>
+                                            {isAdmin && (
+                                                <td className="p-4 text-right space-x-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => router.push(`/dashboard/catalog/pricelists/${list.id}`)}
+                                                    >
+                                                        Ver
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        onClick={() => handleDelete(list.id)}
+                                                    >
+                                                        Eliminar
+                                                    </Button>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+}

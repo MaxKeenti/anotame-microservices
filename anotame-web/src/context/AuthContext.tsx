@@ -11,6 +11,7 @@ interface AuthContextType {
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check for existing token on mount
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    
+
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -44,26 +45,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("Login failed");
       }
 
-      const data: { token: string } = await res.json();
+      const data: { token: string; user: User } = await res.json();
       const token = data.token;
-      
+
       // Store token
       localStorage.setItem("token", token);
-      
-      // In a real app, we would decode the token to get user details
-      // For now, we'll set a placeholder user based on the username
+
+      // Use real user data from response
       const userObj: User = {
-        id: "placeholder-id",
-        username: creds.username,
-        email: "user@anotame.com",
-        role: "EMPLOYEE", // Default
-        firstName: creds.username,
-        lastName: "",
+        ...data.user,
+        role: data.user.role || "EMPLOYEE"
       };
-      
+
       localStorage.setItem("user", JSON.stringify(userObj));
       setUser(userObj);
-      
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
@@ -86,23 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("Registration failed");
       }
 
-      const resData: { token: string } = await res.json();
+      const resData: { token: string; user: User } = await res.json();
       const token = resData.token;
-      
+
       localStorage.setItem("token", token);
-      
+
       const userObj: User = {
-        id: "placeholder-id", // In real app, unwrap token
-        username: data.username,
-        email: data.email,
-        role: "EMPLOYEE",
-        firstName: data.firstName,
-        lastName: data.lastName,
+        ...resData.user,
+        role: resData.user.role || "EMPLOYEE"
       };
-      
+
       localStorage.setItem("user", JSON.stringify(userObj));
       setUser(userObj);
-      
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Registration error:", error);
@@ -120,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAuthenticated: !!user, token: typeof window !== 'undefined' ? localStorage.getItem("token") : null }}>
       {children}
     </AuthContext.Provider>
   );
