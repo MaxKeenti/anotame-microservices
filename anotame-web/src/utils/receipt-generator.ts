@@ -42,7 +42,7 @@ export const generateReceiptHtml = (data: {
       width: 48mm;
       margin: 0;
       padding: 5px;
-      font-size: 12px;
+      font-size: 11px;
       line-height: 1.2;
       word-wrap: break-word; /* Force wrapping */
       overflow-wrap: break-word;
@@ -53,7 +53,7 @@ export const generateReceiptHtml = (data: {
     }
     .header h1 {
       margin: 0;
-      font-size: 18px; /* Kept per user req */
+      font-size: 16px; /* Kept per user req */
     }
     .section {
       margin-bottom: 10px;
@@ -77,7 +77,7 @@ export const generateReceiptHtml = (data: {
     }
     .totals {
       text-align: right;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
     }
     .footer {
@@ -143,7 +143,7 @@ export const generateReceiptHtml = (data: {
       <span>ANTICIPO:</span>
       <span>$${data.amountPaid.toFixed(2)}</span>
     </div>
-    <div class="row" style="font-size: 16px;">
+    <div class="row" style="font-size: 14px;">
       <span>RESTA:</span>
       <span>$${data.balance.toFixed(2)}</span>
     </div>
