@@ -37,15 +37,18 @@ export const generateReceiptHtml = (data: {
   <meta charset="UTF-8">
   <title>Ticket ${data.ticketNumber}</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, Helvetica, sans-serif; /* Better legibility for thermal */
       font-weight: 500; /* Slightly bolder */
-      width: 44mm; /* Reduced to avoid edge cutting */
-      margin: 0;
-      padding: 0; /* Minimized padding */
+      width: 40mm; /* Further reduced for safety */
+      margin: 0 auto; /* Center it */
+      padding: 0;
       font-size: 11px;
       line-height: 1.2;
-      word-wrap: break-word; /* Force wrapping */
+      word-wrap: break-word;
       overflow-wrap: break-word;
     }
     .header {
@@ -54,7 +57,7 @@ export const generateReceiptHtml = (data: {
     }
     .header h1 {
       margin: 0;
-      font-size: 16px; /* Kept per user req */
+      font-size: 16px;
     }
     .section {
       margin-bottom: 10px;
@@ -65,7 +68,7 @@ export const generateReceiptHtml = (data: {
     .row {
       display: flex;
       justify-content: space-between;
-      flex-wrap: wrap; /* Key for small width */
+      flex-wrap: wrap; 
     }
     .item {
       margin-bottom: 5px;
@@ -74,7 +77,7 @@ export const generateReceiptHtml = (data: {
       font-weight: bold;
     }
     .item-detail {
-        padding-left: 10px;
+        padding-left: 5px; /* Reduced padding */
     }
     .totals {
       text-align: right;
@@ -87,8 +90,8 @@ export const generateReceiptHtml = (data: {
       font-size: 10px;
     }
     @media print {
-      @page { margin: 0; }
-      body { margin: 0; padding: 1mm; width: 44mm; }
+      @page { size: auto; margin: 0mm; } 
+      body { margin: 0 auto; padding: 1mm; width: 40mm; }
     }
   </style>
 </head>
