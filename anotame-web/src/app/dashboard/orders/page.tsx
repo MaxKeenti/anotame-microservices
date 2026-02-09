@@ -79,11 +79,10 @@ export default function ServicesPage() {
       }
     }
 
-    // 3. Date Filter (CreatedAt)
+    // 3. Date Filter (Delivery Date)
     if (dateFilter) {
-      // dateFilter is YYYY-MM-DD
-      // order.createdAt is ISO string
-      const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+      if (!order.committedDeadline) return false;
+      const orderDate = order.committedDeadline.split('T')[0];
       if (orderDate !== dateFilter) return false;
     }
 
@@ -127,7 +126,7 @@ export default function ServicesPage() {
         </div>
         <div>
           <Input
-            label="Fecha"
+            label="Fecha de Entrega"
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
@@ -144,7 +143,7 @@ export default function ServicesPage() {
                 <th className="px-6 py-3">Cliente</th>
                 <th className="px-6 py-3">Prendas (Resumen)</th>
                 <th className="px-6 py-3">Estado</th>
-                <th className="px-6 py-3">Fecha</th>
+                <th className="px-6 py-3">Entrega</th>
                 <th className="px-6 py-3">Total</th>
                 <th className="px-6 py-3">Acción</th>
               </tr>
@@ -168,7 +167,7 @@ export default function ServicesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-3 text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleDateString()}
+                      {o.committedDeadline ? new Date(o.committedDeadline).toLocaleDateString() : '-'}
                     </td>
                     <td className="px-6 py-3 font-medium">${(o.totalAmount || 0).toFixed(2)}</td>
                     <td className="px-6 py-3">

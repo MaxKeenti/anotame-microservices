@@ -8,6 +8,14 @@ import { OrderResponse, Establishment } from "@/types/dtos";
 import { getSettings } from "@/services/operations/establishment";
 import { generateReceiptHtml } from "@/utils/receipt-generator";
 
+const statusMap: Record<string, string> = {
+  'RECEIVED': 'RECIBIDO',
+  'IN_PROGRESS': 'EN PROGRESO',
+  'READY': 'LISTO',
+  'DELIVERED': 'ENTREGADO',
+  'CANCELLED': 'CANCELADO'
+};
+
 export default function OrderDetailsPage({ params, searchParams }: {
   params: Promise<{ id: string }>,
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
@@ -71,11 +79,11 @@ export default function OrderDetailsPage({ params, searchParams }: {
   }, [action, order, establishment, loading, id]);
 
   const handleCancel = async () => {
-    if (!order || !confirm("Are you sure you want to cancel this order?")) return;
+    if (!order || !confirm("¿Estás seguro que deseas cancelar este pedido?")) return;
     try {
       const res = await fetch(`${API_SALES}/orders/${order.id}`, { method: "DELETE" });
       if (res.ok) {
-        alert("Order cancelled");
+        alert("Pedido cancelado");
         router.push("/dashboard/orders");
       }
     } catch (e) {
@@ -124,7 +132,7 @@ export default function OrderDetailsPage({ params, searchParams }: {
   };
 
   const handleSendToOps = async () => {
-    if (!order || !confirm("Send this order to Operations? Status will change to IN_PROGRESS.")) return;
+    if (!order || !confirm("¿Enviar pedido a Operaciones? El estado cambiará a EN PROGRESO.")) return;
     try {
       const res = await fetch(`${API_SALES}/orders/${order.id}/status`, {
         method: "PATCH",
@@ -135,17 +143,17 @@ export default function OrderDetailsPage({ params, searchParams }: {
       });
 
       if (res.ok) {
-        alert("Order sent to Operations!");
+        alert("¡Pedido enviado a Operaciones!");
         setLoading(true);
         const newRes = await fetch(`${API_SALES}/orders/${id}`);
         if (newRes.ok) setOrder(await newRes.json());
         setLoading(false);
       } else {
-        alert("Failed to update status. Backend may not support this yet.");
+        alert("Error al actualizar estado.");
       }
     } catch (e) {
       console.error(e);
-      alert("Error connecting to server");
+      alert("Error de conexión");
     }
   };
 
@@ -164,7 +172,7 @@ export default function OrderDetailsPage({ params, searchParams }: {
             order.status === 'READY' ? 'bg-emerald-100 text-emerald-800' :
               order.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-gray-100 text-gray-800'}`}>
-          {order.status}
+          {statusMap[order.status] || order.status}
         </span>
       </div>
 
