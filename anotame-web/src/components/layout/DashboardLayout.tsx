@@ -1,7 +1,10 @@
 "use client";
 
-import { Sidebar } from "./Sidebar";
+import { useState } from "react";
+import { Menu } from "lucide-react";
+import { MenuModal } from "./MenuModal";
 import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/Button";
 
 export default function DashboardLayout({
   children,
@@ -9,24 +12,34 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
-      <Sidebar />
-      <div className="flex-1 ml-64 flex flex-col">
-        <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10 px-8 flex items-center justify-between">
-          <h2 className="font-heading font-semibold text-lg">Tablero</h2>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Bienvenido, <strong>{user?.username || "Usuario"}</strong></span>
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-              {user?.username?.charAt(0).toUpperCase() || "U"}
-            </div>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <MenuModal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(true)}>
+            <Menu className="h-6 w-6" />
+          </Button>
+          <h2 className="font-heading font-semibold text-lg">Anotame.</h2>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="hidden md:inline text-sm text-muted-foreground">Bienvenido, <strong>{user?.username || "Usuario"}</strong></span>
+          <div
+            className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold cursor-pointer"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            {user?.username?.charAt(0).toUpperCase() || "U"}
           </div>
-        </header>
-        <main className="flex-1 p-8 overflow-y-auto">
-          {children}
-        </main>
-      </div>
+        </div>
+      </header>
+
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto w-full max-w-7xl mx-auto">
+        {children}
+      </main>
     </div>
   );
 }

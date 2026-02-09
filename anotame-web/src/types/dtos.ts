@@ -59,6 +59,8 @@ export interface OrderResponse {
   committedDeadline: string;
   status: string;
   totalAmount: number;
+  amountPaid: number;
+  balance: number;
   notes: string;
   items: OrderItemResponse[];
   createdAt: string;
