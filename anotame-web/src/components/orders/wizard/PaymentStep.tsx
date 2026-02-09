@@ -67,10 +67,22 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
                 adjustmentReason: item.adjustmentReason
             }));
 
+            // Format deadline to LocalDateTime (YYYY-MM-DDTHH:mm:ss)
+            let deadlineStr = draft.committedDeadline;
+            if (!deadlineStr) {
+                deadlineStr = new Date().toISOString().slice(0, 19);
+            } else if (deadlineStr.length === 10) {
+                // Is just YYYY-MM-DD, append time
+                deadlineStr = `${deadlineStr}T18:00:00`;
+            } else {
+                // Ensure we don't send Z or offsets if backend is strict about LocalDateTime
+                deadlineStr = deadlineStr.slice(0, 19);
+            }
+
             const payload: CreateOrderRequest & { amountPaid: number; paymentMethod: string } = {
                 customer: draft.customer,
                 items: orderItems,
-                committedDeadline: draft.committedDeadline || new Date().toISOString(), // Fallback if not set
+                committedDeadline: deadlineStr,
                 notes: draft.notes || "",
                 amountPaid: draft.amountPaid || 0,
                 paymentMethod: draft.paymentMethod || "CASH"

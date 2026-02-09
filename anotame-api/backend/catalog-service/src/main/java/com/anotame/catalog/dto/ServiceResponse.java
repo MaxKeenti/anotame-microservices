@@ -12,4 +12,5 @@ public class ServiceResponse {
     private String description;
     private Integer defaultDurationMin;
     private BigDecimal basePrice;
+    private UUID garmentTypeId;
 }

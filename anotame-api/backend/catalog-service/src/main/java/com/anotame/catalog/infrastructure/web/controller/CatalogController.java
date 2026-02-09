@@ -99,6 +99,9 @@ public class CatalogController {
         dto.setDescription(entity.getDescription());
         dto.setDefaultDurationMin(entity.getDefaultDurationMin());
         dto.setBasePrice(entity.getBasePrice());
+        if (entity.getGarmentType() != null) {
+            dto.setGarmentTypeId(entity.getGarmentType().getId());
+        }
         return dto;
     }
 }

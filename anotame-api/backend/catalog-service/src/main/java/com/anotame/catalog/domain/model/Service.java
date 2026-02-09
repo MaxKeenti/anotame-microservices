@@ -42,6 +42,10 @@ public class Service {
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_garment_type")
+    private GarmentType garmentType;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

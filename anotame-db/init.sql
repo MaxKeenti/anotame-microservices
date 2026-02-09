@@ -23,14 +23,12 @@ CREATE TABLE cca_role (
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
--- Service/Repair (cci_service)
-CREATE TABLE cci_service (
-    id_service UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) UNIQUE, -- 'HEMMING'
+-- Garment Type (cci_garment_type)
+CREATE TABLE cci_garment_type (
+    id_garment_type UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE, -- 'PANTS'
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    default_duration_min INT DEFAULT 30,
-    base_price DECIMAL(19,4) DEFAULT 0.0,
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -38,12 +36,15 @@ CREATE TABLE cci_service (
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL
 );
 
--- Garment Type (cci_garment_type)
-CREATE TABLE cci_garment_type (
-    id_garment_type UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) UNIQUE, -- 'PANTS'
+-- Service/Repair (cci_service)
+CREATE TABLE cci_service (
+    id_service UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE, -- 'HEMMING'
     name VARCHAR(100) NOT NULL,
     description TEXT,
+    id_garment_type UUID REFERENCES cci_garment_type(id_garment_type),
+    default_duration_min INT DEFAULT 30,
+    base_price DECIMAL(19,4) DEFAULT 0.0,
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -311,145 +312,152 @@ DO $$
 DECLARE
     v_price_list_id UUID := 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16';
     v_service_id UUID;
+    
+    -- Garment IDs (hardcoded to match seed above)
+    v_pant_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+    v_blu_id UUID := 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12';
+    v_falda_id UUID := 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13';
+    v_saco_id UUID := 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14';
+    v_var_id UUID := 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15';
 BEGIN
     -- PANTALON
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-01', 'Ajuste de cintura', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-01', 'Ajuste de cintura', 65, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-02', 'Ajuste de costado', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-02', 'Ajuste de costado', 60, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-03', 'Ajuste de piernas', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-03', 'Ajuste de piernas', 60, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-04', 'Dobladillo a mano', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-04', 'Dobladillo a mano', 65, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-05', 'Dobladillo a máquina', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-05', 'Dobladillo a máquina', 60, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-06', 'Cambio de cierre (Nylon/Invisible)', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-06', 'Cambio de cierre (Nylon/Invisible)', 60, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-07', 'Cambio de cierre (Metal)', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-07', 'Cambio de cierre (Metal)', 65, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-08', 'Ajuste de cintura con costado', 95) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-08', 'Ajuste de cintura con costado', 95, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 95);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-09', 'Ajuste de piernas con dobladillo', 95) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-09', 'Ajuste de piernas con dobladillo', 95, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 95);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-10', 'Ajuste de cintura con costado y dobladillo', 120) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-10', 'Ajuste de cintura con costado y dobladillo', 120, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 120);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-12', 'Poner parche', 45) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-12', 'Poner parche', 45, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 45);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-13', 'Cambio de bolsa', 55) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-13', 'Cambio de bolsa', 55, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 55);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-14', 'Cambio de bolsas (par)', 110) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-14', 'Cambio de bolsas (par)', 110, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 110);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-15', 'Poner falso en pretina', 75) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-15', 'Poner falso en pretina', 75, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 75);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-16', 'Ajuste de costados y cintura (Quitar pinzas)', 220) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-16', 'Ajuste de costados y cintura (Quitar pinzas)', 220, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 220);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-17', 'Recoser tiro', 30) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-17', 'Recoser tiro', 30, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 30);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-PANT-18', 'Cambio de forro', 150) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-PANT-18', 'Cambio de forro', 150, v_pant_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 150);
 
     -- BLUSA
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-01', 'Ajuste de costados', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-01', 'Ajuste de costados', 65, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-02', 'Ajuste de mangas', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-02', 'Ajuste de mangas', 60, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-03', 'Ajuste de hombro', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-03', 'Ajuste de hombro', 65, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-04', 'Dobladillo de ruedo', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-04', 'Dobladillo de ruedo', 60, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-05', 'Ajuste de manga con puño', 110) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-05', 'Ajuste de manga con puño', 110, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 110);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-06', 'Cortar mangas', 90) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-06', 'Cortar mangas', 90, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 90);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-BLU-07', 'Colocar broches', 10) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-BLU-07', 'Colocar broches', 10, v_blu_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 10);
 
     -- FALDA
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-01', 'Ajuste de cintura', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-01', 'Ajuste de cintura', 65, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-02', 'Ajuste de costado', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-02', 'Ajuste de costado', 65, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-03', 'Dobladillo a mano sin forro', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-03', 'Dobladillo a mano sin forro', 65, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-04', 'Dobladillo a máquina sin forro', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-04', 'Dobladillo a máquina sin forro', 60, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-05', 'Dobladillo con forro', 90) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-05', 'Dobladillo con forro', 90, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 90);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-06', 'Cambio de cierre', 65) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-06', 'Cambio de cierre', 65, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 65);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-FAL-07', 'Aumentar pretina', 95) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-FAL-07', 'Aumentar pretina', 95, v_falda_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 95);
 
     -- SACO
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-01', 'Ajuste de costados', 110) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-01', 'Ajuste de costados', 110, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 110);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-02', 'Ajuste de mangas', 75) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-02', 'Ajuste de mangas', 75, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 75);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-03', 'Subir puños', 95) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-03', 'Subir puños', 95, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 95);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-04', 'Ajuste de centro', 110) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-04', 'Ajuste de centro', 110, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 110);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-05', 'Ajuste de hombro', 110) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-05', 'Ajuste de hombro', 110, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 110);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-06', 'Cambio de forro completo', 200) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-06', 'Cambio de forro completo', 200, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 200);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-SACO-07', 'Ajuste de solapa', 110) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-SACO-07', 'Ajuste de solapa', 110, v_saco_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 110);
 
     -- VARIOS
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-01', 'Coser cojín', 50) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-01', 'Coser cojín', 50, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 50);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-02', 'Poner cierre a cojín', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-02', 'Poner cierre a cojín', 60, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
 
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-03', 'Recoser sábanas', 60) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-03', 'Recoser sábanas', 60, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 60);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-04', 'Cambio de cierre en bolsas', 75) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-04', 'Cambio de cierre en bolsas', 75, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 75);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-05', 'Recoser muñeco de peluche', 40) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-05', 'Recoser muñeco de peluche', 40, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 40);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-06', 'Dobladillar cobijas', 80) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-06', 'Dobladillar cobijas', 80, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 80);
     
-    INSERT INTO cci_service (code, name, base_price) VALUES ('SRV-VAR-07', 'Dobladillo de cortinas', 75) RETURNING id_service INTO v_service_id;
+    INSERT INTO cci_service (code, name, base_price, id_garment_type) VALUES ('SRV-VAR-07', 'Dobladillo de cortinas', 75, v_var_id) RETURNING id_service INTO v_service_id;
     INSERT INTO tcc_price_list_item (id_price_list, id_service, price) VALUES (v_price_list_id, v_service_id, 75);
 
 END $$;

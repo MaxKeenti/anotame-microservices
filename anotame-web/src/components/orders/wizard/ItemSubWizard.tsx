@@ -67,30 +67,66 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
     // Filter Services Logic
     const filteredServices = useMemo(() => {
         if (!selectedGarment) return [];
-        if (showAllServices) return services;
 
-        // Strict Filter: Code-based
-        // Pattern: Garment GT-PANT -> PANT. Service SRV-PANT-01 -> PANT.
-        if (selectedGarment.code && selectedGarment.code.startsWith('GT-')) {
-            const garmentSuffix = selectedGarment.code.replace('GT-', '');
-            // Look for services containing this suffix in their code (e.g. SRV-PANT-...)
-            // Also matching generic services if they exist (e.g. VAR, GEN) could be added here
-            const strictMatches = services.filter(s => s.code && s.code.includes(garmentSuffix));
+        // 1. Initial set: either all (if showAll) or strictly filtered by ID relationship
+        let candidates = services;
 
-            if (strictMatches.length > 0) return strictMatches;
+        if (!showAllServices) {
+            // Strict Filter: Database Relationship (Primary)
+            const byId = services.filter(s => s.garmentTypeId === selectedGarment.id);
+
+            // If we have matches by ID, use them.
+            // This relies on the backend being updated and returning populated garmentTypeId.
+            if (byId.length > 0) {
+                candidates = byId;
+            } else {
+                // Fallback to Code/Name if ID not yet populated or no matches found (e.g. backend outdated)
+
+                // Code-based Fallback
+                if (selectedGarment.code && selectedGarment.code.startsWith('GT-')) {
+                    const garmentSuffix = selectedGarment.code.replace('GT-', '');
+                    const codeMatches = services.filter(s => s.code && s.code.includes(garmentSuffix));
+                    if (codeMatches.length > 0) candidates = codeMatches;
+                }
+
+                // If still empty, we might let the name-sorter do the work on the full list? 
+                // No, better to show empty and let user click "Show All" or fallback to name filter.
+                // Let's stick to the code/ID strictness requested.
+                // If candidates is still 'services' (because byId was empty AND codeMatches was empty), 
+                // we should probably default to Name Match filter to avoid showing everything unrelated.
+                if (candidates === services) {
+                    const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const garmentName = normalize(selectedGarment.name);
+                    const searchTerms = [garmentName];
+                    if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
+                    else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
+
+                    candidates = services.filter(s => {
+                        const sName = normalize(s.name);
+                        return searchTerms.some(term => sName.includes(term));
+                    });
+                }
+            }
         }
 
-        // Fallback: Name-based heuristic (if code matching fails entirely)
+        // 2. Sort the candidates by relevance (Name match)
         const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const garmentName = normalize(selectedGarment.name);
-        // Simple plural handling
         const searchTerms = [garmentName];
         if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
         else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
 
-        return services.filter(s => {
-            const sName = normalize(s.name);
-            return searchTerms.some(term => sName.includes(term));
+        return candidates.sort((a, b) => {
+            const aName = normalize(a.name);
+            const bName = normalize(b.name);
+
+            const aMatch = searchTerms.some(term => aName.includes(term));
+            const bMatch = searchTerms.some(term => bName.includes(term));
+
+            if (aMatch && !bMatch) return -1;
+            if (!aMatch && bMatch) return 1;
+
+            return a.name.localeCompare(b.name);
         });
     }, [selectedGarment, services, showAllServices]);
 
