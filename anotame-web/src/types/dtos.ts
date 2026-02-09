@@ -50,6 +50,8 @@ export interface OrderItemResponse {
   unitPrice: number;
   quantity: number;
   subtotal: number;
+  adjustmentAmount?: number;
+  adjustmentReason?: string;
   notes: string;
 }
 
@@ -62,6 +64,7 @@ export interface OrderResponse {
   totalAmount: number;
   amountPaid: number;
   balance: number;
+  paymentMethod: string;
   notes: string;
   items: OrderItemResponse[];
   createdAt: string;

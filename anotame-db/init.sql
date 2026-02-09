@@ -207,6 +207,8 @@ CREATE TABLE tco_order (
     -- Financials
     total_amount DECIMAL(19,4) NOT NULL DEFAULT 0.0,
     currency VARCHAR(3) DEFAULT 'MXN',
+    amount_paid DECIMAL(19,4) DEFAULT 0.0,
+    payment_method VARCHAR(50),
     
     -- Status
     current_status VARCHAR(50) DEFAULT 'RECEIVED', -- Current state pointer

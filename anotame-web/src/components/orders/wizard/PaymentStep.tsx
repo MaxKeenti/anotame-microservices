@@ -107,8 +107,8 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
 
                 // Redirect to success/print page or dashboard
                 // For now back to dashboard with alert (or success page)
-                alert(`Orden Creada: ${order.ticketNumber}`);
-                router.push("/dashboard/orders");
+                // Redirect to order details with print action
+                router.push(`/dashboard/orders/${order.id}?action=print`);
             } else {
                 const errData = await res.json().catch(() => ({}));
                 setError(`Error al crear orden: ${errData.message || res.statusText}`);

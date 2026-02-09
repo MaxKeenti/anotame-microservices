@@ -38,6 +38,8 @@ public class SalesService {
         order.setBranchId(UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1")); // Default Branch
         order.setCreatedBy(UUID.nameUUIDFromBytes(username.getBytes())); // Deterministic UUID from username
         order.setCreatedAt(LocalDateTime.now());
+        order.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
+        order.setPaymentMethod(request.getPaymentMethod());
 
         // 3. Add Items & Calculate Total
         BigDecimal total = BigDecimal.ZERO;
@@ -81,6 +83,7 @@ public class SalesService {
         custDto.setFirstName(order.getCustomer().getFirstName());
         custDto.setLastName(order.getCustomer().getLastName());
         custDto.setEmail(order.getCustomer().getEmail());
+        custDto.setPhoneNumber(order.getCustomer().getPhoneNumber());
 
         java.util.List<com.anotame.sales.application.dto.OrderItemResponse> items = order.getItems().stream()
                 .map(item -> com.anotame.sales.application.dto.OrderItemResponse.builder()
@@ -90,6 +93,8 @@ public class SalesService {
                         .unitPrice(item.getUnitPrice())
                         .quantity(item.getQuantity())
                         .subtotal(item.getSubtotal())
+                        .adjustmentAmount(item.getAdjustmentAmount())
+                        .adjustmentReason(item.getAdjustmentReason())
                         .notes(item.getNotes())
                         .build())
                 .collect(java.util.stream.Collectors.toList());
@@ -101,6 +106,8 @@ public class SalesService {
                 .committedDeadline(order.getCommittedDeadline())
                 .status(order.getStatus())
                 .totalAmount(order.getTotalAmount())
+                .amountPaid(order.getAmountPaid())
+                .paymentMethod(order.getPaymentMethod())
                 .notes(order.getNotes())
                 .items(items)
                 .createdAt(order.getCreatedAt())

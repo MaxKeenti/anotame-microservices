@@ -16,6 +16,8 @@ public class OrderResponse {
     private LocalDateTime committedDeadline;
     private String status;
     private BigDecimal totalAmount;
+    private BigDecimal amountPaid;
+    private String paymentMethod;
     private String notes;
     private List<OrderItemResponse> items;
     private LocalDateTime createdAt;
