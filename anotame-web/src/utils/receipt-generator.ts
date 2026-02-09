@@ -120,6 +120,9 @@ export const generateReceiptHtml = (data: {
       <span>ENTREGA:</span>
       <span>${formatDate(data.deadline)}</span>
     </div>
+    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">
+      (Entrega después de las 18:00 hrs)
+    </div>
   </div>
 
   <div class="section">

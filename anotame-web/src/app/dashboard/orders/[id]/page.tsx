@@ -96,6 +96,8 @@ export default function OrderDetailsPage({ params, searchParams }: {
         service: i.serviceName,
         notes: i.notes,
         price: i.unitPrice,
+        adjustment: i.adjustmentAmount,
+        adjustmentReason: i.adjustmentReason,
       })),
       total: order.totalAmount,
       amountPaid: 0,
