@@ -8,6 +8,7 @@ import { OrderResponse, Establishment } from "@/types/dtos";
 import { getSettings } from "@/services/operations/establishment";
 import { generateReceiptHtml } from "@/utils/receipt-generator";
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
+import { formatCurrency, formatDateTime } from "@/utils/formatUtils";
 
 
 
@@ -188,7 +189,7 @@ export default function OrderDetailsPage({ params, searchParams }: {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Entrega Estimada:</span>
-              <span className="font-medium">{order.committedDeadline ? new Date(order.committedDeadline).toLocaleDateString() + " " + new Date(order.committedDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"}</span>
+              <span className="font-medium">{formatDateTime(order.committedDeadline)}</span>
             </div>
 
             <div className="h-px bg-border my-2" />
@@ -199,16 +200,16 @@ export default function OrderDetailsPage({ params, searchParams }: {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total:</span>
-              <span className="font-medium">${(order.totalAmount || 0).toFixed(2)}</span>
+              <span className="font-medium">{formatCurrency(order.totalAmount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">A cuenta:</span>
-              <span className="font-medium text-emerald-600">-${(order.amountPaid || 0).toFixed(2)}</span>
+              <span className="font-medium text-emerald-600">-{formatCurrency(order.amountPaid)}</span>
             </div>
             <div className="border-t border-border pt-2 flex justify-between items-center">
               <span className="font-bold">Saldo Pendiente:</span>
               <span className={`text-xl font-bold ${((order.totalAmount || 0) - (order.amountPaid || 0)) > 0.01 ? 'text-destructive' : 'text-emerald-600'}`}>
-                ${Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)).toFixed(2)}
+                {formatCurrency(Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)))}
               </span>
             </div>
           </div>

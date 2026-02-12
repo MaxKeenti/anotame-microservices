@@ -7,6 +7,7 @@ import { OrderResponse, GarmentTypeResponse } from "@/types/dtos";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
+import { formatCurrency, formatDate } from "@/utils/formatUtils";
 
 export default function ServicesPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
@@ -155,9 +156,9 @@ export default function ServicesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-3 text-muted-foreground">
-                      {o.committedDeadline ? new Date(o.committedDeadline).toLocaleDateString() : '-'}
+                      {formatDate(o.committedDeadline)}
                     </td>
-                    <td className="px-6 py-3 font-medium">${(o.totalAmount || 0).toFixed(2)}</td>
+                    <td className="px-6 py-3 font-medium">{formatCurrency(o.totalAmount)}</td>
                     <td className="px-6 py-3">
                       <Link href={`/dashboard/orders/${o.id}`}>
                         <Button variant="outline" size="sm">Detalles</Button>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { API_SALES } from "@/lib/api"; // Changed to API_SALES
 import { OrderResponse } from "@/types/dtos"; // Changed type
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
+import { formatDate } from "@/utils/formatUtils";
 
 export default function WorkOrdersPage() {
   const [workOrders, setWorkOrders] = useState<OrderResponse[]>([]);
@@ -80,7 +81,7 @@ export default function WorkOrdersPage() {
                     {wo.items.map(i => i.serviceName).join(", ")}
                   </td>
                   <td className="px-6 py-3 text-muted-foreground text-xs">
-                    {wo.committedDeadline ? new Date(wo.committedDeadline).toLocaleDateString() : "-"}
+                    {formatDate(wo.committedDeadline)}
                   </td>
                   <td className="px-6 py-3 text-right">
                     <button onClick={() => handleComplete(wo.id)} className="text-green-600 hover:underline font-medium">Marcar Listo</button>
