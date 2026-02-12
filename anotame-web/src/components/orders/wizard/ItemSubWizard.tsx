@@ -183,7 +183,7 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                                 onClick={() => handleGarmentSelect(g)}
                                 className="h-24 flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all active:scale-95 shadow-sm"
                             >
-                                <span className="font-bold text-lg lg:text-xl text-center px-2 break-words leading-tight">{g.name}</span>
+                                <span className="font-bold text-lg lg:text-xl text-center px-2 wrap-break-word leading-tight">{g.name}</span>
                             </button>
                         ))}
                     </div>
