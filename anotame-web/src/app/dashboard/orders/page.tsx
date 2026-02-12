@@ -6,6 +6,7 @@ import { API_SALES, API_CATALOG } from "@/lib/api";
 import { OrderResponse, GarmentTypeResponse } from "@/types/dtos";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 
 export default function ServicesPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
@@ -40,16 +41,7 @@ export default function ServicesPage() {
     fetchData();
   }, []);
 
-  const getStatusLabel = (status: string) => {
-    const map: Record<string, string> = {
-      'RECEIVED': 'RECIBIDO',
-      'IN_PROGRESS': 'EN PROGRESO',
-      'READY': 'LISTO',
-      'DELIVERED': 'ENTREGADO',
-      'CANCELLED': 'CANCELADO'
-    };
-    return map[status] || status;
-  };
+
 
   // Filter Logic
   const filteredOrders = orders.filter(order => {
@@ -158,12 +150,8 @@ export default function ServicesPage() {
                       {o.items.map(i => i.garmentName).join(", ")}
                     </td>
                     <td className="px-6 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                          ${o.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800' :
-                          o.status === 'READY' ? 'bg-emerald-100 text-emerald-800' :
-                            o.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'}`}>
-                        {getStatusLabel(o.status)}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(o.status)}`}>
+                        {translateStatus(o.status)}
                       </span>
                     </td>
                     <td className="px-6 py-3 text-muted-foreground">

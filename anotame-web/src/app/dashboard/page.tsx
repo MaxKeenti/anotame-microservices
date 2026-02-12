@@ -7,6 +7,7 @@ import { Plus, Eye, FileText } from "lucide-react";
 import { API_SALES } from "@/lib/api";
 import { OrderResponse } from "@/types/dtos";
 import Link from "next/link";
+import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 
 export default function DashboardPage() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
@@ -175,13 +176,8 @@ export default function DashboardPage() {
                           ${balance.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm
-                                ${order.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
-                              order.status === 'READY' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
-                                order.status === 'DELIVERED' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300' :
-                                  order.status === 'CANCELLED' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'}`}>
-                            {order.status}
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm ${getStatusColor(order.status)}`}>
+                            {translateStatus(order.status)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center">

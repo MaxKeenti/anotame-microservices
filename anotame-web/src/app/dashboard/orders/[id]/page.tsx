@@ -7,14 +7,9 @@ import { API_SALES } from "@/lib/api";
 import { OrderResponse, Establishment } from "@/types/dtos";
 import { getSettings } from "@/services/operations/establishment";
 import { generateReceiptHtml } from "@/utils/receipt-generator";
+import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 
-const statusMap: Record<string, string> = {
-  'RECEIVED': 'RECIBIDO',
-  'IN_PROGRESS': 'EN PROGRESO',
-  'READY': 'LISTO',
-  'DELIVERED': 'ENTREGADO',
-  'CANCELLED': 'CANCELADO'
-};
+
 
 export default function OrderDetailsPage({ params, searchParams }: {
   params: Promise<{ id: string }>,
@@ -167,12 +162,8 @@ export default function OrderDetailsPage({ params, searchParams }: {
           ← Atrás
         </Link>
         <h1 className="text-2xl font-bold font-heading">Pedido {order.ticketNumber}</h1>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium 
-             ${order.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800' :
-            order.status === 'READY' ? 'bg-emerald-100 text-emerald-800' :
-              order.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'}`}>
-          {statusMap[order.status] || order.status}
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+          {translateStatus(order.status)}
         </span>
       </div>
 
