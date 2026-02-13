@@ -6,6 +6,7 @@ import { API_SALES, API_CATALOG } from "@/lib/api";
 import { OrderResponse, GarmentTypeResponse } from "@/types/dtos";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 import { formatCurrency, formatDate } from "@/utils/formatUtils";
 
@@ -118,11 +119,14 @@ export default function ServicesPage() {
           </select>
         </div>
         <div>
-          <Input
+          <DatePicker
             label="Fecha de Entrega"
-            type="date"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            onChange={(date) => {
+              // Convert to YYYY-MM-DD for filter logic
+              const isoDate = date.toISOString().split('T')[0];
+              setDateFilter(isoDate);
+            }}
           />
         </div>
       </div>

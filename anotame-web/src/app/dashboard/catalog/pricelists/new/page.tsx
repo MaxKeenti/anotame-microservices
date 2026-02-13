@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { createPriceList } from "@/services/catalog/pricelists";
 import { getServices } from "@/services/catalog/services";
@@ -84,9 +85,17 @@ export default function NewPriceListPage() {
                                 <label>Is Active</label>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Input label="Valid From" type="date" required value={validFrom} onChange={e => setValidFrom(e.target.value)} />
-                            <Input label="Valid To (Optional)" type="date" value={validTo} onChange={e => setValidTo(e.target.value)} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DatePicker
+                                label="Valid From"
+                                value={validFrom}
+                                onChange={date => setValidFrom(date.toISOString().split('T')[0])}
+                            />
+                            <DatePicker
+                                label="Valid To (Optional)"
+                                value={validTo}
+                                onChange={date => setValidTo(date.toISOString().split('T')[0])}
+                            />
                         </div>
                     </CardContent>
                 </Card>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DraftOrder } from "@/services/local/DraftsService";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { CreditCard, DollarSign, Wallet } from "lucide-react";
 import { CreateOrderRequest, OrderItemDto } from "@/types/dtos";
 import { API_SALES } from "@/lib/api";
@@ -198,12 +199,10 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Fecha de Entrega</label>
-                        <Input
-                            type="date"
-                            className="h-12"
-                            value={draft.committedDeadline ? draft.committedDeadline.split('T')[0] : ""}
-                            onChange={(e) => handleDeadline(e.target.value)}
-                            required
+                        <DatePicker
+                            value={draft.committedDeadline}
+                            onChange={(date) => handleDeadline(date.toISOString())}
+                            className="w-full"
                         />
                     </div>
                     <div className="space-y-2">

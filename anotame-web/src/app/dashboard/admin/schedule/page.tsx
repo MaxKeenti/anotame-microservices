@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { WorkDay, Holiday } from "@/types/dtos";
 import * as ScheduleService from "@/services/operations/schedule";
@@ -168,12 +169,10 @@ export default function SchedulePage() {
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={handleAddHoliday} className="space-y-4">
-                                <Input
+                                <DatePicker
                                     label="Fecha"
-                                    type="date"
-                                    required
                                     value={newHolidayDate}
-                                    onChange={e => setNewHolidayDate(e.target.value)}
+                                    onChange={date => setNewHolidayDate(date.toISOString().split('T')[0])}
                                 />
                                 <Input
                                     label="Descripción"
