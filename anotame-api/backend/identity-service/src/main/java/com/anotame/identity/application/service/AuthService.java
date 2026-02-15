@@ -80,4 +80,18 @@ public class AuthService {
                                 .user(userResponse)
                                 .build();
         }
+
+        public com.anotame.identity.application.dto.UserResponse getUser(String username) {
+                var user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                return com.anotame.identity.application.dto.UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .role(user.getRole() != null ? user.getRole().getCode() : null)
+                                .build();
+        }
 }

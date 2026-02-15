@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_CATALOG } from "@/lib/api";
+import { getAllGarments, createGarment, updateGarment, deleteGarment } from "@/services/catalog/garments";
 import { GarmentTypeResponse, GarmentTypeRequest } from "@/types/dtos";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -27,10 +27,8 @@ export default function GarmentsPage() {
 
   const fetchGarments = async () => {
     try {
-      const res = await fetch(`${API_CATALOG}/catalog/garments`);
-      if (res.ok) {
-        setGarments(await res.json());
-      }
+      const data = await getAllGarments();
+      setGarments(data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -53,19 +51,12 @@ export default function GarmentsPage() {
     if (e) e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_CATALOG}/catalog/garments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        fetchGarments();
-        resetForm();
-      } else {
-        alert("Failed to create garment type");
-      }
+      await createGarment(formData);
+      fetchGarments();
+      resetForm();
     } catch (e) {
       console.error(e);
+      alert("Failed to create garment type");
     } finally {
       setIsSubmitting(false);
     }
@@ -86,20 +77,12 @@ export default function GarmentsPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_CATALOG}/catalog/garments/${garmentToEdit.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        // Optimistic update or refetch
-        fetchGarments();
-        resetForm();
-      } else {
-        alert("Failed to update garment type");
-      }
+      await updateGarment(garmentToEdit.id, formData);
+      fetchGarments();
+      resetForm();
     } catch (e) {
       console.error(e);
+      alert("Failed to update garment type");
     } finally {
       setIsSubmitting(false);
     }
@@ -114,15 +97,12 @@ export default function GarmentsPage() {
     if (!garmentToDelete) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_CATALOG}/catalog/garments/${garmentToDelete.id}`, { method: "DELETE" });
-      if (res.ok) {
-        setGarments(garments.filter(g => g.id !== garmentToDelete.id));
-        setGarmentToDelete(null);
-      } else {
-        alert("Failed to delete garment type");
-      }
+      await deleteGarment(garmentToDelete.id);
+      setGarments(garments.filter(g => g.id !== garmentToDelete.id));
+      setGarmentToDelete(null);
     } catch (e) {
       console.error(e);
+      alert("Failed to delete garment type");
     } finally {
       setIsSubmitting(false);
     }

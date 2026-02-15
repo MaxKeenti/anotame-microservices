@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_CATALOG } from "@/lib/api";
+import { getServices, createService, updateService, deleteService } from "@/services/catalog/services";
+import { getAllGarments } from "@/services/catalog/garments";
 import { ServiceResponse, ServiceRequest, GarmentTypeResponse } from "@/types/dtos";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -38,13 +39,13 @@ export default function ServicesPage() {
 
   const fetchData = async () => {
     try {
-      const [servicesRes, garmentsRes] = await Promise.all([
-        fetch(`${API_CATALOG}/catalog/services`),
-        fetch(`${API_CATALOG}/catalog/garments`)
+      const [servicesData, garmentsData] = await Promise.all([
+        getServices(),
+        getAllGarments()
       ]);
 
-      if (servicesRes.ok) setServices(await servicesRes.json());
-      if (garmentsRes.ok) setGarments(await garmentsRes.json());
+      setServices(servicesData);
+      setGarments(garmentsData);
 
     } catch (e) {
       console.error(e);
@@ -86,22 +87,12 @@ export default function ServicesPage() {
     if (e) e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Ensure code is empty so backend generates it if not provided (though we hide it)
-      const payload = { ...formData };
-
-      const res = await fetch(`${API_CATALOG}/catalog/services`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        fetchData();
-        resetForm();
-      } else {
-        alert("Failed to create service");
-      }
+      await createService(formData);
+      fetchData();
+      resetForm();
     } catch (e) {
       console.error(e);
+      alert("Failed to create service");
     } finally {
       setIsSubmitting(false);
     }
@@ -125,19 +116,12 @@ export default function ServicesPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_CATALOG}/catalog/services/${serviceToEdit.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        fetchData();
-        resetForm();
-      } else {
-        alert("Failed to update service");
-      }
+      await updateService(serviceToEdit.id, formData);
+      fetchData();
+      resetForm();
     } catch (e) {
       console.error(e);
+      alert("Failed to update service");
     } finally {
       setIsSubmitting(false);
     }
@@ -152,17 +136,12 @@ export default function ServicesPage() {
     if (!serviceToDelete) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_CATALOG}/catalog/services/${serviceToDelete.id}`, {
-        method: "DELETE"
-      });
-      if (res.ok) {
-        fetchData();
-        setServiceToDelete(null);
-      } else {
-        alert("Failed to delete service");
-      }
+      await deleteService(serviceToDelete.id);
+      fetchData();
+      setServiceToDelete(null);
     } catch (e) {
       console.error(e);
+      alert("Failed to delete service");
     } finally {
       setIsSubmitting(false);
     }
