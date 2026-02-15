@@ -100,14 +100,15 @@ export default function EditPriceListPage() {
                     price: parseFloat(val)
                 }));
 
-            await updatePriceList(id, {
+            const payload = {
                 name,
                 priority,
                 validFrom: new Date(validFrom).toISOString(),
                 validTo: validTo ? new Date(validTo).toISOString() : undefined,
                 active,
                 items
-            });
+            };
+            await updatePriceList(id, payload);
 
             router.push("/dashboard/catalog/pricelists");
         } catch (err) {
