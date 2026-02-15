@@ -82,12 +82,6 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
             } else {
                 // Fallback to Code/Name if ID not yet populated or no matches found (e.g. backend outdated)
 
-                // Code-based Fallback
-                if (selectedGarment.code && selectedGarment.code.startsWith('GT-')) {
-                    const garmentSuffix = selectedGarment.code.replace('GT-', '');
-                    const codeMatches = services.filter(s => s.code && s.code.includes(garmentSuffix));
-                    if (codeMatches.length > 0) candidates = codeMatches;
-                }
 
                 // If still empty, we might let the name-sorter do the work on the full list? 
                 // No, better to show empty and let user click "Show All" or fallback to name filter.

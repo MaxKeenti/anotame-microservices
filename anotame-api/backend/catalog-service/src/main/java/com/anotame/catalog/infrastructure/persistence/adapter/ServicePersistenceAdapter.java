@@ -5,17 +5,19 @@ import com.anotame.catalog.domain.model.Service;
 import com.anotame.catalog.infrastructure.persistence.repository.ServiceRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-@RequiredArgsConstructor
 public class ServicePersistenceAdapter implements ServiceRepositoryPort {
 
     private final ServiceRepository repository;
+
+    public ServicePersistenceAdapter(ServiceRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public List<Service> findAllActive() {

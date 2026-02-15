@@ -25,9 +25,6 @@ public class Service {
     @Column(name = "id_service")
     private UUID id;
 
-    @Column(unique = true)
-    private String code;
-
     @Column(nullable = false)
     private String name;
 
@@ -45,6 +42,62 @@ public class Service {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_garment_type")
     private GarmentType garmentType;
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getDefaultDurationMin() {
+        return defaultDurationMin;
+    }
+
+    public void setDefaultDurationMin(Integer defaultDurationMin) {
+        this.defaultDurationMin = defaultDurationMin;
+    }
+
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public GarmentType getGarmentType() {
+        return garmentType;
+    }
+
+    public void setGarmentType(GarmentType garmentType) {
+        this.garmentType = garmentType;
+    }
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

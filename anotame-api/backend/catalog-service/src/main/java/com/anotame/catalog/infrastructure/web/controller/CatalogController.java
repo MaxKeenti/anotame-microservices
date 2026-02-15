@@ -5,7 +5,6 @@ import com.anotame.catalog.dto.ServiceResponse;
 import com.anotame.catalog.application.service.CatalogService;
 import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.domain.model.Service;
-import lombok.RequiredArgsConstructor;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
@@ -14,10 +13,13 @@ import java.util.stream.Collectors;
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RequiredArgsConstructor
 public class CatalogController {
 
     private final CatalogService catalogService;
+
+    public CatalogController(CatalogService catalogService) {
+        this.catalogService = catalogService;
+    }
 
     @GET
     @Path("/garments")
@@ -85,7 +87,6 @@ public class CatalogController {
     private GarmentTypeResponse mapToGarmentDto(GarmentType entity) {
         GarmentTypeResponse dto = new GarmentTypeResponse();
         dto.setId(entity.getId());
-        dto.setCode(entity.getCode());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         return dto;
@@ -94,7 +95,6 @@ public class CatalogController {
     private ServiceResponse mapToServiceDto(Service entity) {
         ServiceResponse dto = new ServiceResponse();
         dto.setId(entity.getId());
-        dto.setCode(entity.getCode());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setDefaultDurationMin(entity.getDefaultDurationMin());

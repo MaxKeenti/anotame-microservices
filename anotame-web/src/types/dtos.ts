@@ -1,13 +1,11 @@
 export interface GarmentTypeResponse {
   id: string;
-  code: string;
   name: string;
   description: string;
 }
 
 export interface ServiceResponse {
   id: string;
-  code: string;
   name: string;
   description: string;
   defaultDurationMin: number;
@@ -71,17 +69,16 @@ export interface OrderResponse {
 }
 
 export interface GarmentTypeRequest {
-  code: string;
   name: string;
   description: string;
 }
 
 export interface ServiceRequest {
-  code: string;
   name: string;
   description: string;
   defaultDurationMin: number;
   basePrice: number;
+  garmentTypeId?: string;
 }
 
 export interface WorkOrderItem {

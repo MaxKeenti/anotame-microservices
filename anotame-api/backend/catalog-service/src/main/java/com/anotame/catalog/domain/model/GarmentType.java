@@ -24,9 +24,6 @@ public class GarmentType {
     @Column(name = "id_garment_type")
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String code;
-
     @Column(nullable = false)
     private String name;
 
@@ -34,6 +31,39 @@ public class GarmentType {
 
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
+
+    // Manual Getters/Setters
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     // Audit Fields
     @CreationTimestamp

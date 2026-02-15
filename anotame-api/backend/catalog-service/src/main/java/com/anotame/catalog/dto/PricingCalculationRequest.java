@@ -8,4 +8,20 @@ import java.util.UUID;
 public class PricingCalculationRequest {
     private UUID serviceId;
     private LocalDateTime date; // defaults to now if null
+
+    public UUID getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(UUID serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
 }
