@@ -10,15 +10,19 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.anotame.catalog.infrastructure.persistence.repository.PriceListItemRepository;
+
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CatalogController {
 
     private final CatalogService catalogService;
+    private final PriceListItemRepository priceListItemRepository;
 
-    public CatalogController(CatalogService catalogService) {
+    public CatalogController(CatalogService catalogService, PriceListItemRepository priceListItemRepository) {
         this.catalogService = catalogService;
+        this.priceListItemRepository = priceListItemRepository;
     }
 
     @GET
@@ -32,9 +36,29 @@ public class CatalogController {
     @GET
     @Path("/services")
     public List<ServiceResponse> getServices() {
-        return catalogService.getAllServices().stream()
+        List<ServiceResponse> services = catalogService.getAllServices().stream()
                 .map(this::mapToServiceDto)
                 .collect(Collectors.toList());
+
+        // Calculate effective prices
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        List<com.anotame.catalog.domain.model.PriceListItem> overrides = priceListItemRepository
+                .findActiveOverrides(now);
+
+        for (ServiceResponse service : services) {
+            // Default to base price
+            service.setEffectivePrice(service.getBasePrice());
+
+            // Find first override (highest priority)
+            for (com.anotame.catalog.domain.model.PriceListItem item : overrides) {
+                if (item.getService().getId().equals(service.getId())) {
+                    service.setEffectivePrice(item.getPrice());
+                    break; // Priority sort ensures first match is winner
+                }
+            }
+        }
+
+        return services;
     }
 
     // --- Garments ---

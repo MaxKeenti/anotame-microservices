@@ -135,7 +135,7 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
 
     const handleServiceSelect = (s: ServiceResponse) => {
         setSelectedService(s);
-        setPrice(String(s.basePrice));
+        setPrice(String(s.effectivePrice ?? s.basePrice));
         setStep(2);
     };
 
@@ -215,8 +215,15 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                                             <div className="font-bold text-lg">{s.name}</div>
                                             <div className="text-sm text-muted-foreground line-clamp-2">{s.description}</div>
                                         </div>
-                                        <div className="font-mono font-bold text-xl bg-secondary px-3 py-1 rounded">
-                                            ${s.basePrice}
+                                        <div className="font-mono font-bold text-xl bg-secondary px-3 py-1 rounded flex flex-col items-end">
+                                            {s.effectivePrice && s.effectivePrice !== s.basePrice ? (
+                                                <>
+                                                    <span className="text-xs text-muted-foreground line-through">${s.basePrice}</span>
+                                                    <span className="text-primary">${s.effectivePrice}</span>
+                                                </>
+                                            ) : (
+                                                <span>${s.basePrice}</span>
+                                            )}
                                         </div>
                                     </button>
                                 ))}

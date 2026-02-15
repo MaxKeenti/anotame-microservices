@@ -11,7 +11,16 @@ public class ServiceResponse {
     private String description;
     private Integer defaultDurationMin;
     private BigDecimal basePrice;
+    private BigDecimal effectivePrice;
     private UUID garmentTypeId;
+
+    public BigDecimal getEffectivePrice() {
+        return effectivePrice;
+    }
+
+    public void setEffectivePrice(BigDecimal effectivePrice) {
+        this.effectivePrice = effectivePrice;
+    }
 
     public UUID getId() {
         return id;

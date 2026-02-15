@@ -20,4 +20,11 @@ public class PriceListItemRepository implements PanacheRepositoryBase<PriceListI
                 serviceId, date)
                 .firstResult();
     }
+
+    public java.util.List<PriceListItem> findActiveOverrides(java.time.LocalDateTime date) {
+        return list(
+                "priceList.active = true AND priceList.validFrom <= ?1 AND (priceList.validTo >= ?1 OR priceList.validTo IS NULL)",
+                io.quarkus.panache.common.Sort.descending("priceList.priority"),
+                date);
+    }
 }

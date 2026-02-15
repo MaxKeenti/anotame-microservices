@@ -10,6 +10,7 @@ export interface ServiceResponse {
   description: string;
   defaultDurationMin: number;
   basePrice: number;
+  effectivePrice?: number;
   garmentTypeId?: string;
 }
 
