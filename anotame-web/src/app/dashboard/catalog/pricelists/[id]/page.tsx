@@ -1,23 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { createPriceList, getPriceLists, getPriceList } from "@/services/catalog/pricelists";
+import { updatePriceList, getPriceList } from "@/services/catalog/pricelists";
 import { getServices } from "@/services/catalog/services";
 import { ServiceResponse, PriceListResponse } from "@/types/dtos";
 
-export default function NewPriceListPage() {
+export default function EditPriceListPage() {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+    const params = useParams();
+    const id = params?.id as string;
+    const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState<ServiceResponse[]>([]);
-
-    // Base List State
-    const [availableLists, setAvailableLists] = useState<PriceListResponse[]>([]);
-    const [baseListId, setBaseListId] = useState<string>("");
 
     // Form State
     const [name, setName] = useState("");
@@ -28,32 +26,49 @@ export default function NewPriceListPage() {
 
     // Overrides: Map of ServiceID -> Price
     const [overrides, setOverrides] = useState<Record<string, string>>({});
+    const [initialOverrides, setInitialOverrides] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        getServices().then(setServices).catch(console.error);
-        getPriceLists().then(setAvailableLists).catch(console.error);
-    }, []);
+        if (!id) return;
+        const loadData = async () => {
+            try {
+                const [servicesData, listData] = await Promise.all([
+                    getServices(),
+                    getPriceList(id)
+                ]);
+                setServices(servicesData);
 
-    const handleBaseListChange = async (listId: string) => {
-        setBaseListId(listId);
-        if (!listId) return;
+                // Populate Form
+                setName(listData.name);
+                setPriority(listData.priority);
+                setValidFrom(new Date(listData.validFrom).toISOString().split('T')[0]);
+                if (listData.validTo) {
+                    setValidTo(new Date(listData.validTo).toISOString().split('T')[0]);
+                }
+                setActive(listData.active);
 
-        try {
-            setIsLoading(true);
-            const list = await getPriceList(listId);
-            if (list.items) {
-                const newOverrides: Record<string, string> = {};
-                list.items.forEach(item => {
-                    newOverrides[item.serviceId] = String(item.price);
-                });
-                setOverrides(newOverrides);
+                // Populate Overrides
+                if (listData.items) {
+                    const initialOverrides: Record<string, string> = {};
+                    listData.items.forEach(item => {
+                        initialOverrides[item.serviceId] = String(item.price);
+                    });
+                    setOverrides(initialOverrides);
+                    setInitialOverrides(initialOverrides);
+                }
+            } catch (error) {
+                console.error("Failed to load data", error);
+                alert("Failed to load price list");
+                router.push("/dashboard/catalog/pricelists");
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            console.error(error);
-            alert("Failed to load base price list");
-        } finally {
-            setIsLoading(false);
-        }
+        };
+        loadData();
+    }, [id, router]);
+
+    const handleReset = () => {
+        setOverrides(initialOverrides);
     };
 
     const handleBulkAdjustment = (amount: number) => {
@@ -66,14 +81,6 @@ export default function NewPriceListPage() {
             });
             return next;
         });
-    };
-
-    const handleReset = () => {
-        if (baseListId) {
-            handleBaseListChange(baseListId);
-        } else {
-            setOverrides({});
-        }
     };
 
     const handleOverrideChange = (serviceId: string, val: string) => {
@@ -93,7 +100,7 @@ export default function NewPriceListPage() {
                     price: parseFloat(val)
                 }));
 
-            await createPriceList({
+            await updatePriceList(id, {
                 name,
                 priority,
                 validFrom: new Date(validFrom).toISOString(),
@@ -105,16 +112,18 @@ export default function NewPriceListPage() {
             router.push("/dashboard/catalog/pricelists");
         } catch (err) {
             console.error(err);
-            alert("Failed to create price list");
+            alert("Failed to update price list");
         } finally {
             setIsLoading(false);
         }
     };
 
+    if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">New Price List</h1>
+                <h1 className="text-3xl font-bold">Edit Price List</h1>
                 <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
             </div>
 
@@ -149,31 +158,8 @@ export default function NewPriceListPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Base Configuration</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Copy from existing list</label>
-                            <select
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                value={baseListId}
-                                onChange={(e) => handleBaseListChange(e.target.value)}
-                                disabled={isLoading}
-                            >
-                                <option value="">-- Start from scratch (Base Prices) --</option>
-                                {availableLists.map(list => (
-                                    <option key={list.id} value={list.id}>{list.name}</option>
-                                ))}
-                            </select>
-                            <p className="text-xs text-muted-foreground">Selecting a list will overwrite current overrides with prices from that list.</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
                         <CardTitle>Price Overrides</CardTitle>
-                        <p className="text-sm text-muted-foreground">Leave empty to use Base Price.</p>
+                        <p className="text-sm text-muted-foreground">Values here override the Service Base Price.</p>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex flex-wrap gap-2 items-center p-4 bg-secondary/10 rounded-lg border border-border">
@@ -228,7 +214,7 @@ export default function NewPriceListPage() {
 
                 <div className="flex justify-end gap-4">
                     <Button type="submit" disabled={isLoading} size="lg">
-                        {isLoading ? "Creating..." : "Create Price List"}
+                        {isLoading ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
             </form>

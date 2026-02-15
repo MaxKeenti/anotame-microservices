@@ -97,6 +97,41 @@ public class PriceListService {
     }
 
     @Transactional
+    public PriceListResponse update(UUID id, PriceListRequest request) {
+        PriceList list = priceListRepository.findById(id);
+        if (list == null) {
+            throw new NotFoundException("PriceList not found");
+        }
+
+        // Update fields
+        list.setName(request.getName());
+        list.setValidFrom(request.getValidFrom());
+        list.setValidTo(request.getValidTo());
+        list.setActive(request.isActive());
+        list.setPriority(request.getPriority());
+
+        // Update items (Full Replacement Strategy for simplicity)
+        // Clear existing items
+        list.getItems().clear();
+
+        // Add new items
+        if (request.getItems() != null) {
+            for (PriceListRequest.ItemRequest itemReq : request.getItems()) {
+                Service service = serviceRepository.findById(itemReq.getServiceId());
+                if (service != null) {
+                    PriceListItem item = new PriceListItem();
+                    item.setService(service);
+                    item.setPrice(itemReq.getPrice());
+                    list.addItem(item);
+                }
+            }
+        }
+
+        // Persist happens automatically at transaction end
+        return mapToResponse(list);
+    }
+
+    @Transactional
     public void delete(UUID id) {
         // Soft delete handled by entity annotation?
         // Logic says @SQLDelete handles the physical SQL generation, but Hibernate

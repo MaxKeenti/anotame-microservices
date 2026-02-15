@@ -23,6 +23,16 @@ export async function createPriceList(data: PriceListRequest): Promise<PriceList
     return res.json();
 }
 
+export async function updatePriceList(id: string, data: PriceListRequest): Promise<PriceListResponse> {
+    const res = await fetch(`${API_CATALOG}/pricelists/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update price list");
+    return res.json();
+}
+
 export async function deletePriceList(id: string): Promise<void> {
     const res = await fetch(`${API_CATALOG}/pricelists/${id}`, {
         method: "DELETE",

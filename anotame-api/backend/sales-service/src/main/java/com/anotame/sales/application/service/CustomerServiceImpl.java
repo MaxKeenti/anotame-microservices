@@ -19,7 +19,9 @@ public class CustomerServiceImpl {
 
     @Transactional
     public CustomerDto createCustomer(CustomerDto dto) {
-        if (dto.getEmail() != null && customerRepository.findByEmail(dto.getEmail()).isPresent()) {
+        String email = (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) ? dto.getEmail().trim() : null;
+
+        if (email != null && customerRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("Email already in use");
         }
         if (dto.getPhoneNumber() != null && customerRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
@@ -29,7 +31,7 @@ public class CustomerServiceImpl {
         Customer customer = new Customer();
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
-        customer.setEmail(dto.getEmail());
+        customer.setEmail(email);
         customer.setPhoneNumber(dto.getPhoneNumber());
         customer.setPreferences(dto.getPreferences());
 
@@ -56,11 +58,15 @@ public class CustomerServiceImpl {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        if (dto.getEmail() != null && !dto.getEmail().equals(customer.getEmail())) {
-            if (customerRepository.findByEmail(dto.getEmail()).isPresent()) {
+        String newEmail = (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) ? dto.getEmail().trim() : null;
+
+        if (newEmail != null && !newEmail.equals(customer.getEmail())) {
+            if (customerRepository.findByEmail(newEmail).isPresent()) {
                 throw new RuntimeException("Email already in use");
             }
-            customer.setEmail(dto.getEmail());
+            customer.setEmail(newEmail);
+        } else if (newEmail == null) {
+            customer.setEmail(null);
         }
 
         if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(customer.getPhoneNumber())) {
