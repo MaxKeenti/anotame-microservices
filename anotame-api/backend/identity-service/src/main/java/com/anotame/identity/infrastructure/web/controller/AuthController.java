@@ -6,6 +6,8 @@ import com.anotame.identity.application.dto.RegisterRequest;
 import com.anotame.identity.application.service.AuthService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 
 @Path("/auth")
@@ -18,13 +20,55 @@ public class AuthController {
 
     @POST
     @Path("/register")
-    public AuthResponse register(RegisterRequest request) {
-        return service.register(request);
+    public Response register(RegisterRequest request) {
+        AuthResponse authResponse = service.register(request);
+        return createCookieResponse(authResponse);
     }
 
     @POST
     @Path("/login")
-    public AuthResponse login(LoginRequest request) {
-        return service.login(request);
+    public Response login(LoginRequest request) {
+        AuthResponse authResponse = service.login(request);
+        return createCookieResponse(authResponse);
+    }
+
+    @POST
+    @Path("/logout")
+    public Response logout() {
+        NewCookie cookie = new NewCookie.Builder("jwt")
+                .value("")
+                .path("/")
+                .maxAge(0)
+                .httpOnly(true)
+                .secure(true) // Railway uses HTTPS
+                .sameSite(NewCookie.SameSite.NONE) // Required for cross-site (Railway domains)
+                .build();
+
+        return Response.ok()
+                .cookie(cookie)
+                .build();
+    }
+
+    @GET
+    @Path("/me")
+    @io.quarkus.security.Authenticated
+    public Response me(@jakarta.ws.rs.core.Context jakarta.ws.rs.core.SecurityContext securityContext) {
+        String username = securityContext.getUserPrincipal().getName();
+        return Response.ok(service.getUser(username)).build();
+    }
+
+    private Response createCookieResponse(AuthResponse authResponse) {
+        NewCookie cookie = new NewCookie.Builder("jwt")
+                .value(authResponse.getToken())
+                .path("/")
+                .httpOnly(true) // Not accessible by JS
+                .secure(true) // Only sent over HTTPS (Railway)
+                .sameSite(NewCookie.SameSite.NONE) // Required for cross-site
+                .maxAge(86400) // 24 hours (match JWT expiry if possible)
+                .build();
+
+        return Response.ok(authResponse.getUser()) // Return only user info
+                .cookie(cookie)
+                .build();
     }
 }

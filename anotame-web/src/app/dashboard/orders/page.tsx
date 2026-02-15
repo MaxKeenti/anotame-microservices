@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { API_SALES, API_CATALOG } from "@/lib/api";
+import { getAllOrders } from "@/services/sales/orders";
+import { getAllGarments } from "@/services/catalog/garments";
 import { OrderResponse, GarmentTypeResponse } from "@/types/dtos";
 import { DraftsService, DraftOrder } from "@/services/local/DraftsService";
 import { Button } from "@/components/ui/Button";
@@ -27,14 +28,13 @@ export default function ServicesPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [ordersRes, garmentsRes] = await Promise.all([
-        fetch(`${API_SALES}/orders`),
-        fetch(`${API_CATALOG}/catalog/garments`)
+      const [ordersData, garmentsData] = await Promise.all([
+        getAllOrders(),
+        getAllGarments()
       ]);
 
-      if (ordersRes.ok) setOrders(await ordersRes.json());
-      // Handle garments fetch gracefully as it's secondary
-      if (garmentsRes.ok) setGarments(await garmentsRes.json());
+      setOrders(ordersData);
+      setGarments(garmentsData);
 
       // Fetch Drafts
       setDrafts(DraftsService.getAll());

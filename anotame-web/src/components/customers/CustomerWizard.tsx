@@ -10,7 +10,7 @@ import { CustomerDto } from "@/types/dtos";
 
 export function CustomerWizard() {
     const router = useRouter();
-    const { token } = useAuth();
+
     const [step, setStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export function CustomerWizard() {
                 phoneNumber: data.phoneNumber
             };
 
-            await createCustomer(payload, token || undefined);
+            await createCustomer(payload);
             router.push("/dashboard/customers");
         } catch (err: any) {
             console.error("Failed to create customer", err);

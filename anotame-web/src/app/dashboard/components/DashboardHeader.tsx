@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_SALES } from "@/lib/api";
+import { getAllOrders } from "@/services/sales/orders";
 import { OrderResponse } from "@/types/dtos";
 import { Clock, CalendarCheck, CheckCircle2 } from "lucide-react";
 
@@ -23,25 +23,22 @@ export function DashboardHeader() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch(`${API_SALES}/orders`);
-                if (res.ok) {
-                    const orders: OrderResponse[] = await res.json();
-                    const today = new Date().toISOString().split("T")[0];
+                const orders: OrderResponse[] = await getAllOrders();
+                const today = new Date().toISOString().split("T")[0];
 
-                    const dueToday = orders.filter((o) => {
-                        if (!o.committedDeadline) return false;
-                        const deadline = o.committedDeadline.split("T")[0];
-                        const isPending = o.status !== "DELIVERED" && o.status !== "CANCELLED";
-                        return deadline === today && isPending;
-                    }).length;
+                const dueToday = orders.filter((o) => {
+                    if (!o.committedDeadline) return false;
+                    const deadline = o.committedDeadline.split("T")[0];
+                    const isPending = o.status !== "DELIVERED" && o.status !== "CANCELLED";
+                    return deadline === today && isPending;
+                }).length;
 
-                    const receivedToday = orders.filter((o) => {
-                        const created = o.createdAt.split("T")[0];
-                        return created === today;
-                    }).length;
+                const receivedToday = orders.filter((o) => {
+                    const created = o.createdAt.split("T")[0];
+                    return created === today;
+                }).length;
 
-                    setStats({ dueToday, receivedToday });
-                }
+                setStats({ dueToday, receivedToday });
             } catch (error) {
                 console.error("Failed to fetch dashboard stats", error);
             }

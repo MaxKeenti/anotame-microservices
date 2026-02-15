@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/pricing")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@io.quarkus.security.Authenticated
 public class PricingController {
 
     @Inject

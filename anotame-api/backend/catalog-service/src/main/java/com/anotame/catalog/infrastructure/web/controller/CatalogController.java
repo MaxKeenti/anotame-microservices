@@ -15,6 +15,7 @@ import com.anotame.catalog.infrastructure.persistence.repository.PriceListItemRe
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@io.quarkus.security.Authenticated
 public class CatalogController {
 
     private final CatalogService catalogService;

@@ -8,11 +8,9 @@ import { Modal } from "@/components/ui/Modal";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { searchCustomers, deleteCustomer } from "@/services/sales/customers";
 import { CustomerDto } from "@/types/dtos";
-import { useAuth } from "@/context/AuthContext";
 
 export default function CustomersPage() {
   const router = useRouter();
-  const { token } = useAuth();
   const [customers, setCustomers] = useState<CustomerDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,10 +21,10 @@ export default function CustomersPage() {
 
   const fetchCustomers = useCallback(async (query: string = "") => {
     setLoading(true);
-    const results = await searchCustomers(query, token || undefined);
+    const results = await searchCustomers(query);
     setCustomers(results);
     setLoading(false);
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchCustomers();
@@ -48,7 +46,7 @@ export default function CustomersPage() {
 
   const handleDeleteClick = async (id: string) => {
     if (confirm("Are you sure you want to delete this customer?")) {
-      const success = await deleteCustomer(id, token || undefined);
+      const success = await deleteCustomer(id);
       if (success) {
         fetchCustomers(searchQuery);
       } else {

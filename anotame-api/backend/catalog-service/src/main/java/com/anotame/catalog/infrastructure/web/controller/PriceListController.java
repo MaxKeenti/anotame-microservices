@@ -12,6 +12,7 @@ import java.util.UUID;
 @Path("/pricelists")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@io.quarkus.security.Authenticated
 public class PriceListController {
 
     @Inject

@@ -15,6 +15,7 @@ import java.util.UUID;
 @Path("/orders")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@io.quarkus.security.Authenticated
 public class OrdersResource {
 
     @Inject

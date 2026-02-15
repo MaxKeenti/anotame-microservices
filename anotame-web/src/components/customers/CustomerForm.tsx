@@ -14,7 +14,6 @@ interface CustomerFormProps {
 }
 
 export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormProps) {
-  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,9 +53,9 @@ export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormP
 
       let result;
       if (initialData?.id) {
-        result = await updateCustomer(initialData.id, payload, token || undefined);
+        result = await updateCustomer(initialData.id, payload);
       } else {
-        result = await createCustomer(payload, token || undefined);
+        result = await createCustomer(payload);
       }
 
       if (result) {
