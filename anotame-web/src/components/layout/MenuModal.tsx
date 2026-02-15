@@ -4,19 +4,10 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    Home,
-    ClipboardList,
-    Activity,
-    Shirt,
-    Tag,
-    DollarSign,
-    Calendar,
-    Settings,
-    Users,
-    LogOut,
-    User,
-    X
+    X,
+    LogOut
 } from "lucide-react";
+import { menuItems, adminOnlyItems } from "@/config/menu";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 
@@ -25,18 +16,6 @@ interface MenuModalProps {
     onClose: () => void;
 }
 
-const menuItems = [
-    { name: "Inicio", href: "/dashboard", icon: Home },
-    { name: "Pedidos", href: "/dashboard/orders", icon: ClipboardList },
-    { name: "Órdenes", href: "/dashboard/operations", icon: Activity },
-    { name: "Prendas", href: "/dashboard/catalog/garments", icon: Shirt },
-    { name: "Servicios", href: "/dashboard/catalog/services", icon: Tag },
-    { name: "Listas de Precios", href: "/dashboard/catalog/pricelists", icon: DollarSign },
-    { name: "Horarios", href: "/dashboard/admin/schedule", icon: Calendar },
-    { name: "Ajustes", href: "/dashboard/admin/settings", icon: Settings },
-    { name: "Empleados", href: "/dashboard/admin/users", icon: Users },
-    { name: "Clientes", href: "/dashboard/customers", icon: User },
-];
 
 export function MenuModal({ isOpen, onClose }: MenuModalProps) {
     const pathname = usePathname();
@@ -75,8 +54,7 @@ export function MenuModal({ isOpen, onClose }: MenuModalProps) {
                             const isAdmin = user?.role === 'ADMIN';
 
                             // Explicit Logic
-                            const adminOnly = ["Empleados", "Ajustes", "Horarios", "Listas de Precios"];
-                            if (adminOnly.includes(item.name)) return isAdmin;
+                            if (adminOnlyItems.includes(item.name)) return isAdmin;
 
                             return true;
                         }).map((item) => {
