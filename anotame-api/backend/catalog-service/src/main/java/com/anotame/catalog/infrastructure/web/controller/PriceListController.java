@@ -33,6 +33,12 @@ public class PriceListController {
         return priceListService.getById(id);
     }
 
+    @PUT
+    @Path("/{id}")
+    public PriceListResponse update(@PathParam("id") UUID id, PriceListRequest request) {
+        return priceListService.update(id, request);
+    }
+
     @DELETE
     @Path("/{id}")
     public void delete(@PathParam("id") UUID id) {

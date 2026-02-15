@@ -27,10 +27,14 @@ export default function ServicesPage() {
   const [serviceToDelete, setServiceToDelete] = useState<ServiceResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Wizard Step State
+  const [createStep, setCreateStep] = useState(1);
+
   // Form State
-  const [formData, setFormData] = useState<ServiceRequest>({
-    code: "", name: "", description: "", defaultDurationMin: 60, basePrice: 0
-  });
+  const initialFormState: ServiceRequest = {
+    name: "", description: "", defaultDurationMin: 30, basePrice: 0, garmentTypeId: ""
+  };
+  const [formData, setFormData] = useState<ServiceRequest>(initialFormState);
 
   const fetchData = async () => {
     try {
@@ -54,34 +58,22 @@ export default function ServicesPage() {
   }, []);
 
   const resetForm = () => {
-    setFormData({ code: "", name: "", description: "", defaultDurationMin: 60, basePrice: 0 });
+    setFormData(initialFormState);
     setIsCreateModalOpen(false);
     setServiceToEdit(null);
+    setCreateStep(1);
   };
 
   // --- Filter Logic ---
   const getFilteredServices = () => {
     return services.filter(s => {
       // 1. Text Search
-      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.code.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
 
-      // 2. Garment Filter (Heuristic)
+      // 2. Garment Filter (Relational ID Check)
       if (garmentFilter) {
-        const garment = garments.find(g => g.id === garmentFilter);
-        if (garment) {
-          let prefix = "";
-          switch (garment.code) {
-            case "GT-PANT": prefix = "SRV-PANT"; break;
-            case "GT-BLUSA": prefix = "SRV-BLU"; break;
-            case "GT-FALDA": prefix = "SRV-FAL"; break;
-            case "GT-SACO": prefix = "SRV-SACO"; break;
-            case "GT-VAR": prefix = "SRV-VAR"; break;
-            default: return true; // Loose match if unknown
-          }
-          if (!s.code.startsWith(prefix)) return false;
-        }
+        if (s.garmentTypeId !== garmentFilter) return false;
       }
       return true;
     });
@@ -94,10 +86,13 @@ export default function ServicesPage() {
     if (e) e.preventDefault();
     setIsSubmitting(true);
     try {
+      // Ensure code is empty so backend generates it if not provided (though we hide it)
+      const payload = { ...formData };
+
       const res = await fetch(`${API_CATALOG}/catalog/services`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         fetchData();
@@ -115,11 +110,11 @@ export default function ServicesPage() {
   // --- Edit Logic ---
   const handleEditClick = (service: ServiceResponse) => {
     setFormData({
-      code: service.code,
       name: service.name,
       description: service.description,
       defaultDurationMin: service.defaultDurationMin,
-      basePrice: service.basePrice
+      basePrice: service.basePrice,
+      garmentTypeId: service.garmentTypeId || ""
     });
     setServiceToEdit(service);
   };
@@ -173,6 +168,94 @@ export default function ServicesPage() {
     }
   };
 
+  // Wizard Components
+  const renderWizardContent = () => {
+    switch (createStep) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Paso 1: Seleccionar Prenda</h3>
+            <p className="text-sm text-muted-foreground">¿A qué tipo de prenda aplica este servicio?</p>
+            <div className="grid grid-cols-2 gap-2">
+              {garments.map(g => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className={`p-3 text-left border rounded-md hover:bg-secondary/10 transition-colors ${formData.garmentTypeId === g.id ? 'border-primary bg-secondary/20' : 'border-border'}`}
+                  onClick={() => setFormData({ ...formData, garmentTypeId: g.id })}
+                >
+                  <div className="font-medium">{g.name}</div>
+                </button>
+              ))}
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button onClick={() => setCreateStep(2)} disabled={!formData.garmentTypeId}>
+                Siguiente
+              </Button>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Paso 2: Detalles del Servicio</h3>
+            <Input
+              label="Nombre del Servicio"
+              placeholder="Ej. Bastilla, Ajuste de Cintura"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+            <Input
+              label="Descripción (Opcional)"
+              placeholder="Detalles adicionales..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+            <div className="flex justify-between pt-4">
+              <Button variant="outline" onClick={() => setCreateStep(1)}>Atrás</Button>
+              <Button onClick={() => setCreateStep(3)} disabled={!formData.name}>
+                Siguiente
+              </Button>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Paso 3: Precio y Tiempo</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Precio Base ($)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.basePrice}
+                onChange={(e) => setFormData({ ...formData, basePrice: parseFloat(e.target.value) || 0 })}
+                required
+              />
+              <Input
+                label="Duración Estimada (min)"
+                type="number"
+                min="1"
+                value={formData.defaultDurationMin}
+                onChange={(e) => setFormData({ ...formData, defaultDurationMin: parseInt(e.target.value) || 0 })}
+                required
+              />
+            </div>
+
+            <div className="flex justify-between pt-4">
+              <Button variant="outline" onClick={() => setCreateStep(2)}>Atrás</Button>
+              <Button onClick={handleCreateSubmit} disabled={isSubmitting || formData.basePrice <= 0}>
+                {isSubmitting ? "Creando..." : "Crear Servicio"}
+              </Button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -182,7 +265,7 @@ export default function ServicesPage() {
           <p className="text-muted-foreground">Gestionar servicios ofrecidos y precios.</p>
         </div>
         {isAdmin && (
-          <Button onClick={() => setIsCreateModalOpen(true)}>+ Agregar Servicio</Button>
+          <Button onClick={() => { resetForm(); setIsCreateModalOpen(true); }}>+ Agregar Servicio</Button>
         )}
       </div>
 
@@ -190,7 +273,7 @@ export default function ServicesPage() {
       <div className="flex gap-4 mb-4">
         <div className="flex-1 max-w-sm">
           <Input
-            placeholder="Buscar por código o nombre..."
+            placeholder="Buscar por nombre..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -213,8 +296,8 @@ export default function ServicesPage() {
         <table className="w-full text-sm text-left">
           <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
             <tr>
-              <th className="px-4 py-3">Código</th>
               <th className="px-4 py-3">Nombre</th>
+              <th className="px-4 py-3">Prenda</th>
               <th className="px-4 py-3">Duración (min)</th>
               <th className="px-4 py-3">Precio</th>
               <th className="px-4 py-3 text-right">Acciones</th>
@@ -222,57 +305,64 @@ export default function ServicesPage() {
           </thead>
           <tbody className="divide-y divide-border">
             {loading ? (
-              <tr><td colSpan={5} className="p-4 text-center">Cargando...</td></tr>
+              <tr><td colSpan={6} className="p-4 text-center">Cargando...</td></tr>
             ) : filteredServices.length === 0 ? (
-              <tr><td colSpan={5} className="p-4 text-center text-muted-foreground">No se encontraron servicios.</td></tr>
+              <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">No se encontraron servicios.</td></tr>
             ) : (
-              filteredServices.map((service) => (
-                <tr key={service.id} className="hover:bg-secondary/10 transition-colors">
-                  <td className="px-4 py-3 font-mono font-medium">{service.code}</td>
-                  <td className="px-4 py-3">{service.name}</td>
-                  <td className="px-4 py-3">{service.defaultDurationMin}</td>
-                  <td className="px-4 py-3 font-bold">${service.basePrice.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right flex justify-end gap-2">
-                    {isAdmin && (
-                      <>
-                        <Button variant="outline" size="sm" onClick={() => handleEditClick(service)}>Editar</Button>
-                        <Button variant="danger" size="sm" onClick={() => setServiceToDelete(service)}>Eliminar</Button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))
+              filteredServices.map((service) => {
+                const garment = garments.find(g => g.id === service.garmentTypeId);
+                return (
+                  <tr key={service.id} className="hover:bg-secondary/10 transition-colors">
+                    <td className="px-4 py-3">{service.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{garment?.name || '-'}</td>
+                    <td className="px-4 py-3">{service.defaultDurationMin}</td>
+                    <td className="px-4 py-3 font-bold">${service.basePrice.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right flex justify-end gap-2">
+                      {isAdmin && (
+                        <>
+                          <Button variant="outline" size="sm" onClick={() => handleEditClick(service)}>Editar</Button>
+                          <Button variant="danger" size="sm" onClick={() => setServiceToDelete(service)}>Eliminar</Button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Create Modal */}
+      {/* Create Modal (Wizard) */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => !isSubmitting && setIsCreateModalOpen(false)}
         title="Crear Nuevo Servicio"
       >
-        <form onSubmit={handleCreateSubmit} className="space-y-4">
-          <Input label="Código (Único)" placeholder="SRV-BASTILLA" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} required />
-          <Input label="Nombre" placeholder="Bastilla" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-          <Input label="Descripción" placeholder="Detalle del servicio" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-          <Input label="Duración (min)" type="number" value={formData.defaultDurationMin} onChange={(e) => setFormData({ ...formData, defaultDurationMin: parseInt(e.target.value) })} />
-          <Input label="Precio Base ($)" type="number" step="0.01" value={formData.basePrice} onChange={(e) => setFormData({ ...formData, basePrice: parseFloat(e.target.value) })} required />
-
-          <div className="flex justify-end pt-2">
-            <Button disabled={isSubmitting}>{isSubmitting ? "Guardando..." : "Crear"}</Button>
-          </div>
-        </form>
+        {renderWizardContent()}
       </Modal>
 
-      {/* Edit Modal */}
+      {/* Edit Modal (Standard Form) */}
       <Modal
         isOpen={!!serviceToEdit}
         onClose={() => !isSubmitting && setServiceToEdit(null)}
         title="Editar Servicio"
       >
         <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Prenda Asociada</label>
+            <select
+              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={formData.garmentTypeId}
+              onChange={(e) => setFormData({ ...formData, garmentTypeId: e.target.value })}
+            >
+              <option value="">-- Sin Prenda --</option>
+              {garments.map(g => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+          </div>
+
           <Input
             label="Nombre"
             value={formData.name}
@@ -301,7 +391,7 @@ export default function ServicesPage() {
             onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
           <div className="flex justify-end pt-2">
-            <Button disabled={isSubmitting}>{isSubmitting ? "Guardando..." : "Guardar"}</Button>
+            <Button disabled={isSubmitting}>{isSubmitting ? "Guardando..." : "Guardar Cambios"}</Button>
           </div>
         </form>
       </Modal>

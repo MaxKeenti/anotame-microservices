@@ -5,17 +5,19 @@ import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.infrastructure.persistence.repository.GarmentTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-@RequiredArgsConstructor
 public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
 
     private final GarmentTypeRepository repository;
+
+    public GarmentPersistenceAdapter(GarmentTypeRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public List<GarmentType> findAllActive() {

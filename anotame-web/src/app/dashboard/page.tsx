@@ -1,134 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { StatCard } from "@/components/ui/StatCard";
-import { API_SALES } from "@/lib/api";
-import { OrderResponse } from "@/types/dtos";
 import Link from "next/link";
+import { menuItems, adminOnlyItems } from "@/config/menu";
+import { useAuth } from "@/context/AuthContext";
+import { DashboardHeader } from "./components/DashboardHeader";
 
 export default function DashboardPage() {
-  const [orders, setOrders] = useState<OrderResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
-  useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const res = await fetch(`${API_SALES}/orders`);
-        if (res.ok) {
-          const data = await res.json();
-          setOrders(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch orders", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchOrders();
-  }, []);
-
-  // KPIs
-  const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-  const activeOrders = orders.filter(o => o.status !== "DELIVERED" && o.status !== "CANCELLED").length;
-  const pendingDelivery = orders.filter(o => o.status === "READY").length; // Example logic
-  const uniqueCustomers = new Set(orders.map(o => o.customer.id)).size;
+  const visibleItems = menuItems.filter((item) => {
+    if (adminOnlyItems.includes(item.name)) return isAdmin;
+    return true;
+  });
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div>
-        <h1 className="text-3xl font-heading font-bold text-foreground">
-          Resumen
-        </h1>
-        <p className="text-muted-foreground">
-          Bienvenido de nuevo. Aquí tienes un resumen de hoy.
-        </p>
-      </div>
+    <div className="space-y-8 pb-20">
+      <DashboardHeader />
 
-      {/* KPI Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Ingresos Totales"
-          value={`$${totalRevenue.toFixed(2)}`}
-          trend="Histórico"
-          trendUp={true}
-        />
-        <StatCard
-          title="Órdenes Activas"
-          value={String(activeOrders)}
-          trend="En progreso"
-          trendUp={true}
-        />
-        <StatCard
-          title="Listas para Entrega"
-          value={String(pendingDelivery)}
-          trend="Acción requerida"
-          trendUp={pendingDelivery > 0}
-        />
-        <StatCard
-          title="Total de Clientes"
-          value={String(uniqueCustomers)}
-          trend="Únicos"
-          trendUp={true}
-        />
-      </div>
-
-      {/* Recent Activity Section */}
-      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-border flex justify-between items-center">
-          <h3 className="font-heading font-semibold text-lg">Órdenes Recientes</h3>
-          <Link href="/dashboard/orders/new" className="text-sm text-primary hover:underline">
-            + Nueva Orden
-          </Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 text-muted-foreground font-medium uppercase text-xs">
-              <tr>
-                <th className="px-6 py-3">Ticket</th>
-                <th className="px-6 py-3">Cliente</th>
-                <th className="px-6 py-3">Estado</th>
-                <th className="px-6 py-3">Total</th>
-                <th className="px-6 py-3">Fecha</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">Cargando órdenes...</td>
-                </tr>
-              ) : orders.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">No se encontraron órdenes.</td>
-                </tr>
-              ) : (
-                orders.slice().reverse().slice(0, 10).map((order) => (
-                  <tr key={order.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4 font-medium text-foreground">
-                      {order.ticketNumber || "PENDIENTE"}
-                    </td>
-                    <td className="px-6 py-4">
-                      {order.customer.firstName} {order.customer.lastName}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                            ${order.status === 'RECEIVED' ? 'bg-blue-100 text-blue-800' :
-                          order.status === 'READY' ? 'bg-emerald-100 text-emerald-800' :
-                            'bg-gray-100 text-gray-800'}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">${(order.totalAmount || 0).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "-"}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {visibleItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link key={item.href} href={item.href} className="group">
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all h-full flex flex-col items-center text-center gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <Icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">{item.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {item.description || "Navegar a " + item.name}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
 }
+

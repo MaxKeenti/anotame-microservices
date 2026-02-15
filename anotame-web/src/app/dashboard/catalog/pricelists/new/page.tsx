@@ -4,15 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { createPriceList } from "@/services/catalog/pricelists";
+import { createPriceList, getPriceLists, getPriceList } from "@/services/catalog/pricelists";
 import { getServices } from "@/services/catalog/services";
-import { ServiceResponse } from "@/types/dtos";
+import { ServiceResponse, PriceListResponse } from "@/types/dtos";
 
 export default function NewPriceListPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [services, setServices] = useState<ServiceResponse[]>([]);
+
+    // Base List State
+    const [availableLists, setAvailableLists] = useState<PriceListResponse[]>([]);
+    const [baseListId, setBaseListId] = useState<string>("");
 
     // Form State
     const [name, setName] = useState("");
@@ -26,7 +31,50 @@ export default function NewPriceListPage() {
 
     useEffect(() => {
         getServices().then(setServices).catch(console.error);
+        getPriceLists().then(setAvailableLists).catch(console.error);
     }, []);
+
+    const handleBaseListChange = async (listId: string) => {
+        setBaseListId(listId);
+        if (!listId) return;
+
+        try {
+            setIsLoading(true);
+            const list = await getPriceList(listId);
+            if (list.items) {
+                const newOverrides: Record<string, string> = {};
+                list.items.forEach(item => {
+                    newOverrides[item.serviceId] = String(item.price);
+                });
+                setOverrides(newOverrides);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Failed to load base price list");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleBulkAdjustment = (amount: number) => {
+        setOverrides(prev => {
+            const next = { ...prev };
+            services.forEach(service => {
+                const currentPrice = parseFloat(next[service.id] || String(service.basePrice));
+                const newPrice = Math.max(0, currentPrice + amount);
+                next[service.id] = newPrice.toFixed(2);
+            });
+            return next;
+        });
+    };
+
+    const handleReset = () => {
+        if (baseListId) {
+            handleBaseListChange(baseListId);
+        } else {
+            setOverrides({});
+        }
+    };
 
     const handleOverrideChange = (serviceId: string, val: string) => {
         setOverrides(prev => ({ ...prev, [serviceId]: val }));
@@ -84,9 +132,40 @@ export default function NewPriceListPage() {
                                 <label>Is Active</label>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Input label="Valid From" type="date" required value={validFrom} onChange={e => setValidFrom(e.target.value)} />
-                            <Input label="Valid To (Optional)" type="date" value={validTo} onChange={e => setValidTo(e.target.value)} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DatePicker
+                                label="Valid From"
+                                value={validFrom}
+                                onChange={date => setValidFrom(date.toISOString().split('T')[0])}
+                            />
+                            <DatePicker
+                                label="Valid To (Optional)"
+                                value={validTo}
+                                onChange={date => setValidTo(date.toISOString().split('T')[0])}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Base Configuration</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Copy from existing list</label>
+                            <select
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                value={baseListId}
+                                onChange={(e) => handleBaseListChange(e.target.value)}
+                                disabled={isLoading}
+                            >
+                                <option value="">-- Start from scratch (Base Prices) --</option>
+                                {availableLists.map(list => (
+                                    <option key={list.id} value={list.id}>{list.name}</option>
+                                ))}
+                            </select>
+                            <p className="text-xs text-muted-foreground">Selecting a list will overwrite current overrides with prices from that list.</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -96,7 +175,26 @@ export default function NewPriceListPage() {
                         <CardTitle>Price Overrides</CardTitle>
                         <p className="text-sm text-muted-foreground">Leave empty to use Base Price.</p>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-wrap gap-2 items-center p-4 bg-secondary/10 rounded-lg border border-border">
+                            <span className="text-sm font-medium mr-2">Bulk Adjust:</span>
+                            {[5, 10, 15, 20].map(amount => (
+                                <Button key={`plus-${amount}`} type="button" variant="outline" size="sm" onClick={() => handleBulkAdjustment(amount)} className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200">
+                                    + ${amount}
+                                </Button>
+                            ))}
+                            <div className="w-px h-6 bg-border mx-2" />
+                            {[5, 10, 15, 20].map(amount => (
+                                <Button key={`minus-${amount}`} type="button" variant="outline" size="sm" onClick={() => handleBulkAdjustment(-amount)} className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200">
+                                    - ${amount}
+                                </Button>
+                            ))}
+                            <div className="w-px h-6 bg-border mx-2" />
+                            <Button type="button" variant="ghost" size="sm" onClick={handleReset} className="text-muted-foreground hover:text-foreground">
+                                Reset
+                            </Button>
+                        </div>
+
                         <div className="border rounded-md">
                             <table className="w-full text-sm">
                                 <thead className="bg-secondary/20">

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { API_SALES } from "@/lib/api"; // Changed to API_SALES
 import { OrderResponse } from "@/types/dtos"; // Changed type
+import { translateStatus, getStatusColor } from "@/utils/statusUtils";
+import { formatDate } from "@/utils/formatUtils";
 
 export default function WorkOrdersPage() {
   const [workOrders, setWorkOrders] = useState<OrderResponse[]>([]);
@@ -71,19 +73,15 @@ export default function WorkOrdersPage() {
                   <td className="px-6 py-3 font-medium font-mono text-xs">{wo.ticketNumber}</td>
                   <td className="px-6 py-3 text-xs">{wo.customer.firstName} {wo.customer.lastName}</td>
                   <td className="px-6 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                        ${wo.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                        wo.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                          wo.status === 'READY' ? 'bg-emerald-100 text-emerald-800' :
-                            'bg-gray-100 text-gray-800'}`}>
-                      {wo.status}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(wo.status)}`}>
+                      {translateStatus(wo.status)}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-xs">
                     {wo.items.map(i => i.serviceName).join(", ")}
                   </td>
                   <td className="px-6 py-3 text-muted-foreground text-xs">
-                    {wo.committedDeadline ? new Date(wo.committedDeadline).toLocaleDateString() : "-"}
+                    {formatDate(wo.committedDeadline)}
                   </td>
                   <td className="px-6 py-3 text-right">
                     <button onClick={() => handleComplete(wo.id)} className="text-green-600 hover:underline font-medium">Marcar Listo</button>

@@ -1,17 +1,17 @@
 export interface GarmentTypeResponse {
   id: string;
-  code: string;
   name: string;
   description: string;
 }
 
 export interface ServiceResponse {
   id: string;
-  code: string;
   name: string;
   description: string;
   defaultDurationMin: number;
   basePrice: number;
+  effectivePrice?: number;
+  garmentTypeId?: string;
 }
 
 export interface CustomerDto {
@@ -49,6 +49,8 @@ export interface OrderItemResponse {
   unitPrice: number;
   quantity: number;
   subtotal: number;
+  adjustmentAmount?: number;
+  adjustmentReason?: string;
   notes: string;
 }
 
@@ -59,23 +61,25 @@ export interface OrderResponse {
   committedDeadline: string;
   status: string;
   totalAmount: number;
+  amountPaid: number;
+  balance: number;
+  paymentMethod: string;
   notes: string;
   items: OrderItemResponse[];
   createdAt: string;
 }
 
 export interface GarmentTypeRequest {
-  code: string;
   name: string;
   description: string;
 }
 
 export interface ServiceRequest {
-  code: string;
   name: string;
   description: string;
   defaultDurationMin: number;
   basePrice: number;
+  garmentTypeId?: string;
 }
 
 export interface WorkOrderItem {

@@ -23,7 +23,7 @@ export default function GarmentsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
-  const [formData, setFormData] = useState<GarmentTypeRequest>({ code: "", name: "", description: "" });
+  const [formData, setFormData] = useState<GarmentTypeRequest>({ name: "", description: "" });
 
   const fetchGarments = async () => {
     try {
@@ -43,7 +43,7 @@ export default function GarmentsPage() {
   }, []);
 
   const resetForm = () => {
-    setFormData({ code: "", name: "", description: "" });
+    setFormData({ name: "", description: "" });
     setIsCreateModalOpen(false);
     setGarmentToEdit(null);
   };
@@ -74,7 +74,6 @@ export default function GarmentsPage() {
   // --- Edit Logic ---
   const handleEditClick = (garment: GarmentTypeResponse) => {
     setFormData({
-      code: garment.code,
       name: garment.name,
       description: garment.description
     });
@@ -133,8 +132,7 @@ export default function GarmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredGarments = garments.filter(g =>
-    g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    g.code.toLowerCase().includes(searchQuery.toLowerCase())
+    g.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -152,7 +150,7 @@ export default function GarmentsPage() {
       <div className="flex gap-4 mb-4">
         <div className="flex-1 max-w-sm">
           <Input
-            placeholder="Buscar por código o nombre..."
+            placeholder="Buscar por nombre..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -163,7 +161,6 @@ export default function GarmentsPage() {
         <table className="w-full text-sm text-left">
           <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
             <tr>
-              <th className="px-4 py-3">Código</th>
               <th className="px-4 py-3">Nombre</th>
               <th className="px-4 py-3">Descripción</th>
               {isAdmin && <th className="px-4 py-3 text-right">Acciones</th>}
@@ -177,7 +174,6 @@ export default function GarmentsPage() {
             ) : (
               filteredGarments.map((garment) => (
                 <tr key={garment.id} className="hover:bg-secondary/10 transition-colors">
-                  <td className="px-4 py-3 font-mono font-medium">{garment.code}</td>
                   <td className="px-4 py-3">{garment.name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{garment.description}</td>
                   {isAdmin && (
@@ -200,7 +196,6 @@ export default function GarmentsPage() {
         title="Crear Nueva Prenda"
       >
         <form onSubmit={handleCreateSubmit} className="space-y-4">
-          <Input label="Código (Único)" placeholder="GT-JEANS" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} required />
           <Input label="Nombre" placeholder="Pantalón de Mezclilla" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
           <Input label="Descripción" placeholder="Todo tipo de pantalones..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
           <div className="flex justify-end pt-2">

@@ -2,13 +2,13 @@ import { API_CATALOG } from "@/lib/api";
 import { PriceListRequest, PriceListResponse } from "@/types/dtos";
 
 export async function getPriceLists(): Promise<PriceListResponse[]> {
-    const res = await fetch(`${API_CATALOG}/pricelists`);
+    const res = await fetch(`${API_CATALOG}/pricelists`, { cache: 'no-store' });
     if (!res.ok) throw new Error("Failed to fetch price lists");
     return res.json();
 }
 
 export async function getPriceList(id: string): Promise<PriceListResponse> {
-    const res = await fetch(`${API_CATALOG}/pricelists/${id}`);
+    const res = await fetch(`${API_CATALOG}/pricelists/${id}`, { cache: 'no-store' });
     if (!res.ok) throw new Error("Failed to fetch price list");
     return res.json();
 }
@@ -20,6 +20,16 @@ export async function createPriceList(data: PriceListRequest): Promise<PriceList
         body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error("Failed to create price list");
+    return res.json();
+}
+
+export async function updatePriceList(id: string, data: PriceListRequest): Promise<PriceListResponse> {
+    const res = await fetch(`${API_CATALOG}/pricelists/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update price list");
     return res.json();
 }
 
