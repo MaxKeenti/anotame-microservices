@@ -284,12 +284,13 @@ export default function OrderDetailsPage({ params, searchParams }: {
         </button>
 
         <div className="flex gap-3">
-          <button
-            onClick={() => alert("Función de editar próximamente")}
-            className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
-          >
-            Editar Pedido
-          </button>
+          <Link href={`/dashboard/orders/${order.id}/edit`}>
+            <button
+              className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
+            >
+              Editar Pedido
+            </button>
+          </Link>
           <button
             onClick={handlePrint}
             className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"

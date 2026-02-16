@@ -57,7 +57,10 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
 
                     // If editing, hydrate state
                     if (initialItem) {
-                        const g = gData.find((x: GarmentTypeResponse) => x.id === initialItem.garmentId);
+                        let g = gData.find((x: GarmentTypeResponse) => x.id === initialItem.garmentId || x.id === initialItem.garmentTypeId);
+                        if (!g && initialItem.garmentName) {
+                            g = gData.find((x: GarmentTypeResponse) => x.name.toLowerCase() === initialItem.garmentName.toLowerCase());
+                        }
                         if (g) setSelectedGarment(g);
 
                         if (initialItem.services) {

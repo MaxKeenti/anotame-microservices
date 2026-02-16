@@ -164,6 +164,12 @@ public class SalesService {
         if (request.getCommittedDeadline() != null) {
             order.setCommittedDeadline(request.getCommittedDeadline());
         }
+        if (request.getAmountPaid() != null) {
+            order.setAmountPaid(request.getAmountPaid());
+        }
+        if (request.getPaymentMethod() != null) {
+            order.setPaymentMethod(request.getPaymentMethod());
+        }
 
         // For items, we replace them
         // Note: This is a heavy operation, effectively replacing the order content

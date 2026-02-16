@@ -20,6 +20,7 @@ export interface DraftOrder extends Partial<Omit<CreateOrderRequest, 'items'>> {
     items?: DraftOrderItem[];
     amountPaid?: number;
     paymentMethod?: string;
+    isEditing?: boolean;
 }
 
 const STORAGE_KEY = 'anotame_drafts';

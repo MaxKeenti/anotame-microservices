@@ -34,5 +34,11 @@ export async function apiClient<T>(input: RequestInfo | URL, init?: FetchOptions
         return {} as T;
     }
 
-    return response.json();
+    // Safely attempt to parse JSON
+    try {
+        const text = await response.text();
+        return text ? JSON.parse(text) : {} as T;
+    } catch (e: any) {
+        throw new Error(`Invalid JSON response: ${e.message || e}`);
+    }
 }
