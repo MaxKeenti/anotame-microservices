@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (creds: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
+  changeCredentials: (data: import("@/types/auth").ChangeCredentialsRequest) => Promise<User>;
   isAuthenticated: boolean;
   token: null;
 }
@@ -83,8 +84,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/login");
   };
 
+  const changeCredentials = async (data: import("@/types/auth").ChangeCredentialsRequest) => {
+    setIsLoading(true);
+    try {
+      const user = await apiClient<User>(`${API_IDENTITY}/auth/change-credentials`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      setUser(user);
+      return user;
+    } catch (error) {
+      console.error("Change credentials error:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAuthenticated: !!user, token: null }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, changeCredentials, isAuthenticated: !!user, token: null }}>
       {children}
     </AuthContext.Provider>
   );

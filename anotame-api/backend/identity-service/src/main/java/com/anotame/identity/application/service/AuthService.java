@@ -94,4 +94,57 @@ public class AuthService {
                                 .role(user.getRole() != null ? user.getRole().getCode() : null)
                                 .build();
         }
+
+        @Transactional
+        public AuthResponse updateCredentials(String username,
+                        com.anotame.identity.application.dto.ChangeCredentialsRequest request) {
+                var user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                // Verify current password
+                if (!io.quarkus.elytron.security.common.BcryptUtil.matches(request.getCurrentPassword(),
+                                user.getPassword())) {
+                        throw new RuntimeException("Invalid current password");
+                }
+
+                // Update Username if provided and different
+                if (request.getNewUsername() != null && !request.getNewUsername().isBlank()
+                                && !request.getNewUsername().equals(user.getUsername())) {
+                        if (userRepository.existsByUsername(request.getNewUsername())) {
+                                throw new RuntimeException("Username already taken");
+                        }
+                        user.setUsername(request.getNewUsername());
+                }
+
+                // Update Password if provided
+                if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
+                        user.setPassword(io.quarkus.elytron.security.common.BcryptUtil
+                                        .bcryptHash(request.getNewPassword()));
+                }
+
+                // Persist changes (implicit in transaction, but good for clarity/hooks)
+                // userRepository.persist(user);
+
+                // Return new token/auth response since username might have changed
+                Set<String> roles = new HashSet<>();
+                if (user.getRole() != null) {
+                        roles.add(user.getRole().getCode());
+                }
+
+                var jwtToken = jwtUtils.generateToken(user.getUsername(), roles);
+
+                var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .role(user.getRole() != null ? user.getRole().getCode() : null)
+                                .build();
+
+                return AuthResponse.builder()
+                                .token(jwtToken)
+                                .user(userResponse)
+                                .build();
+        }
 }

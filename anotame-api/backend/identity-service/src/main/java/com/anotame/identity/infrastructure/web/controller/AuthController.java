@@ -63,6 +63,16 @@ public class AuthController {
         return Response.ok(service.getUser(username)).build();
     }
 
+    @POST
+    @Path("/change-credentials")
+    @io.quarkus.security.Authenticated
+    public Response changeCredentials(@jakarta.ws.rs.core.Context jakarta.ws.rs.core.SecurityContext securityContext,
+            com.anotame.identity.application.dto.ChangeCredentialsRequest request) {
+        String username = securityContext.getUserPrincipal().getName();
+        AuthResponse authResponse = service.updateCredentials(username, request);
+        return createCookieResponse(authResponse);
+    }
+
     private Response createCookieResponse(AuthResponse authResponse) {
         NewCookie cookie = new NewCookie.Builder("jwt")
                 .value(authResponse.getToken())

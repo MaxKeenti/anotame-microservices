@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import { MenuModal } from "./MenuModal";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
+import { CredentialsModal } from "../profile/CredentialsModal";
 
 export default function DashboardLayout({
   children,
@@ -13,10 +14,16 @@ export default function DashboardLayout({
 }) {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <MenuModal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MenuModal
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onOpenProfile={() => { setIsMenuOpen(false); setIsProfileOpen(true); }}
+      />
+      <CredentialsModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
 
       <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-8 flex items-center justify-between">
         <div className="flex items-center gap-4">

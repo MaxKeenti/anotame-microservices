@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/Button";
 interface MenuModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onOpenProfile?: () => void;
 }
 
 
-export function MenuModal({ isOpen, onClose }: MenuModalProps) {
+export function MenuModal({ isOpen, onClose, onOpenProfile }: MenuModalProps) {
     const pathname = usePathname();
     const { user, logout } = useAuth();
 
@@ -88,7 +89,13 @@ export function MenuModal({ isOpen, onClose }: MenuModalProps) {
                         </div>
                         <div>
                             <div className="font-semibold">{user?.username || "Usuario"}</div>
-                            <div className="text-xs text-muted-foreground">{user?.email}</div>
+                            <Button
+                                variant="ghost"
+                                className="h-auto p-0 text-xs text-muted-foreground hover:text-primary underline"
+                                onClick={onOpenProfile}
+                            >
+                                Editar Credenciales
+                            </Button>
                         </div>
                     </div>
 
