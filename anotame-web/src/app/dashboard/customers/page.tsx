@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { searchCustomers, deleteCustomer } from "@/services/sales/customers";
 import { CustomerDto } from "@/types/dtos";
@@ -83,37 +91,58 @@ export default function CustomersPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-              <tr>
-                <th className="px-6 py-3">Nombre</th>
-                <th className="px-6 py-3">Teléfono</th>
-                <th className="px-6 py-3">Correo</th>
-                <th className="px-6 py-3 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {loading ? (
-                <tr><td colSpan={4} className="p-4 text-center">Cargando...</td></tr>
-              ) : customers.length === 0 ? (
-                <tr><td colSpan={4} className="p-4 text-center">No se encontraron clientes.</td></tr>
-              ) : (
-                customers.map((c) => (
-                  <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-3 font-medium">{c.firstName} {c.lastName}</td>
-                    <td className="px-6 py-3">{c.phoneNumber}</td>
-                    <td className="px-6 py-3">{c.email || "-"}</td>
-                    <td className="px-6 py-3 text-right space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditClick(c)}>Editar</Button>
-                      <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => c.id && handleDeleteClick(c.id)}>Eliminar</Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="px-6">Nombre</TableHead>
+              <TableHead className="px-6">Teléfono</TableHead>
+              <TableHead className="px-6">Correo</TableHead>
+              <TableHead className="px-6 text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center">
+                  Cargando...
+                </TableCell>
+              </TableRow>
+            ) : customers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center">
+                  No se encontraron clientes.
+                </TableCell>
+              </TableRow>
+            ) : (
+              customers.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell className="px-6 font-medium">
+                    {c.firstName} {c.lastName}
+                  </TableCell>
+                  <TableCell className="px-6">{c.phoneNumber}</TableCell>
+                  <TableCell className="px-6">{c.email || "-"}</TableCell>
+                  <TableCell className="px-6 text-right space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(c)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => c.id && handleDeleteClick(c.id)}
+                    >
+                      Eliminar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <Modal
