@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { DraftOrder } from "@/services/local/DraftsService";
 import { ItemSubWizard } from "./ItemSubWizard";
 import { Button } from "@/components/ui/Button";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Copy } from "lucide-react";
 
 interface StepProps {
     draft: DraftOrder;
@@ -60,6 +60,19 @@ export function ItemsStep({ draft, updateDraft, onNext, onBack }: StepProps) {
         );
     }
 
+    const handleDuplicateItem = (index: number) => {
+        const itemToDuplicate = draft.items![index];
+        const newItem = {
+            ...itemToDuplicate,
+            notes: itemToDuplicate.notes ? `${itemToDuplicate.notes} (Copia)` : '(Copia)',
+            services: itemToDuplicate.services?.map(s => ({ ...s })) // Deep copy services
+        };
+        const newItems = [...(draft.items || [])];
+        // Insert after the original item
+        newItems.splice(index + 1, 0, newItem);
+        updateDraft({ items: newItems });
+    };
+
     return (
         <div className="flex flex-col h-full gap-6">
             <div className="flex items-center justify-between">
@@ -112,10 +125,13 @@ export function ItemsStep({ draft, updateDraft, onNext, onBack }: StepProps) {
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => handleEditItem(idx)}>
+                                <Button variant="ghost" size="icon" title="Duplicar" onClick={() => handleDuplicateItem(idx)}>
+                                    <Copy className="w-5 h-5 text-muted-foreground hover:text-primary" />
+                                </Button>
+                                <Button variant="ghost" size="icon" title="Editar" onClick={() => handleEditItem(idx)}>
                                     <Edit className="w-5 h-5 text-muted-foreground hover:text-primary" />
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(idx)}>
+                                <Button variant="ghost" size="icon" title="Eliminar" onClick={() => handleDeleteItem(idx)}>
                                     <Trash2 className="w-5 h-5 text-muted-foreground hover:text-destructive" />
                                 </Button>
                             </div>
