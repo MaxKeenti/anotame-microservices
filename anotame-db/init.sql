@@ -185,7 +185,8 @@ CREATE TABLE tco_customer (
     
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL -- Soft Delete required by CustomerEntity
 );
 
 -- Order (tco_order)
@@ -214,11 +215,13 @@ CREATE TABLE tco_order (
     received_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     promised_at TIMESTAMPTZ,
     delivered_at TIMESTAMPTZ,
+    committed_deadline TIMESTAMPTZ, -- Field required by OrderEntity
     
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL -- Soft Delete required by OrderEntity
 );
 
 -- Order History (tco_order_history) - NEW: Finite State Machine tracking
