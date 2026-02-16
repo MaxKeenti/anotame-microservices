@@ -72,6 +72,7 @@ public class SalesService {
             }
 
             // Subtotal = (Sum(Service Prices + Adjustments)) * Quantity
+            item.setUnitPrice(itemSubtotal); // Set unit price (per item subtotal)
             BigDecimal lineTotal = itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity()));
             item.setSubtotal(lineTotal);
 
@@ -119,6 +120,7 @@ public class SalesService {
                             .garmentName(item.getGarmentName())
                             .services(serviceDtos)
                             .quantity(item.getQuantity())
+                            .unitPrice(item.getUnitPrice())
                             .subtotal(item.getSubtotal())
                             .notes(item.getNotes())
                             .build();
@@ -204,6 +206,7 @@ public class SalesService {
             }
 
             BigDecimal lineTotal = itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setUnitPrice(itemSubtotal);
             item.setSubtotal(lineTotal);
 
             order.addItem(item);

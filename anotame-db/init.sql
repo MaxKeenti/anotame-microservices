@@ -245,6 +245,7 @@ CREATE TABLE tco_order_item (
     garment_name VARCHAR(150),
     
     quantity INT DEFAULT 1 NOT NULL,
+    unit_price DECIMAL(19,4) NOT NULL DEFAULT 0.0, -- Added to match production
     subtotal DECIMAL(19,4) NOT NULL, -- Sum of (services price * quantity)
     
     notes TEXT,

@@ -38,6 +38,9 @@ public class OrderItemEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity = 1;
 
+    @Column(name = "unit_price", precision = 19, scale = 4)
+    private BigDecimal unitPrice;
+
     @Column(name = "subtotal", precision = 19, scale = 4)
     private BigDecimal subtotal;
 

@@ -17,6 +17,7 @@ public class OrderItem {
 
     private String garmentName;
     private Integer quantity = 1;
+    private BigDecimal unitPrice;
     private BigDecimal subtotal;
 
     private String notes;

@@ -12,6 +12,7 @@ public class OrderItemResponse {
     private String garmentName;
     private java.util.List<OrderItemServiceDto> services;
     private Integer quantity;
+    private BigDecimal unitPrice;
     private BigDecimal subtotal;
     private String notes;
 }
