@@ -1,3 +1,0 @@
-INSERT INTO public.tcc_price_list (id_price_list, name, valid_from, valid_to, is_active, priority, created_at, updated_at, deleted_at) VALUES ('f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'Lista Estándar 2026', '2026-02-16 00:00:00+00', NULL, true, 1, '2026-02-16 00:31:29.169601+00', '2026-02-16 01:44:22.885496+00', NULL) ON CONFLICT DO NOTHING;
-
-
