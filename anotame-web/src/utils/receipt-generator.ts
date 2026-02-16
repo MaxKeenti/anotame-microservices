@@ -5,11 +5,13 @@ export const generateReceiptHtml = (data: {
   deadline: string;
   items: Array<{
     garment: string;
-    service: string;
+    services: Array<{
+      name: string;
+      price: number;
+      adjustment?: number;
+      adjustmentReason?: string;
+    }>;
     notes?: string;
-    price: number;
-    adjustment?: number;
-    adjustmentReason?: string;
   }>;
   balance: number;
   total: number;
@@ -37,58 +39,27 @@ export const generateReceiptHtml = (data: {
   <meta charset="UTF-8">
   <title>Ticket ${data.ticketNumber}</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, Helvetica, sans-serif; /* Better legibility for thermal */
-      font-weight: 500; /* Slightly bolder */
-      width: 40mm; /* Further reduced for safety */
-      margin: 0 auto; /* Center it */
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 500;
+      width: 40mm;
+      margin: 0 auto;
       padding: 0;
       font-size: 11px;
       line-height: 1.2;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
-    .header {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 16px;
-    }
-    .section {
-      margin-bottom: 10px;
-      border-bottom: 1px dashed #000;
-      padding-bottom: 5px;
-    }
-    /* Simple flex for alignment, but allow wrapping */
-    .row {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap; 
-    }
-    .item {
-      margin-bottom: 5px;
-    }
-    .item-header {
-      font-weight: bold;
-    }
-    .item-detail {
-        padding-left: 5px; /* Reduced padding */
-    }
-    .totals {
-      text-align: right;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 10px;
-    }
+    .header { text-align: center; margin-bottom: 10px; }
+    .header h1 { margin: 0; font-size: 16px; }
+    .section { margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+    .row { display: flex; justify-content: space-between; flex-wrap: wrap; }
+    .item { margin-bottom: 5px; }
+    .item-header { font-weight: bold; }
+    .item-detail { padding-left: 5px; }
+    .totals { text-align: right; font-size: 12px; font-weight: bold; }
+    .footer { text-align: center; margin-top: 20px; font-size: 10px; }
     @media print {
       @page { size: auto; margin: 0mm; } 
       body { margin: 0 auto; padding: 1mm; width: 40mm; }
@@ -108,35 +79,24 @@ export const generateReceiptHtml = (data: {
   </div>
 
   <div class="section">
-    <div class="row">
-      <span>Cliente:</span>
-      <span style="text-align: right;">${data.customerName}</span>
-    </div>
-    <div class="row">
-      <span>Tel:</span>
-      <span>${data.phone || ''}</span>
-    </div>
-    <div class="row" style="margin-top: 5px; font-weight: bold;">
-      <span>ENTREGA:</span>
-      <span>${formatDate(data.deadline)}</span>
-    </div>
-    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">
-      (Entrega después de las 18:00 hrs)
-    </div>
+    <div class="row"><span>Cliente:</span><span style="text-align: right;">${data.customerName}</span></div>
+    <div class="row"><span>Tel:</span><span>${data.phone || ''}</span></div>
+    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>ENTREGA:</span><span>${formatDate(data.deadline)}</span></div>
+    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">(Entrega después de las 18:00 hrs)</div>
   </div>
 
   <div class="section">
     ${data.items.map(item => `
       <div class="item">
-        <div class="item-header row">
-          <span style="flex: 1; margin-right: 5px;">${item.garment}</span>
-          <span>$${item.price.toFixed(2)}</span>
-        </div>
-        <div class="item-detail">
-          <div>+ ${item.service}</div>
-          ${item.notes ? `<div><em>Nota: ${item.notes}</em></div>` : ''}
-          ${item.adjustment ? `<div>Adj: $${item.adjustment} (${item.adjustmentReason})</div>` : ''}
-        </div>
+        <div class="item-header row"><span style="font-weight: bold;">${item.garment}</span></div>
+        ${item.services.map(service => `
+            <div class="row" style="padding-left: 5px;">
+                <span style="flex: 1; margin-right: 2px;">+ ${service.name}</span>
+                <span>$${(service.price + (service.adjustment || 0)).toFixed(2)}</span>
+            </div>
+            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">Adj: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${service.adjustmentReason || ''})</div>` : ''}
+        `).join('')}
+        ${item.notes ? `<div class="item-detail" style="font-style: italic;">Nota: ${item.notes}</div>` : ''}
       </div>
     `).join('')}
   </div>

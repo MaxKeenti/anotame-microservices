@@ -241,18 +241,11 @@ CREATE TABLE tco_order_item (
     id_order_item UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_order UUID NOT NULL REFERENCES tco_order(id_order) ON DELETE CASCADE,
     id_garment_type UUID NOT NULL REFERENCES cci_garment_type(id_garment_type),
-    id_service UUID NOT NULL REFERENCES cci_service(id_service), -- Added to match logic
     
-    service_name VARCHAR(150),
     garment_name VARCHAR(150),
     
     quantity INT DEFAULT 1 NOT NULL,
-    unit_price DECIMAL(19,4) NOT NULL, -- Base/List price snapshot
-    subtotal DECIMAL(19,4) NOT NULL,
-    
-    -- Ad-Hoc Adjustments
-    adjustment_amount DECIMAL(19,4) DEFAULT 0.0, -- +/- Value
-    adjustment_reason VARCHAR(255),
+    subtotal DECIMAL(19,4) NOT NULL, -- Sum of (services price * quantity)
     
     notes TEXT,
     item_status VARCHAR(50) DEFAULT 'PENDING',
@@ -261,6 +254,23 @@ CREATE TABLE tco_order_item (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     deleted_at TIMESTAMPTZ,
     is_deleted BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+-- Order Item Service (tco_order_item_service)
+CREATE TABLE tco_order_item_service (
+    id_item_service UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_order_item UUID NOT NULL REFERENCES tco_order_item(id_order_item) ON DELETE CASCADE,
+    id_service UUID NOT NULL REFERENCES cci_service(id_service),
+    
+    service_name VARCHAR(150),
+    
+    unit_price DECIMAL(19,4) NOT NULL, -- Base price snapshot for this service
+    
+    -- Ad-Hoc Adjustments per service
+    adjustment_amount DECIMAL(19,4) DEFAULT 0.0,
+    adjustment_reason VARCHAR(255),
+    
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- tco_item_service deprecated in favor of unified tco_order_item model
@@ -291,7 +301,7 @@ ON CONFLICT (code) DO NOTHING;
 -- Seed: Admin User (password: 'admin')
 -- Requires pgcrypto extension enabled at top of file
 INSERT INTO tca_user (id_user, id_role, username, email, password_hash, first_name, last_name) VALUES
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'KuroNeko', 'admin@anotame.com', crypt('DosTresSistemas05052001!', gen_salt('bf')), 'System', 'Admin')
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'admin', 'admin@anotame.com', crypt('admin', gen_salt('bf')), 'System', 'Admin')
 ON CONFLICT (username) DO NOTHING;
 
 -- Seed: Garments

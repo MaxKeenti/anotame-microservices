@@ -25,7 +25,10 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
     const [error, setError] = useState<string | null>(null);
 
     const total = useMemo(() => {
-        return (draft.items || []).reduce((acc, item) => acc + item.unitPrice + (item.adjustmentAmount || 0), 0);
+        return (draft.items || []).reduce((acc, item) => {
+            const itemTotal = (item.services || []).reduce((sAcc: number, s: any) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0), 0);
+            return acc + itemTotal;
+        }, 0);
     }, [draft.items]);
 
     const balance = Math.max(0, total - (draft.amountPaid || 0));
@@ -57,15 +60,17 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
 
         try {
             const orderItems: OrderItemDto[] = draft.items.map(item => ({
-                garmentTypeId: item.garmentTypeId || item.garmentId || "", // Handle both just in case
+                garmentTypeId: item.garmentTypeId || item.garmentId || "",
                 garmentName: item.garmentName || "",
-                serviceId: item.serviceId || "",
-                serviceName: item.serviceName || "",
-                unitPrice: item.unitPrice,
                 quantity: 1,
                 notes: item.notes || "",
-                adjustmentAmount: item.adjustmentAmount,
-                adjustmentReason: item.adjustmentReason
+                services: item.services?.map((s: any) => ({
+                    serviceId: s.serviceId,
+                    serviceName: s.serviceName,
+                    unitPrice: s.unitPrice,
+                    adjustmentAmount: s.adjustmentAmount,
+                    adjustmentReason: s.adjustmentReason
+                })) || []
             }));
 
             // Format deadline to LocalDateTime (YYYY-MM-DDTHH:mm:ss)
@@ -89,30 +94,34 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
                 paymentMethod: draft.paymentMethod || "CASH"
             };
 
-            const res = await fetch(`${API_SALES}/orders`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-User-Name": user?.username || "Anonymous",
-                    "X-User-Id": user?.id || "unknown",
-                    "X-User-Role": user?.role || "USER"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                const order = await res.json();
-                // Clear draft
-                const { DraftsService } = await import("@/services/local/DraftsService");
-                DraftsService.delete(draft.id);
-
-                // Redirect to success/print page or dashboard
-                // For now back to dashboard with alert (or success page)
-                // Redirect to order details with print action
-                router.push(`/dashboard/orders/${order.id}?action=print`);
+            if (draft.isEditing) {
+                // UPDATE ORDER
+                const { updateOrder } = await import("@/lib/api");
+                await updateOrder(draft.id, payload);
+                router.push(`/dashboard/orders/${draft.id}?action=print`);
             } else {
-                const errData = await res.json().catch(() => ({}));
-                setError(`Error al crear orden: ${errData.message || res.statusText}`);
+                // CREATE NEW
+                const res = await fetch(`${API_SALES}/orders`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-User-Name": user?.username || "Anonymous",
+                        "X-User-Id": user?.id || "unknown",
+                        "X-User-Role": user?.role || "USER"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const order = await res.json();
+                    // Clear draft
+                    const { DraftsService } = await import("@/services/local/DraftsService");
+                    DraftsService.delete(draft.id);
+                    router.push(`/dashboard/orders/${order.id}?action=print`);
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    setError(`Error al crear orden: ${errData.message || res.statusText}`);
+                }
             }
         } catch (e) {
             console.error(e);
@@ -228,7 +237,7 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
                     Atrás
                 </Button>
                 <Button size="lg" onClick={handleSubmit} disabled={isSubmitting} className="flex-1 text-lg">
-                    {isSubmitting ? "Procesando..." : "Confirmar Orden"}
+                    {isSubmitting ? "Procesando..." : (draft.isEditing ? "Actualizar Orden" : "Confirmar Orden")}
                 </Button>
             </div>
         </div>

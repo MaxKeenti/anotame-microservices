@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { DraftOrder } from "@/services/local/DraftsService";
 import { ItemSubWizard } from "./ItemSubWizard";
 import { Button } from "@/components/ui/Button";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Copy } from "lucide-react";
 
 interface StepProps {
     draft: DraftOrder;
@@ -41,7 +41,10 @@ export function ItemsStep({ draft, updateDraft, onNext, onBack }: StepProps) {
     };
 
     const total = useMemo(() => {
-        return (draft.items || []).reduce((acc, item) => acc + item.unitPrice + (item.adjustmentAmount || 0), 0);
+        return (draft.items || []).reduce((acc, item) => {
+            const servicesTotal = (item.services || []).reduce((sAcc, s) => sAcc + s.unitPrice + (s.adjustmentAmount || 0), 0);
+            return acc + servicesTotal;
+        }, 0);
     }, [draft.items]);
 
     if (isAddingItem) {
@@ -56,6 +59,19 @@ export function ItemsStep({ draft, updateDraft, onNext, onBack }: StepProps) {
             />
         );
     }
+
+    const handleDuplicateItem = (index: number) => {
+        const itemToDuplicate = draft.items![index];
+        const newItem = {
+            ...itemToDuplicate,
+            notes: itemToDuplicate.notes ? `${itemToDuplicate.notes} (Copia)` : '(Copia)',
+            services: itemToDuplicate.services?.map(s => ({ ...s })) // Deep copy services
+        };
+        const newItems = [...(draft.items || [])];
+        // Insert after the original item
+        newItems.splice(index + 1, 0, newItem);
+        updateDraft({ items: newItems });
+    };
 
     return (
         <div className="flex flex-col h-full gap-6">
@@ -86,26 +102,36 @@ export function ItemsStep({ draft, updateDraft, onNext, onBack }: StepProps) {
                         <div key={idx} className="bg-card border border-border p-4 rounded-xl flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-bottom-2">
                             <div className="flex-1">
                                 <div className="font-bold text-lg">{item.garmentName}</div>
-                                <div className="text-muted-foreground">{item.serviceName}</div>
-                                {(item.notes || item.adjustmentReason) && (
+                                <div className="text-sm text-muted-foreground">
+                                    {item.services?.map((s, i) => (
+                                        <div key={i} className="flex gap-2">
+                                            <span>• {s.serviceName}</span>
+                                            <span className="font-mono text-xs">
+                                                ${(s.unitPrice + (s.adjustmentAmount || 0)).toFixed(2)}
+                                                {s.adjustmentAmount ? ` (Adj: ${s.adjustmentAmount})` : ''}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                                {item.notes && (
                                     <div className="text-xs text-muted-foreground mt-1 bg-secondary/50 p-1 rounded inline-block">
-                                        {item.notes} {item.adjustmentReason && `(Adj: ${item.adjustmentReason})`}
+                                        Nota: {item.notes}
                                     </div>
                                 )}
                             </div>
                             <div className="text-right px-4">
-                                <div className="font-mono font-bold text-lg">${(item.unitPrice + (item.adjustmentAmount || 0)).toFixed(2)}</div>
-                                {item.adjustmentAmount !== 0 && (
-                                    <div className={`text-xs ${(item.adjustmentAmount || 0) > 0 ? 'text-destructive' : 'text-emerald-600'}`}>
-                                        {(item.adjustmentAmount || 0) > 0 ? '+' : ''}{item.adjustmentAmount}
-                                    </div>
-                                )}
+                                <div className="font-mono font-bold text-lg">
+                                    ${(item.services || []).reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
+                                </div>
                             </div>
                             <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => handleEditItem(idx)}>
+                                <Button variant="ghost" size="icon" title="Duplicar" onClick={() => handleDuplicateItem(idx)}>
+                                    <Copy className="w-5 h-5 text-muted-foreground hover:text-primary" />
+                                </Button>
+                                <Button variant="ghost" size="icon" title="Editar" onClick={() => handleEditItem(idx)}>
                                     <Edit className="w-5 h-5 text-muted-foreground hover:text-primary" />
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(idx)}>
+                                <Button variant="ghost" size="icon" title="Eliminar" onClick={() => handleDeleteItem(idx)}>
                                     <Trash2 className="w-5 h-5 text-muted-foreground hover:text-destructive" />
                                 </Button>
                             </div>

@@ -18,6 +18,12 @@ public class AuthController {
 
     private final AuthService service;
 
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "anotame.auth.cookie.secure", defaultValue = "true")
+    boolean cookieSecure;
+
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "anotame.auth.cookie.same-site", defaultValue = "None")
+    String cookieSameSite;
+
     @POST
     @Path("/register")
     public Response register(RegisterRequest request) {
@@ -40,8 +46,8 @@ public class AuthController {
                 .path("/")
                 .maxAge(0)
                 .httpOnly(true)
-                .secure(true) // Railway uses HTTPS
-                .sameSite(NewCookie.SameSite.NONE) // Required for cross-site (Railway domains)
+                .secure(cookieSecure)
+                .sameSite(NewCookie.SameSite.valueOf(cookieSameSite))
                 .build();
 
         return Response.ok()
@@ -57,13 +63,23 @@ public class AuthController {
         return Response.ok(service.getUser(username)).build();
     }
 
+    @POST
+    @Path("/change-credentials")
+    @io.quarkus.security.Authenticated
+    public Response changeCredentials(@jakarta.ws.rs.core.Context jakarta.ws.rs.core.SecurityContext securityContext,
+            com.anotame.identity.application.dto.ChangeCredentialsRequest request) {
+        String username = securityContext.getUserPrincipal().getName();
+        AuthResponse authResponse = service.updateCredentials(username, request);
+        return createCookieResponse(authResponse);
+    }
+
     private Response createCookieResponse(AuthResponse authResponse) {
         NewCookie cookie = new NewCookie.Builder("jwt")
                 .value(authResponse.getToken())
                 .path("/")
                 .httpOnly(true) // Not accessible by JS
-                .secure(true) // Only sent over HTTPS (Railway)
-                .sameSite(NewCookie.SameSite.NONE) // Required for cross-site
+                .secure(cookieSecure)
+                .sameSite(NewCookie.SameSite.valueOf(cookieSameSite))
                 .maxAge(86400) // 24 hours (match JWT expiry if possible)
                 .build();
 

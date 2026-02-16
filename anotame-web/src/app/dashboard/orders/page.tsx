@@ -193,9 +193,16 @@ export default function ServicesPage() {
                         </td>
                         <td className="px-6 py-3 font-medium">{formatCurrency(o.totalAmount)}</td>
                         <td className="px-6 py-3">
-                          <Link href={`/dashboard/orders/${o.id}`}>
-                            <Button variant="outline" size="sm">Detalles</Button>
-                          </Link>
+                          <div className="flex gap-2">
+                            <Link href={`/dashboard/orders/${o.id}/edit`}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </Link>
+                            <Link href={`/dashboard/orders/${o.id}`}>
+                              <Button variant="outline" size="sm">Detalles</Button>
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))}

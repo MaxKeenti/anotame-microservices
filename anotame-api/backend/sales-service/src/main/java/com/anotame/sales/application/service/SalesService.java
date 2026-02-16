@@ -48,21 +48,35 @@ public class SalesService {
             OrderItem item = new OrderItem();
             item.setGarmentTypeId(itemDto.getGarmentTypeId());
             item.setGarmentName(itemDto.getGarmentName());
-            item.setServiceId(itemDto.getServiceId());
-            item.setServiceName(itemDto.getServiceName());
-            item.setUnitPrice(itemDto.getUnitPrice());
             item.setQuantity(itemDto.getQuantity());
             item.setNotes(itemDto.getNotes());
-            item.setAdjustmentAmount(
-                    itemDto.getAdjustmentAmount() != null ? itemDto.getAdjustmentAmount() : BigDecimal.ZERO);
-            item.setAdjustmentReason(itemDto.getAdjustmentReason());
 
-            BigDecimal effectivePrice = item.getUnitPrice().add(item.getAdjustmentAmount());
-            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(item.getQuantity()));
-            item.setSubtotal(subtotal);
+            BigDecimal itemSubtotal = BigDecimal.ZERO;
+
+            if (itemDto.getServices() != null) {
+                for (com.anotame.sales.application.dto.OrderItemServiceDto serviceDto : itemDto.getServices()) {
+                    com.anotame.sales.domain.model.OrderItemService service = new com.anotame.sales.domain.model.OrderItemService();
+                    service.setServiceId(serviceDto.getServiceId());
+                    service.setServiceName(serviceDto.getServiceName());
+                    service.setUnitPrice(serviceDto.getUnitPrice());
+                    service.setAdjustmentAmount(
+                            serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
+                                    : BigDecimal.ZERO);
+                    service.setAdjustmentReason(serviceDto.getAdjustmentReason());
+
+                    item.addService(service);
+
+                    BigDecimal serviceTotal = service.getUnitPrice().add(service.getAdjustmentAmount());
+                    itemSubtotal = itemSubtotal.add(serviceTotal);
+                }
+            }
+
+            // Subtotal = (Sum(Service Prices + Adjustments)) * Quantity
+            BigDecimal lineTotal = itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setSubtotal(lineTotal);
 
             order.addItem(item); // bi-directional setting
-            total = total.add(subtotal);
+            total = total.add(lineTotal);
         }
 
         order.setTotalAmount(total);
@@ -86,17 +100,29 @@ public class SalesService {
         custDto.setPhoneNumber(order.getCustomer().getPhoneNumber());
 
         java.util.List<com.anotame.sales.application.dto.OrderItemResponse> items = order.getItems().stream()
-                .map(item -> com.anotame.sales.application.dto.OrderItemResponse.builder()
-                        .id(item.getId())
-                        .garmentName(item.getGarmentName())
-                        .serviceName(item.getServiceName())
-                        .unitPrice(item.getUnitPrice())
-                        .quantity(item.getQuantity())
-                        .subtotal(item.getSubtotal())
-                        .adjustmentAmount(item.getAdjustmentAmount())
-                        .adjustmentReason(item.getAdjustmentReason())
-                        .notes(item.getNotes())
-                        .build())
+                .map(item -> {
+                    java.util.List<com.anotame.sales.application.dto.OrderItemServiceDto> serviceDtos = new java.util.ArrayList<>();
+                    if (item.getServices() != null) {
+                        serviceDtos = item.getServices().stream().map(s -> {
+                            com.anotame.sales.application.dto.OrderItemServiceDto dto = new com.anotame.sales.application.dto.OrderItemServiceDto();
+                            dto.setServiceId(s.getServiceId());
+                            dto.setServiceName(s.getServiceName());
+                            dto.setUnitPrice(s.getUnitPrice());
+                            dto.setAdjustmentAmount(s.getAdjustmentAmount());
+                            dto.setAdjustmentReason(s.getAdjustmentReason());
+                            return dto;
+                        }).collect(java.util.stream.Collectors.toList());
+                    }
+
+                    return com.anotame.sales.application.dto.OrderItemResponse.builder()
+                            .id(item.getId())
+                            .garmentName(item.getGarmentName())
+                            .services(serviceDtos)
+                            .quantity(item.getQuantity())
+                            .subtotal(item.getSubtotal())
+                            .notes(item.getNotes())
+                            .build();
+                })
                 .collect(java.util.stream.Collectors.toList());
 
         return com.anotame.sales.application.dto.OrderResponse.builder()
@@ -138,6 +164,12 @@ public class SalesService {
         if (request.getCommittedDeadline() != null) {
             order.setCommittedDeadline(request.getCommittedDeadline());
         }
+        if (request.getAmountPaid() != null) {
+            order.setAmountPaid(request.getAmountPaid());
+        }
+        if (request.getPaymentMethod() != null) {
+            order.setPaymentMethod(request.getPaymentMethod());
+        }
 
         // For items, we replace them
         // Note: This is a heavy operation, effectively replacing the order content
@@ -148,21 +180,34 @@ public class SalesService {
             OrderItem item = new OrderItem();
             item.setGarmentTypeId(itemDto.getGarmentTypeId());
             item.setGarmentName(itemDto.getGarmentName());
-            item.setServiceId(itemDto.getServiceId());
-            item.setServiceName(itemDto.getServiceName());
-            item.setUnitPrice(itemDto.getUnitPrice());
             item.setQuantity(itemDto.getQuantity());
             item.setNotes(itemDto.getNotes());
-            item.setAdjustmentAmount(
-                    itemDto.getAdjustmentAmount() != null ? itemDto.getAdjustmentAmount() : BigDecimal.ZERO);
-            item.setAdjustmentReason(itemDto.getAdjustmentReason());
 
-            BigDecimal effectivePrice = item.getUnitPrice().add(item.getAdjustmentAmount());
-            BigDecimal subtotal = effectivePrice.multiply(BigDecimal.valueOf(item.getQuantity()));
-            item.setSubtotal(subtotal);
+            BigDecimal itemSubtotal = BigDecimal.ZERO;
+
+            if (itemDto.getServices() != null) {
+                for (com.anotame.sales.application.dto.OrderItemServiceDto serviceDto : itemDto.getServices()) {
+                    com.anotame.sales.domain.model.OrderItemService service = new com.anotame.sales.domain.model.OrderItemService();
+                    service.setServiceId(serviceDto.getServiceId());
+                    service.setServiceName(serviceDto.getServiceName());
+                    service.setUnitPrice(serviceDto.getUnitPrice());
+                    service.setAdjustmentAmount(
+                            serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
+                                    : BigDecimal.ZERO);
+                    service.setAdjustmentReason(serviceDto.getAdjustmentReason());
+
+                    item.addService(service);
+
+                    BigDecimal serviceTotal = service.getUnitPrice().add(service.getAdjustmentAmount());
+                    itemSubtotal = itemSubtotal.add(serviceTotal);
+                }
+            }
+
+            BigDecimal lineTotal = itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setSubtotal(lineTotal);
 
             order.addItem(item);
-            total = total.add(subtotal);
+            total = total.add(lineTotal);
         }
         order.setTotalAmount(total);
 

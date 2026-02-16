@@ -10,11 +10,8 @@ import java.util.UUID;
 public class OrderItemResponse {
     private UUID id;
     private String garmentName;
-    private String serviceName;
-    private BigDecimal unitPrice;
+    private java.util.List<OrderItemServiceDto> services;
     private Integer quantity;
     private BigDecimal subtotal;
-    private BigDecimal adjustmentAmount;
-    private String adjustmentReason;
     private String notes;
 }

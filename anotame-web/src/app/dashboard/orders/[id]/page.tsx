@@ -97,15 +97,17 @@ export default function OrderDetailsPage({ params, searchParams }: {
       deadline: order.committedDeadline || new Date().toISOString(),
       items: order.items.map(i => ({
         garment: i.garmentName,
-        service: i.serviceName,
+        services: i.services?.map(s => ({
+          name: s.serviceName,
+          price: s.unitPrice,
+          adjustment: s.adjustmentAmount,
+          adjustmentReason: s.adjustmentReason
+        })) || [],
         notes: i.notes,
-        price: i.unitPrice,
-        adjustment: i.adjustmentAmount,
-        adjustmentReason: i.adjustmentReason,
       })),
       total: order.totalAmount,
-      amountPaid: 0,
-      balance: order.totalAmount,
+      amountPaid: order.amountPaid || 0,
+      balance: Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)),
       establishment: {
         name: establishment?.name || "ANOTAME",
         address: establishment?.taxInfo ? JSON.parse(establishment.taxInfo).address : undefined,
@@ -243,19 +245,29 @@ export default function OrderDetailsPage({ params, searchParams }: {
                 <td className="px-6 py-3">
                   <div className="font-bold">{item.garmentName}</div>
                   {item.notes && <div className="text-xs text-muted-foreground mt-1 bg-muted/30 p-1 rounded inline-block"> Nota: {item.notes}</div>}
-                  {item.adjustmentReason && <div className="text-xs text-amber-600 mt-1 font-medium"> Ajuste: {item.adjustmentReason}</div>}
                 </td>
-                <td className="px-6 py-3">{item.serviceName}</td>
-                <td className="px-6 py-3">{item.quantity}</td>
-                <td className="px-6 py-3">
-                  <div>${item.unitPrice}</div>
-                  {item.adjustmentAmount && item.adjustmentAmount !== 0 ? (
-                    <div className={`text-xs ${item.adjustmentAmount > 0 ? 'text-destructive' : 'text-emerald-600'}`}>
-                      {item.adjustmentAmount > 0 ? '+' : ''}{item.adjustmentAmount}
-                    </div>
-                  ) : null}
+                <td colSpan={3} className="px-0 py-0">
+                  <table className="w-full">
+                    <tbody className="divide-y divide-border/50">
+                      {item.services?.map((service, idx) => (
+                        <tr key={idx}>
+                          <td className="px-6 py-2 w-1/3 text-muted-foreground">{service.serviceName}</td>
+                          <td className="px-6 py-2 w-1/3 text-center">{item.quantity}</td>
+                          <td className="px-6 py-2 w-1/3">
+                            <div>${service.unitPrice}</div>
+                            {service.adjustmentAmount && service.adjustmentAmount !== 0 ? (
+                              <div className={`text-xs ${service.adjustmentAmount > 0 ? 'text-destructive' : 'text-emerald-600'}`}>
+                                {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
+                                {service.adjustmentReason && ` (${service.adjustmentReason})`}
+                              </div>
+                            ) : null}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </td>
-                <td className="px-6 py-3 font-medium">${item.subtotal}</td>
+                <td className="px-6 py-3 font-medium align-top pt-4">${item.subtotal}</td>
               </tr>
             ))}
           </tbody>
@@ -272,12 +284,13 @@ export default function OrderDetailsPage({ params, searchParams }: {
         </button>
 
         <div className="flex gap-3">
-          <button
-            onClick={() => alert("Función de editar próximamente")}
-            className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
-          >
-            Editar Pedido
-          </button>
+          <Link href={`/dashboard/orders/${order.id}/edit`}>
+            <button
+              className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
+            >
+              Editar Pedido
+            </button>
+          </Link>
           <button
             onClick={handlePrint}
             className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"

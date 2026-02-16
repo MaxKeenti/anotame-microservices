@@ -26,13 +26,15 @@ export interface CustomerDto {
 export interface OrderItemDto {
   garmentTypeId: string;
   garmentName: string;
-  serviceId: string;
-  serviceName: string;
-  unitPrice: number;
+  services: Array<{
+    serviceId: string;
+    serviceName: string;
+    unitPrice: number;
+    adjustmentAmount?: number;
+    adjustmentReason?: string;
+  }>;
   quantity: number;
   notes: string;
-  adjustmentAmount?: number;
-  adjustmentReason?: string;
 }
 
 export interface CreateOrderRequest {
@@ -45,12 +47,15 @@ export interface CreateOrderRequest {
 export interface OrderItemResponse {
   id: string;
   garmentName: string;
-  serviceName: string;
-  unitPrice: number;
+  services: Array<{
+    serviceId: string;
+    serviceName: string;
+    unitPrice: number;
+    adjustmentAmount?: number;
+    adjustmentReason?: string;
+  }>;
   quantity: number;
   subtotal: number;
-  adjustmentAmount?: number;
-  adjustmentReason?: string;
   notes: string;
 }
 
