@@ -7,6 +7,15 @@ import { ServiceResponse, ServiceRequest, GarmentTypeResponse } from "@/types/dt
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -258,8 +267,7 @@ export default function ServicesPage() {
           />
         </div>
         <div className="w-64">
-          <select
-            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          <Select
             value={garmentFilter}
             onChange={(e) => setGarmentFilter(e.target.value)}
           >
@@ -267,50 +275,52 @@ export default function ServicesPage() {
             {garments.map(g => (
               <option key={g.id} value={g.id}>{g.name}</option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Prenda</th>
-              <th className="px-4 py-3">Duración (min)</th>
-              <th className="px-4 py-3">Precio</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {loading ? (
-              <tr><td colSpan={6} className="p-4 text-center">Cargando...</td></tr>
-            ) : filteredServices.length === 0 ? (
-              <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">No se encontraron servicios.</td></tr>
-            ) : (
-              filteredServices.map((service) => {
-                const garment = garments.find(g => g.id === service.garmentTypeId);
-                return (
-                  <tr key={service.id} className="hover:bg-secondary/10 transition-colors">
-                    <td className="px-4 py-3">{service.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{garment?.name || '-'}</td>
-                    <td className="px-4 py-3">{service.defaultDurationMin}</td>
-                    <td className="px-4 py-3 font-bold">${service.basePrice.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right flex justify-end gap-2">
-                      {isAdmin && (
-                        <>
-                          <Button variant="outline" size="sm" onClick={() => handleEditClick(service)}>Editar</Button>
-                          <Button variant="danger" size="sm" onClick={() => setServiceToDelete(service)}>Eliminar</Button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="px-4">Nombre</TableHead>
+            <TableHead className="px-4">Prenda</TableHead>
+            <TableHead className="px-4">Duración (min)</TableHead>
+            <TableHead className="px-4">Precio</TableHead>
+            <TableHead className="px-4 text-right">Acciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center">Cargando...</TableCell>
+            </TableRow>
+          ) : filteredServices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">No se encontraron servicios.</TableCell>
+            </TableRow>
+          ) : (
+            filteredServices.map((service) => {
+              const garment = garments.find(g => g.id === service.garmentTypeId);
+              return (
+                <TableRow key={service.id}>
+                  <TableCell className="px-4 font-medium">{service.name}</TableCell>
+                  <TableCell className="px-4 text-muted-foreground">{garment?.name || '-'}</TableCell>
+                  <TableCell className="px-4">{service.defaultDurationMin}</TableCell>
+                  <TableCell className="px-4 font-bold">${service.basePrice.toFixed(2)}</TableCell>
+                  <TableCell className="px-4 text-right">
+                    {isAdmin && (
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleEditClick(service)}>Editar</Button>
+                        <Button variant="danger" size="sm" onClick={() => setServiceToDelete(service)}>Eliminar</Button>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          )}
+        </TableBody>
+      </Table>
 
       {/* Create Modal (Wizard) */}
       <Modal
@@ -329,9 +339,8 @@ export default function ServicesPage() {
       >
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Prenda Asociada</label>
-            <select
-              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            <Select
+              label="Prenda Asociada"
               value={formData.garmentTypeId}
               onChange={(e) => setFormData({ ...formData, garmentTypeId: e.target.value })}
             >
@@ -339,7 +348,7 @@ export default function ServicesPage() {
               {garments.map(g => (
                 <option key={g.id} value={g.id}>{g.name}</option>
               ))}
-            </select>
+            </Select>
           </div>
 
           <Input

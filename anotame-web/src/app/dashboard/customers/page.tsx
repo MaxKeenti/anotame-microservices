@@ -90,60 +90,41 @@ export default function CustomersPage() {
         </form>
       </div>
 
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[80px]">ID</TableHead>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Teléfono</TableHead>
+            <TableHead className="text-right">Acciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading ? (
             <TableRow>
-              <TableHead className="px-6">Nombre</TableHead>
-              <TableHead className="px-6">Teléfono</TableHead>
-              <TableHead className="px-6">Correo</TableHead>
-              <TableHead className="px-6 text-right">Acciones</TableHead>
+              <TableCell colSpan={5} className="h-24 text-center">Cargando...</TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  Cargando...
+          ) : customers.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">No se encontraron clientes.</TableCell>
+            </TableRow>
+          ) : (
+            customers.map((c) => (
+              <TableRow key={c.id}>
+                <TableCell className="font-medium text-xs text-muted-foreground">{c.id?.slice(0, 8) || '-'}</TableCell>
+                <TableCell className="font-medium">{c.firstName} {c.lastName}</TableCell>
+                <TableCell>{c.email}</TableCell>
+                <TableCell>{c.phoneNumber}</TableCell>
+                <TableCell className="text-right flex justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEditClick(c)}>Editar</Button>
+                  <Button variant="danger" size="sm" onClick={() => c.id && handleDeleteClick(c.id)}>Eliminar</Button>
                 </TableCell>
               </TableRow>
-            ) : customers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  No se encontraron clientes.
-                </TableCell>
-              </TableRow>
-            ) : (
-              customers.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="px-6 font-medium">
-                    {c.firstName} {c.lastName}
-                  </TableCell>
-                  <TableCell className="px-6">{c.phoneNumber}</TableCell>
-                  <TableCell className="px-6">{c.email || "-"}</TableCell>
-                  <TableCell className="px-6 text-right space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditClick(c)}
-                    >
-                      Editar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => c.id && handleDeleteClick(c.id)}
-                    >
-                      Eliminar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       <Modal
         isOpen={isModalOpen}
@@ -156,6 +137,6 @@ export default function CustomersPage() {
           onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
-    </div>
+    </div >
   );
 }

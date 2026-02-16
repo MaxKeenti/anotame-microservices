@@ -4,8 +4,17 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/Table";
 import { WorkDay, Holiday } from "@/types/dtos";
 import * as ScheduleService from "@/services/operations/schedule";
 
@@ -127,9 +136,9 @@ export default function SchedulePage() {
                                             checked={day.open}
                                             onChange={(e) => handleWorkDayChange(index, 'open', e.target.checked)}
                                         />
-                                        <span className={day.open ? "text-green-600 font-bold" : "text-gray-400"}>
+                                        <Badge variant={day.open ? "success" : "secondary"}>
                                             {day.open ? "Abierto" : "Cerrado"}
-                                        </span>
+                                        </Badge>
                                     </div>
 
                                     {day.open && (
@@ -196,43 +205,42 @@ export default function SchedulePage() {
                             {holidays.length === 0 ? (
                                 <p className="text-muted-foreground">No hay días festivos configurados.</p>
                             ) : (
-                                <div className="border rounded-md">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-secondary/20">
-                                            <tr>
-                                                <th className="p-3 text-left">Fecha</th>
-                                                <th className="p-3 text-left">Descripción</th>
-                                                <th className="p-3 text-right">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {holidays.map(h => (
-                                                <tr key={h.id} className="border-t">
-                                                    <td className="p-3 font-medium">
-                                                        {new Date(h.date).toLocaleDateString(undefined, {
-                                                            weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-                                                        })}
-                                                    </td>
-                                                    <td className="p-3">{h.description}</td>
-                                                    <td className="p-3 text-right">
-                                                        <Button
-                                                            variant="danger"
-                                                            size="sm"
-                                                            onClick={() => h.id && handleDeleteHoliday(h.id)}
-                                                        >
-                                                            Eliminar
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="p-3 text-left">Fecha</TableHead>
+                                            <TableHead className="p-3 text-left">Descripción</TableHead>
+                                            <TableHead className="p-3 text-right">Acciones</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {holidays.map(h => (
+                                            <TableRow key={h.id}>
+                                                <TableCell className="p-3 font-medium">
+                                                    {new Date(h.date).toLocaleDateString(undefined, {
+                                                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+                                                    })}
+                                                </TableCell>
+                                                <TableCell className="p-3">{h.description}</TableCell>
+                                                <TableCell className="p-3 text-right">
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        onClick={() => h.id && handleDeleteHoliday(h.id)}
+                                                    >
+                                                        Eliminar
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             )}
                         </CardContent>
                     </Card>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

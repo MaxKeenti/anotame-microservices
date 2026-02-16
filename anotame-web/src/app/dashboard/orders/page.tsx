@@ -8,8 +8,18 @@ import { OrderResponse, GarmentTypeResponse } from "@/types/dtos";
 import { DraftsService, DraftOrder } from "@/services/local/DraftsService";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 import { DatePicker } from "@/components/ui/DatePicker";
-import { translateStatus, getStatusColor } from "@/utils/statusUtils";
+import { Badge } from "@/components/ui/Badge";
+import { translateStatus, getStatusColor, getBadgeVariant } from "@/utils/statusUtils";
 import { formatCurrency, formatDate } from "@/utils/formatUtils";
 import { Edit, Trash2 } from "lucide-react";
 
@@ -136,9 +146,8 @@ export default function ServicesPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium mb-1 block text-muted-foreground">Filtrar por Prenda</label>
-              <select
-                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              <Select
+                label="Filtrar por Prenda"
                 value={garmentFilter}
                 onChange={(e) => setGarmentFilter(e.target.value)}
               >
@@ -146,121 +155,123 @@ export default function ServicesPage() {
                 {garments.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <DatePicker
                 label="Fecha de Entrega"
                 value={dateFilter}
                 onChange={(date) => {
-                  const isoDate = date.toISOString().split('T')[0];
+                  const isoDate = date ? date.toISOString().split('T')[0] : "";
                   setDateFilter(isoDate);
                 }}
               />
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-                  <tr>
-                    <th className="px-6 py-3">Ticket</th>
-                    <th className="px-6 py-3">Cliente</th>
-                    <th className="px-6 py-3">Prendas (Resumen)</th>
-                    <th className="px-6 py-3">Estado</th>
-                    <th className="px-6 py-3">Entrega</th>
-                    <th className="px-6 py-3">Total</th>
-                    <th className="px-6 py-3">Acción</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {loading ? <tr><td colSpan={7} className="p-4 text-center">Cargando...</td></tr> :
-                    filteredOrders.map(o => (
-                      <tr key={o.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="px-6 py-3 font-mono font-medium">{o.ticketNumber}</td>
-                        <td className="px-6 py-3">{o.customer.firstName} {o.customer.lastName}</td>
-                        <td className="px-6 py-3 text-muted-foreground text-xs max-w-[200px] truncate">
-                          {o.items.map(i => i.garmentName).join(", ")}
-                        </td>
-                        <td className="px-6 py-3">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(o.status)}`}>
-                            {translateStatus(o.status)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-3 text-muted-foreground">
-                          {formatDate(o.committedDeadline)}
-                        </td>
-                        <td className="px-6 py-3 font-medium">{formatCurrency(o.totalAmount)}</td>
-                        <td className="px-6 py-3">
-                          <div className="flex gap-2">
-                            <Link href={`/dashboard/orders/${o.id}/edit`}>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            </Link>
-                            <Link href={`/dashboard/orders/${o.id}`}>
-                              <Button variant="outline" size="sm">Detalles</Button>
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  {!loading && filteredOrders.length === 0 && <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">No se encontraron pedidos.</td></tr>}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-6">Ticket</TableHead>
+                <TableHead className="px-6">Cliente</TableHead>
+                <TableHead className="px-6">Prendas (Resumen)</TableHead>
+                <TableHead className="px-6">Estado</TableHead>
+                <TableHead className="px-6">Entrega</TableHead>
+                <TableHead className="px-6">Total</TableHead>
+                <TableHead className="px-6">Acción</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">Cargando...</TableCell>
+                </TableRow>
+              ) : filteredOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">No se encontraron pedidos.</TableCell>
+                </TableRow>
+              ) : (
+                filteredOrders.map(o => (
+                  <TableRow key={o.id}>
+                    <TableCell className="px-6 font-mono font-medium">{o.ticketNumber}</TableCell>
+                    <TableCell className="px-6">{o.customer.firstName} {o.customer.lastName}</TableCell>
+                    <TableCell className="px-6 text-muted-foreground text-xs max-w-[200px] truncate">
+                      {o.items.map(i => i.garmentName).join(", ")}
+                    </TableCell>
+                    <TableCell className="px-6">
+                      <Badge variant={getBadgeVariant(o.status)}>
+                        {translateStatus(o.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="px-6 text-muted-foreground">
+                      {formatDate(o.committedDeadline)}
+                    </TableCell>
+                    <TableCell className="px-6 font-medium">{formatCurrency(o.totalAmount)}</TableCell>
+                    <TableCell className="px-6">
+                      <div className="flex gap-2">
+                        <Link href={`/dashboard/orders/${o.id}/edit`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Link href={`/dashboard/orders/${o.id}`}>
+                          <Button variant="outline" size="sm">Detalles</Button>
+                        </Link>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </>
       ) : (
         /* Drafts View */
-        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-                <tr>
-                  <th className="px-6 py-3">ID (Temporal)</th>
-                  <th className="px-6 py-3">Cliente</th>
-                  <th className="px-6 py-3">Prendas</th>
-                  <th className="px-6 py-3">Última Modificación</th>
-                  <th className="px-6 py-3 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {drafts.length === 0 ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No hay borradores guardados</td></tr>
-                ) : (
-                  drafts.map(d => (
-                    <tr key={d.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-6 py-3 font-mono text-xs">{d.id.slice(0, 8)}...</td>
-                      <td className="px-6 py-3 font-medium">
-                        {d.customer?.firstName ? `${d.customer.firstName} ${d.customer.lastName || ''}` : <span className="text-muted-foreground italic">Sin nombre</span>}
-                      </td>
-                      <td className="px-6 py-3">
-                        {d.items?.length || 0} prendas
-                      </td>
-                      <td className="px-6 py-3 text-muted-foreground">
-                        {new Date(d.lastModified).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link href={`/dashboard/orders/new?draftId=${d.id}`}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </Link>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive" onClick={() => handleDeleteDraft(d.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="px-6">ID (Temporal)</TableHead>
+              <TableHead className="px-6">Cliente</TableHead>
+              <TableHead className="px-6">Prendas</TableHead>
+              <TableHead className="px-6">Última Modificación</TableHead>
+              <TableHead className="px-6 text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {drafts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">No hay borradores guardados</TableCell>
+              </TableRow>
+            ) : (
+              drafts.map(d => (
+                <TableRow key={d.id}>
+                  <TableCell className="px-6 font-mono text-xs">{d.id.slice(0, 8)}...</TableCell>
+                  <TableCell className="px-6 font-medium">
+                    {d.customer?.firstName ? `${d.customer.firstName} ${d.customer.lastName || ''}` : <span className="text-muted-foreground italic">Sin nombre</span>}
+                  </TableCell>
+                  <TableCell className="px-6">
+                    {d.items?.length || 0} prendas
+                  </TableCell>
+                  <TableCell className="px-6 text-muted-foreground">
+                    {new Date(d.lastModified).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="px-6 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/dashboard/orders/new?draftId=${d.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive" onClick={() => handleDeleteDraft(d.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       )}
     </div>
   );

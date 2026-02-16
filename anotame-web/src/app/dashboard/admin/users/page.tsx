@@ -3,7 +3,16 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/Table";
 import { UserResponse } from "@/types/dtos";
 import * as UserService from "@/services/identity/users";
 import { EmployeeWizard } from "@/components/users/EmployeeWizard";
@@ -62,32 +71,32 @@ export default function EmployeesPage() {
                     {isLoading ? (
                         <div className="p-8 text-center">Cargando...</div>
                     ) : (
-                        <table className="w-full text-sm">
-                            <thead className="border-b bg-muted/50">
-                                <tr className="text-left">
-                                    <th className="p-4 font-medium">ID</th>
-                                    <th className="p-4 font-medium">Nombre</th>
-                                    <th className="p-4 font-medium">Usuario</th>
-                                    <th className="p-4 font-medium">Rol</th>
-                                    <th className="p-4 font-medium">Correo</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="p-4">ID</TableHead>
+                                    <TableHead className="p-4">Nombre</TableHead>
+                                    <TableHead className="p-4">Usuario</TableHead>
+                                    <TableHead className="p-4">Rol</TableHead>
+                                    <TableHead className="p-4">Correo</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {users.map(u => (
-                                    <tr key={u.id} className="border-b hover:bg-muted/50">
-                                        <td className="p-4 font-mono text-xs">{u.id.substring(0, 8)}...</td>
-                                        <td className="p-4">{u.firstName} {u.lastName}</td>
-                                        <td className="p-4 font-bold">{u.username}</td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                {u.role}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-muted-foreground">{u.email}</td>
-                                    </tr>
+                                    <TableRow key={u.id}>
+                                        <TableCell className="p-4 font-mono text-xs text-muted-foreground">{u.id.substring(0, 8)}...</TableCell>
+                                        <TableCell className="p-4">{u.firstName} {u.lastName}</TableCell>
+                                        <TableCell className="p-4 font-bold">{u.username}</TableCell>
+                                        <TableCell className="p-4">
+                                            <Badge variant={u.role === 'ADMIN' ? 'default' : 'secondary'}>
+                                                {u.role === 'ADMIN' ? 'ADMINISTRADOR' : 'EMPLEADO'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="p-4 text-muted-foreground">{u.email}</TableCell>
+                                    </TableRow>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TableBody>
+                        </Table>
                     )}
                 </CardContent>
             </Card>

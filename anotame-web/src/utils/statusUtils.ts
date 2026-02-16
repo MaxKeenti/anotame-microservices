@@ -27,3 +27,23 @@ export function translateStatus(status: string): string {
 export function getStatusColor(status: string): string {
     return STATUS_COLORS[status] || 'bg-gray-100 text-gray-800';
 }
+// Helper to map status to Badge variant
+export function getBadgeVariant(status: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" {
+    switch (status) {
+        case 'COMPLETED':
+        case 'READY':
+        case 'PAID':
+            return 'success';
+        case 'CANCELLED':
+        case 'UNPAID':
+            return 'destructive';
+        case 'PENDING':
+        case 'IN_PROGRESS':
+            return 'warning';
+        case 'RECEIVED':
+        case 'DELIVERED':
+            return 'secondary';
+        default:
+            return 'default';
+    }
+}

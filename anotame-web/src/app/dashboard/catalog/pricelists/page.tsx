@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/Table";
 import { getPriceLists, deletePriceList } from "@/services/catalog/pricelists";
 import { PriceListResponse } from "@/types/dtos";
 
@@ -63,57 +71,55 @@ export default function PriceListsPage() {
                     ) : lists.length === 0 ? (
                         <div className="text-muted-foreground">No se encontraron listas de precios.</div>
                     ) : (
-                        <div className="border rounded-md">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-secondary/50 border-b">
-                                    <tr>
-                                        <th className="p-4">Nombre</th>
-                                        <th className="p-4">Prioridad</th>
-                                        <th className="p-4">Válido Desde</th>
-                                        <th className="p-4">Válido Hasta</th>
-                                        <th className="p-4">Estado</th>
-                                        {isAdmin && <th className="p-4 text-right">Acciones</th>}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {lists.map((list) => (
-                                        <tr key={list.id} className="border-b last:border-0 hover:bg-secondary/10">
-                                            <td className="p-4 font-medium">{list.name}</td>
-                                            <td className="p-4">{list.priority}</td>
-                                            <td className="p-4">{new Date(list.validFrom).toLocaleDateString()}</td>
-                                            <td className="p-4">
-                                                {list.validTo ? new Date(list.validTo).toLocaleDateString() : "Permanente"}
-                                            </td>
-                                            <td className="p-4">
-                                                {list.active ? (
-                                                    <span className="text-green-600 font-bold">Activa</span>
-                                                ) : (
-                                                    <span className="text-gray-500">Inactiva</span>
-                                                )}
-                                            </td>
-                                            {isAdmin && (
-                                                <td className="p-4 text-right space-x-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => router.push(`/dashboard/catalog/pricelists/${list.id}`)}
-                                                    >
-                                                        Ver
-                                                    </Button>
-                                                    <Button
-                                                        variant="danger"
-                                                        size="sm"
-                                                        onClick={() => handleDelete(list.id)}
-                                                    >
-                                                        Eliminar
-                                                    </Button>
-                                                </td>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="p-4">Nombre</TableHead>
+                                    <TableHead className="p-4">Prioridad</TableHead>
+                                    <TableHead className="p-4">Válido Desde</TableHead>
+                                    <TableHead className="p-4">Válido Hasta</TableHead>
+                                    <TableHead className="p-4">Estado</TableHead>
+                                    {isAdmin && <TableHead className="p-4 text-right">Acciones</TableHead>}
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {lists.map((list) => (
+                                    <TableRow key={list.id} className="border-b last:border-0 hover:bg-secondary/10">
+                                        <TableCell className="p-4 font-medium">{list.name}</TableCell>
+                                        <TableCell className="p-4">{list.priority}</TableCell>
+                                        <TableCell className="p-4">{new Date(list.validFrom).toLocaleDateString()}</TableCell>
+                                        <TableCell className="p-4">
+                                            {list.validTo ? new Date(list.validTo).toLocaleDateString() : "Permanente"}
+                                        </TableCell>
+                                        <TableCell className="p-4">
+                                            {list.active ? (
+                                                <span className="text-green-600 font-bold">Activa</span>
+                                            ) : (
+                                                <span className="text-gray-500">Inactiva</span>
                                             )}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                        </TableCell>
+                                        {isAdmin && (
+                                            <TableCell className="p-4 text-right space-x-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => router.push(`/dashboard/catalog/pricelists/${list.id}`)}
+                                                >
+                                                    Ver
+                                                </Button>
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(list.id)}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            </TableCell>
+                                        )}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     )}
                 </CardContent>
             </Card>

@@ -7,8 +7,9 @@ import { API_SALES } from "@/lib/api";
 import { OrderResponse, Establishment } from "@/types/dtos";
 import { getSettings } from "@/services/operations/establishment";
 import { generateReceiptHtml } from "@/utils/receipt-generator";
-import { translateStatus, getStatusColor } from "@/utils/statusUtils";
+import { translateStatus, getBadgeVariant } from "@/utils/statusUtils";
 import { formatCurrency, formatDateTime } from "@/utils/formatUtils";
+import { Badge } from "@/components/ui/Badge";
 
 
 
@@ -165,9 +166,9 @@ export default function OrderDetailsPage({ params, searchParams }: {
           ← Atrás
         </Link>
         <h1 className="text-2xl font-bold font-heading">Pedido {order.ticketNumber}</h1>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+        <Badge variant={getBadgeVariant(order.status)}>
           {translateStatus(order.status)}
-        </span>
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

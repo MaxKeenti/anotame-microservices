@@ -6,6 +6,14 @@ import { GarmentTypeResponse, GarmentTypeRequest } from "@/types/dtos";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -137,37 +145,39 @@ export default function GarmentsPage() {
         </div>
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Descripción</th>
-              {isAdmin && <th className="px-4 py-3 text-right">Acciones</th>}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {loading ? (
-              <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center">Cargando...</td></tr>
-            ) : filteredGarments.length === 0 ? (
-              <tr><td colSpan={isAdmin ? 4 : 3} className="p-4 text-center text-muted-foreground">No se encontraron prendas.</td></tr>
-            ) : (
-              filteredGarments.map((garment) => (
-                <tr key={garment.id} className="hover:bg-secondary/10 transition-colors">
-                  <td className="px-4 py-3">{garment.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{garment.description}</td>
-                  {isAdmin && (
-                    <td className="px-4 py-3 text-right flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditClick(garment)}>Editar</Button>
-                      <Button variant="danger" size="sm" onClick={() => handleDeleteClick(garment)}>Eliminar</Button>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="px-4">Nombre</TableHead>
+            <TableHead className="px-4">Descripción</TableHead>
+            {isAdmin && <TableHead className="px-4 text-right">Acciones</TableHead>}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={isAdmin ? 4 : 3} className="h-24 text-center">Cargando...</TableCell>
+            </TableRow>
+          ) : filteredGarments.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={isAdmin ? 4 : 3} className="h-24 text-center text-muted-foreground">No se encontraron prendas.</TableCell>
+            </TableRow>
+          ) : (
+            filteredGarments.map((garment) => (
+              <TableRow key={garment.id}>
+                <TableCell className="px-4 font-medium">{garment.name}</TableCell>
+                <TableCell className="px-4 text-muted-foreground">{garment.description}</TableCell>
+                {isAdmin && (
+                  <TableCell className="px-4 text-right flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEditClick(garment)}>Editar</Button>
+                    <Button variant="danger" size="sm" onClick={() => handleDeleteClick(garment)}>Eliminar</Button>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       {/* Create Modal */}
       <Modal
