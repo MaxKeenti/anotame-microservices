@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { GarmentTypeResponse, ServiceResponse } from "@/types/dtos";
 import { API_CATALOG } from "@/lib/api";
-import { ArrowLeft, Check, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from "lucide-react";
 
 interface SubWizardProps {
     initialItem?: any;
@@ -13,18 +13,32 @@ interface SubWizardProps {
     onCancel: () => void;
 }
 
+interface AddedService {
+    serviceId: string;
+    serviceName: string;
+    unitPrice: number;
+    adjustmentAmount: number;
+    adjustmentReason: string;
+}
+
 export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps) {
-    const [step, setStep] = useState(initialItem ? 2 : 0); // 0=Garment, 1=Service, 2=Price, 3=Notes
+    // Steps: 0=Garment, 1=Manage Services, 2=Configure Service, 3=Notes
+    const [step, setStep] = useState(initialItem ? 1 : 0);
     const [garmentTypes, setGarmentTypes] = useState<GarmentTypeResponse[]>([]);
     const [services, setServices] = useState<ServiceResponse[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Form State
     const [selectedGarment, setSelectedGarment] = useState<GarmentTypeResponse | null>(null);
-    const [selectedService, setSelectedService] = useState<ServiceResponse | null>(null);
+    const [addedServices, setAddedServices] = useState<AddedService[]>([]);
+
+    // Config Service State
+    const [tempService, setTempService] = useState<ServiceResponse | null>(null);
     const [price, setPrice] = useState<string>("");
     const [adj, setAdj] = useState<string>("");
     const [adjReason, setAdjReason] = useState("");
+
+    // Garment Notes
     const [notes, setNotes] = useState("");
 
     // Load Catalog
@@ -44,12 +58,11 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                     // If editing, hydrate state
                     if (initialItem) {
                         const g = gData.find((x: GarmentTypeResponse) => x.id === initialItem.garmentId);
-                        const s = sData.find((x: ServiceResponse) => x.id === initialItem.serviceId);
                         if (g) setSelectedGarment(g);
-                        if (s) setSelectedService(s);
-                        setPrice(String(initialItem.unitPrice));
-                        setAdj(String(initialItem.adjustmentAmount || ""));
-                        setAdjReason(initialItem.adjustmentReason || "");
+
+                        if (initialItem.services) {
+                            setAddedServices(initialItem.services);
+                        }
                         setNotes(initialItem.notes || "");
                     }
                 }
@@ -68,26 +81,15 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
     const filteredServices = useMemo(() => {
         if (!selectedGarment) return [];
 
-        // 1. Initial set: either all (if showAll) or strictly filtered by ID relationship
         let candidates = services;
 
         if (!showAllServices) {
-            // Strict Filter: Database Relationship (Primary)
+            // Strict Filter: Database Relationship
             const byId = services.filter(s => s.garmentTypeId === selectedGarment.id);
-
-            // If we have matches by ID, use them.
-            // This relies on the backend being updated and returning populated garmentTypeId.
             if (byId.length > 0) {
                 candidates = byId;
             } else {
-                // Fallback to Code/Name if ID not yet populated or no matches found (e.g. backend outdated)
-
-
-                // If still empty, we might let the name-sorter do the work on the full list? 
-                // No, better to show empty and let user click "Show All" or fallback to name filter.
-                // Let's stick to the code/ID strictness requested.
-                // If candidates is still 'services' (because byId was empty AND codeMatches was empty), 
-                // we should probably default to Name Match filter to avoid showing everything unrelated.
+                // Name match fallback
                 if (candidates === services) {
                     const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     const garmentName = normalize(selectedGarment.name);
@@ -103,7 +105,7 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
             }
         }
 
-        // 2. Sort the candidates by relevance (Name match)
+        // Sort
         const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const garmentName = normalize(selectedGarment.name);
         const searchTerms = [garmentName];
@@ -113,13 +115,10 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
         return candidates.sort((a, b) => {
             const aName = normalize(a.name);
             const bName = normalize(b.name);
-
             const aMatch = searchTerms.some(term => aName.includes(term));
             const bMatch = searchTerms.some(term => bName.includes(term));
-
             if (aMatch && !bMatch) return -1;
             if (!aMatch && bMatch) return 1;
-
             return a.name.localeCompare(b.name);
         });
     }, [selectedGarment, services, showAllServices]);
@@ -127,48 +126,81 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
 
     const handleGarmentSelect = (g: GarmentTypeResponse) => {
         setSelectedGarment(g);
-        setSelectedService(null);
-        setPrice("");
+        setAddedServices([]);
         setStep(1);
-        setShowAllServices(false); // Reset on new garment
+        setShowAllServices(false);
     };
 
     const handleServiceSelect = (s: ServiceResponse) => {
-        setSelectedService(s);
+        setTempService(s);
         setPrice(String(s.effectivePrice ?? s.basePrice));
+        setAdj("");
+        setAdjReason("");
         setStep(2);
     };
 
-    const handleConfirm = () => {
-        if (!selectedGarment || !selectedService) return;
+    const handleAddService = () => {
+        if (!tempService) return;
+
+        const newService: AddedService = {
+            serviceId: tempService.id,
+            serviceName: tempService.name,
+            unitPrice: parseFloat(price) || 0,
+            adjustmentAmount: parseFloat(adj) || 0,
+            adjustmentReason: adjReason
+        };
+
+        setAddedServices([...addedServices, newService]);
+        setTempService(null);
+        setStep(3); // Go to Notes/Review directly
+    };
+
+    const handleRemoveService = (index: number) => {
+        const next = [...addedServices];
+        next.splice(index, 1);
+        setAddedServices(next);
+    };
+
+    const handleConfirmItem = () => {
+        if (!selectedGarment) return;
 
         onSave({
             garmentId: selectedGarment.id,
             garmentName: selectedGarment.name,
-            serviceId: selectedService.id,
-            serviceName: selectedService.name,
-            unitPrice: parseFloat(price) || 0,
-            adjustmentAmount: parseFloat(adj) || 0,
-            adjustmentReason: adjReason,
+            services: addedServices,
             notes: notes
         });
     };
 
-    if (loading) return <div className="p-8 text-center">Cargando catálogo...</div>;
+    const handleNextToNotes = () => {
+        setStep(3);
+    };
+
+    if (loading) return <div className="p-8 text-center animate-pulse">Cargando catálogo...</div>;
 
     return (
         <div className="flex flex-col h-full bg-background relative animate-in fade-in slide-in-from-right duration-300">
+            {/* Header */}
             <div className="flex items-center gap-4 border-b border-border pb-4 mb-4">
-                {step > 0 && <Button variant="ghost" size="sm" onClick={() => setStep(step - 1)} className="px-2"><ArrowLeft className="w-6 h-6" /></Button>}
+                {step > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => {
+                        if (step === 2) setStep(1);
+                        else if (step === 3) setStep(1);
+                        else if (step === 1) setStep(0);
+                    }} className="px-2">
+                        <ArrowLeft className="w-6 h-6" />
+                    </Button>
+                )}
                 <h3 className="text-xl font-bold truncate">
                     {step === 0 ? "Selecciona Prenda" :
-                        step === 1 ? "Selecciona Servicio" :
-                            step === 2 ? "Precio y Ajustes" : "Notas"}
+                        step === 1 ? "Agregar Servicios" :
+                            step === 2 ? "Configurar Servicio" : "Notas de la Prenda"}
                 </h3>
                 <Button variant="ghost" size="sm" onClick={onCancel} className="ml-auto text-destructive hover:bg-destructive/10">Cancelar</Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-1">
+            <div className="flex-1 overflow-y-auto px-1 custom-scrollbar">
+                {/* STEP 0: Select Garment */}
                 {step === 0 && (
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         {garmentTypes.map(g => (
@@ -177,70 +209,93 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                                 onClick={() => handleGarmentSelect(g)}
                                 className="h-24 flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all active:scale-95 shadow-sm"
                             >
-                                <span className="font-bold text-lg lg:text-xl text-center px-2 wrap-break-word leading-tight">{g.name}</span>
+                                <span className="font-bold text-lg lg:text-xl text-center px-2 leading-tight">{g.name}</span>
                             </button>
                         ))}
                     </div>
                 )}
 
-                {step === 1 && (
-                    <div className="space-y-4">
-                        {/* Toggle Show All */}
-                        <div className="flex justify-end px-1">
-                            <button
-                                onClick={() => setShowAllServices(!showAllServices)}
-                                className="text-sm text-primary underline hover:text-primary/80 transition-colors"
-                            >
-                                {showAllServices ? "Mostrar solo recomendados" : "Mostrar todos los servicios"}
-                            </button>
+                {/* STEP 1: Manage Services */}
+                {step === 1 && selectedGarment && (
+                    <div className="space-y-6">
+                        {/* Selected Garment Header */}
+                        <div className="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
+                            <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center text-2xl shadow-sm">👕</div>
+                            <div className="font-bold text-xl">{selectedGarment.name}</div>
                         </div>
 
-                        {filteredServices.length === 0 ? (
-                            <div className="col-span-full text-center py-12 text-muted-foreground flex flex-col items-center gap-4">
-                                <div className="text-lg">No hay servicios recomendados para esta prenda.</div>
-                                <Button variant="outline" onClick={() => setShowAllServices(true)} className="mt-2">
-                                    Mostrar catálogo completo
-                                </Button>
-                                <Button variant="ghost" onClick={() => setStep(0)}>Volver a Prendas</Button>
+                        {/* Added Services List */}
+                        {addedServices.length > 0 && (
+                            <div className="space-y-2">
+                                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Servicios Agregados</h4>
+                                {addedServices.map((s, idx) => (
+                                    <div key={idx} className="bg-card border border-border p-3 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
+                                        <div>
+                                            <div className="font-medium">{s.serviceName}</div>
+                                            {s.adjustmentReason && <div className="text-xs text-muted-foreground">Adj: {s.adjustmentReason}</div>}
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="text-right">
+                                                <div className="font-mono font-bold">${(s.unitPrice + s.adjustmentAmount).toFixed(2)}</div>
+                                            </div>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleRemoveService(idx)}>
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div className="text-right font-bold pt-2 border-t text-lg">
+                                    Total: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                </div>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        )}
+
+                        {/* Add Services Section */}
+                        <div className="space-y-3 pt-2">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Agregar Servicio</h4>
+                                <button
+                                    onClick={() => setShowAllServices(!showAllServices)}
+                                    className="text-xs text-primary underline"
+                                >
+                                    {showAllServices ? "Ver recomendados" : "Ver todos"}
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredServices.map(s => (
                                     <button
                                         key={s.id}
                                         onClick={() => handleServiceSelect(s)}
-                                        className="p-6 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-4 transition-all active:scale-95 text-left shadow-sm min-h-[100px]"
+                                        className="h-24 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-4 transition-all text-left bg-card shadow-sm active:scale-95"
                                     >
-                                        <div className="flex-1">
-                                            <div className="font-bold text-lg">{s.name}</div>
-                                            <div className="text-sm text-muted-foreground line-clamp-2">{s.description}</div>
-                                        </div>
-                                        <div className="font-mono font-bold text-xl bg-secondary px-3 py-1 rounded flex flex-col items-end">
-                                            {s.effectivePrice && s.effectivePrice !== s.basePrice ? (
-                                                <>
-                                                    <span className="text-xs text-muted-foreground line-through">${s.basePrice}</span>
-                                                    <span className="text-primary">${s.effectivePrice}</span>
-                                                </>
-                                            ) : (
-                                                <span>${s.basePrice}</span>
+                                        <span className="font-bold text-sm lg:text-base leading-tight line-clamp-2">{s.name}</span>
+                                        <div className="flex flex-col items-end">
+                                            {s.effectivePrice && s.effectivePrice !== s.basePrice && (
+                                                <span className="text-xs text-muted-foreground line-through">${s.basePrice}</span>
                                             )}
+                                            <span className="font-mono bg-secondary px-2 py-1 rounded text-sm font-bold text-primary">
+                                                ${s.effectivePrice ?? s.basePrice}
+                                            </span>
                                         </div>
                                     </button>
                                 ))}
+                                {filteredServices.length === 0 && (
+                                    <div className="col-span-full text-center py-8 text-muted-foreground">
+                                        No hay servicios recomendados.
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
                 )}
 
-                {step >= 2 && (
-                    <div className="max-w-md mx-auto space-y-8 py-4 px-2">
-                        {/* Summary Header */}
-                        <div className="bg-secondary/30 p-4 rounded-xl flex items-center gap-4 border border-border">
-                            <div className="w-14 h-14 bg-background rounded-full flex items-center justify-center text-3xl shadow-sm">👕</div>
-                            <div className="overflow-hidden">
-                                <div className="font-bold text-lg truncate">{selectedGarment?.name}</div>
-                                <div className="text-muted-foreground truncate">{selectedService?.name}</div>
-                            </div>
+                {/* STEP 2: Configure Service */}
+                {step === 2 && tempService && (
+                    <div className="max-w-md mx-auto space-y-6 py-4">
+                        <div className="text-center space-y-1">
+                            <h4 className="text-lg font-bold">{tempService.name}</h4>
+                            <p className="text-sm text-muted-foreground">{tempService.description}</p>
                         </div>
 
                         <div className="space-y-2">
@@ -271,18 +326,50 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                                 <label className="text-sm font-medium">Razón Ajuste</label>
                                 <Input
                                     className="h-14"
-                                    placeholder="Difícil / Descuento"
+                                    placeholder="Motivo..."
                                     value={adjReason}
                                     onChange={e => setAdjReason(e.target.value)}
                                 />
                             </div>
                         </div>
 
+                        <Button size="lg" className="w-full h-14 text-lg mt-8" onClick={handleAddService}>
+                            Confirmar Servicio
+                        </Button>
+                    </div>
+                )}
+
+                {/* STEP 3: Garment Notes */}
+                {step === 3 && (
+                    <div className="space-y-6 pt-4">
+                        <div className="bg-secondary/20 p-4 rounded-xl border border-border">
+                            <h4 className="font-bold text-lg mb-2">{selectedGarment?.name}</h4>
+                            <ul className="space-y-1 text-sm text-muted-foreground">
+                                {addedServices.map((s, i) => (
+                                    <li key={i}>• {s.serviceName} (${(s.unitPrice + s.adjustmentAmount).toFixed(2)})</li>
+                                ))}
+                            </ul>
+                            <div className="mt-3 pt-3 border-t border-dashed border-foreground/20 flex flex-col items-end gap-2">
+                                <div className="font-bold text-lg">
+                                    Total: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setStep(1)}
+                                    className="text-xs"
+                                >
+                                    <Plus className="w-3 h-3 mr-1" />
+                                    Agregar otro servicio
+                                </Button>
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Notas de la Prenda</label>
+                            <label className="text-sm font-medium">Notas Generales de la Prenda</label>
                             <textarea
-                                className="w-full min-h-[120px] rounded-xl border border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                                placeholder="Detalles específicos para el sastre..."
+                                className="w-full min-h-[150px] rounded-xl border border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                                placeholder="Detalles específicos para el sastre sobre esta prenda..."
                                 value={notes}
                                 onChange={e => setNotes(e.target.value)}
                             />
@@ -291,9 +378,23 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                 )}
             </div>
 
-            {step >= 2 && (
+            {/* Footer Actions */}
+            {step === 1 && (
                 <div className="pt-4 border-t border-border mt-auto pb-4">
-                    <Button size="lg" className="w-full h-16 text-xl rounded-xl shadow-lg" onClick={handleConfirm}>
+                    <Button
+                        size="lg"
+                        className="w-full h-14 text-lg shadow-md"
+                        onClick={handleNextToNotes}
+                        disabled={addedServices.length === 0}
+                    >
+                        Continuar
+                    </Button>
+                </div>
+            )}
+
+            {step === 3 && (
+                <div className="pt-4 border-t border-border mt-auto pb-4">
+                    <Button size="lg" className="w-full h-16 text-xl rounded-xl shadow-lg" onClick={handleConfirmItem}>
                         <CheckCircle2 className="mr-2 w-6 h-6" />
                         Confirmar Prenda
                     </Button>

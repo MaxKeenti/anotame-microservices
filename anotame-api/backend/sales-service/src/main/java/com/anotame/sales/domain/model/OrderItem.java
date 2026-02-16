@@ -11,14 +11,18 @@ public class OrderItem {
     @JsonIgnore
     private Order order;
     private UUID garmentTypeId;
-    private UUID serviceId;
-    private String serviceName;
+
+    // Services
+    private java.util.List<OrderItemService> services = new java.util.ArrayList<>();
+
     private String garmentName;
-    private BigDecimal unitPrice;
     private Integer quantity = 1;
     private BigDecimal subtotal;
-    private BigDecimal adjustmentAmount;
-    private String adjustmentReason;
+
     private String notes;
     private boolean deleted = false;
+
+    public void addService(OrderItemService service) {
+        services.add(service);
+    }
 }

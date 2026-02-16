@@ -3,11 +3,13 @@ import { CreateOrderRequest, OrderItemDto } from "@/types/dtos";
 export interface DraftOrderItem extends Partial<OrderItemDto> {
     garmentId?: string; // Used in wizard before mapping to garmentTypeId
     garmentName?: string;
-    serviceId?: string;
-    serviceName?: string;
-    unitPrice: number;
-    adjustmentAmount?: number;
-    adjustmentReason?: string;
+    services: Array<{
+        serviceId: string;
+        serviceName: string;
+        unitPrice: number;
+        adjustmentAmount?: number;
+        adjustmentReason?: string;
+    }>;
     notes?: string;
 }
 

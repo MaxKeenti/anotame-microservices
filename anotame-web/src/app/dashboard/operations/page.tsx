@@ -78,7 +78,7 @@ export default function WorkOrdersPage() {
                     </span>
                   </td>
                   <td className="px-6 py-3 text-xs">
-                    {wo.items.map(i => i.serviceName).join(", ")}
+                    {wo.items.map(i => i.services?.map(s => s.serviceName).join(", ")).filter(Boolean).join("; ")}
                   </td>
                   <td className="px-6 py-3 text-muted-foreground text-xs">
                     {formatDate(wo.committedDeadline)}

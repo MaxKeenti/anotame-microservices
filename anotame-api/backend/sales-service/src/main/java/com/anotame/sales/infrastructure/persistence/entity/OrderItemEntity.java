@@ -29,28 +29,17 @@ public class OrderItemEntity {
     @Column(name = "id_garment_type", nullable = false)
     private UUID garmentTypeId;
 
-    @Column(name = "id_service", nullable = false)
-    private UUID serviceId;
-
-    @Column(name = "service_name")
-    private String serviceName;
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<OrderItemServiceEntity> services = new java.util.ArrayList<>();
 
     @Column(name = "garment_name")
     private String garmentName;
 
-    @Column(name = "unit_price", precision = 19, scale = 4)
-    private BigDecimal unitPrice;
-
+    @Column(name = "quantity", nullable = false)
     private Integer quantity = 1;
 
     @Column(name = "subtotal", precision = 19, scale = 4)
     private BigDecimal subtotal;
-
-    @Column(name = "adjustment_amount", precision = 19, scale = 4)
-    private BigDecimal adjustmentAmount = BigDecimal.ZERO;
-
-    @Column(name = "adjustment_reason")
-    private String adjustmentReason;
 
     private String notes;
 

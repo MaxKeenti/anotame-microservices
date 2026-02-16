@@ -25,7 +25,10 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
     const [error, setError] = useState<string | null>(null);
 
     const total = useMemo(() => {
-        return (draft.items || []).reduce((acc, item) => acc + item.unitPrice + (item.adjustmentAmount || 0), 0);
+        return (draft.items || []).reduce((acc, item) => {
+            const itemTotal = (item.services || []).reduce((sAcc: number, s: any) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0), 0);
+            return acc + itemTotal;
+        }, 0);
     }, [draft.items]);
 
     const balance = Math.max(0, total - (draft.amountPaid || 0));
@@ -57,15 +60,17 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
 
         try {
             const orderItems: OrderItemDto[] = draft.items.map(item => ({
-                garmentTypeId: item.garmentTypeId || item.garmentId || "", // Handle both just in case
+                garmentTypeId: item.garmentTypeId || item.garmentId || "",
                 garmentName: item.garmentName || "",
-                serviceId: item.serviceId || "",
-                serviceName: item.serviceName || "",
-                unitPrice: item.unitPrice,
                 quantity: 1,
                 notes: item.notes || "",
-                adjustmentAmount: item.adjustmentAmount,
-                adjustmentReason: item.adjustmentReason
+                services: item.services?.map((s: any) => ({
+                    serviceId: s.serviceId,
+                    serviceName: s.serviceName,
+                    unitPrice: s.unitPrice,
+                    adjustmentAmount: s.adjustmentAmount,
+                    adjustmentReason: s.adjustmentReason
+                })) || []
             }));
 
             // Format deadline to LocalDateTime (YYYY-MM-DDTHH:mm:ss)

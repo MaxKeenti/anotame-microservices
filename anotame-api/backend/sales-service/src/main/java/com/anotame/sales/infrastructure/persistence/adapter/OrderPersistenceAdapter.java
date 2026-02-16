@@ -50,29 +50,38 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setCreatedBy(order.getCreatedBy());
 
         // Map items
-        // Simplified: Clear and re-add for now, or careful merge.
-        // Given complexity, let's assume creation mainly.
-        // For updates, we'd need smarter diffing.
-        // Assuming creation for MVP migration step.
+        // Simplified: Clear and re-add for now
         entity.getItems().clear();
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
                 OrderItemEntity ie = new OrderItemEntity();
                 ie.setGarmentTypeId(item.getGarmentTypeId());
-                ie.setServiceId(item.getServiceId());
-                ie.setServiceName(item.getServiceName());
                 ie.setGarmentName(item.getGarmentName());
-                ie.setUnitPrice(item.getUnitPrice());
                 ie.setQuantity(item.getQuantity());
                 ie.setSubtotal(item.getSubtotal());
-                ie.setAdjustmentAmount(item.getAdjustmentAmount());
-                ie.setAdjustmentReason(item.getAdjustmentReason());
                 ie.setNotes(item.getNotes());
-                entity.addItem(ie);
+
+                // Map Services
+                if (item.getServices() != null) {
+                    for (com.anotame.sales.domain.model.OrderItemService service : item.getServices()) {
+                        com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity se = new com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity();
+                        se.setServiceId(service.getServiceId());
+                        se.setServiceName(service.getServiceName());
+                        se.setUnitPrice(service.getUnitPrice());
+                        se.setAdjustmentAmount(service.getAdjustmentAmount());
+                        se.setAdjustmentReason(service.getAdjustmentReason());
+                        se.setOrderItem(ie); // Link parent
+                        ie.getServices().add(se);
+                    }
+                }
+
+                entity.addItem(ie); // This also sets the order in OrderEntity.addItem if correctly implemented
+                // Manually ensure link if addItem is simple add
+                ie.setOrder(entity);
             }
         }
 
-        // Link Customer (Must exist)
+        // Link Customer
         if (order.getCustomer() != null && order.getCustomer().getId() != null) {
             CustomerEntity customerEntity = customerRepository.findById(order.getCustomer().getId());
             if (customerEntity != null) {
@@ -118,7 +127,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         o.setDeletedAt(entity.getDeletedAt());
         o.setDeleted(entity.isDeleted());
 
-        // Map Customer (Simplified)
+        // Map Customer
         if (entity.getCustomer() != null) {
             com.anotame.sales.domain.model.Customer c = new com.anotame.sales.domain.model.Customer();
             c.setId(entity.getCustomer().getId());
@@ -135,15 +144,26 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 OrderItem item = new OrderItem();
                 item.setId(ie.getId());
                 item.setGarmentTypeId(ie.getGarmentTypeId());
-                item.setServiceId(ie.getServiceId());
-                item.setServiceName(ie.getServiceName());
                 item.setGarmentName(ie.getGarmentName());
-                item.setUnitPrice(ie.getUnitPrice());
                 item.setQuantity(ie.getQuantity());
                 item.setSubtotal(ie.getSubtotal());
-                item.setAdjustmentAmount(ie.getAdjustmentAmount());
-                item.setAdjustmentReason(ie.getAdjustmentReason());
                 item.setNotes(ie.getNotes());
+
+                // Map Services
+                if (ie.getServices() != null) {
+                    for (com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity se : ie
+                            .getServices()) {
+                        com.anotame.sales.domain.model.OrderItemService s = new com.anotame.sales.domain.model.OrderItemService();
+                        s.setId(se.getId());
+                        s.setServiceId(se.getServiceId());
+                        s.setServiceName(se.getServiceName());
+                        s.setUnitPrice(se.getUnitPrice());
+                        s.setAdjustmentAmount(se.getAdjustmentAmount());
+                        s.setAdjustmentReason(se.getAdjustmentReason());
+                        item.addService(s);
+                    }
+                }
+
                 o.addItem(item);
             }
         }
