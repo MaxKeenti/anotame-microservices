@@ -76,9 +76,6 @@ build_and_push "operations-service" "anotame-api/backend" "anotame-api/backend/o
 # 4. Catalog Service
 build_and_push "catalog-service" "anotame-api/backend" "anotame-api/backend/catalog-service/Dockerfile"
 
-# 5. Web Frontend
-build_and_push "web" "anotame-web" "anotame-web/Dockerfile"
-
 echo "========================================================"
 echo "All images built and pushed successfully!"
 echo "You can now verify them at: https://github.com/$USERNAME?tab=packages"
