@@ -65,7 +65,7 @@ export function DashboardHeader() {
                 <h1 className="text-3xl font-heading font-bold text-foreground">
                     Inicio
                 </h1>
-                <p className="text-muted-foreground flex items-center gap-2 mt-2 capitalize">
+                <p className="text-muted-foreground flex items-center gap-2 mt-2 capitalize" suppressHydrationWarning>
                     <Clock className="w-4 h-4" />
                     {formattedDate} • {formattedTime}
                 </p>

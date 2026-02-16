@@ -58,6 +58,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 ie.setGarmentTypeId(item.getGarmentTypeId());
                 ie.setGarmentName(item.getGarmentName());
                 ie.setQuantity(item.getQuantity());
+                ie.setUnitPrice(item.getUnitPrice());
                 ie.setSubtotal(item.getSubtotal());
                 ie.setNotes(item.getNotes());
 
@@ -146,6 +147,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 item.setGarmentTypeId(ie.getGarmentTypeId());
                 item.setGarmentName(ie.getGarmentName());
                 item.setQuantity(ie.getQuantity());
+                item.setUnitPrice(ie.getUnitPrice());
                 item.setSubtotal(ie.getSubtotal());
                 item.setNotes(ie.getNotes());
 
