@@ -47,7 +47,7 @@ public class AuthController {
                 .maxAge(0)
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .sameSite(NewCookie.SameSite.valueOf(cookieSameSite))
+                .sameSite(NewCookie.SameSite.valueOf(cookieSameSite.toUpperCase()))
                 .build();
 
         return Response.ok()
@@ -79,7 +79,7 @@ public class AuthController {
                 .path("/")
                 .httpOnly(true) // Not accessible by JS
                 .secure(cookieSecure)
-                .sameSite(NewCookie.SameSite.valueOf(cookieSameSite))
+                .sameSite(NewCookie.SameSite.valueOf(cookieSameSite.toUpperCase()))
                 .maxAge(86400) // 24 hours (match JWT expiry if possible)
                 .build();
 
