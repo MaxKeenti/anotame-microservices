@@ -31,6 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} antialiased`}>
+      <head>
+        <meta name="apple-mobile-web-app-title" content="Anotame" />
+      </head>
       <body className="bg-background text-foreground font-sans min-h-screen selection:bg-primary selection:text-white">
         <AuthProvider>
           {children}
