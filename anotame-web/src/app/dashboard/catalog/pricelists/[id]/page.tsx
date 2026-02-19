@@ -166,13 +166,13 @@ export default function EditPriceListPage() {
                         <div className="flex flex-wrap gap-2 items-center p-4 bg-secondary/10 rounded-lg border border-border">
                             <span className="text-sm font-medium mr-2">Bulk Adjust:</span>
                             {[5, 10, 15, 20].map(amount => (
-                                <Button key={`plus-${amount}`} type="button" variant="outline" size="sm" onClick={() => handleBulkAdjustment(amount)} className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200">
+                                <Button key={`plus-${amount}`} type="button" variant="outline" size="sm" onClick={() => handleBulkAdjustment(amount)} className="text-success hover:text-success/90 hover:bg-success-muted border-success/30">
                                     + ${amount}
                                 </Button>
                             ))}
                             <div className="w-px h-6 bg-border mx-2" />
                             {[5, 10, 15, 20].map(amount => (
-                                <Button key={`minus-${amount}`} type="button" variant="outline" size="sm" onClick={() => handleBulkAdjustment(-amount)} className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200">
+                                <Button key={`minus-${amount}`} type="button" variant="outline" size="sm" onClick={() => handleBulkAdjustment(-amount)} className="text-destructive hover:text-destructive/90 hover:bg-destructive-muted border-destructive/30">
                                     - ${amount}
                                 </Button>
                             ))}

@@ -198,7 +198,7 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
 
                     <div className="bg-card border border-border p-4 rounded-xl flex flex-col justify-center items-center">
                         <div className="text-sm text-muted-foreground">Saldo Pendiente</div>
-                        <div className={`text-3xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-emerald-600'}`}>
+                        <div className={`text-3xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-success'}`}>
                             ${balance.toFixed(2)}
                         </div>
                     </div>

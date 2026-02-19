@@ -14,55 +14,154 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-border: var(--border);
-  
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-success-text: var(--success-text);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-text: var(--warning-text);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-muted: var(--destructive-muted);
+  --color-destructive-text: var(--destructive-text);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-muted: var(--info-muted);
+  --color-info-text: var(--info-text);
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui;
   --font-heading: var(--font-outfit), ui-sans-serif, system-ui;
 }
 
 /* Premium Color Palette (Slate & Indigo) */
 :root {
-  --background: #f8fafc; /* Slate 50 */
-  --foreground: #0f172a; /* Slate 900 */
-  
-  --primary: #4f46e5; /* Indigo 600 */
+  --background: #f8fafc;
+  /* Slate 50 */
+  --foreground: #0f172a;
+  /* Slate 900 */
+
+  --primary: #4f46e5;
+  /* Indigo 600 */
   --primary-foreground: #ffffff;
-  
-  --secondary: #e2e8f0; /* Slate 200 */
-  --secondary-foreground: #1e293b; /* Slate 800 */
-  
-  --muted: #f1f5f9; /* Slate 100 */
-  --muted-foreground: #64748b; /* Slate 500 */
-  
-  --accent: #f5f3ff; /* Violet 50 */
-  --accent-foreground: #4f46e5; /* Indigo 600 */
-  
+
+  --secondary: #e2e8f0;
+  /* Slate 200 */
+  --secondary-foreground: #1e293b;
+  /* Slate 800 */
+
+  --muted: #f1f5f9;
+  /* Slate 100 */
+  --muted-foreground: #64748b;
+  /* Slate 500 */
+
+  --accent: #f5f3ff;
+  /* Violet 50 */
+  --accent-foreground: #4f46e5;
+  /* Indigo 600 */
+
   --card: #ffffff;
   --card-foreground: #0f172a;
-  
-  --border: #e2e8f0; /* Slate 200 */
+
+  --border: #e2e8f0;
+  /* Slate 200 */
+
+  --success: #10b981;
+  /* Emerald 500 */
+  --success-foreground: #ffffff;
+  --success-muted: #d1fae5;
+  /* Emerald 100 */
+  --success-text: #065f46;
+  /* Emerald 800 */
+
+  --warning: #f59e0b;
+  /* Amber 500 */
+  --warning-foreground: #ffffff;
+  --warning-muted: #fef3c7;
+  /* Amber 100 */
+  --warning-text: #92400e;
+  /* Amber 800 */
+
+  --destructive: #ef4444;
+  /* Red 500 */
+  --destructive-foreground: #ffffff;
+  --destructive-muted: #fee2e2;
+  /* Red 100 */
+  --destructive-text: #991b1b;
+  /* Red 800 */
+
+  --info: #3b82f6;
+  /* Blue 500 */
+  --info-foreground: #ffffff;
+  --info-muted: #dbeafe;
+  /* Blue 100 */
+  --info-text: #1e40af;
+  /* Blue 800 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a; /* Slate 900 */
-    --foreground: #f8fafc; /* Slate 50 */
-    
-    --primary: #6366f1; /* Indigo 500 */
+    --background: #0f172a;
+    /* Slate 900 */
+    --foreground: #f8fafc;
+    /* Slate 50 */
+
+    --primary: #6366f1;
+    /* Indigo 500 */
     --primary-foreground: #ffffff;
-    
-    --secondary: #1e293b; /* Slate 800 */
+
+    --secondary: #1e293b;
+    /* Slate 800 */
     --secondary-foreground: #f8fafc;
-    
+
     --muted: #1e293b;
-    --muted-foreground: #94a3b8; /* Slate 400 */
-    
-    --accent: #1e1b4b; /* Indigo 950 */
-    --accent-foreground: #818cf8; /* Indigo 400 */
-    
+    --muted-foreground: #94a3b8;
+    /* Slate 400 */
+
+    --accent: #1e1b4b;
+    /* Indigo 950 */
+    --accent-foreground: #818cf8;
+    /* Indigo 400 */
+
     --card: #1e293b;
     --card-foreground: #f8fafc;
-    
-    --border: #334155; /* Slate 700 */
+
+    --border: #334155;
+    /* Slate 700 */
+
+    --success: #059669;
+    /* Emerald 600 */
+    --success-foreground: #ffffff;
+    --success-muted: rgba(16, 185, 129, 0.2);
+    /* Emerald 500 / 20 */
+    --success-text: #6ee7b7;
+    /* Emerald 300 */
+
+    --warning: #d97706;
+    /* Amber 600 */
+    --warning-foreground: #ffffff;
+    --warning-muted: rgba(245, 158, 11, 0.2);
+    --warning-text: #fcd34d;
+    /* Amber 300 */
+
+    --destructive: #dc2626;
+    /* Red 600 */
+    --destructive-foreground: #ffffff;
+    --destructive-muted: rgba(239, 68, 68, 0.2);
+    --destructive-text: #fca5a5;
+    /* Red 300 */
+
+    --info: #2563eb;
+    /* Blue 600 */
+    --info-foreground: #ffffff;
+    --info-muted: rgba(59, 130, 246, 0.2);
+    --info-text: #93c5fd;
+    /* Blue 300 */
   }
 }
 

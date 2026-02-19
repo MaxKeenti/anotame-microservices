@@ -72,7 +72,7 @@ export function CustomerForm({ initialData, onSuccess, onCancel }: CustomerFormP
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="p-3 text-sm text-red-600 bg-red-100 rounded-md">
+        <div className="p-3 text-sm text-destructive-text bg-destructive-muted rounded-md">
           {error}
         </div>
       )}

@@ -16,9 +16,8 @@ export function StatCard({ title, value, trend, trendUp }: StatCardProps) {
         </span>
         {trend && (
           <span
-            className={`text-sm font-medium ${
-              trendUp ? "text-emerald-600" : "text-rose-600"
-            }`}
+            className={`text-sm font-medium ${trendUp ? "text-success" : "text-destructive"
+              }`}
           >
             {trend}
           </span>

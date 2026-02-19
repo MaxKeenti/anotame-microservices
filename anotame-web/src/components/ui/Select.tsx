@@ -20,7 +20,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                     <select
                         className={cn(
                             "flex h-10 w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none",
-                            error ? "border-red-500" : "border-border",
+                            error ? "border-destructive" : "border-border",
                             className
                         )}
                         ref={ref}
@@ -38,7 +38,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                         </svg>
                     </div>
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
         );
     }

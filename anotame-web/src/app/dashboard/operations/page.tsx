@@ -84,7 +84,7 @@ export default function WorkOrdersPage() {
                     {formatDate(wo.committedDeadline)}
                   </td>
                   <td className="px-6 py-3 text-right">
-                    <button onClick={() => handleComplete(wo.id)} className="text-green-600 hover:underline font-medium">Marcar Listo</button>
+                    <button onClick={() => handleComplete(wo.id)} className="text-success hover:underline font-medium">Marcar Listo</button>
                   </td>
                 </tr>
               ))}

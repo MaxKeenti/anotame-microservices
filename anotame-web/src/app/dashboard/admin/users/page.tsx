@@ -79,7 +79,7 @@ export default function EmployeesPage() {
                                         <td className="p-4">{u.firstName} {u.lastName}</td>
                                         <td className="p-4 font-bold">{u.username}</td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'ADMIN' ? 'bg-accent text-accent-foreground' : 'bg-info-muted text-info-text'}`}>
                                                 {u.role}
                                             </span>
                                         </td>

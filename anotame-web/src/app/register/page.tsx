@@ -40,7 +40,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50/50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <h1 className="text-3xl font-heading font-bold text-foreground">
@@ -54,7 +54,7 @@ export default function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm text-center">
+              <div className="bg-destructive-muted text-destructive-text p-3 rounded-md text-sm text-center">
                 {error}
               </div>
             )}

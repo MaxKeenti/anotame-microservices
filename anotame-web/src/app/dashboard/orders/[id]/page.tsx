@@ -206,11 +206,11 @@ export default function OrderDetailsPage({ params, searchParams }: {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">A cuenta:</span>
-              <span className="font-medium text-emerald-600">-{formatCurrency(order.amountPaid)}</span>
+              <span className="font-medium text-success">-{formatCurrency(order.amountPaid)}</span>
             </div>
             <div className="border-t border-border pt-2 flex justify-between items-center">
               <span className="font-bold">Saldo Pendiente:</span>
-              <span className={`text-xl font-bold ${((order.totalAmount || 0) - (order.amountPaid || 0)) > 0.01 ? 'text-destructive' : 'text-emerald-600'}`}>
+              <span className={`text-xl font-bold ${((order.totalAmount || 0) - (order.amountPaid || 0)) > 0.01 ? 'text-destructive' : 'text-success'}`}>
                 {formatCurrency(Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)))}
               </span>
             </div>
@@ -220,7 +220,7 @@ export default function OrderDetailsPage({ params, searchParams }: {
 
       {/* Order Notes */}
       {order.notes && (
-        <div className="bg-yellow-50/50 p-4 rounded-xl border border-yellow-200 text-yellow-900">
+        <div className="bg-warning-muted/50 p-4 rounded-xl border border-warning/30 text-warning-text">
           <h3 className="font-semibold mb-1 text-sm uppercase tracking-wide opacity-70">Notas Generales</h3>
           <p className="text-sm font-medium">{order.notes}</p>
         </div>
@@ -256,7 +256,7 @@ export default function OrderDetailsPage({ params, searchParams }: {
                           <td className="px-6 py-2 w-1/3">
                             <div>${service.unitPrice}</div>
                             {service.adjustmentAmount && service.adjustmentAmount !== 0 ? (
-                              <div className={`text-xs ${service.adjustmentAmount > 0 ? 'text-destructive' : 'text-emerald-600'}`}>
+                              <div className={`text-xs ${service.adjustmentAmount > 0 ? 'text-destructive' : 'text-success'}`}>
                                 {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
                                 {service.adjustmentReason && ` (${service.adjustmentReason})`}
                               </div>
@@ -278,7 +278,7 @@ export default function OrderDetailsPage({ params, searchParams }: {
       <div className="flex justify-between pt-4 border-t border-border">
         <button
           onClick={handleCancel}
-          className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
+          className="px-4 py-2 text-destructive hover:bg-destructive-muted rounded-lg font-medium transition-colors"
         >
           Cancelar Pedido
         </button>

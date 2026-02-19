@@ -123,11 +123,11 @@ export default function SchedulePage() {
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="checkbox"
-                                            className="w-5 h-5 border-gray-300 rounded"
+                                            className="w-5 h-5 border-border rounded"
                                             checked={day.open}
                                             onChange={(e) => handleWorkDayChange(index, 'open', e.target.checked)}
                                         />
-                                        <span className={day.open ? "text-green-600 font-bold" : "text-gray-400"}>
+                                        <span className={day.open ? "text-success font-bold" : "text-muted-foreground"}>
                                             {day.open ? "Abierto" : "Cerrado"}
                                         </span>
                                     </div>

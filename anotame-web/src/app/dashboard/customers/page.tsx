@@ -132,7 +132,7 @@ export default function CustomersPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-red-500 hover:text-red-600"
+                      className="text-destructive hover:text-destructive/90"
                       onClick={() => c.id && handleDeleteClick(c.id)}
                     >
                       Eliminar
