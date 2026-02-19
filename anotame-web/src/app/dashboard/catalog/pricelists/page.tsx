@@ -93,9 +93,9 @@ export default function PriceListsPage() {
                                         </TableCell>
                                         <TableCell className="p-4">
                                             {list.active ? (
-                                                <span className="text-green-600 font-bold">Activa</span>
+                                                <span className="text-success font-bold">Activa</span>
                                             ) : (
-                                                <span className="text-gray-500">Inactiva</span>
+                                                <span className="text-muted-foreground">Inactiva</span>
                                             )}
                                         </TableCell>
                                         {isAdmin && (

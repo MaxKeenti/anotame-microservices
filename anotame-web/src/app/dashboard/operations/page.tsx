@@ -101,7 +101,7 @@ export default function WorkOrdersPage() {
                 {formatDate(wo.committedDeadline)}
               </TableCell>
               <TableCell className="px-6 py-3 text-right">
-                <Button variant="ghost" size="sm" onClick={() => handleComplete(wo.id)} className="text-green-600 hover:text-green-700 hover:bg-green-50">Marcar Listo</Button>
+                <Button variant="ghost" size="sm" onClick={() => handleComplete(wo.id)} className="text-success hover:text-success hover:bg-success/10">Marcar Listo</Button>
               </TableCell>
             </TableRow>
           ))}

@@ -124,7 +124,7 @@ export default function SchedulePage() {
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
                             {workDays.map((day, index) => (
-                                <div key={day.dayOfWeek} className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/5">
+                                <div key={day.dayOfWeek} className="flex items-center gap-4 p-4 border border-border rounded-lg bg-card">
                                     <div className="w-32 font-medium">
                                         {/* Simple translation mapping */}
                                         {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][day.dayOfWeek - 1]}
@@ -132,7 +132,7 @@ export default function SchedulePage() {
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="checkbox"
-                                            className="w-5 h-5 border-gray-300 rounded"
+                                            className="w-5 h-5 border-border rounded accent-primary"
                                             checked={day.open}
                                             onChange={(e) => handleWorkDayChange(index, 'open', e.target.checked)}
                                         />
