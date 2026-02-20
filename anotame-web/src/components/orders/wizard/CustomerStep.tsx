@@ -93,17 +93,18 @@ export function CustomerStep({ draft, updateDraft, onNext, onBack }: StepProps) 
                             {results.length > 0 && (
                                 <div className="absolute top-FULL left-0 right-0 mt-2 bg-popover border border-border rounded-xl shadow-xl z-20 max-h-80 overflow-y-auto">
                                     {results.map(c => (
-                                        <button
+                                        <Button
                                             key={c.id}
-                                            className="w-full text-left p-4 hover:bg-secondary border-b border-border last:border-0 flex items-center justify-between group transition-colors"
+                                            variant="ghost"
+                                            className="w-full h-auto text-left p-4 hover:bg-secondary border-b border-border last:border-0 flex items-center justify-between group transition-colors rounded-none font-normal"
                                             onClick={() => selectCustomer(c)}
                                         >
-                                            <div>
+                                            <div className="text-left">
                                                 <div className="font-bold text-lg group-hover:text-primary">{c.firstName} {c.lastName}</div>
                                                 <div className="text-sm text-muted-foreground">{c.phoneNumber}</div>
                                             </div>
                                             <div className="opacity-0 group-hover:opacity-100 text-primary">Seleccionar &rarr;</div>
-                                        </button>
+                                        </Button>
                                     ))}
                                 </div>
                             )}

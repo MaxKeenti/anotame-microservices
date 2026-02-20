@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { CreateUserRequest } from "@/types/dtos";
 
@@ -39,15 +40,14 @@ export function AccountStep({ data, updateData, onNext, onBack }: AccountStepPro
                 />
 
                 <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Rol</label>
-                    <select
-                        className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    <Select
+                        label="Rol"
                         value={data.role || "EMPLOYEE"}
                         onChange={e => updateData({ role: e.target.value })}
                     >
                         <option value="EMPLOYEE">Empleado</option>
                         <option value="ADMIN">Administrador</option>
-                    </select>
+                    </Select>
                 </div>
 
                 <Input

@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
 import { GarmentTypeResponse, ServiceResponse } from "@/types/dtos";
 import { API_CATALOG } from "@/lib/api";
 import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from "lucide-react";
@@ -207,13 +208,14 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                 {step === 0 && (
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         {garmentTypes.map(g => (
-                            <button
+                            <Button
                                 key={g.id}
+                                variant="outline"
                                 onClick={() => handleGarmentSelect(g)}
-                                className="h-24 flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all active:scale-95 shadow-sm"
+                                className="h-24 flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal"
                             >
-                                <span className="font-bold text-lg lg:text-xl text-center px-2 leading-tight">{g.name}</span>
-                            </button>
+                                <span className="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full">{g.name}</span>
+                            </Button>
                         ))}
                     </div>
                 )}
@@ -257,23 +259,25 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                         <div className="space-y-3 pt-2">
                             <div className="flex justify-between items-center">
                                 <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Agregar Servicio</h4>
-                                <button
+                                <Button
+                                    variant="ghost"
                                     onClick={() => setShowAllServices(!showAllServices)}
-                                    className="text-xs text-primary underline"
+                                    className="text-xs text-primary underline h-auto p-0 hover:bg-transparent"
                                 >
                                     {showAllServices ? "Ver recomendados" : "Ver todos"}
-                                </button>
+                                </Button>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredServices.map(s => (
-                                    <button
+                                    <Button
                                         key={s.id}
+                                        variant="outline"
                                         onClick={() => handleServiceSelect(s)}
-                                        className="h-24 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-4 transition-all text-left bg-card shadow-sm active:scale-95"
+                                        className="h-24 p-4 rounded-xl border-2 hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-4 transition-all text-left bg-card shadow-sm w-full whitespace-normal"
                                     >
-                                        <span className="font-bold text-sm lg:text-base leading-tight line-clamp-2">{s.name}</span>
-                                        <div className="flex flex-col items-end">
+                                        <span className="font-bold text-sm lg:text-base leading-tight w-full line-clamp-2">{s.name}</span>
+                                        <div className="flex flex-col items-end flex-shrink-0">
                                             {s.effectivePrice && s.effectivePrice !== s.basePrice && (
                                                 <span className="text-xs text-muted-foreground line-through">${s.basePrice}</span>
                                             )}
@@ -281,7 +285,7 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
                                                 ${s.effectivePrice ?? s.basePrice}
                                             </span>
                                         </div>
-                                    </button>
+                                    </Button>
                                 ))}
                                 {filteredServices.length === 0 && (
                                     <div className="col-span-full text-center py-8 text-muted-foreground">
@@ -370,8 +374,8 @@ export function ItemSubWizard({ initialItem, onSave, onCancel }: SubWizardProps)
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Notas Generales de la Prenda</label>
-                            <textarea
-                                className="w-full min-h-[150px] rounded-xl border border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                            <Textarea
+                                className="min-h-[150px] resize-none"
                                 placeholder="Detalles específicos para el sastre sobre esta prenda..."
                                 value={notes}
                                 onChange={e => setNotes(e.target.value)}

@@ -5,6 +5,8 @@ import { API_SALES } from "@/lib/api"; // Changed to API_SALES
 import { OrderResponse } from "@/types/dtos"; // Changed type
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 import { formatDate } from "@/utils/formatUtils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
 
 export default function WorkOrdersPage() {
   const [workOrders, setWorkOrders] = useState<OrderResponse[]>([]);
@@ -55,42 +57,42 @@ export default function WorkOrdersPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-            <tr>
-              <th className="px-6 py-3">Orden de Venta</th>
-              <th className="px-6 py-3">Cliente</th>
-              <th className="px-6 py-3">Estado</th>
-              <th className="px-6 py-3">Prendas</th>
-              <th className="px-6 py-3">Fecha Límite</th>
-              <th className="px-6 py-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {loading ? <tr><td colSpan={6} className="p-4 text-center">Cargando...</td></tr> :
+        <Table className="w-full text-sm text-left">
+          <TableHeader className="bg-muted/50 text-muted-foreground uppercase text-xs">
+            <TableRow>
+              <TableHead className="px-6 py-3">Orden de Venta</TableHead>
+              <TableHead className="px-6 py-3">Cliente</TableHead>
+              <TableHead className="px-6 py-3">Estado</TableHead>
+              <TableHead className="px-6 py-3">Prendas</TableHead>
+              <TableHead className="px-6 py-3">Fecha Límite</TableHead>
+              <TableHead className="px-6 py-3 text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-border">
+            {loading ? <TableRow><TableCell colSpan={6} className="p-4 text-center">Cargando...</TableCell></TableRow> :
               workOrders.map(wo => (
-                <tr key={wo.id} className="hover:bg-muted/30">
-                  <td className="px-6 py-3 font-medium font-mono text-xs">{wo.ticketNumber}</td>
-                  <td className="px-6 py-3 text-xs">{wo.customer.firstName} {wo.customer.lastName}</td>
-                  <td className="px-6 py-3">
+                <TableRow key={wo.id} className="hover:bg-muted/30">
+                  <TableCell className="px-6 py-3 font-medium font-mono text-xs">{wo.ticketNumber}</TableCell>
+                  <TableCell className="px-6 py-3 text-xs">{wo.customer.firstName} {wo.customer.lastName}</TableCell>
+                  <TableCell className="px-6 py-3">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(wo.status)}`}>
                       {translateStatus(wo.status)}
                     </span>
-                  </td>
-                  <td className="px-6 py-3 text-xs">
+                  </TableCell>
+                  <TableCell className="px-6 py-3 text-xs">
                     {wo.items.map(i => i.services?.map(s => s.serviceName).join(", ")).filter(Boolean).join("; ")}
-                  </td>
-                  <td className="px-6 py-3 text-muted-foreground text-xs">
+                  </TableCell>
+                  <TableCell className="px-6 py-3 text-muted-foreground text-xs">
                     {formatDate(wo.committedDeadline)}
-                  </td>
-                  <td className="px-6 py-3 text-right">
-                    <button onClick={() => handleComplete(wo.id)} className="text-success hover:underline font-medium">Marcar Listo</button>
-                  </td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="px-6 py-3 text-right">
+                    <Button variant="ghost" size="sm" onClick={() => handleComplete(wo.id)} className="text-success hover:underline font-medium">Marcar Listo</Button>
+                  </TableCell>
+                </TableRow>
               ))}
-            {!loading && workOrders.length === 0 && <tr><td colSpan={6} className="p-4 text-center">No hay órdenes en progreso.</td></tr>}
-          </tbody>
-        </table>
+            {!loading && workOrders.length === 0 && <TableRow><TableCell colSpan={6} className="p-4 text-center">No hay órdenes en progreso.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

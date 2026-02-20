@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { getPriceLists, deletePriceList } from "@/services/catalog/pricelists";
 import { PriceListResponse } from "@/types/dtos";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -64,35 +65,35 @@ export default function PriceListsPage() {
                         <div className="text-muted-foreground">No se encontraron listas de precios.</div>
                     ) : (
                         <div className="border rounded-md">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-secondary/50 border-b">
-                                    <tr>
-                                        <th className="p-4">Nombre</th>
-                                        <th className="p-4">Prioridad</th>
-                                        <th className="p-4">Válido Desde</th>
-                                        <th className="p-4">Válido Hasta</th>
-                                        <th className="p-4">Estado</th>
-                                        {isAdmin && <th className="p-4 text-right">Acciones</th>}
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            <Table className="w-full text-sm text-left">
+                                <TableHeader className="bg-secondary/50 border-b">
+                                    <TableRow>
+                                        <TableHead className="p-4">Nombre</TableHead>
+                                        <TableHead className="p-4">Prioridad</TableHead>
+                                        <TableHead className="p-4">Válido Desde</TableHead>
+                                        <TableHead className="p-4">Válido Hasta</TableHead>
+                                        <TableHead className="p-4">Estado</TableHead>
+                                        {isAdmin && <TableHead className="p-4 text-right">Acciones</TableHead>}
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
                                     {lists.map((list) => (
-                                        <tr key={list.id} className="border-b last:border-0 hover:bg-secondary/10">
-                                            <td className="p-4 font-medium">{list.name}</td>
-                                            <td className="p-4">{list.priority}</td>
-                                            <td className="p-4">{new Date(list.validFrom).toLocaleDateString()}</td>
-                                            <td className="p-4">
+                                        <TableRow key={list.id} className="border-b last:border-0 hover:bg-secondary/10">
+                                            <TableCell className="p-4 font-medium">{list.name}</TableCell>
+                                            <TableCell className="p-4">{list.priority}</TableCell>
+                                            <TableCell className="p-4">{new Date(list.validFrom).toLocaleDateString()}</TableCell>
+                                            <TableCell className="p-4">
                                                 {list.validTo ? new Date(list.validTo).toLocaleDateString() : "Permanente"}
-                                            </td>
-                                            <td className="p-4">
+                                            </TableCell>
+                                            <TableCell className="p-4">
                                                 {list.active ? (
                                                     <span className="text-success font-bold">Activa</span>
                                                 ) : (
                                                     <span className="text-muted-foreground">Inactiva</span>
                                                 )}
-                                            </td>
+                                            </TableCell>
                                             {isAdmin && (
-                                                <td className="p-4 text-right space-x-2">
+                                                <TableCell className="p-4 text-right space-x-2">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -107,12 +108,12 @@ export default function PriceListsPage() {
                                                     >
                                                         Eliminar
                                                     </Button>
-                                                </td>
+                                                </TableCell>
                                             )}
-                                        </tr>
+                                        </TableRow>
                                     ))}
-                                </tbody>
-                            </table>
+                                </TableBody>
+                            </Table>
                         </div>
                     )}
                 </CardContent>

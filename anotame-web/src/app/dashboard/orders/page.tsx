@@ -8,7 +8,9 @@ import { OrderResponse, GarmentTypeResponse } from "@/types/dtos";
 import { DraftsService, DraftOrder } from "@/services/local/DraftsService";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 import { formatCurrency, formatDate } from "@/utils/formatUtils";
 import { Edit, Trash2 } from "lucide-react";
@@ -137,8 +139,7 @@ export default function ServicesPage() {
             </div>
             <div>
               <label className="text-xs font-medium mb-1 block text-muted-foreground">Filtrar por Prenda</label>
-              <select
-                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              <Select
                 value={garmentFilter}
                 onChange={(e) => setGarmentFilter(e.target.value)}
               >
@@ -146,7 +147,7 @@ export default function ServicesPage() {
                 {garments.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <DatePicker
@@ -162,37 +163,37 @@ export default function ServicesPage() {
 
           <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-                  <tr>
-                    <th className="px-6 py-3">Ticket</th>
-                    <th className="px-6 py-3">Cliente</th>
-                    <th className="px-6 py-3">Prendas (Resumen)</th>
-                    <th className="px-6 py-3">Estado</th>
-                    <th className="px-6 py-3">Entrega</th>
-                    <th className="px-6 py-3">Total</th>
-                    <th className="px-6 py-3">Acción</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {loading ? <tr><td colSpan={7} className="p-4 text-center">Cargando...</td></tr> :
+              <Table className="w-full text-sm text-left">
+                <TableHeader className="bg-muted/50 text-muted-foreground uppercase text-xs">
+                  <TableRow>
+                    <TableHead className="px-6 py-3">Ticket</TableHead>
+                    <TableHead className="px-6 py-3">Cliente</TableHead>
+                    <TableHead className="px-6 py-3">Prendas (Resumen)</TableHead>
+                    <TableHead className="px-6 py-3">Estado</TableHead>
+                    <TableHead className="px-6 py-3">Entrega</TableHead>
+                    <TableHead className="px-6 py-3">Total</TableHead>
+                    <TableHead className="px-6 py-3">Acción</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="divide-y divide-border">
+                  {loading ? <TableRow><TableCell colSpan={7} className="p-4 text-center">Cargando...</TableCell></TableRow> :
                     filteredOrders.map(o => (
-                      <tr key={o.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="px-6 py-3 font-mono font-medium">{o.ticketNumber}</td>
-                        <td className="px-6 py-3">{o.customer.firstName} {o.customer.lastName}</td>
-                        <td className="px-6 py-3 text-muted-foreground text-xs max-w-[200px] truncate">
+                      <TableRow key={o.id} className="hover:bg-muted/30 transition-colors">
+                        <TableCell className="px-6 py-3 font-mono font-medium">{o.ticketNumber}</TableCell>
+                        <TableCell className="px-6 py-3">{o.customer.firstName} {o.customer.lastName}</TableCell>
+                        <TableCell className="px-6 py-3 text-muted-foreground text-xs max-w-[200px] truncate">
                           {o.items.map(i => i.garmentName).join(", ")}
-                        </td>
-                        <td className="px-6 py-3">
+                        </TableCell>
+                        <TableCell className="px-6 py-3">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(o.status)}`}>
                             {translateStatus(o.status)}
                           </span>
-                        </td>
-                        <td className="px-6 py-3 text-muted-foreground">
+                        </TableCell>
+                        <TableCell className="px-6 py-3 text-muted-foreground">
                           {formatDate(o.committedDeadline)}
-                        </td>
-                        <td className="px-6 py-3 font-medium">{formatCurrency(o.totalAmount)}</td>
-                        <td className="px-6 py-3">
+                        </TableCell>
+                        <TableCell className="px-6 py-3 font-medium">{formatCurrency(o.totalAmount)}</TableCell>
+                        <TableCell className="px-6 py-3">
                           <div className="flex gap-2">
                             <Link href={`/dashboard/orders/${o.id}/edit`}>
                               <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
@@ -203,12 +204,12 @@ export default function ServicesPage() {
                               <Button variant="outline" size="sm">Detalles</Button>
                             </Link>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  {!loading && filteredOrders.length === 0 && <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">No se encontraron pedidos.</td></tr>}
-                </tbody>
-              </table>
+                  {!loading && filteredOrders.length === 0 && <TableRow><TableCell colSpan={7} className="p-4 text-center text-muted-foreground">No se encontraron pedidos.</TableCell></TableRow>}
+                </TableBody>
+              </Table>
             </div>
           </div>
         </>
@@ -216,33 +217,33 @@ export default function ServicesPage() {
         /* Drafts View */
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-                <tr>
-                  <th className="px-6 py-3">ID (Temporal)</th>
-                  <th className="px-6 py-3">Cliente</th>
-                  <th className="px-6 py-3">Prendas</th>
-                  <th className="px-6 py-3">Última Modificación</th>
-                  <th className="px-6 py-3 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+            <Table className="w-full text-sm text-left">
+              <TableHeader className="bg-muted/50 text-muted-foreground uppercase text-xs">
+                <TableRow>
+                  <TableHead className="px-6 py-3">ID (Temporal)</TableHead>
+                  <TableHead className="px-6 py-3">Cliente</TableHead>
+                  <TableHead className="px-6 py-3">Prendas</TableHead>
+                  <TableHead className="px-6 py-3">Última Modificación</TableHead>
+                  <TableHead className="px-6 py-3 text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-border">
                 {drafts.length === 0 ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No hay borradores guardados</td></tr>
+                  <TableRow><TableCell colSpan={5} className="p-8 text-center text-muted-foreground">No hay borradores guardados</TableCell></TableRow>
                 ) : (
                   drafts.map(d => (
-                    <tr key={d.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-6 py-3 font-mono text-xs">{d.id.slice(0, 8)}...</td>
-                      <td className="px-6 py-3 font-medium">
+                    <TableRow key={d.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="px-6 py-3 font-mono text-xs">{d.id.slice(0, 8)}...</TableCell>
+                      <TableCell className="px-6 py-3 font-medium">
                         {d.customer?.firstName ? `${d.customer.firstName} ${d.customer.lastName || ''}` : <span className="text-muted-foreground italic">Sin nombre</span>}
-                      </td>
-                      <td className="px-6 py-3">
+                      </TableCell>
+                      <TableCell className="px-6 py-3">
                         {d.items?.length || 0} prendas
-                      </td>
-                      <td className="px-6 py-3 text-muted-foreground">
+                      </TableCell>
+                      <TableCell className="px-6 py-3 text-muted-foreground">
                         {new Date(d.lastModified).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-3 text-right">
+                      </TableCell>
+                      <TableCell className="px-6 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <Link href={`/dashboard/orders/new?draftId=${d.id}`}>
                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
@@ -253,12 +254,12 @@ export default function ServicesPage() {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       )}

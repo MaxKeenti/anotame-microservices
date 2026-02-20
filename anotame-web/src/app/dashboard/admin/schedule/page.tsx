@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { WorkDay, Holiday } from "@/types/dtos";
 import * as ScheduleService from "@/services/operations/schedule";
@@ -93,18 +94,20 @@ export default function SchedulePage() {
             </div>
 
             <div className="flex gap-4 border-b border-border">
-                <button
-                    className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === 'weekly' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
+                <Button
+                    variant="ghost"
+                    className={`h-auto px-4 py-2 font-medium border-b-2 rounded-none transition-colors ${activeTab === 'weekly' ? 'border-primary text-primary hover:text-primary hover:bg-transparent' : 'border-transparent text-muted-foreground hover:bg-transparent'}`}
                     onClick={() => setActiveTab('weekly')}
                 >
                     Horario Semanal
-                </button>
-                <button
-                    className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === 'holidays' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
+                </Button>
+                <Button
+                    variant="ghost"
+                    className={`h-auto px-4 py-2 font-medium border-b-2 rounded-none transition-colors ${activeTab === 'holidays' ? 'border-primary text-primary hover:text-primary hover:bg-transparent' : 'border-transparent text-muted-foreground hover:bg-transparent'}`}
                     onClick={() => setActiveTab('holidays')}
                 >
                     Días Festivos y Excepciones
-                </button>
+                </Button>
             </div>
 
             {activeTab === 'weekly' && (
@@ -197,24 +200,24 @@ export default function SchedulePage() {
                                 <p className="text-muted-foreground">No hay días festivos configurados.</p>
                             ) : (
                                 <div className="border rounded-md">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-secondary/20">
-                                            <tr>
-                                                <th className="p-3 text-left">Fecha</th>
-                                                <th className="p-3 text-left">Descripción</th>
-                                                <th className="p-3 text-right">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                    <Table className="w-full text-sm">
+                                        <TableHeader className="bg-secondary/20">
+                                            <TableRow>
+                                                <TableHead className="p-3 text-left">Fecha</TableHead>
+                                                <TableHead className="p-3 text-left">Descripción</TableHead>
+                                                <TableHead className="p-3 text-right">Acciones</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
                                             {holidays.map(h => (
-                                                <tr key={h.id} className="border-t">
-                                                    <td className="p-3 font-medium">
+                                                <TableRow key={h.id} className="border-t">
+                                                    <TableCell className="p-3 font-medium">
                                                         {new Date(h.date).toLocaleDateString(undefined, {
                                                             weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
                                                         })}
-                                                    </td>
-                                                    <td className="p-3">{h.description}</td>
-                                                    <td className="p-3 text-right">
+                                                    </TableCell>
+                                                    <TableCell className="p-3">{h.description}</TableCell>
+                                                    <TableCell className="p-3 text-right">
                                                         <Button
                                                             variant="danger"
                                                             size="sm"
@@ -222,11 +225,11 @@ export default function SchedulePage() {
                                                         >
                                                             Eliminar
                                                         </Button>
-                                                    </td>
-                                                </tr>
+                                                    </TableCell>
+                                                </TableRow>
                                             ))}
-                                        </tbody>
-                                    </table>
+                                        </TableBody>
+                                    </Table>
                                 </div>
                             )}
                         </CardContent>

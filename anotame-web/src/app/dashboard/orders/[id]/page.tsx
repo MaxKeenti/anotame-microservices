@@ -9,7 +9,8 @@ import { getSettings } from "@/services/operations/establishment";
 import { generateReceiptHtml } from "@/utils/receipt-generator";
 import { translateStatus, getStatusColor } from "@/utils/statusUtils";
 import { formatCurrency, formatDateTime } from "@/utils/formatUtils";
-
+import { Button } from "@/components/ui/Button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 
 
 export default function OrderDetailsPage({ params, searchParams }: {
@@ -229,31 +230,31 @@ export default function OrderDetailsPage({ params, searchParams }: {
       {/* Items */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="p-4 border-b border-border font-semibold">Prendas y Servicios</div>
-        <table className="w-full text-sm text-left">
-          <thead className="bg-muted/50 text-muted-foreground uppercase text-xs">
-            <tr>
-              <th className="px-6 py-3">Descripción</th>
-              <th className="px-6 py-3">Servicio</th>
-              <th className="px-6 py-3">Cant</th>
-              <th className="px-6 py-3">Precio</th>
-              <th className="px-6 py-3">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+        <Table className="w-full text-sm text-left">
+          <TableHeader className="bg-muted/50 text-muted-foreground uppercase text-xs">
+            <TableRow>
+              <TableHead className="px-6 py-3">Descripción</TableHead>
+              <TableHead className="px-6 py-3">Servicio</TableHead>
+              <TableHead className="px-6 py-3">Cant</TableHead>
+              <TableHead className="px-6 py-3">Precio</TableHead>
+              <TableHead className="px-6 py-3">Subtotal</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-border">
             {order.items.map(item => (
-              <tr key={item.id}>
-                <td className="px-6 py-3">
+              <TableRow key={item.id}>
+                <TableCell className="px-6 py-3">
                   <div className="font-bold">{item.garmentName}</div>
                   {item.notes && <div className="text-xs text-muted-foreground mt-1 bg-muted/30 p-1 rounded inline-block"> Nota: {item.notes}</div>}
-                </td>
-                <td colSpan={3} className="px-0 py-0">
-                  <table className="w-full">
-                    <tbody className="divide-y divide-border/50">
+                </TableCell>
+                <TableCell colSpan={3} className="px-0 py-0">
+                  <Table className="w-full">
+                    <TableBody className="divide-y divide-border/50">
                       {item.services?.map((service, idx) => (
-                        <tr key={idx}>
-                          <td className="px-6 py-2 w-1/3 text-muted-foreground">{service.serviceName}</td>
-                          <td className="px-6 py-2 w-1/3 text-center">{item.quantity}</td>
-                          <td className="px-6 py-2 w-1/3">
+                        <TableRow key={idx}>
+                          <TableCell className="px-6 py-2 w-1/3 text-muted-foreground">{service.serviceName}</TableCell>
+                          <TableCell className="px-6 py-2 w-1/3 text-center">{item.quantity}</TableCell>
+                          <TableCell className="px-6 py-2 w-1/3">
                             <div>${service.unitPrice}</div>
                             {service.adjustmentAmount && service.adjustmentAmount !== 0 ? (
                               <div className={`text-xs ${service.adjustmentAmount > 0 ? 'text-destructive' : 'text-success'}`}>
@@ -261,49 +262,49 @@ export default function OrderDetailsPage({ params, searchParams }: {
                                 {service.adjustmentReason && ` (${service.adjustmentReason})`}
                               </div>
                             ) : null}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
-                </td>
-                <td className="px-6 py-3 font-medium align-top pt-4">${item.subtotal}</td>
-              </tr>
+                    </TableBody>
+                  </Table>
+                </TableCell>
+                <TableCell className="px-6 py-3 font-medium align-top pt-4">${item.subtotal}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Actions */}
       <div className="flex justify-between pt-4 border-t border-border">
-        <button
+        <Button
           onClick={handleCancel}
-          className="px-4 py-2 text-destructive hover:bg-destructive-muted rounded-lg font-medium transition-colors"
+          variant="ghost"
+          className="text-destructive hover:bg-destructive-muted hover:text-destructive"
         >
           Cancelar Pedido
-        </button>
+        </Button>
 
         <div className="flex gap-3">
           <Link href={`/dashboard/orders/${order.id}/edit`}>
-            <button
-              className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
+            <Button
+              variant="outline"
             >
               Editar Pedido
-            </button>
+            </Button>
           </Link>
-          <button
+          <Button
             onClick={handlePrint}
-            className="px-4 py-2 border border-input hover:bg-accent hover:text-accent-foreground rounded-lg font-medium"
+            variant="outline"
           >
             Imprimir Ticket
-          </button>
+          </Button>
           {order.status === 'RECEIVED' && (
-            <button
+            <Button
               onClick={handleSendToOps}
-              className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium shadow-sm"
             >
               Enviar a Operaciones
-            </button>
+            </Button>
           )}
         </div>
       </div>

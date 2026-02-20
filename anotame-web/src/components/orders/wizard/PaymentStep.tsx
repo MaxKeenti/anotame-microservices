@@ -148,27 +148,30 @@ export function PaymentStep({ draft, updateDraft, onBack }: StepProps) {
                 <div className="space-y-4">
                     <label className="text-sm font-medium">Método de Pago</label>
                     <div className="grid grid-cols-3 gap-4">
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={() => handlePaymentMethod("CASH")}
-                            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'CASH' ? 'border-primary bg-primary/10 text-primary' : 'border-border'}`}
+                            className={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'CASH' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                         >
                             <DollarSign className="w-8 h-8 mb-2" />
                             <span className="font-semibold">Efectivo</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="outline"
                             onClick={() => handlePaymentMethod("CARD")}
-                            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary' : 'border-border'}`}
+                            className={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                         >
                             <CreditCard className="w-8 h-8 mb-2" />
                             <span className="font-semibold">Tarjeta</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="outline"
                             onClick={() => handlePaymentMethod("TRANSFER")}
-                            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary' : 'border-border'}`}
+                            className={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                         >
                             <Wallet className="w-8 h-8 mb-2" />
                             <span className="font-semibold">Transferencia</span>
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
