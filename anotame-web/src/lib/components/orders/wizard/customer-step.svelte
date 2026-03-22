@@ -4,6 +4,7 @@
    import { Button } from '$lib/components/ui/button';
    import { Input } from '$lib/components/ui/input';
    import { Search, User, Plus } from 'lucide-svelte';
+   import { toast } from 'svelte-sonner';
    
    let query = $state('');
    let results = $state<any[]>([]);
@@ -30,6 +31,7 @@
 
    function selectCustomer(c: any) {
        orderWizardState.updateActiveDraft({ customer: c });
+       toast.success("Cliente seleccionado", { description: `${c.firstName} ${c.lastName}` });
        query = '';
        results = [];
    }

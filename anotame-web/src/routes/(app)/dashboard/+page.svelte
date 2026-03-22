@@ -21,10 +21,11 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
     {#each visibleItems as item (item.href)}
+      {@const IconComponent = item.icon}
       <a href={item.href} class="group outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl block touch-manipulation">
         <div class="bg-card border border-border rounded-xl p-6 md:p-8 shadow-sm hover:shadow-md hover:border-primary/50 transition-all h-full flex flex-col items-center text-center gap-4">
           <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-            <svelte:component this={item.icon} class="w-8 h-8" />
+            <IconComponent class="w-8 h-8" />
           </div>
           <div>
             <h3 class="text-xl font-bold font-heading">{item.name}</h3>

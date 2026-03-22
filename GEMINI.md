@@ -41,6 +41,12 @@ The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns ba
 - **Navigation**: Use a modal "Menu" accessible from the top bar instead of a permanent sidebar.
 - **Styling**: Use **Tailwind CSS v4**. Avoid arbitrary values when theme values exist.
 
+### Svelte 5 & Vite Strict Compiler Rules 
+- **Component Hydration**: Never use `<svelte:component>` (it's deprecated). Instead, map it to a standard Uppercase variable `{@const IconComponent = item.icon}` and call it `<IconComponent />`.
+- **{@const} Placements**: The Svelte compiler mandates that `{@const}` tags MUST sit immediately as a direct child of a logical block like `{#each}` or `{#if}`. Do not nest them inside raw HTML `<div>` blocks!
+- **State Prop Catch-alls**: Destructuring an initial `$props()` variable directly into a `$state()` literal will throw compilation hydration warnings (`did you mean to reference it inside a derived?`). To intentionally hydrate once without warning, intercept the assignment (`let ref = props.val; let state = $state(ref)`).
+- **A11y Strictness**: All semantic `<label>` elements MUST be strongly chained to interactive inputs via `for=` and `id=` syntax.
+
 ## 4. Workflows & General Rules
 - Always verify changes via local build/spin-up before committing.
 - Respect the existing module boundaries.
