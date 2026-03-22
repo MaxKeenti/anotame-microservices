@@ -29,7 +29,7 @@ The frontend uses the **Next.js App Router** with modern styling and accessibili
 
 ### Structure & Organization
 - **Pages**: Located under `src/app/`.
-- **UI Components**: Reusable UI components (buttons, badges) should be in `src/components/ui/` and leverage `clsx` and `tailwind-merge` utility functions (e.g., `cn()`).
+- **UI Components**: The project **does not use a third-party component library** (like MUI, Chakra, or NextUI). Instead, it follows a "build-your-own" approach inspired by shadcn/ui. Reusable UI components (buttons, badges) should be built manually in `src/components/ui/` and leverage `clsx` and `tailwind-merge` utility functions (e.g., `cn()`) to keep dependencies strictly minimal.
 - **Feature Components**: Domain-specific components belong in `src/components/<domain>/` (e.g., `customers/`, `orders/`).
 
 ### UI/UX Rules & Accessibility
