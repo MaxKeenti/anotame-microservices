@@ -4,6 +4,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import * as Table from '$lib/components/ui/table';
+  import { Edit, Trash2 } from 'lucide-svelte';
 
   // We will scaffold CustomerDialog incorporating superForms
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
@@ -117,17 +118,19 @@
                 <Button
                   variant="outline"
                   size="sm"
-                  class="h-10 px-4 touch-manipulation"
+                  class="h-10 px-4 touch-manipulation font-medium"
                   onclick={() => handleEditClick(c)}
                 >
+                  <Edit class="w-4 h-4 mr-2" />
                   Editar
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation"
+                  class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
                   onclick={() => c.id && handleDeleteClick(c.id)}
                 >
+                  <Trash2 class="w-4 h-4 mr-2" />
                   Eliminar
                 </Button>
               </Table.Cell>
