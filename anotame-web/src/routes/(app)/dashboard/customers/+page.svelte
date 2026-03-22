@@ -18,8 +18,8 @@
   async function fetchCustomers(query: string = '') {
     loading = true;
     try {
-      const q = query ? `?search=${query}` : '';
-      const response = await apiService.request<any[]>(`${API_SALES}/customers${q}`);
+      const q = query ? `?query=${query}` : '';
+      const response = await apiService.request<any[]>(`${API_SALES}/api/customers/search${q}`);
       customers = response || [];
     } catch {
       customers = [];
@@ -48,7 +48,7 @@
   async function handleDeleteClick(id: string) {
     if (confirm("¿Seguro que deseas eliminar este cliente?")) {
       try {
-        await apiService.request(`${API_SALES}/customers/${id}`, { method: 'DELETE' });
+        await apiService.request(`${API_SALES}/api/customers/${id}`, { method: 'DELETE' });
         fetchCustomers(searchQuery);
       } catch (e) {
         alert("Error al eliminar cliente");
