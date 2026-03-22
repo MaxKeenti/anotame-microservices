@@ -1,79 +1,30 @@
-# Architecture Analysis & Migration Plan: Anotame.NET
+# Svelte 5 Frontend Architecture & Migration Plan
 
-## 1. Project Goal: Full Re-platforming
-
-The goal is to migrate the legacy ASP.NET MVC monolith to a modern Microservices-based architecture using **NextJS** and **Java Spring Boot**, while completely refactoring the database to **PostgreSQL** following strict normalization standards.
-
-### Current Architecture (Legacy)
-*   **Stack**: ASP.NET MVC 5, .NET Framework 4.7.2.
-*   **Database**: MSSQL (LocalDB) with `PascalCase` tables and stored procedures.
-*   **Issues**: Tight coupling, unsafe queries (`ToList().Count()`), stateful session auth.
-
-## 2. Target Architecture
-
-### Technology Stack
-*   **Frontend**: **NextJS** (React).
-    *   Server Side Rendering (SSR) for performance.
-    *   TailwindCSS for styling (modern standard).
-*   **Backend**: **Java Spring Boot 3**.
-    *   **Microservices** approach.
-    *   **Spring Data JPA** for database access.
-    *   **Spring Security** + JWT for stateless authentication.
-*   **Database**: **PostgreSQL**.
-    *   Full schema redesign using the provided "Best Practices" template (snake_case, strict normalization).
-
-### Database Strategy: Bounded Contexts & Reliability
-We will strictly follow **Domain-Driven Design (DDD)** principles to ensure services can be decoupled.
-
-**1. Reliability Patterns**
-*   **IDs**: Use **UUID v4** for all Primary Keys to allow collision-free generation and easier merging.
-*   **Soft Deletes**: Use `deleted_at` (Timestamp) instead of boolean flags to preserve historical data context.
-*   **Audit**: All transactional tables include `created_at`, `updated_at`, and `created_by` (where applicable).
-
-**2. Domain Separation (The "Person" Split)**
-Following the "Bounded Context" advice, we will **NOT** have a single shared "Person" table.
-*   **Identity Context**: Owns `tca_user` and `tca_employee_profile`. Concerns: Auth, Internal Roles, HR.
-*   **Sales Context**: Owns `tco_customer`. Concerns: Measurements, Preferences, Order History.
-*   *Rational*: An employee is managed by HR; a customer is managed by Sales. Their lifecycles are different.
-
-**3. State Management**
-*   **Order Workflow**: We will implement a **Finite State Machine (FSM)** tracked via a `tco_order_history` table. This allows us to measure KPIs (e.g., "Time from Received to Finished").
+## 1. Project Goal
+Migrate the frontend architecture from Next.js to **Svelte 5 + SvelteKit**, strictly following the structural, routing, and reactivity conventions defined in `CLAUDE.md`. The backend will remain Java Spring Boot 3 Microservices with PostgreSQL.
 
 ---
 
-## 3. Implementation Roadmap
+## 2. Implementation Roadmap
 
-### Phase 1: Database Design & Core Setup [COMPLETED]
-1.  **Schema Definition**: `anotame-db/init.sql` created with Bounded Contexts, UUIDs, and Soft Deletes.
-2.  **Repo Structure**: Monorepo established.
-3.  **Infrastructure**: `docker-compose.yml` running Postgres + PostGIS.
+### Phase 1: Setup & Scaffolding [NEXT]
+1.  **Repository Setup**: Rename the existing Next.js `anotame-web` folder to `anotame-web-legacy`.
+2.  **Scaffolding**: Bootstrap a fresh SvelteKit project in `anotame-web` using Bun.
+3.  **Dependencies**: Install Tailwind CSS v4, `shadcn-svelte`, `runed`, and Paraglide.
 
-### Phase 2: Backend Microservices (Spring Boot) [COMPLETED]
-*   **Structure**: Maven Multi-Module Project initialized.
-*   **Modules**: `identity-service`, `catalog-service`, `sales-service`, `operations-service` scaffolds created.
+### Phase 2: Core Architecture Setup [PENDING]
+1.  **Services**: Implement `src/lib/services` utilizing the Runed-based singleton pattern for Auth and API.
+2.  **Guards**: Implement client-side `$effect`-based route protection (`useAuthGuard`, `useGuestGuard`).
+3.  **i18n**: Set up Paraglide messages structure (`messages/es.json`, `messages/en.json`).
+4.  **Layouts**: Scaffold base routing structural layouts (`+layout.svelte`, `(app)/+layout.svelte`).
 
-### Phase 3: Backend Refactor (Hexagonal Architecture) [COMPLETED]
-*   **Goal**: Decouple Domain Logic from Infrastructure (Spring/JPA) using Ports & Adapters.
-*   **Changes**:
-    *   Moved to **JDK 21**.
-    *   Refactored `identity-service`, `catalog-service`, and `sales-service`.
-    *   Implemented Repository Ports and Persistence Adapters.
+### Phase 3: Route & Component Migration [PENDING]
+1.  **Public Routes**: Port the Login/Register screens.
+2.  **Dashboard Shell**: Rebuild the Dashboard interface and implement the top-bar Menu Modal component.
+3.  **Data Tables**: Port the Data Tables (Customers, Users) using the standardized `DataTableWrapper` and the single-dialog pattern via `sveltekit-superforms` for inserts/edits.
+4.  **Wizards**: Port the order creation workflow (Customer -> Services -> Payment) to rely entirely on Svelte 5 `$state`.
 
-### Phase 4: Frontend Implementation (NextJS) [IN PROGRESS]
-1.  **Design System**: [Done] Tailwind theme, Fonts (Inter/Outfit), and Global CSS.
-2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
-3.  **Auth Integration**: [Done] Login & Register screens consuming Identity Service.
-4.  **Dashboard**: [Done] Operations views (KPIs, Recent Orders) consuming microservices.
-5.  **Customer Management**: [Done] Search, Create, Edit (`/dashboard/customers`).
-6.  **Order Management**: [Done] New Order creation (`/dashboard/orders/new`) with Payment support and Ticket Printing.
-7.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
-
-### Phase 5: Closing System Gaps (From Migration Analysis) [DONE]
-1.  **Work Scheduling**: Implement Days Off, Holidays, and Shifts (medium priority). [DONE]
-2.  **Advanced Pricing**: Implement Multiple Price Lists and Temporal Validity. [DONE]
-3.  **Refinement**: Polish Receipt printing layout and handle multiple repairs per item. [DONE]
-
-### Phase 6: System Polish & Production Readiness [NEXT]
-1.  **Establishment Settings**: UI to configure Store Name, Tax Info (RFC), and Receipt Header.
-2.  **Employee Management**: Admin UI to create users, assign roles, and manage access.
-3.  **Production Verification**: Verify full Docker persistence and deployment readiness.
+### Phase 4: System Polish & Production Readiness [PENDING]
+1.  **Establishment Settings**: Develop Admin UI to configure Store Name, Tax Info, and Receipt Header.
+2.  **Employee Management**: Form dialogs to create users and assign access roles.
+3.  **Production Verification**: Verify Docker persistence for the new Svelte SSR container.

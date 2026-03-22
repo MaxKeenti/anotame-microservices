@@ -5,7 +5,7 @@ This document outlines the architectural, structural, and coding standards for t
 ## 1. Architecture Overview
 - **Monorepo Structure**: Contains `anotame-api` (Backend), `anotame-web` (Frontend), and `anotame-db` (Database).
 - **Backend**: Java Spring Boot 3 Microservices (Identity, Catalog, Sales, Operations).
-- **Frontend**: Next.js 16 (App Router) + React 19.
+- **Frontend**: Svelte 5 + SvelteKit.
 - **Database**: PostgreSQL with PostGIS support.
 - **Containerization**: All services are run via Docker using `docker-compose.yml`.
 
@@ -24,13 +24,16 @@ The backend strictly adheres to **Hexagonal Architecture** and **Domain-Driven D
 - **Audit Fields**: Every transactional table must include `created_at` (`@CreationTimestamp`) and `updated_at` (`@UpdateTimestamp`).
 - **Naming Conventions**: Use `snake_case` for database tables and columns (e.g., `tca_user`, `password_hash`).
 
-## 3. Frontend Standards (Next.js & React)
-The frontend uses the **Next.js App Router** with modern styling and accessibility practices.
+## 3. Frontend Standards (Svelte 5 & SvelteKit)
+The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns based on the `CLAUDE.md` standard.
 
 ### Structure & Organization
-- **Pages**: Located under `src/app/`.
-- **UI Components**: The project **does not use a third-party component library** (like MUI, Chakra, or NextUI). Instead, it follows a "build-your-own" approach inspired by shadcn/ui. Reusable UI components (buttons, badges) should be built manually in `src/components/ui/` and leverage `clsx` and `tailwind-merge` utility functions (e.g., `cn()`) to keep dependencies strictly minimal.
-- **Feature Components**: Domain-specific components belong in `src/components/<domain>/` (e.g., `customers/`, `orders/`).
+- **Pages & Routing**: SvelteKit routes inside `src/routes/` (e.g., `/(app)/` for authenticated routes, `/` for public).
+- **State & Logic**: Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
+- **Services**: Use a class-based singleton pattern leveraging `runed` (e.g., `PersistedState`) for stateful logic, placed in `src/lib/services/`.
+- **Auth Guards**: Protect client routes using guards (`useAuthGuard`, `useGuestGuard`) stored in `src/lib/guards/`.
+- **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components placed in `src/lib/components/ui/`. For forms/tables, strictly use `sveltekit-superforms` single-dialog pattern and `DataTableWrapper` with TanStack table.
+- **i18n**: All text must be internationalized using Paraglide.
 
 ### UI/UX Rules & Accessibility
 - **Touch-First Design**: UI must be heavily optimized for touchscreen interactions (large touch targets, responsive layouts) and screens ≤ 1024x768px.

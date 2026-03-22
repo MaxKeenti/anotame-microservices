@@ -119,20 +119,20 @@ services:
       context: ./anotame-web
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_IDENTITY_URL: http://identity-service:8081
-        NEXT_PUBLIC_CATALOG_URL: http://catalog-service:8082
-        NEXT_PUBLIC_SALES_URL: http://sales-service:8083
-        NEXT_PUBLIC_OPERATIONS_URL: http://operations-service:8084
+        PUBLIC_IDENTITY_URL: http://identity-service:8081
+        PUBLIC_CATALOG_URL: http://catalog-service:8082
+        PUBLIC_SALES_URL: http://sales-service:8083
+        PUBLIC_OPERATIONS_URL: http://operations-service:8084
     container_name: anotame-web
     ports:
       - "3000:3000"
     env_file:
       - .env
     environment:
-      NEXT_PUBLIC_IDENTITY_URL: ${NEXT_PUBLIC_IDENTITY_URL}
-      NEXT_PUBLIC_CATALOG_URL: ${NEXT_PUBLIC_CATALOG_URL}
-      NEXT_PUBLIC_SALES_URL: ${NEXT_PUBLIC_SALES_URL}
-      NEXT_PUBLIC_OPERATIONS_URL: ${NEXT_PUBLIC_OPERATIONS_URL}
+      PUBLIC_IDENTITY_URL: ${PUBLIC_IDENTITY_URL}
+      PUBLIC_CATALOG_URL: ${PUBLIC_CATALOG_URL}
+      PUBLIC_SALES_URL: ${PUBLIC_SALES_URL}
+      PUBLIC_OPERATIONS_URL: ${PUBLIC_OPERATIONS_URL}
     networks:
       - anotame-network
     depends_on:
