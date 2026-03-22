@@ -9,6 +9,7 @@
   import { Button } from "$lib/components/ui/button";
   import * as Table from "$lib/components/ui/table";
   import { toast } from "svelte-sonner";
+  import { confirmDialog } from "$lib/services/dialog.svelte";
 
   let id = $derived($page.params.id);
   let action = $derived($page.url.searchParams.get("action"));
@@ -54,8 +55,8 @@
       url.searchParams.delete('action');
       window.history.replaceState(null, '', url.toString());
 
-      setTimeout(() => {
-        if (confirm("Pedido creado con éxito. ¿Deseas imprimir el ticket ahora?")) {
+      setTimeout(async () => {
+        if (await confirmDialog.prompt("Imprimir Recreación", "Pedido creado con éxito. ¿Deseas imprimir el ticket ahora?")) {
           handlePrint();
         }
       }, 500);
@@ -63,7 +64,7 @@
   });
 
   async function handleCancel() {
-    if (!order || !confirm("¿Estás seguro que deseas cancelar este pedido?")) return;
+    if (!order || !(await confirmDialog.prompt("Cancelar Pedido", "¿Estás seguro que deseas cancelar este pedido?"))) return;
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: "DELETE" });
       toast.success("Pedido cancelado exitosamente");
@@ -122,7 +123,7 @@
   }
 
   async function handleSendToOps() {
-    if (!order || !confirm("¿Enviar pedido a Operaciones? El estado cambiará a EN PROGRESO.")) return;
+    if (!order || !(await confirmDialog.prompt("Enviar a Operaciones", "¿Enviar pedido a Operaciones? El estado cambiará a EN PROGRESO."))) return;
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}/status`, {
         method: "PATCH",

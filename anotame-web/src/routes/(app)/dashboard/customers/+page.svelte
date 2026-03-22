@@ -5,6 +5,7 @@
   import { Input } from '$lib/components/ui/input';
   import * as Table from '$lib/components/ui/table';
   import { Edit, Trash2 } from 'lucide-svelte';
+  import { confirmDialog } from '$lib/services/dialog.svelte';
 
   // We will scaffold CustomerDialog incorporating superForms
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
@@ -47,7 +48,7 @@
   }
 
   async function handleDeleteClick(id: string) {
-    if (confirm("¿Seguro que deseas eliminar este cliente?")) {
+    if (await confirmDialog.prompt("Eliminar Cliente", "¿Seguro que deseas eliminar este cliente?")) {
       try {
         await apiService.request(`${API_SALES}/api/customers/${id}`, { method: 'DELETE' });
         fetchCustomers(searchQuery);

@@ -8,6 +8,9 @@
   import { translateStatus, getStatusColor } from '$lib/utils/statusUtils';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Edit, Trash2, Eye } from 'lucide-svelte';
+  import { confirmDialog } from '$lib/services/dialog.svelte';
+  import AdaptiveSelect from '$lib/components/ui/responsive/adaptive-select.svelte';
+  import AdaptiveDatePicker from '$lib/components/ui/responsive/adaptive-date-picker.svelte';
 
   let view = $state<'active' | 'drafts'>('active');
   let orders = $state<any[]>([]);
@@ -42,8 +45,8 @@
     fetchData();
   });
 
-  function handleDeleteDraft(id: string) {
-    if (confirm("¿Estás seguro de eliminar este borrador?")) {
+  async function handleDeleteDraft(id: string) {
+    if (await confirmDialog.prompt("Eliminar Borrador", "¿Estás seguro de eliminar este borrador?")) {
       orderWizardState.deleteDraft(id);
     }
   }
@@ -125,26 +128,21 @@
           class="h-12 text-base touch-manipulation"
         />
       </div>
-      <div class="space-y-1.5">
+      <div class="space-y-1.5 min-w-0">
         <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">Filtrar por Prenda</label>
-        <select
+        <AdaptiveSelect
           id="filter-garment"
           bind:value={garmentFilter}
-          class="flex h-12 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation bg-background"
-        >
-          <option value="">Todas</option>
-          {#each garments as g (g.id)}
-            <option value={g.id}>{g.name}</option>
-          {/each}
-        </select>
+          options={garments.map((g) => ({ value: g.id, label: g.name }))}
+          placeholder="Todas"
+        />
       </div>
-      <div class="space-y-1.5">
+      <div class="space-y-1.5 min-w-0">
         <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">Fecha de Entrega</label>
-        <Input
+        <AdaptiveDatePicker
           id="filter-date"
-          type="date"
           bind:value={dateFilter}
-          class="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm ring-offset-background touch-manipulation"
+          placeholder="Todas"
         />
       </div>
     </div>
