@@ -8,9 +8,9 @@
   import { translateStatus, getStatusColor } from '$lib/utils/statusUtils';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Edit, Trash2, Eye } from 'lucide-svelte';
-  import { confirmDialog } from '$lib/services/dialog.svelte';
-  import AdaptiveSelect from '$lib/components/ui/responsive/adaptive-select.svelte';
-  import AdaptiveDatePicker from '$lib/components/ui/responsive/adaptive-date-picker.svelte';
+  import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
+  import { AdaptiveSelect } from '$lib/components/ui/responsive';
+  import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
 
   let view = $state<'active' | 'drafts'>('active');
   let orders = $state<any[]>([]);
@@ -46,7 +46,11 @@
   });
 
   async function handleDeleteDraft(id: string) {
-    if (await confirmDialog.prompt("Eliminar Borrador", "¿Estás seguro de eliminar este borrador?")) {
+    const ok = await adaptiveConfirm({
+      title: 'Eliminar Borrador',
+      description: '¿Estás seguro de eliminar este borrador? Esta acción no se puede deshacer.'
+    });
+    if (ok) {
       orderWizardState.deleteDraft(id);
     }
   }
@@ -128,21 +132,22 @@
           class="h-12 text-base touch-manipulation"
         />
       </div>
-      <div class="space-y-1.5 min-w-0">
+      <div class="space-y-1.5">
         <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">Filtrar por Prenda</label>
         <AdaptiveSelect
           id="filter-garment"
           bind:value={garmentFilter}
-          options={garments.map((g) => ({ value: g.id, label: g.name }))}
           placeholder="Todas"
+          items={garments.map(g => ({ value: g.id, label: g.name }))}
+          class=""
         />
       </div>
-      <div class="space-y-1.5 min-w-0">
+      <div class="space-y-1.5">
         <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">Fecha de Entrega</label>
         <AdaptiveDatePicker
           id="filter-date"
           bind:value={dateFilter}
-          placeholder="Todas"
+          placeholder="Seleccionar fecha..."
         />
       </div>
     </div>

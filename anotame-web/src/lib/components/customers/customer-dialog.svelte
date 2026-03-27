@@ -2,9 +2,9 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { apiService, API_SALES } from '$lib/services/api.svelte';
-  
-  import { superForm, defaults } from 'sveltekit-superforms';
+  import { apiService, API_SALES, ApiValidationError } from '$lib/services/api.svelte';
+  import { toast } from 'svelte-sonner';
+  import { superForm, defaults, setError } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 
@@ -33,20 +33,25 @@
       isSubmitting = true;
       try {
         if (form.data.id) {
-          await apiService.request(`${API_SALES}/api/customers/${form.data.id}`, {
-            method: 'PUT',
-            body: JSON.stringify(form.data)
-          });
+          await apiService.request(`${API_SALES}/api/customers/${form.data.id}`, { method: 'PUT', body: JSON.stringify(form.data) });
         } else {
-          await apiService.request(`${API_SALES}/api/customers`, {
-            method: 'POST',
-            body: JSON.stringify(form.data)
-          });
+          await apiService.request(`${API_SALES}/api/customers`, { method: 'POST', body: JSON.stringify(form.data) });
         }
+        
         onClose();
         onSuccess?.();
-      } catch {
-        alert("Error guardando el cliente.");
+      } catch (e: any) {
+        if (e instanceof ApiValidationError) {
+          // Iterate through the backend errors and apply them to the form fields
+          for (const [field, message] of Object.entries(e.validationErrors)) {
+            // We use 'as keyof typeof form.data' to satisfy TypeScript's strict typing
+            setError(form, field as keyof typeof form.data, message);
+          }
+          toast.error("Por favor, revisa los campos marcados en rojo.");
+        } else {
+          // Fallback for generic 500s or standard errors
+          toast.error(e.message || "Error al guardar el cliente.");
+        }
       } finally {
         isSubmitting = false;
       }

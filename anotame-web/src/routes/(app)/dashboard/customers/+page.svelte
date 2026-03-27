@@ -5,7 +5,8 @@
   import { Input } from '$lib/components/ui/input';
   import * as Table from '$lib/components/ui/table';
   import { Edit, Trash2 } from 'lucide-svelte';
-  import { confirmDialog } from '$lib/services/dialog.svelte';
+  import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
+  import { toast } from 'svelte-sonner';
 
   // We will scaffold CustomerDialog incorporating superForms
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
@@ -48,12 +49,17 @@
   }
 
   async function handleDeleteClick(id: string) {
-    if (await confirmDialog.prompt("Eliminar Cliente", "¿Seguro que deseas eliminar este cliente?")) {
+    const ok = await adaptiveConfirm({
+      title: 'Eliminar Cliente',
+      description: '¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.'
+    });
+    if (ok) {
       try {
         await apiService.request(`${API_SALES}/api/customers/${id}`, { method: 'DELETE' });
+        toast.success('Cliente eliminado exitosamente');
         fetchCustomers(searchQuery);
       } catch (e) {
-        alert("Error al eliminar cliente");
+        toast.error('Error al eliminar cliente');
       }
     }
   }

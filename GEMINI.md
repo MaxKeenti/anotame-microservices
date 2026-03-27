@@ -4,12 +4,12 @@ This document outlines the architectural, structural, and coding standards for t
 
 ## 1. Architecture Overview
 - **Monorepo Structure**: Contains `anotame-api` (Backend), `anotame-web` (Frontend), and `anotame-db` (Database).
-- **Backend**: Java Spring Boot 3 Microservices (Identity, Catalog, Sales, Operations).
+- **Backend**: Java Quarkus Microservices (Identity, Catalog, Sales, Operations).
 - **Frontend**: Svelte 5 + SvelteKit.
 - **Database**: PostgreSQL with PostGIS support.
 - **Containerization**: All services are run via Docker using `docker-compose.yml`.
 
-## 2. Backend Standards (Java Spring Boot)
+## 2. Backend Standards (Java Quarkus)
 The backend strictly adheres to **Hexagonal Architecture** and **Domain-Driven Design (DDD)** principles.
 
 ### Architecture Layers

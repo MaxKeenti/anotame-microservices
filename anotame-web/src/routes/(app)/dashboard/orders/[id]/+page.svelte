@@ -9,7 +9,7 @@
   import { Button } from "$lib/components/ui/button";
   import * as Table from "$lib/components/ui/table";
   import { toast } from "svelte-sonner";
-  import { confirmDialog } from "$lib/services/dialog.svelte";
+  import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
 
   let id = $derived($page.params.id);
   let action = $derived($page.url.searchParams.get("action"));
@@ -56,15 +56,22 @@
       window.history.replaceState(null, '', url.toString());
 
       setTimeout(async () => {
-        if (await confirmDialog.prompt("Imprimir Recreación", "Pedido creado con éxito. ¿Deseas imprimir el ticket ahora?")) {
-          handlePrint();
-        }
+        const ok = await adaptiveConfirm({
+          title: '¡Pedido Creado!',
+          description: 'Pedido creado con éxito. ¿Deseas imprimir el ticket ahora?'
+        });
+        if (ok) handlePrint();
       }, 500);
     }
   });
 
   async function handleCancel() {
-    if (!order || !(await confirmDialog.prompt("Cancelar Pedido", "¿Estás seguro que deseas cancelar este pedido?"))) return;
+    if (!order) return;
+    const ok = await adaptiveConfirm({
+      title: 'Cancelar Pedido',
+      description: '¿Estás seguro que deseas cancelar este pedido? Esta acción no se puede deshacer.'
+    });
+    if (!ok) return;
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: "DELETE" });
       toast.success("Pedido cancelado exitosamente");
@@ -123,7 +130,12 @@
   }
 
   async function handleSendToOps() {
-    if (!order || !(await confirmDialog.prompt("Enviar a Operaciones", "¿Enviar pedido a Operaciones? El estado cambiará a EN PROGRESO."))) return;
+    if (!order) return;
+    const ok = await adaptiveConfirm({
+      title: 'Enviar a Operaciones',
+      description: '¿Enviar pedido a Operaciones? El estado cambiará a EN PROGRESO.'
+    });
+    if (!ok) return;
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}/status`, {
         method: "PATCH",
