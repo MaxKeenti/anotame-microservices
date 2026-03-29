@@ -1,103 +1,89 @@
 # Migration Gap Analysis & Future Roadmap
 
-**Status**: To Do (Future Dev Cycle)
-**Source**: Gap Analysis of `anotame-legacy` vs Modern Microservices
+**Status**: Phase 5 — Remaining Page Migration
+**Source**: Gap Analysis of `anotame-web-legacy` (Next.js) vs `anotame-web` (Svelte 5)
 
 ## Overview
-This document outlines the functional modules present in the legacy system that have not yet been ported to the modern architecture. These modules are prioritized for future development cycles to achieve feature parity where relevant.
+This document tracks functional modules from the legacy system and their migration status. Modules are prioritized for development to achieve feature parity.
 
-## 1. Advanced Pricing Strategy (Priority: High)
-The legacy system supported dynamic "Price Lists" (`Lista de Precios`), allowing tailored pricing (e.g., Seasonal, VIP). The current system only supports a static `base_price`.
+---
+
+## 1. Core Application Pages
+
+### Fully Migrated ✅
+| Module | Legacy | Modern | Notes |
+|---|---|---|---|
+| Login/Register | `app/(auth)/` | `routes/login/` | Auth guards, token storage |
+| Dashboard Shell | `app/dashboard/layout` | `routes/(app)/+layout` | Menu modal, responsive nav |
+| Customers CRUD | `dashboard/customers` | `dashboard/customers` | Single-dialog pattern, search |
+| Garments CRUD | `dashboard/catalog/garments` | `dashboard/catalog/garments` | Admin role guard |
+| Orders Dashboard | `dashboard/orders` | `dashboard/orders` | Active/Drafts toggle, filters |
+| Order Details | `dashboard/orders/[id]` | `dashboard/orders/[id]` | Receipt printing, status actions |
+| Order Wizard | `dashboard/orders/new` | `dashboard/orders/new` | 3-step: Customer→Items→Payment |
+
+### Not Yet Migrated ❌
+| Module | Legacy | Priority | Complexity |
+|---|---|---|---|
+| **Catalog Services** | `catalog/services` | High | 400-line CRUD + 3-step wizard modal |
+| **Catalog Pricelists** | `catalog/pricelists` | Medium | CRUD + temporal validity |
+| **Operations Dashboard** | `operations` | High | Table + "Marcar Listo" action |
+| **User Management** | `users` | Medium | CRUD + edit/delete modals |
+| **Admin Settings** | `admin/settings` | Medium | Establishment config form |
+| **Admin KPIs** | `admin/kpi` | Low | Read-only metrics |
+| **Admin Schedule** | `admin/schedule` | Low | Work days / shifts UI |
+
+---
+
+## 2. Advanced Pricing Strategy (Priority: High)
+The legacy system supported dynamic "Price Lists" (`Lista de Precios`). Current system only supports static `base_price`.
 
 ### Missing Functionality
--   **Multiple Price Lists**: Ability to define named lists (e.g., "Winter 2025", "VIP").
--   **Temporal Validity**: Start and End dates for price lists.
--   **Service-Specific Overrides**: assigning a specific price for a service within a list.
+- **Multiple Price Lists**: Named lists (e.g., "Winter 2025", "VIP").
+- **Temporal Validity**: Start/End dates for price lists.
+- **Service-Specific Overrides**: Per-service pricing within a list.
 
 ### Legacy Tables Reference
--   `tci03_lista_precio`
--   `tci02_servicio_lista_precio`
--   `tci01_estado_lista_precio`
+- `tci03_lista_precio`, `tci02_servicio_lista_precio`, `tci01_estado_lista_precio`
 
 ---
 
-## 2. Work Scheduling & Establishment Rules (Priority: Medium)
-The legacy system modeled establishment constraints like working days, holidays, and detailed employee shifts. The current system only tracks assignment periods.
+## 3. Work Scheduling & Establishment Rules (Priority: Medium)
+The legacy system modeled establishment constraints (working days, holidays, shifts).
 
 ### Missing Functionality
--   **Work Days definition**: Defining which days (Mon-Sun) are operational.
--   **Holidays (Non-working days)**: Specific dates where the branch is closed.
--   **Shifts**: Granular start/end times (e.g., 9:00 AM - 5:00 PM) assigned to employees.
+- **Work Days**: Defining operational days (Mon-Sun).
+- **Holidays**: Non-working dates.
+- **Shifts**: Employee start/end times.
 
 ### Legacy Tables Reference
--   `tce04_dia_laboral`
--   `tce05_dia_descanso`
--   `tce06_empleado_horario`
--   `tce08_horario`
+- `tce04_dia_laboral`, `tce05_dia_descanso`, `tce06_empleado_horario`, `tce08_horario`
 
 ---
 
-## 3. Operations & Cashier (Priority: High)
-The legacy system (and specifically the React legacy app) contains the blueprint for the physical receipt and payment logic.
+## 4. Operations & Cashier (Priority: High) — Partially Resolved
 
-### Missing Functionality
--   **Ticket/Receipt Printing**: Need to implement the plain-text receipt format found in `anotame-legacy-react/.../NotaTable.jsx`.
-    -   *Format*: Columns for Qty, Item, Repairs, Price. Sections for Customer, Dates, and Totals.
--   **Payments**: The React app tracks `amountLeft` and `paidInFull`. This logic needs to be ported to `tco_order` in the Sales service.
--   **Establishment Configuration**: UI to update Branch/Establishment details for the receipt header.
-
----
-
-## 4. Deprecated / Excluded Modules
-The following modules existed in the legacy system but have been **intentionally excluded** from the migration roadmap.
-
-*   **Appointment Management (Citas)**: The functionality for scheduling customer drop-offs/pickups (`tci05_cita`) is considered deprecated and will not be implemented in the modern architecture.
+| Feature | Status |
+|---|---|
+| Ticket/Receipt Printing | ✅ Resolved — `receipt-generator.ts` |
+| Payment Tracking (`amountPaid`, `paymentMethod`) | ✅ Resolved |
+| Ticket Number Auto-generation | ✅ Resolved |
+| Operations Dashboard (IN_PROGRESS view) | ❌ Not migrated — Phase 5B |
+| Establishment Config UI | ❌ Not migrated — Phase 5D |
 
 ---
 
-## 5. Data Constraints & Requirements (From React Legacy)
-Analysis of `ClientDataForm.jsx` and `GarmentDataForm.jsx` reveals the following constraints that must be enforced for receipt generation.
-
-### Client Data (`ClientDataForm.jsx`)
-| Field | Type | Required | Notes |
-| :--- | :--- | :--- | :--- |
-| `clientName` | String | **Yes** | "Nombre" |
-| `clientFirstLastName`| String | No* | "Apellido Paterno" (Validation implies required but prop is optional) |
-| `clientSecondLastName`| String | No* | "Apellido Materno" |
-| `telefonNumber` | Number | No | "Número de teléfono" |
-| `folio` | String | **Yes** | Unique identifier for the order |
-| `receivedDate` | Date | **Yes** | Defaults to Today (YYYY-MM-DD) |
-| `deliveryDate` | DateTime | **Yes** | Defaults to Today + 18:00 |
-
-### Garment Data (`GarmentDataForm.jsx`)
-| Field | Type | Required | Notes |
-| :--- | :--- | :--- | :--- |
-| `garmentQuantity` | Number | **Yes** | |
-| `garmentType` | String | **Yes** | e.g. "Pants", "Shirt" |
-| `garmentRepair` | Array | No | List of repair names (e.g. "Hemming") |
-| `garmentDescription`| String | No | Additional details |
-| `garmentRepairCost` | Decimal| **Yes** | Cost per unit |
-| `garmentRepairAmount`| Decimal| **Yes** | Calculated: `Quantity * Cost` |
-
-**Business Logic**:
--   `garmentRepairAmount` is auto-calculated when quantity or cost changes.
--   `garmentCosts` (Total) is the sum of all item amounts.
+## 5. Deprecated / Excluded Modules
+- **Appointment Management (Citas)**: `tci05_cita` — intentionally excluded from migration.
 
 ---
 
-## 6. Modern App Gap Verification
+## 6. Modern Architecture Enhancements (Not in Legacy)
+Features added in the modern stack that didn't exist in legacy:
 
-### Backend (`sales-service`)
--   **Payment Tracking**: [RESOLVED] `Order` entity now has `amountPaid`, `paymentMethod`.
--   **Ticket Number**: [RESOLVED] Implemented with auto-generation.
--   **Client Fields**: [RESOLVED] Mapped to `firstName` / `lastName`.
-
-### Frontend (`NewOrderPage`)
--   **Payment Inputs**: [RESOLVED] Added Amount Imput and Payment Method selector.
--   **Receipt Generation**: [RESOLVED] Added "Print Ticket" button using `window.print()`.
--   **Item Structure**: Modern forces 1 Service per Item. Legacy allowed multiple repairs per Garment. **[DEFERRED]**
-
-## 7. Deferred / Future Enhancements
--   **Multiple Repairs per Item**: Allowing a single garment to have multiple service types attached.
--   **Advanced Pricing**: High priority gap (Section 1).
--   **Work Scheduling**: Medium priority gap (Section 2).
+| Feature | Details |
+|---|---|
+| **Adaptive UI** | Desktop: shadcn-svelte styled. Mobile: native OS pickers |
+| **Toast Notifications** | `svelte-sonner` for all success/error feedback |
+| **Draft Orders** | LocalStorage-persisted wizard drafts with resume |
+| **Soft Deletes** | All entities use `is_deleted` + `deleted_at` pattern |
+| **Bounded Contexts** | Proper DDD microservice separation |

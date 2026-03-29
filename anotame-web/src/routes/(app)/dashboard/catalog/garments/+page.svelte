@@ -28,7 +28,7 @@
   async function fetchGarments() {
     loading = true;
     try {
-      const response = await apiService.request<any[]>(`${API_CATALOG}/api/garments`);
+      const response = await apiService.request<any[]>(`${API_CATALOG}/catalog/garments`);
       garments = response || [];
     } catch (e: any) {
       toast.error(e.message || "Error al cargar las prendas");
@@ -54,7 +54,7 @@
     const ok = await adaptiveConfirm({ title: 'Eliminar Prenda', description: `¿Estás seguro de que deseas eliminar ${garment.name}?` });
     if (ok) {
       try {
-        await apiService.request(`${API_CATALOG}/api/garments/${garment.id}`, { method: 'DELETE' });
+        await apiService.request(`${API_CATALOG}/catalog/garments/${garment.id}`, { method: 'DELETE' });
         toast.success("Prenda eliminada exitosamente");
         fetchGarments();
       } catch (e: any) {

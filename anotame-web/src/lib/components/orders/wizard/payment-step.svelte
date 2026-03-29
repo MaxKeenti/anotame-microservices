@@ -7,6 +7,7 @@
     import { Input } from '$lib/components/ui/input';
     import { CreditCard, DollarSign, Wallet } from 'lucide-svelte';
     import { toast } from 'svelte-sonner';
+    import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 
     let props = $props<{ onNext: () => void, onBack: () => void }>();
 
@@ -190,13 +191,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
             <div class="space-y-2">
                 <label class="text-sm font-medium" for="delivery-date">Fecha de Entrega</label>
-                <!-- Using native HTML5 Date Input for best touch fallback support across Safari/Chrome Mobile! -->
-                <Input
+                <!-- Adaptive: Calendar + Time popover on desktop, native datetime-local on mobile -->
+                <AdaptiveDateTimePicker
                     id="delivery-date"
-                    type="datetime-local"
-                    class="h-12 rounded-xl text-lg block touch-manipulation text-center"
-                    value={draft.committedDeadline ? draft.committedDeadline.slice(0, 16) : ""}
-                    onchange={(e) => handleDeadline(e.currentTarget.value)}
+                    value={draft.committedDeadline ? draft.committedDeadline.slice(0, 16) : ''}
+                    onValueChange={(v) => handleDeadline(v)}
+                    placeholder="Seleccionar fecha y hora..."
+                    class="rounded-xl text-lg"
                 />
             </div>
             <div class="space-y-2">

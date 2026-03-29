@@ -48,7 +48,7 @@
 {:else}
   <!-- Desktop: Styled shadcn Select -->
   <Select.Root type="single" value={value} onValueChange={handleSelectChange}>
-    <Select.Trigger {id} class="h-12 w-full text-base {className}">
+    <Select.Trigger {id} class="h-12 w-full text-base font-normal {className}">
       {#if value}
         {@const selected = items.find(i => i.value === value)}
         {selected?.label ?? placeholder}

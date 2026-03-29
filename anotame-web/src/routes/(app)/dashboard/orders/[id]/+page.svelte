@@ -297,7 +297,7 @@
         {#if order.status === 'RECEIVED'}
           <Button
             onclick={handleSendToOps}
-            class="h-14 rounded-xl text-lg touch-manipulation font-bold shadow-md w-full sm:w-auto"
+            class="h-14 rounded-xl text-lg touch-manipulation shadow-md w-full sm:w-auto"
           >
             Enviar a Operaciones
           </Button>
@@ -305,7 +305,7 @@
         <Button
           onclick={handlePrint}
           variant="outline"
-          class="h-14 rounded-xl text-lg touch-manipulation font-bold shadow-sm border-2 w-full sm:w-auto"
+          class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
         >
           Imprimir Ticket
         </Button>

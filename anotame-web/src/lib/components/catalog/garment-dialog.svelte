@@ -32,13 +32,13 @@
       isSubmitting = true;
       try {
         if (form.data.id) {
-          await apiService.request(`${API_CATALOG}/api/garments/${form.data.id}`, {
+          await apiService.request(`${API_CATALOG}/catalog/garments/${form.data.id}`, {
             method: 'PUT',
             body: JSON.stringify(form.data)
           });
           toast.success("Prenda actualizada exitosamente");
         } else {
-          await apiService.request(`${API_CATALOG}/api/garments`, {
+          await apiService.request(`${API_CATALOG}/catalog/garments`, {
             method: 'POST',
             body: JSON.stringify(form.data)
           });
