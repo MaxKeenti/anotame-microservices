@@ -10,4 +10,13 @@ public interface OrderRepositoryPort {
     java.util.Optional<Order> findById(java.util.UUID id);
 
     void delete(java.util.UUID id);
+
+    // KPI Metrics
+    long countActiveByDeadlineRange(java.time.LocalDateTime start, java.time.LocalDateTime end);
+    long countActiveFromDeadline(java.time.LocalDateTime start);
+    long countByStatusNotIn(java.util.List<String> excludedStatuses);
+    long countByStatus(String status);
+    java.math.BigDecimal sumPaidAmountInRange(java.time.LocalDateTime start, java.time.LocalDateTime end);
+    java.math.BigDecimal sumPendingDebt();
+    java.util.List<Object[]> getWeeklyRevenueData(java.time.LocalDateTime start);
 }

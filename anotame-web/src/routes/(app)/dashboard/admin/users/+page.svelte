@@ -33,6 +33,10 @@
     fetchUsers();
   });
 
+  function handleCreateClick() {
+    editingUser = { isNew: true };
+  }
+
   function handleEditClick(user: any) {
     editingUser = user;
   }
@@ -68,12 +72,15 @@
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">Usuarios</h1>
-      <p class="text-muted-foreground">Administrar usuarios y acceso al sistema.</p>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-heading font-bold text-foreground">Usuarios</h1>
+        <p class="text-muted-foreground">Administrar usuarios y acceso al sistema.</p>
+      </div>
+      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+        + Nuevo Usuario
+      </Button>
     </div>
-  </div>
 
   <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
     <Table.Root class="w-full min-w-[600px]">

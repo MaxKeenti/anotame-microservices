@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, untrack } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -8,10 +9,13 @@
   import { superForm, defaults, setError } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+  import { AdaptiveSelect } from '$lib/components/ui/responsive';
 
   const userSchema = z.object({
     id: z.string().nullable().optional(),
     username: z.string().optional().or(z.literal('')),
+    password: z.string().optional().or(z.literal('')),
+    role: z.string().default('EMPLOYEE'),
     firstName: z.string().min(1, 'El nombre es obligatorio'),
     lastName: z.string().min(1, 'El apellido es obligatorio'),
     email: z.string().email('Correo electrónico inválido'),
@@ -31,19 +35,46 @@
     validators: zod4(userSchema),
     async onUpdate({ form }) {
       if (!form.valid) return;
-      if (!form.data.id) return; // Edit only
+
+      const isEdit = !!form.data.id;
+      if (!isEdit) {
+        if (!form.data.username) {
+            setError(form, 'username', 'El nombre de usuario es obligatorio');
+            return;
+        }
+        if (!form.data.password || form.data.password.length < 6) {
+            setError(form, 'password', 'La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+      }
 
       isSubmitting = true;
       try {
-        await apiService.request(`${API_IDENTITY}/users/${form.data.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            firstName: form.data.firstName,
-            lastName: form.data.lastName,
-            email: form.data.email,
-          })
-        });
-        toast.success("Usuario actualizado exitosamente");
+        if (isEdit) {
+            await apiService.request(`${API_IDENTITY}/users/${form.data.id}`, {
+              method: 'PUT',
+              body: JSON.stringify({
+                firstName: form.data.firstName,
+                lastName: form.data.lastName,
+                email: form.data.email,
+              })
+            });
+            toast.success("Usuario actualizado exitosamente");
+        } else {
+            await apiService.request(`${API_IDENTITY}/users`, {
+              method: 'POST',
+              body: JSON.stringify({
+                username: form.data.username,
+                password: form.data.password,
+                role: form.data.role || 'EMPLOYEE',
+                firstName: form.data.firstName,
+                lastName: form.data.lastName,
+                email: form.data.email,
+              })
+            });
+            toast.success("Usuario creado exitosamente");
+        }
+        
         onClose();
         onSuccess?.();
       } catch (e: any) {
@@ -61,18 +92,24 @@
     }
   });
 
+
   $effect(() => {
-    if (item) {
-      $form = {
-        id: item.id || null,
-        username: item.username || '',
-        firstName: item.firstName || '',
-        lastName: item.lastName || '',
-        email: item.email || '',
-      };
-    } else {
-      reset();
-    }
+    // We only want to run this when `item` changes.
+    const currentItem = item;
+
+    untrack(() => {
+      if (currentItem) {
+        $form.id = currentItem.id || null;
+        $form.username = currentItem.username || '';
+        $form.password = '';
+        $form.role = currentItem.role || 'EMPLOYEE';
+        $form.firstName = currentItem.firstName || '';
+        $form.lastName = currentItem.lastName || '';
+        $form.email = currentItem.email || '';
+      } else {
+        reset();
+      }
+    });
   });
 
   function handleOpenChange(v: boolean) {
@@ -83,19 +120,46 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-md">
     <Dialog.Header>
-      <Dialog.Title>Editar Usuario</Dialog.Title>
+      <Dialog.Title>{$form.id ? 'Editar Usuario' : 'Nuevo Usuario'}</Dialog.Title>
       <Dialog.Description>
-        Actualiza los datos del usuario.
+        {$form.id ? 'Actualiza los datos del usuario.' : 'Crea un nuevo acceso al sistema.'}
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
-      <!-- Username: read-only -->
-      <div class="space-y-2">
-        <label for="u-username" class="text-sm font-medium">Usuario</label>
-        <div id="u-username" class="flex h-12 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
-          {$form.username}
+      {#if $form.id}
+        <!-- Username: read-only -->
+        <div class="space-y-2">
+          <label for="u-username" class="text-sm font-medium">Usuario</label>
+          <div id="u-username" class="flex h-12 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
+            {$form.username}
+          </div>
         </div>
-      </div>
+      {:else}
+        <!-- Username input for creation -->
+        <div class="space-y-2">
+          <label for="u-username" class="text-sm font-medium">Usuario (Login) <span class="text-destructive">*</span></label>
+          <Input id="u-username" name="username" bind:value={$form.username} class="h-12" />
+          {#if $errors.username}<span class="text-xs text-destructive">{$errors.username}</span>{/if}
+        </div>
+        <!-- Password input for creation -->
+        <div class="space-y-2">
+          <label for="u-password" class="text-sm font-medium">Contraseña <span class="text-destructive">*</span></label>
+          <Input id="u-password" name="password" type="password" bind:value={$form.password} class="h-12" />
+          {#if $errors.password}<span class="text-xs text-destructive">{$errors.password}</span>{/if}
+        </div>
+        <!-- Role input for creation -->
+        <div class="space-y-2">
+          <label for="u-role" class="text-sm font-medium">Rol <span class="text-destructive">*</span></label>
+          <AdaptiveSelect 
+            id="u-role" 
+            bind:value={$form.role} 
+            items={[
+                {value: 'EMPLOYEE', label: 'Empleado'},
+                {value: 'ADMIN', label: 'Administrador'}
+            ]}
+          />
+        </div>
+      {/if}
 
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-2">

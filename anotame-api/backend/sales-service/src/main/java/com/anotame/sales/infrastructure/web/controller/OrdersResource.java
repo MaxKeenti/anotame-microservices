@@ -1,6 +1,7 @@
 package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CreateOrderRequest;
+import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.application.service.SalesService;
@@ -29,6 +30,12 @@ public class OrdersResource {
     @GET
     public List<OrderResponse> getOrders() {
         return salesService.getAllOrders();
+    }
+
+    @GET
+    @Path("/kpi/dashboard")
+    public DashboardMetricsResponse getDashboardMetrics() {
+        return salesService.getDashboardMetrics();
     }
 
     @GET

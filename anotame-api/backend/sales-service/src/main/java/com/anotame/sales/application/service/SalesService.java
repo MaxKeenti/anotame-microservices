@@ -13,8 +13,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.anotame.sales.application.dto.DashboardMetricsResponse;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -249,5 +258,71 @@ public class SalesService {
         newCustomer.setPreferences(dto.getPreferences());
 
         return customerRepository.save(newCustomer);
+    }
+
+    @Transactional
+    public DashboardMetricsResponse getDashboardMetrics() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
+        LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfMonth.plusMonths(1);
+        LocalDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay();
+
+        // Workload Metrics
+        long todayDeliveries = orderRepository.countActiveByDeadlineRange(startOfDay, startOfTomorrow);
+        long comingDeliveries = orderRepository.countActiveFromDeadline(startOfTomorrow);
+        long readyForPickup = orderRepository.countByStatus("READY");
+        
+        List<String> finishedStatuses = Arrays.asList("READY", "DELIVERED", "CANCELLED");
+        long pendingPipeline = orderRepository.countByStatusNotIn(finishedStatuses);
+        long totalActive = pendingPipeline + readyForPickup;
+
+        // Finance Metrics
+        BigDecimal todayRevenue = orderRepository.sumPaidAmountInRange(startOfDay, startOfTomorrow);
+        BigDecimal monthlyRevenue = orderRepository.sumPaidAmountInRange(startOfMonth, startOfNextMonth);
+        BigDecimal pendingDebt = orderRepository.sumPendingDebt();
+
+        // Chart Data
+        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo);
+        List<DashboardMetricsResponse.WeeklyChartPoint> chartData = new ArrayList<>();
+        
+        // Ensure all 7 days are populated even if empty
+        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+        for (int i = 6; i >= 0; i--) {
+            LocalDate d = today.minusDays(i);
+            String dateStr = d.format(dtf);
+            
+            BigDecimal amount = BigDecimal.ZERO;
+            for (Object[] row : rawChartData) {
+                // row[0] is Date (java.sql.Date) or LocalDate, row[1] is BigDecimal
+                String rowDate = row[0].toString();
+                if (rowDate.equals(dateStr)) {
+                    amount = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
+                    break;
+                }
+            }
+            
+            chartData.add(DashboardMetricsResponse.WeeklyChartPoint.builder()
+                .date(dateStr)
+                .totalPaid(amount)
+                .build());
+        }
+
+        return DashboardMetricsResponse.builder()
+            .workload(DashboardMetricsResponse.WorkloadMetrics.builder()
+                .todayDeliveries(todayDeliveries)
+                .comingDeliveries(comingDeliveries)
+                .pendingPipeline(pendingPipeline)
+                .readyForPickup(readyForPickup)
+                .totalActive(totalActive)
+                .build())
+            .finance(DashboardMetricsResponse.FinanceMetrics.builder()
+                .todayRevenue(todayRevenue)
+                .monthlyRevenue(monthlyRevenue)
+                .pendingDebt(pendingDebt)
+                .build())
+            .weeklyRevenueChart(chartData)
+            .build();
     }
 }
