@@ -30,21 +30,27 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
     }
 
     // Finance
+    @SuppressWarnings("null")
     public BigDecimal sumPaidAmountInRange(LocalDateTime start, LocalDateTime end) {
-        BigDecimal sum = getEntityManager()
+        return getEntityManager()
             .createQuery("SELECT SUM(o.amountPaid) FROM OrderEntity o WHERE o.createdAt >= :start AND o.createdAt < :end", BigDecimal.class)
             .setParameter("start", start)
             .setParameter("end", end)
-            .getSingleResult();
-        return sum != null ? sum : BigDecimal.ZERO;
+            .getResultStream()
+            .filter(java.util.Objects::nonNull)
+            .findFirst()
+            .orElse(BigDecimal.ZERO);
     }
 
+    @SuppressWarnings("null")
     public BigDecimal sumPendingDebt() {
         // Pending debt calculated only for non-cancelled/non-delivered items
-        BigDecimal sum = getEntityManager()
+        return getEntityManager()
             .createQuery("SELECT SUM(o.totalAmount - o.amountPaid) FROM OrderEntity o WHERE o.status not in ('DELIVERED', 'CANCELLED') AND o.totalAmount > o.amountPaid", BigDecimal.class)
-            .getSingleResult();
-        return sum != null ? sum : BigDecimal.ZERO;
+            .getResultStream()
+            .filter(java.util.Objects::nonNull)
+            .findFirst()
+            .orElse(BigDecimal.ZERO);
     }
 
     // Chart

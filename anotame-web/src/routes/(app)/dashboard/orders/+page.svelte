@@ -137,8 +137,10 @@
         <AdaptiveSelect
           id="filter-garment"
           bind:value={garmentFilter}
-          placeholder="Todas"
+          placeholder="Selecciona una prenda"
           items={garments.map(g => ({ value: g.id, label: g.name }))}
+          allowClear={true}
+          clearText="Todas las prendas"
           class=""
         />
       </div>

@@ -218,7 +218,7 @@
                   style="height: {heightPct}%"
                 ></div>
                 <!-- Date Label -->
-                <div class="text-[10px] mt-2 text-muted-foreground rotate-[-45deg] pb-2 uppercase truncate w-full text-center">
+                <div class="text-[10px] mt-2 text-muted-foreground -rotate-45deg pb-2 uppercase truncate w-full text-center">
                   {#if day.date}
                     {new Date(day.date).toLocaleDateString('es-ES', { weekday: 'short' })}
                   {/if}

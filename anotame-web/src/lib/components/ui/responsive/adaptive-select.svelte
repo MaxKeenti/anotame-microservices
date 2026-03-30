@@ -9,6 +9,8 @@
     items = [],
     id = '',
     class: className = '',
+    allowClear = false,
+    clearText = 'Ninguno'
   }: {
     value?: string;
     onValueChange?: (value: string) => void;
@@ -16,6 +18,8 @@
     items: { value: string; label: string }[];
     id?: string;
     class?: string;
+    allowClear?: boolean;
+    clearText?: string;
   } = $props();
 
   const mobile = useIsMobile();
@@ -38,9 +42,12 @@
     {id}
     bind:value
     onchange={handleNativeChange}
-    class="flex h-12 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation bg-background {className}"
+    class="flex h-12! w-full items-center justify-between rounded-md border border-input px-3 py-2 text-base shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation bg-background {className}"
   >
     <option value="">{placeholder}</option>
+    {#if allowClear && value}
+      <option value="">{clearText}</option>
+    {/if}
     {#each items as item (item.value)}
       <option value={item.value}>{item.label}</option>
     {/each}
@@ -48,7 +55,7 @@
 {:else}
   <!-- Desktop: Styled shadcn Select -->
   <Select.Root type="single" value={value} onValueChange={handleSelectChange}>
-    <Select.Trigger {id} class="h-12 w-full text-base font-normal {className}">
+    <Select.Trigger {id} class="flex h-12! w-full text-base font-normal {className}">
       {#if value}
         {@const selected = items.find(i => i.value === value)}
         {selected?.label ?? placeholder}
@@ -57,6 +64,9 @@
       {/if}
     </Select.Trigger>
     <Select.Content>
+      {#if allowClear && value !== '' && value !== undefined}
+        <Select.Item value="">{clearText}</Select.Item>
+      {/if}
       {#each items as item (item.value)}
         <Select.Item value={item.value}>{item.label}</Select.Item>
       {/each}
