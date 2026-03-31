@@ -1,11 +1,12 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
     import { authService } from '$lib/services/auth.svelte';
-    import { apiService, API_SALES } from '$lib/services/api.svelte';
+    import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
     import { Button } from '$lib/components/ui/button';
     import { Input } from '$lib/components/ui/input';
-    import { CreditCard, DollarSign, Wallet } from 'lucide-svelte';
+    import { CreditCard, DollarSign, Wallet, AlertTriangle } from 'lucide-svelte';
     import { toast } from 'svelte-sonner';
     import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 
@@ -39,6 +40,35 @@
     function handleNotes(notes: string) {
         orderWizardState.updateActiveDraft({ notes });
     }
+
+    // Workload validation logic
+    let capacity = $state(480);
+    let dailyWorkload = $state<any[]>([]);
+
+    onMount(async () => {
+        try {
+            const [estData, metricsData] = await Promise.all([
+                apiService.request<any>(`${API_OPERATIONS}/establishment`),
+                apiService.request<any>(`${API_SALES}/orders/metrics/dashboard`)
+            ]);
+            if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
+            if (metricsData?.dailyWorkload) dailyWorkload = metricsData.dailyWorkload;
+        } catch (e) {
+            console.warn("Could not fetch capacity metrics", e);
+        }
+    });
+
+    let selectedDayWorkload = $derived.by(() => {
+        if (!draft.committedDeadline || dailyWorkload.length === 0) return 0;
+        const selectedDate = draft.committedDeadline.slice(0, 10);
+        const day = dailyWorkload.find(d => d.date === selectedDate);
+        return day ? day.totalMinutesUsed : 0;
+    });
+
+    let totalMinutes = $derived(orderWizardState.totalMinutes);
+    let projectedOccupancy = $derived(selectedDayWorkload + totalMinutes);
+    let occupancyPercentage = $derived(Math.min(100, Math.round((projectedOccupancy / capacity) * 100)));
+    let isCluttered = $derived(projectedOccupancy > capacity);
 
     let minDeadline = $derived.by(() => {
         const now = new Date();
@@ -206,6 +236,32 @@
                     placeholder="Seleccionar fecha y hora..."
                     class="rounded-xl text-lg"
                 />
+
+                {#if draft.committedDeadline}
+                    <div class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-medium">Ocupación para este día:</span>
+                            <span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
+                                {projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
+                            </span>
+                        </div>
+                        <div class="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                            <div class="h-full {isCluttered ? 'bg-destructive' : 'bg-primary'} transition-all duration-500" style="width: {occupancyPercentage}%"></div>
+                        </div>
+                        
+                        {#if isCluttered}
+                            <div class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95">
+                                <AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                                <div>
+                                    <h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
+                                    <p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
+                                        Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la entrega a tiempo.
+                                    </p>
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
             </div>
             <div class="space-y-2">
                 <label class="text-sm font-medium" for="order-notes">Notas Generales de Orden</label>

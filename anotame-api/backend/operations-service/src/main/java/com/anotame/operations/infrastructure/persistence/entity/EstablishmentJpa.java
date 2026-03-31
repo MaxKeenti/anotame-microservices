@@ -35,6 +35,9 @@ public class EstablishmentJpa {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
+    @Column(name = "daily_capacity_minutes")
+    private Integer dailyCapacityMinutes = 480; // Default 8 hours
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

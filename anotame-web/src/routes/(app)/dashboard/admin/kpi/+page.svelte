@@ -4,6 +4,8 @@
   import { formatCurrency } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
   import { TrendingUp, Activity, Truck, AlertCircle, Clock, Banknote, Calendar } from 'lucide-svelte';
+  import WorkloadCalendar from '$lib/components/dashboard/WorkloadCalendar.svelte';
+  import { API_OPERATIONS } from '$lib/services/api.svelte';
 
   interface DashboardMetrics {
     workload: {
@@ -22,9 +24,14 @@
       date: string;
       totalPaid: number;
     }[];
+    dailyWorkload: {
+      date: string;
+      totalMinutesUsed: number;
+    }[];
   }
 
   let metrics = $state<DashboardMetrics | null>(null);
+  let capacity = $state(480);
   let isLoading = $state(true);
 
   // Math for simple bar chart scaling
@@ -34,8 +41,12 @@
 
   onMount(async () => {
     try {
-      const data = await apiService.request<DashboardMetrics>(`${API_SALES}/orders/kpi/dashboard`);
-      metrics = data;
+      const [metricsData, estData] = await Promise.all([
+        apiService.request<DashboardMetrics>(`${API_SALES}/orders/metrics/dashboard`),
+        apiService.request<any>(`${API_OPERATIONS}/establishment`)
+      ]);
+      metrics = metricsData;
+      if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
     } catch (e) {
       console.error("Error cargando KPIs:", e);
     } finally {
@@ -146,6 +157,11 @@
             <div class="h-full bg-primary/40 transition-all duration-1000 ease-out" style="width: {100 - pctReady}%"></div>
           {/if}
         </div>
+      </div>
+
+      <!-- New Workload Calendar -->
+      <div class="mt-8">
+        <WorkloadCalendar dailyWorkload={metrics.dailyWorkload} {capacity} />
       </div>
     </div>
 

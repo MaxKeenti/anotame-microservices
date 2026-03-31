@@ -60,4 +60,12 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
             .setParameter("start", start)
             .getResultList();
     }
+
+    public List<Object[]> getDailyWorkload(LocalDateTime start, LocalDateTime end) {
+        return getEntityManager()
+            .createQuery("SELECT CAST(o.committedDeadline AS date), SUM(o.totalDurationMin) FROM OrderEntity o WHERE o.committedDeadline >= :start AND o.committedDeadline < :end AND o.status not in ('DELIVERED', 'CANCELLED') GROUP BY CAST(o.committedDeadline AS date) ORDER BY CAST(o.committedDeadline AS date)", Object[].class)
+            .setParameter("start", start)
+            .setParameter("end", end)
+            .getResultList();
+    }
 }

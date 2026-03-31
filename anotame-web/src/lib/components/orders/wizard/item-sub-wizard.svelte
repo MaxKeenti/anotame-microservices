@@ -28,6 +28,7 @@
     let price = $state<string>("");
     let adj = $state<string>("");
     let adjReason = $state("");
+    let duration = $state<number>(30);
 
     let notes = $state("");
     let showAllServices = $state(false);
@@ -108,6 +109,7 @@
         price = String(s.effectivePrice ?? s.basePrice);
         adj = "";
         adjReason = "";
+        duration = s.defaultDurationMin || 30;
         step = 2;
     }
 
@@ -118,7 +120,8 @@
             serviceName: tempService.name,
             unitPrice: parseFloat(price) || 0,
             adjustmentAmount: parseFloat(adj) || 0,
-            adjustmentReason: adjReason
+            adjustmentReason: adjReason,
+            durationMin: duration
         }];
         toast.success("Servicio agregado", { description: tempService.name });
         tempService = null;
@@ -199,9 +202,12 @@
                                 <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
                                     <div>
                                         <div class="font-medium text-lg">{s.serviceName}</div>
-                                        {#if s.adjustmentReason}
-                                            <div class="text-sm text-muted-foreground">Adj: {s.adjustmentReason}</div>
-                                        {/if}
+                                        <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
+                                            {#if s.adjustmentReason}
+                                                <span>Adj: {s.adjustmentReason}</span>
+                                            {/if}
+                                            <span>⏱️ {s.durationMin} min</span>
+                                        </div>
                                     </div>
                                     <div class="flex items-center gap-4">
                                         <div class="text-right">
@@ -300,6 +306,23 @@
                                 bind:value={adjReason}
                             />
                         </div>
+                    </div>
+
+                    <div class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
+                        <div class="flex justify-between items-center">
+                            <label class="text-base font-bold text-primary" for="duracion">Esfuerzo Estimado (Minutos)</label>
+                            <span class="font-mono text-2xl font-bold text-primary">{duration}m</span>
+                        </div>
+                        <Input
+                            id="duracion"
+                            type="range"
+                            min="5"
+                            max="300"
+                            step="5"
+                            class="h-10 cursor-pointer accent-primary"
+                            bind:value={duration}
+                        />
+                        <p class="text-xs text-muted-foreground italic text-center">Desliza para ajustar si crees que esta prenda tomará más tiempo de lo normal.</p>
                     </div>
 
                     <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>

@@ -8,6 +8,7 @@ export interface DraftOrderItem extends Partial<OrderItemDto> {
         serviceId: string;
         serviceName: string;
         unitPrice: number;
+        durationMin: number;
         adjustmentAmount?: number;
         adjustmentReason?: string;
     }>;
@@ -15,9 +16,9 @@ export interface DraftOrderItem extends Partial<OrderItemDto> {
 }
 
 export interface DraftOrder extends Partial<Omit<CreateOrderRequest, 'items'>> {
-    id: string; 
+    id: string;
     lastModified: number;
-    currentStep: number; 
+    currentStep: number;
     items?: DraftOrderItem[];
     amountPaid?: number;
     paymentMethod?: string;
@@ -27,9 +28,18 @@ export interface DraftOrder extends Partial<Omit<CreateOrderRequest, 'items'>> {
 class OrderWizardState {
     // Organically persists to LocalStorage via Runed
     drafts = new PersistedState<DraftOrder[]>('anotame_drafts', []);
-    
+
     // Currently active draft manipulated by the wizard views
     activeDraft = $state<DraftOrder | null>(null);
+
+    totalMinutes = $derived.by(() => {
+        if (!this.activeDraft || !this.activeDraft.items) return 0;
+        return this.activeDraft.items.reduce((total, item) => {
+            const qty = item.quantity || 1;
+            const itemMins = item.services.reduce((sum, s) => sum + (s.durationMin || 0), 0);
+            return total + (itemMins * qty);
+        }, 0);
+    });
 
     loadDraft(id: string) {
         this.activeDraft = this.drafts.current.find((d: DraftOrder) => d.id === id) || null;

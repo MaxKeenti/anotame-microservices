@@ -50,6 +50,7 @@ public class SalesService {
 
         // 3. Add Items & Calculate Total
         BigDecimal total = BigDecimal.ZERO;
+        int totalDuration = 0;
 
         for (OrderItemDto itemDto : request.getItems()) {
             OrderItem item = new OrderItem();
@@ -70,11 +71,13 @@ public class SalesService {
                             serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
                                     : BigDecimal.ZERO);
                     service.setAdjustmentReason(serviceDto.getAdjustmentReason());
+                    service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
 
                     item.addService(service);
 
                     BigDecimal serviceTotal = service.getUnitPrice().add(service.getAdjustmentAmount());
                     itemSubtotal = itemSubtotal.add(serviceTotal);
+                    totalDuration += (service.getDurationMin() * item.getQuantity());
                 }
             }
 
@@ -88,6 +91,7 @@ public class SalesService {
         }
 
         order.setTotalAmount(total);
+        order.setTotalDurationMin(totalDuration);
 
         return orderRepository.save(order);
     }
@@ -307,6 +311,27 @@ public class SalesService {
                     .build());
         }
 
+        // Daily Workload (Next 30 days)
+        LocalDateTime endOfWorkloadRange = startOfDay.plusDays(30);
+        List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange);
+        List<DashboardMetricsResponse.WorkloadDayPoint> dailyWorkload = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate d = today.plusDays(i);
+            String dateStr = d.format(dtf);
+            long mins = 0;
+            for (Object[] row : rawWorkloadData) {
+                if (row[0].toString().equals(dateStr)) {
+                    mins = row[1] != null ? ((Number) row[1]).longValue() : 0;
+                    break;
+                }
+            }
+            dailyWorkload.add(DashboardMetricsResponse.WorkloadDayPoint.builder()
+                    .date(dateStr)
+                    .totalMinutesUsed(mins)
+                    .build());
+        }
+
         return DashboardMetricsResponse.builder()
                 .workload(DashboardMetricsResponse.WorkloadMetrics.builder()
                         .todayDeliveries(todayDeliveries)
@@ -321,6 +346,7 @@ public class SalesService {
                         .pendingDebt(pendingDebt)
                         .build())
                 .weeklyRevenueChart(chartData)
+                .dailyWorkload(dailyWorkload)
                 .build();
     }
 }

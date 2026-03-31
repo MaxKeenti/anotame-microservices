@@ -19,4 +19,5 @@ public interface OrderRepositoryPort {
     java.math.BigDecimal sumPaidAmountInRange(java.time.LocalDateTime start, java.time.LocalDateTime end);
     java.math.BigDecimal sumPendingDebt();
     java.util.List<Object[]> getWeeklyRevenueData(java.time.LocalDateTime start);
+    java.util.List<Object[]> getDailyWorkload(java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

@@ -35,7 +35,15 @@ public class DashboardMetricsResponse {
         private BigDecimal totalPaid;
     }
 
+    @Data
+    @Builder
+    public static class WorkloadDayPoint {
+        private String date; // ISO Date YYYY-MM-DD
+        private long totalMinutesUsed;
+    }
+
     private WorkloadMetrics workload;
     private FinanceMetrics finance;
     private List<WeeklyChartPoint> weeklyRevenueChart;
+    private List<WorkloadDayPoint> dailyWorkload;
 }

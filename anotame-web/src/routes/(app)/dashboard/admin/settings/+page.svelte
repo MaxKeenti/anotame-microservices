@@ -15,7 +15,8 @@
     name: '',
     ownerName: '',
     taxInfo: '{}',
-    active: true
+    active: true,
+    dailyCapacityMinutes: 480
   });
 
   // Parsed tax data for form binding
@@ -116,6 +117,17 @@
               class="h-12"
               placeholder="Opcional"
             />
+          </div>
+          <div class="space-y-2">
+            <label for="est-capacity" class="text-sm font-medium">Capacidad Diaria Manual (Minutos)</label>
+            <Input 
+              id="est-capacity" 
+              type="number"
+              bind:value={settings.dailyCapacityMinutes} 
+              class="h-12 font-mono"
+              placeholder="Ej. 480 para 8 horas"
+            />
+            <p class="text-xs text-muted-foreground">Define el límite de "espacios" (minutos) disponibles por día para programar pedidos.</p>
           </div>
         </Card.Content>
       </Card.Root>
