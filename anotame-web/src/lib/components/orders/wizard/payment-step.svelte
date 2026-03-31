@@ -40,6 +40,12 @@
         orderWizardState.updateActiveDraft({ notes });
     }
 
+    let minDeadline = $derived.by(() => {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+    });
+
     async function handleSubmit() {
         if (!draft.customer || !draft.items || draft.items.length === 0) {
             error = "Faltan datos requeridos (Cliente o Prendas)";
@@ -195,6 +201,7 @@
                 <AdaptiveDateTimePicker
                     id="delivery-date"
                     value={draft.committedDeadline ? draft.committedDeadline.slice(0, 16) : ''}
+                    min={minDeadline}
                     onValueChange={(v) => handleDeadline(v)}
                     placeholder="Seleccionar fecha y hora..."
                     class="rounded-xl text-lg"

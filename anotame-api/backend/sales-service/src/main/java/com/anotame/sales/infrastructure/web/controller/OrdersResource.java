@@ -23,7 +23,7 @@ public class OrdersResource {
     SalesService salesService;
 
     @POST
-    public Order createOrder(CreateOrderRequest request, @HeaderParam("X-User-Name") String username) {
+    public Order createOrder(@jakarta.validation.Valid CreateOrderRequest request, @HeaderParam("X-User-Name") String username) {
         return salesService.createOrder(request, username);
     }
 
@@ -46,7 +46,7 @@ public class OrdersResource {
 
     @PUT
     @Path("/{id}")
-    public OrderResponse updateOrder(@PathParam("id") UUID id, CreateOrderRequest request) {
+    public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid CreateOrderRequest request) {
         return salesService.updateOrder(id, request);
     }
 

@@ -6,7 +6,7 @@ This document outlines the architectural, structural, and coding standards for t
 - **Monorepo Structure**: Contains `anotame-api` (Backend), `anotame-web` (Frontend), `anotame-web-legacy` (deprecated Next.js), and `anotame-db` (Database).
 - **Backend**: Java Quarkus Microservices (Identity, Catalog, Sales, Operations).
 - **Frontend**: Svelte 5 + SvelteKit.
-- **Database**: PostgreSQL with PostGIS support.
+- **Database**: PostgreSQL.
 - **Containerization**: All services are run via Docker using `docker-compose.yml`.
 
 ## 2. Backend Standards (Java Quarkus)

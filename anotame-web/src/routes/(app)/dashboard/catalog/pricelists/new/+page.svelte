@@ -184,11 +184,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-2">
             <label for="pl-from" class="text-sm font-medium">Válido Desde</label>
-            <AdaptiveDatePicker id="pl-from" bind:value={validFrom} />
+            <AdaptiveDatePicker id="pl-from" bind:value={validFrom} min={new Date().toISOString().slice(0, 10)} />
           </div>
           <div class="space-y-2">
             <label for="pl-to" class="text-sm font-medium">Válido Hasta (Opcional)</label>
-            <AdaptiveDatePicker id="pl-to" bind:value={validTo} placeholder="Permanente si está vacío" />
+            <AdaptiveDatePicker id="pl-to" bind:value={validTo} min={validFrom || new Date().toISOString().slice(0, 10)} placeholder="Permanente si está vacío" />
           </div>
         </div>
       </Card.Content>

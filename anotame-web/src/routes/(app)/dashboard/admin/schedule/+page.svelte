@@ -200,6 +200,7 @@
                 <AdaptiveDatePicker
                   id="hol-date"
                   bind:value={newHolidayDate}
+                  min={new Date().toISOString().slice(0, 10)}
                   placeholder="Elige una fecha"
                 />
               </div>

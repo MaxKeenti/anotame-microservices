@@ -8,6 +8,7 @@ import java.util.List;
 public class CreateOrderRequest {
     private CustomerDto customer;
     private List<OrderItemDto> items;
+    @jakarta.validation.constraints.FutureOrPresent(message = "La fecha de entrega debe ser hoy o en el futuro")
     private LocalDateTime committedDeadline;
     private String notes;
     private java.math.BigDecimal amountPaid;

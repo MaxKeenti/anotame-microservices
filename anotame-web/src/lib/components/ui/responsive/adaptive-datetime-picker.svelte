@@ -12,12 +12,16 @@
 
   let {
     value = $bindable(''),
+    min = '',
+    max = '',
     onValueChange,
     placeholder = 'Seleccionar fecha y hora...',
     id = '',
     class: className = '',
   }: {
     value?: string;
+    min?: string;
+    max?: string;
     onValueChange?: (value: string) => void;
     placeholder?: string;
     id?: string;
@@ -46,6 +50,17 @@
     return new CalendarDate(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
   });
 
+  let minCalendarDate = $derived.by(() => {
+    if (!min) return undefined;
+    const parts = min.split('T')[0].split('-');
+    if (parts.length !== 3) return undefined;
+    try {
+      return new CalendarDate(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+    } catch {
+      return undefined;
+    }
+  });
+
   // Format display text
   let displayText = $derived.by(() => {
     if (!value || !datePart) return '';
@@ -62,18 +77,28 @@
     }
   });
 
+  function handleValueChange(newValue: string) {
+    let finalValue = newValue;
+    if (min && newValue < min) {
+      finalValue = min;
+    }
+    if (max && newValue > max) {
+      finalValue = max;
+    }
+    value = finalValue;
+    onValueChange?.(finalValue);
+  }
+
   function handleNativeChange(e: Event) {
     const target = e.target as HTMLInputElement;
-    value = target.value;
-    onValueChange?.(target.value);
+    handleValueChange(target.value);
   }
 
   function handleCalendarChange(dateValue: DateValue | undefined) {
     if (!dateValue) return;
     const iso = `${dateValue.year}-${String(dateValue.month).padStart(2, '0')}-${String(dateValue.day).padStart(2, '0')}`;
     const newValue = `${iso}T${timePart}`;
-    value = newValue;
-    onValueChange?.(newValue);
+    handleValueChange(newValue);
   }
 
   function handleTimeChange(e: Event) {
@@ -81,8 +106,7 @@
     const newTime = target.value;
     const dateStr = datePart || new Date().toISOString().slice(0, 10);
     const newValue = `${dateStr}T${newTime}`;
-    value = newValue;
-    onValueChange?.(newValue);
+    handleValueChange(newValue);
   }
 </script>
 
@@ -92,6 +116,8 @@
     {id}
     type="datetime-local"
     value={value ? value.slice(0, 16) : ''}
+    min={min ? min.slice(0, 16) : ''}
+    max={max ? max.slice(0, 16) : ''}
     oninput={handleNativeChange}
     class="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm ring-offset-background touch-manipulation text-center {className}"
   />
@@ -116,6 +142,7 @@
         type="single"
         value={calendarValue}
         onValueChange={handleCalendarChange}
+        minValue={minCalendarDate}
         initialFocus
       />
       <div class="border-t border-border p-3 flex items-center gap-2">
