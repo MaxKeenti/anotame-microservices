@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-04-01T15:22:42.768Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-01T15:26:07.336Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 02 (Security Foundations) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-04-01
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 02 P01 | 8 | 4 tasks | 3 files |
 | Phase 02 P02 | 15 | 5 tasks | 6 files |
+| Phase 02 P03 | 10m | 5 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,7 @@ Recent decisions affecting current work:
 - Initialization: Flyway V1 must be generated via `pg_dump`, not hand-written — validate on staging before production
 - [Phase 02]: Use exact-match .env rule in .gitignore (not a glob) to prevent accidentally ignoring .env.example or other .env-prefixed non-secret files
 - [Phase 02]: JWT keys delivered via env vars (SMALLRYE_JWT_SIGN_KEY, MP_JWT_VERIFY_PUBLICKEY) instead of file-path .location properties to enable Railway CI builds without committed PEM files
+- [Phase 02]: Class-level @Authenticated on controllers enforces security by default; @PermitAll exempts guest schedule check; UserController mutations restricted to ADMIN role
 
 ### Pending Todos
 
@@ -80,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T15:22:42.766Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-04-01T15:26:07.334Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

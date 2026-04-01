@@ -18,8 +18,8 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 - [x] **SEC-01**: Database credentials are not hardcoded in any `application.properties` — resolved via env vars (`QUARKUS_DATASOURCE_USERNAME`, `QUARKUS_DATASOURCE_PASSWORD`) across all 4 services
 - [x] **SEC-02**: JWT private key is not present in the repository — PEM files excluded via `.gitignore`, key rotated, new key injected via env var (`SMALLRYE_JWT_SIGN_KEY`, `MP_JWT_VERIFY_PUBLICKEY`)
-- [ ] **SEC-03**: Auth cookie `secure` flag is `true` in production — `%prod.anotame.auth.cookie.secure=true` in identity-service; `%dev` override allows `false` for local development
-- [ ] **SEC-04**: `OperationsController` and `ScheduleController` are protected with `@Authenticated` at class level
+- [x] **SEC-03**: Auth cookie `secure` flag is `true` in production — `%prod.anotame.auth.cookie.secure=true` in identity-service; `%dev` override allows `false` for local development
+- [x] **SEC-04**: `OperationsController` and `ScheduleController` are protected with `@Authenticated` at class level
 - [ ] **SEC-05**: `UserController` (identity-service) is protected with `@Authenticated` + `@RolesAllowed("ADMIN")` on management endpoints
 - [ ] **SEC-06**: PgAdmin password is not a hardcoded literal in `docker-compose.yml` — moved to `.env` file
 
@@ -108,8 +108,8 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 >>>>>>> 61149ac4d1284fed73f036bc3a87e0e0b9fa6dc8
 | SEC-01 | Phase 2 | Complete |
 | SEC-02 | Phase 2 | Complete |
-| SEC-03 | Phase 2 | Pending |
-| SEC-04 | Phase 2 | Pending |
+| SEC-03 | Phase 2 | Complete |
+| SEC-04 | Phase 2 | Complete |
 | SEC-05 | Phase 2 | Pending |
 | SEC-06 | Phase 2 | Pending |
 | DATA-01 | Phase 3 | Pending |
