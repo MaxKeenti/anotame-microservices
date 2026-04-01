@@ -8,6 +8,7 @@ import com.anotame.sales.application.service.SalesService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,20 @@ public class OrdersResource {
     @Inject
     SalesService salesService;
 
+    @Inject
+    JsonWebToken jwt;
+
     @POST
-    public Order createOrder(@jakarta.validation.Valid CreateOrderRequest request, @HeaderParam("X-User-Name") String username) {
-        return salesService.createOrder(request, username);
+    public Order createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
+        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+
+        // TODO: remove fallback after all sessions refreshed following 03-01 deployment
+        String branchClaim = jwt.getClaim("branch_id");
+        UUID branchId = (branchClaim != null)
+                ? UUID.fromString(branchClaim)
+                : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
+
+        return salesService.createOrder(request, userId, branchId);
     }
 
     @GET

@@ -26,6 +26,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     @Inject
     CustomerRepository customerRepository;
 
+    @Inject
+    jakarta.persistence.EntityManager em;
+
     @Override
     @Transactional
     public Order save(Order order) {
@@ -150,6 +153,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         return orderRepository.getDailyWorkload(start, end);
     }
 
+    @Override
+    public String nextTicketNumber() {
+        Long next = ((Number) em.createNativeQuery(
+                "SELECT nextval('tco_ticket_number_seq')").getSingleResult()).longValue();
+        return String.format("ORD-%05d", next);
+    }
 
     private Order toDomain(OrderEntity entity) {
         Order o = new Order();

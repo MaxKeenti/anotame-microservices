@@ -66,8 +66,8 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 03-01: Add `branchId` and `userId` JWT claims — extend identity-service `AuthService` to look up and embed the user's branch UUID and real UUID in the issued token
-- [ ] 03-02: Resolve branch and user from JWT in sales-service — update `SalesService` to read `branchId` and `sub`/`userId` from `SecurityContext`; keep hardcoded UUID fallback until all active sessions have refreshed; remove fallback after validation
+- [x] 03-01: Add `branchId` and `userId` JWT claims — extend identity-service `AuthService` to look up and embed the user's branch UUID and real UUID in the issued token
+- [x] 03-02: Resolve branch and user from JWT in sales-service — update `SalesService` to read `branchId` and `sub`/`userId` from `SecurityContext`; keep hardcoded UUID fallback until all active sessions have refreshed; remove fallback after validation
 - [ ] 03-03: Replace collision-prone ticket numbers with a DB sequence — add a `CREATE SEQUENCE` migration, update `SalesService` to call `NEXTVAL`, prepend `ORD-` prefix
 
 ### Phase 4: Exception Handling Standardization
@@ -146,7 +146,7 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Close UI Color Standardization | 1/1 | Complete   | 2026-04-01 |
 | 2. Security Foundations | 4/4 | Complete   | 2026-04-01 |
-| 3. Data Integrity Fixes | 0/3 | Not started | - |
+| 3. Data Integrity Fixes | 2/3 | In Progress|  |
 | 4. Exception Handling Standardization | 0/3 | Not started | - |
 | 5. Frontend Pattern Compliance | 0/3 | Not started | - |
 | 6. Database Migration Framework | 0/4 | Not started | - |

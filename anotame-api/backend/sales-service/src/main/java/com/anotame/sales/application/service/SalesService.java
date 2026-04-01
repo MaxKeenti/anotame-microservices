@@ -31,7 +31,7 @@ public class SalesService {
     private final CustomerRepositoryPort customerRepository;
 
     @Transactional
-    public Order createOrder(CreateOrderRequest request, String username) {
+    public Order createOrder(CreateOrderRequest request, UUID userId, UUID branchId) {
         // 1. Resolve or Create Customer
         Customer customer = resolveCustomer(request.getCustomer());
 
@@ -40,10 +40,14 @@ public class SalesService {
         order.setCustomer(customer);
         order.setCommittedDeadline(request.getCommittedDeadline());
         order.setNotes(request.getNotes());
-        order.setTicketNumber("ORD-" + System.currentTimeMillis() % 10000); // Simple ID generation
-        order.setFolioBranch(1); // Default Folio for test
-        order.setBranchId(UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1")); // Default Branch
-        order.setCreatedBy(UUID.nameUUIDFromBytes(username.getBytes())); // Deterministic UUID from username
+        String ticketNumber = orderRepository.nextTicketNumber();
+        order.setTicketNumber(ticketNumber);
+        // folio_branch uses the same sequence value as ticketNumber for consistency.
+        // Parse the numeric part from "ORD-00042" -> 42.
+        int folioNumber = Integer.parseInt(ticketNumber.substring(4));
+        order.setFolioBranch(folioNumber);
+        order.setBranchId(branchId);
+        order.setCreatedBy(userId);
         order.setCreatedAt(LocalDateTime.now());
         order.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());

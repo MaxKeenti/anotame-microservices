@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: active
-stopped_at: Phase 02 complete — verified 7/7
-last_updated: "2026-04-01T16:00:00.000Z"
+status: Ready to execute
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-04-01T20:05:16.615Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 0
+  total_plans: 8
+  completed_plans: 7
+  percent: 28
 ---
 
 # Project State
@@ -21,12 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** A laundry business staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 03 — Data Integrity Fixes
+**Current focus:** Phase 04 — Exception Handling Standardization
 
 ## Current Position
 
-Phase: 02 (Security Foundations) — ✅ COMPLETE (2026-04-01)
-Next: Phase 03 — Data Integrity Fixes
+Phase: 03 (Data Integrity Fixes) — ✅ COMPLETE (2026-04-01)
+Next: Phase 04 — Exception Handling Standardization
+Plan: 3 of 3
+Next: Phase 04 — Exception Handling Standardization
 Last activity: 2026-04-01
 
 Progress: [██░░░░░░░░] 28% (2/7 phases)
@@ -54,6 +56,8 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 02 P01 | 8 | 4 tasks | 3 files |
 | Phase 02 P02 | 15 | 5 tasks | 6 files |
 | Phase 02 P03 | 10m | 5 tasks | 4 files |
+| Phase 03 P01 | 84s | 3 tasks | 3 files |
+| Phase 03 P02 | 8 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -68,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Use exact-match .env rule in .gitignore (not a glob) to prevent accidentally ignoring .env.example or other .env-prefixed non-secret files
 - [Phase 02]: JWT keys delivered via env vars (SMALLRYE_JWT_SIGN_KEY, MP_JWT_VERIFY_PUBLICKEY) instead of file-path .location properties to enable Railway CI builds without committed PEM files
 - [Phase 02]: Class-level @Authenticated on controllers enforces security by default; @PermitAll exempts guest schedule check; UserController mutations restricted to ADMIN role
+- [Phase 03]: Native query in UserRepository for tce_employee_assignment lookup — avoids new entity hierarchy for cross-context join table
+- [Phase 03]: branch_id JWT claim omitted when null (not empty string) — downstream must handle absent claim with rollout fallback
+- [Phase 03]: Use PostgreSQL sequence tco_ticket_number_seq for ticket numbers; folio_branch derives from same sequence value for consistency
 
 ### Pending Todos
 
@@ -81,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T16:00:00.000Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-04-01T20:05:16.612Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

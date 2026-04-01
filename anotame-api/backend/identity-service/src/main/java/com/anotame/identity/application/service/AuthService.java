@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -64,7 +65,8 @@ public class AuthService {
                         roles.add(user.getRole().getCode());
                 }
 
-                var jwtToken = jwtUtils.generateToken(user.getUsername(), roles);
+                UUID branchId = userRepository.findActiveBranchForUser(user.getId());
+                var jwtToken = jwtUtils.generateToken(user.getUsername(), user.getId(), branchId, roles);
 
                 var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
                                 .id(user.getId())
@@ -131,7 +133,8 @@ public class AuthService {
                         roles.add(user.getRole().getCode());
                 }
 
-                var jwtToken = jwtUtils.generateToken(user.getUsername(), roles);
+                UUID branchId = userRepository.findActiveBranchForUser(user.getId());
+                var jwtToken = jwtUtils.generateToken(user.getUsername(), user.getId(), branchId, roles);
 
                 var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
                                 .id(user.getId())
