@@ -1,13 +1,30 @@
 <script lang="ts">
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
-  
+  import { paletteStore } from '$lib/stores/palette.svelte';
+
   let { children } = $props();
-  // Protect all internal dashboard routes. If not logged in, boot out to /login
   const guard = useAuthGuard('/login');
 
   let isMenuOpen = $state(false);
   let isProfileOpen = $state(false);
+
+  $effect(() => {
+    const palette = paletteStore.current;
+    const el = document.documentElement;
+    const vars: Array<[string, string | null]> = [
+      ['--primary', palette.primary],
+      ['--accent', palette.accent],
+      ['--destructive', palette.destructive],
+    ];
+    for (const [prop, value] of vars) {
+      if (value) {
+        el.style.setProperty(prop, value);
+      } else {
+        el.style.removeProperty(prop);
+      }
+    }
+  });
 </script>
 
 {#if guard.checking}
