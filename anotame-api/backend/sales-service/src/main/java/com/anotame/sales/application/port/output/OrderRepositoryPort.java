@@ -11,6 +11,14 @@ public interface OrderRepositoryPort {
 
     void delete(java.util.UUID id);
 
+    /**
+     * Returns the next ticket number from the PostgreSQL sequence tco_ticket_number_seq.
+     * Format: ORD-00001, ORD-00042, etc. (zero-padded to 5 digits).
+     * This is the ONLY correct way to generate ticket numbers — do NOT use
+     * System.currentTimeMillis() or UUID-based approaches, both of which collide.
+     */
+    String nextTicketNumber();
+
     // KPI Metrics
     long countActiveByDeadlineRange(java.time.LocalDateTime start, java.time.LocalDateTime end);
     long countActiveFromDeadline(java.time.LocalDateTime start);
