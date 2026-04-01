@@ -33,11 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: TBD
 
 Plans:
-<<<<<<< HEAD
 - [x] 01-01: Audit branch diff, resolve any remaining color token gaps, and merge to main
-=======
-- [ ] 01-01: Audit branch diff, resolve any remaining color token gaps, and merge to main
->>>>>>> 61149ac4d1284fed73f036bc3a87e0e0b9fa6dc8
 
 ### Phase 2: Security Foundations
 **Goal**: Eliminate all committed secrets and unguarded endpoints so the live deployment is no longer exposed to credential theft or unauthenticated access.
@@ -148,11 +144,7 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-<<<<<<< HEAD
 | 1. Close UI Color Standardization | 1/1 | Complete   | 2026-04-01 |
-=======
-| 1. Close UI Color Standardization | 0/1 | Not started | - |
->>>>>>> 61149ac4d1284fed73f036bc3a87e0e0b9fa6dc8
 | 2. Security Foundations | 3/4 | In Progress|  |
 | 3. Data Integrity Fixes | 0/3 | Not started | - |
 | 4. Exception Handling Standardization | 0/3 | Not started | - |
