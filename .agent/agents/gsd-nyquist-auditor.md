@@ -3,6 +3,10 @@ name: gsd-nyquist-auditor
 description: Fills Nyquist validation gaps by generating tests and verifying coverage for phase requirements
 tools:
   - read_file
+  - write_file
+  - run_shell_command
+  - glob
+  - search_file_content
 color: #8B5CF6
 ---
 
