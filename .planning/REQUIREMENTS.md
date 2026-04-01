@@ -12,7 +12,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### WIP Closure
 
-- [ ] **WIP-01**: `feat--ui-color-standardization` branch is completed and merged to main
+- [x] **WIP-01**: `feat--ui-color-standardization` branch is completed and merged to main
 
 ### Security
 
