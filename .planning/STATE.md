@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: active
-stopped_at: Phase 02 complete — verified 7/7
-last_updated: "2026-04-01T16:00:00.000Z"
+status: Ready to execute
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-04-01T20:02:46.470Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 0
+  total_plans: 8
+  completed_plans: 6
+  percent: 28
 ---
 
 # Project State
@@ -25,7 +25,8 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 ## Current Position
 
-Phase: 02 (Security Foundations) — ✅ COMPLETE (2026-04-01)
+Phase: 03 (Data Integrity Fixes) — EXECUTING
+Plan: 2 of 3
 Next: Phase 03 — Data Integrity Fixes
 Last activity: 2026-04-01
 
@@ -54,6 +55,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 02 P01 | 8 | 4 tasks | 3 files |
 | Phase 02 P02 | 15 | 5 tasks | 6 files |
 | Phase 02 P03 | 10m | 5 tasks | 4 files |
+| Phase 03 P01 | 84s | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -68,6 +70,8 @@ Recent decisions affecting current work:
 - [Phase 02]: Use exact-match .env rule in .gitignore (not a glob) to prevent accidentally ignoring .env.example or other .env-prefixed non-secret files
 - [Phase 02]: JWT keys delivered via env vars (SMALLRYE_JWT_SIGN_KEY, MP_JWT_VERIFY_PUBLICKEY) instead of file-path .location properties to enable Railway CI builds without committed PEM files
 - [Phase 02]: Class-level @Authenticated on controllers enforces security by default; @PermitAll exempts guest schedule check; UserController mutations restricted to ADMIN role
+- [Phase 03]: Native query in UserRepository for tce_employee_assignment lookup — avoids new entity hierarchy for cross-context join table
+- [Phase 03]: branch_id JWT claim omitted when null (not empty string) — downstream must handle absent claim with rollout fallback
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T16:00:00.000Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-04-01T20:02:46.468Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

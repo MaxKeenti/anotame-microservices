@@ -25,9 +25,9 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### Data Integrity
 
-- [ ] **DATA-01**: Order `branchId` is resolved from the authenticated user's JWT claims — not a hardcoded UUID
+- [x] **DATA-01**: Order `branchId` is resolved from the authenticated user's JWT claims — not a hardcoded UUID
 - [ ] **DATA-02**: Order ticket numbers are generated from a PostgreSQL sequence — no collision under concurrent order creation
-- [ ] **DATA-03**: Order `createdBy` field stores the user's actual UUID from the JWT — not a `UUID.nameUUIDFromBytes` hash
+- [x] **DATA-03**: Order `createdBy` field stores the user's actual UUID from the JWT — not a `UUID.nameUUIDFromBytes` hash
 
 ### Code Quality & Consistency
 
@@ -108,9 +108,9 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 | SEC-04 | Phase 2 | Complete |
 | SEC-05 | Phase 2 | Complete |
 | SEC-06 | Phase 2 | Complete |
-| DATA-01 | Phase 3 | Pending |
+| DATA-01 | Phase 3 | Complete |
 | DATA-02 | Phase 3 | Pending |
-| DATA-03 | Phase 3 | Pending |
+| DATA-03 | Phase 3 | Complete |
 | QUAL-01 | Phase 4 | Pending |
 | QUAL-02 | Phase 4 | Pending |
 | QUAL-03 | Phase 4 | Pending |
