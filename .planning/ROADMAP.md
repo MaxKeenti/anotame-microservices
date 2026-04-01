@@ -54,7 +54,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Externalize DB credentials — replace hardcoded values in all 4 `application.properties` with env var references; update `docker-compose.yml` `env_file` wiring
-- [ ] 02-02: Rotate JWT keys — delete PEM files from repo, add `*.pem` to `.gitignore`, generate new key pair, inject via Railway env vars; coordinate simultaneous 4-service deploy; communicate forced re-login to client
+- [x] 02-02: Rotate JWT keys — delete PEM files from repo, add `*.pem` to `.gitignore`, generate new key pair, inject via Railway env vars; coordinate simultaneous 4-service deploy; communicate forced re-login to client
 - [ ] 02-03: Guard unprotected controllers — add `@Authenticated` at class level to `OperationsController`, `ScheduleController`; add `@Authenticated` + `@RolesAllowed("ADMIN")` to `UserController` management endpoints; use `@PermitAll` on any public methods
 - [ ] 02-04: Harden cookie and docker-compose config — profile-gate `anotame.auth.cookie.secure`, verify `SameSite` value for Railway topology, move PgAdmin password to `.env`
 
@@ -153,7 +153,7 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 =======
 | 1. Close UI Color Standardization | 0/1 | Not started | - |
 >>>>>>> 61149ac4d1284fed73f036bc3a87e0e0b9fa6dc8
-| 2. Security Foundations | 1/4 | In Progress|  |
+| 2. Security Foundations | 2/4 | In Progress|  |
 | 3. Data Integrity Fixes | 0/3 | Not started | - |
 | 4. Exception Handling Standardization | 0/3 | Not started | - |
 | 5. Frontend Pattern Compliance | 0/3 | Not started | - |
