@@ -1,79 +1,72 @@
-# Architecture Analysis & Migration Plan: Anotame.NET
+# Svelte 5 Frontend Architecture & Migration Plan
 
-## 1. Project Goal: Full Re-platforming
-
-The goal is to migrate the legacy ASP.NET MVC monolith to a modern Microservices-based architecture using **NextJS** and **Java Spring Boot**, while completely refactoring the database to **PostgreSQL** following strict normalization standards.
-
-### Current Architecture (Legacy)
-*   **Stack**: ASP.NET MVC 5, .NET Framework 4.7.2.
-*   **Database**: MSSQL (LocalDB) with `PascalCase` tables and stored procedures.
-*   **Issues**: Tight coupling, unsafe queries (`ToList().Count()`), stateful session auth.
-
-## 2. Target Architecture
-
-### Technology Stack
-*   **Frontend**: **NextJS** (React).
-    *   Server Side Rendering (SSR) for performance.
-    *   TailwindCSS for styling (modern standard).
-*   **Backend**: **Java Spring Boot 3**.
-    *   **Microservices** approach.
-    *   **Spring Data JPA** for database access.
-    *   **Spring Security** + JWT for stateless authentication.
-*   **Database**: **PostgreSQL**.
-    *   Full schema redesign using the provided "Best Practices" template (snake_case, strict normalization).
-
-### Database Strategy: Bounded Contexts & Reliability
-We will strictly follow **Domain-Driven Design (DDD)** principles to ensure services can be decoupled.
-
-**1. Reliability Patterns**
-*   **IDs**: Use **UUID v4** for all Primary Keys to allow collision-free generation and easier merging.
-*   **Soft Deletes**: Use `deleted_at` (Timestamp) instead of boolean flags to preserve historical data context.
-*   **Audit**: All transactional tables include `created_at`, `updated_at`, and `created_by` (where applicable).
-
-**2. Domain Separation (The "Person" Split)**
-Following the "Bounded Context" advice, we will **NOT** have a single shared "Person" table.
-*   **Identity Context**: Owns `tca_user` and `tca_employee_profile`. Concerns: Auth, Internal Roles, HR.
-*   **Sales Context**: Owns `tco_customer`. Concerns: Measurements, Preferences, Order History.
-*   *Rational*: An employee is managed by HR; a customer is managed by Sales. Their lifecycles are different.
-
-**3. State Management**
-*   **Order Workflow**: We will implement a **Finite State Machine (FSM)** tracked via a `tco_order_history` table. This allows us to measure KPIs (e.g., "Time from Received to Finished").
+## 1. Project Goal
+Migrate the frontend from Next.js to **Svelte 5 + SvelteKit**, following the conventions in `GEMINI.md`. The backend remains Java Quarkus Microservices with PostgreSQL.
 
 ---
 
-## 3. Implementation Roadmap
+## 2. Implementation Roadmap
 
-### Phase 1: Database Design & Core Setup [COMPLETED]
-1.  **Schema Definition**: `anotame-db/init.sql` created with Bounded Contexts, UUIDs, and Soft Deletes.
-2.  **Repo Structure**: Monorepo established.
-3.  **Infrastructure**: `docker-compose.yml` running Postgres + PostGIS.
+### Phase 1: Setup & Scaffolding ✅
+- Renamed `anotame-web` → `anotame-web-legacy`, scaffolded fresh SvelteKit project.
+- Installed Tailwind CSS v4, `shadcn-svelte`, `runed`, Paraglide, `sveltekit-superforms`.
 
-### Phase 2: Backend Microservices (Spring Boot) [COMPLETED]
-*   **Structure**: Maven Multi-Module Project initialized.
-*   **Modules**: `identity-service`, `catalog-service`, `sales-service`, `operations-service` scaffolds created.
+### Phase 2: Core Architecture ✅
+- Implemented `src/lib/services` (Runed singletons: Auth, API, OrderWizardState).
+- Implemented `src/lib/guards` (`useAuthGuard`, `useGuestGuard`).
+- Set up Paraglide i18n (`messages/es.json`).
+- Scaffolded layouts (`+layout.svelte`, `(app)/+layout.svelte`).
 
-### Phase 3: Backend Refactor (Hexagonal Architecture) [COMPLETED]
-*   **Goal**: Decouple Domain Logic from Infrastructure (Spring/JPA) using Ports & Adapters.
-*   **Changes**:
-    *   Moved to **JDK 21**.
-    *   Refactored `identity-service`, `catalog-service`, and `sales-service`.
-    *   Implemented Repository Ports and Persistence Adapters.
+### Phase 3: Route & Component Migration ✅
+- Public routes: Login/Register pages.
+- Dashboard shell with top-bar Menu Modal.
+- Customers CRUD page with single-dialog pattern.
+- **Catalog Garments** CRUD page.
+- **Order Wizard** (3-step: Customer → Items/Services → Payment).
+- **Order Details** page with receipt generation and printing.
+- **Orders Dashboard** with Active/Drafts toggle, filters.
 
-### Phase 4: Frontend Implementation (NextJS) [IN PROGRESS]
-1.  **Design System**: [Done] Tailwind theme, Fonts (Inter/Outfit), and Global CSS.
-2.  **Layouts**: [Done] Sidebar, DashboardLayout, and Landing Page.
-3.  **Auth Integration**: [Done] Login & Register screens consuming Identity Service.
-4.  **Dashboard**: [Done] Operations views (KPIs, Recent Orders) consuming microservices.
-5.  **Customer Management**: [Done] Search, Create, Edit (`/dashboard/customers`).
-6.  **Order Management**: [Done] New Order creation (`/dashboard/orders/new`) with Payment support and Ticket Printing.
-7.  **Dockerization**: [Done] Added `Dockerfile` and `docker-compose` entry for `anotame-web`.
+### Phase 4: Polish & Adaptive UI ✅
+- Docker deployment verified (`docker compose up --build`).
+- `svelte-sonner` toast notifications system-wide.
+- **Adaptive UI components** (`src/lib/components/ui/responsive/`):
+  - `AdaptiveConfirm` — AlertDialog on desktop, native `confirm()` on mobile.
+  - `AdaptiveSelect` — shadcn Select on desktop, native `<select>` on mobile.
+  - `AdaptiveDatePicker` — Calendar popover on desktop, native date input on mobile.
+  - `AdaptiveDateTimePicker` — Calendar + time on desktop, native `datetime-local` on mobile.
+  - `useIsMobile` hook for viewport detection.
 
-### Phase 5: Closing System Gaps (From Migration Analysis) [DONE]
-1.  **Work Scheduling**: Implement Days Off, Holidays, and Shifts (medium priority). [DONE]
-2.  **Advanced Pricing**: Implement Multiple Price Lists and Temporal Validity. [DONE]
-3.  **Refinement**: Polish Receipt printing layout and handle multiple repairs per item. [DONE]
+### Phase 5: Remaining Page Migration [CURRENT]
 
-### Phase 6: System Polish & Production Readiness [NEXT]
-1.  **Establishment Settings**: UI to configure Store Name, Tax Info (RFC), and Receipt Header.
-2.  **Employee Management**: Admin UI to create users, assign roles, and manage access.
-3.  **Production Verification**: Verify full Docker persistence and deployment readiness.
+| Legacy Route | New Route | Status | Complexity |
+|---|---|---|---|
+| `catalog/services` | `catalog/services` | ❌ Not started | **High** — CRUD + 3-step wizard |
+| `catalog/pricelists` | `catalog/pricelists` | ❌ Not started | Medium — CRUD + modals |
+| `operations` | `operations` | ❌ Not started | Low — table + 1 action |
+| `users` | `users` | ❌ Not started | Medium — CRUD + modals |
+| `admin/settings` | `admin/settings` | ❌ Not started | Medium — Settings form |
+| `admin/kpi` | `admin/kpi` | ❌ Not started | Low — Read-only display |
+| `admin/schedule` | `admin/schedule` | ❌ Not started | High — Schedule UI |
+
+#### Phase 5A: Catalog Services (`/dashboard/catalog/services`)
+- Table with search + garment filter (`AdaptiveSelect`).
+- 3-step wizard modal (garment → name/description → pricing).
+- Standard edit modal, delete via `adaptiveConfirm`.
+- Role guard (`isAdmin`).
+
+#### Phase 5B: Operations Dashboard (`/dashboard/operations`)
+- Filter orders by `IN_PROGRESS` status.
+- "Marcar Listo" action (PATCH status → `READY`).
+
+#### Phase 5C: User Management (`/dashboard/users`)
+- CRUD with edit modal for name/email.
+- Delete confirmation via `adaptiveConfirm`.
+- Admin role guard.
+
+#### Phase 5D: Admin Pages (settings, KPI, schedule)
+- Lower priority. Audit legacy before implementation.
+
+### Phase 6: Production Readiness [FUTURE]
+- Establishment Settings UI (store name, tax info, receipt header).
+- Full i18n coverage.
+- Production Docker optimization.

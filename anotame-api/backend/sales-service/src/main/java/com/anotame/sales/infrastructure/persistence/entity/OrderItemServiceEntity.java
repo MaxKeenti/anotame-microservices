@@ -36,4 +36,7 @@ public class OrderItemServiceEntity {
 
     @Column(name = "adjustment_reason")
     private String adjustmentReason;
+
+    @Column(name = "duration_min")
+    private Integer durationMin;
 }

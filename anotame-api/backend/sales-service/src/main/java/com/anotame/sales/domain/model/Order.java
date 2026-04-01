@@ -20,6 +20,7 @@ public class Order {
     private String notes;
     private BigDecimal amountPaid = BigDecimal.ZERO;
     private String paymentMethod;
+    private Integer totalDurationMin = 0;
     private List<OrderItem> items = new ArrayList<>();
     private LocalDateTime createdAt;
     private UUID createdBy;

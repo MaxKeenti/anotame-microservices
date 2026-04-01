@@ -13,8 +13,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+
+import com.anotame.sales.application.dto.DashboardMetricsResponse;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -43,6 +50,7 @@ public class SalesService {
 
         // 3. Add Items & Calculate Total
         BigDecimal total = BigDecimal.ZERO;
+        int totalDuration = 0;
 
         for (OrderItemDto itemDto : request.getItems()) {
             OrderItem item = new OrderItem();
@@ -63,11 +71,13 @@ public class SalesService {
                             serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
                                     : BigDecimal.ZERO);
                     service.setAdjustmentReason(serviceDto.getAdjustmentReason());
+                    service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
 
                     item.addService(service);
 
                     BigDecimal serviceTotal = service.getUnitPrice().add(service.getAdjustmentAmount());
                     itemSubtotal = itemSubtotal.add(serviceTotal);
+                    totalDuration += (service.getDurationMin() * item.getQuantity());
                 }
             }
 
@@ -81,6 +91,7 @@ public class SalesService {
         }
 
         order.setTotalAmount(total);
+        order.setTotalDurationMin(totalDuration);
 
         return orderRepository.save(order);
     }
@@ -249,5 +260,93 @@ public class SalesService {
         newCustomer.setPreferences(dto.getPreferences());
 
         return customerRepository.save(newCustomer);
+    }
+
+    @Transactional
+    public DashboardMetricsResponse getDashboardMetrics() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
+        LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfMonth.plusMonths(1);
+        LocalDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay();
+
+        // Workload Metrics
+        long todayDeliveries = orderRepository.countActiveByDeadlineRange(startOfDay, startOfTomorrow);
+        long comingDeliveries = orderRepository.countActiveFromDeadline(startOfTomorrow);
+        long readyForPickup = orderRepository.countByStatus("READY");
+
+        List<String> finishedStatuses = Arrays.asList("READY", "DELIVERED", "CANCELLED");
+        long pendingPipeline = orderRepository.countByStatusNotIn(finishedStatuses);
+        long totalActive = pendingPipeline + readyForPickup;
+
+        // Finance Metrics
+        BigDecimal todayRevenue = orderRepository.sumPaidAmountInRange(startOfDay, startOfTomorrow);
+        BigDecimal monthlyRevenue = orderRepository.sumPaidAmountInRange(startOfMonth, startOfNextMonth);
+        BigDecimal pendingDebt = orderRepository.sumPendingDebt();
+
+        // Chart Data
+        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo);
+        List<DashboardMetricsResponse.WeeklyChartPoint> chartData = new ArrayList<>();
+
+        // Ensure all 7 days are populated even if empty
+        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+        for (int i = 6; i >= 0; i--) {
+            LocalDate d = today.minusDays(i);
+            String dateStr = d.format(dtf);
+
+            BigDecimal amount = BigDecimal.ZERO;
+            for (Object[] row : rawChartData) {
+                // row[0] is Date (java.sql.Date) or LocalDate, row[1] is BigDecimal
+                String rowDate = row[0].toString();
+                if (rowDate.equals(dateStr)) {
+                    amount = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
+                    break;
+                }
+            }
+
+            chartData.add(DashboardMetricsResponse.WeeklyChartPoint.builder()
+                    .date(dateStr)
+                    .totalPaid(amount)
+                    .build());
+        }
+
+        // Daily Workload (Next 30 days)
+        LocalDateTime endOfWorkloadRange = startOfDay.plusDays(30);
+        List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange);
+        List<DashboardMetricsResponse.WorkloadDayPoint> dailyWorkload = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate d = today.plusDays(i);
+            String dateStr = d.format(dtf);
+            long mins = 0;
+            for (Object[] row : rawWorkloadData) {
+                if (row[0].toString().equals(dateStr)) {
+                    mins = row[1] != null ? ((Number) row[1]).longValue() : 0;
+                    break;
+                }
+            }
+            dailyWorkload.add(DashboardMetricsResponse.WorkloadDayPoint.builder()
+                    .date(dateStr)
+                    .totalMinutesUsed(mins)
+                    .build());
+        }
+
+        return DashboardMetricsResponse.builder()
+                .workload(DashboardMetricsResponse.WorkloadMetrics.builder()
+                        .todayDeliveries(todayDeliveries)
+                        .comingDeliveries(comingDeliveries)
+                        .pendingPipeline(pendingPipeline)
+                        .readyForPickup(readyForPickup)
+                        .totalActive(totalActive)
+                        .build())
+                .finance(DashboardMetricsResponse.FinanceMetrics.builder()
+                        .todayRevenue(todayRevenue)
+                        .monthlyRevenue(monthlyRevenue)
+                        .pendingDebt(pendingDebt)
+                        .build())
+                .weeklyRevenueChart(chartData)
+                .dailyWorkload(dailyWorkload)
+                .build();
     }
 }
