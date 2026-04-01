@@ -2,11 +2,11 @@
 
 ## What This Is
 
-Anotame is a clothing/laundry business management SaaS — a multi-service platform that lets garment care businesses take orders, manage customers, track work through the shop, handle scheduling, and view operational KPIs. Built on 4 independent Quarkus microservices with a SvelteKit 5 frontend, serving one live business client and designed to scale to multiple tenants.
+Anotame is the name of the application that fulfills *El hilvan*'s system requirements, which is a clothing repair shop business, Anotame takes part as a management SaaS — a multi-service platform that lets garment care, businesses take orders, manage customers, track work through the shop, handle scheduling, and view operational KPIs. Built on 4 independent Quarkus microservices with a SvelteKit 5 frontend, serving one live business client and designed to scale to multiple tenants.
 
 ## Core Value
 
-A laundry business staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
+A *El hilvan*'s business staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
 
 ## Requirements
 
@@ -31,6 +31,7 @@ A laundry business staff member can take a complete order — from walk-in to ti
 - [ ] Consistent exception handling — GlobalExceptionHandler + typed domain exceptions across all 4 services
 - [ ] Operational reliability — health checks on all backend services in docker-compose, gated SQL logging
 - [ ] Housekeeping — .env.example cleanup (remove NEXT_PUBLIC_*), anotame-web-legacy artifacts removed
+- [ ] Docker and deployment checks, currently system has fragmented deployment routes, relying on github packages for all Quarkus services and postgres db, systems need a full refactor of deployment strategies (needs dedicated planning phase)
 - [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated planning phase)
 - [ ] KPI intelligence improvements — smarter metrics and planning tools to help businesses track budgets, predict order load, and act on data (needs dedicated planning phase)
 
@@ -45,7 +46,7 @@ A laundry business staff member can take a complete order — from walk-in to ti
 ## Context
 
 - **Codebase**: Monorepo with `anotame-api/backend/` (4 Quarkus 3.27.2 services) and `anotame-web/` (SvelteKit 5 + Svelte 5 Runes). All services are fully standalone — the parent `pom.xml` is an aggregator only (Spring Boot parent reference was removed in cleanup).
-- **Live client**: One real business is using the platform. Schema changes must be additive or migration-safe. Railway deploy must stay functional at all times.
+- **Live client**: One real business is using the platform. Schema changes must be additive or migration-safe. Railway deploy must stay functional at all times, Railway automatically pulls from main branch to deploy, all changes must be safe checked before merging into main branch.
 - **Audit**: Full codebase audit completed 2026-03-31. Findings live in `.planning/codebase/CONCERNS.md` and `docs/standardization_plan.md`. 22 items identified; security items are the highest priority.
 - **Current WIP**: `feat--ui-color-standardization` branch is almost complete — must be closed before starting security work.
 - **Known critical debt**:
@@ -90,4 +91,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-31 after initialization*
+*Last updated: 2026-04-01 after user's manual edition*
