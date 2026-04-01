@@ -44,7 +44,7 @@ Display detailed phase breakdown and state information.
 
 ### switch
 Run: `node "$GSD_TOOLS" workstream set <name> --raw --cwd "$CWD"`
-Also set `GSD_WORKSTREAM` env var for the current session.
+Mark this workstream as active for subsequent operations. If you want an env var, run `export GSD_WORKSTREAM=<name>` in your shell, and subsequent suggested commands will include `--ws <name>`.
 
 ### progress
 Run: `node "$GSD_TOOLS" workstream progress --raw --cwd "$CWD"`
@@ -60,4 +60,8 @@ Set the workstream as active and suggest `/gsd-resume-work --ws <name>`.
 ## Step 3: Display Results
 
 Format the JSON output from gsd-tools into a human-readable display.
+<<<<<<< HEAD
 Include the `${GSD_WS}` flag in any routing suggestions.
+=======
+Include the `--ws "$GSD_WORKSTREAM"` flag in any routing suggestions.
+>>>>>>> 61149ac4d1284fed73f036bc3a87e0e0b9fa6dc8
