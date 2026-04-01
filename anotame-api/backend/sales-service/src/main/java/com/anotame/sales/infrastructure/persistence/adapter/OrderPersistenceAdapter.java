@@ -145,6 +145,11 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         return orderRepository.getWeeklyRevenueData(start);
     }
 
+    @Override
+    public java.util.List<Object[]> getDailyWorkload(java.time.LocalDateTime start, java.time.LocalDateTime end) {
+        return orderRepository.getDailyWorkload(start, end);
+    }
+
     private Order toDomain(OrderEntity entity) {
         Order o = new Order();
         o.setId(entity.getId());
