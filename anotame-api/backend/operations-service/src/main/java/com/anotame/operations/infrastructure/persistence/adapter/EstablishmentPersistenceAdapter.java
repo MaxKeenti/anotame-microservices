@@ -42,6 +42,7 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         entity.setOwnerName(establishment.getOwnerName());
         entity.setTaxInfo(establishment.getTaxInfo());
         entity.setActive(establishment.isActive());
+        entity.setDailyCapacityMinutes(establishment.getDailyCapacityMinutes());
 
         repository.persist(entity);
         return toDomain(entity);
@@ -54,6 +55,7 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         domain.setOwnerName(entity.getOwnerName());
         domain.setTaxInfo(entity.getTaxInfo());
         domain.setActive(entity.isActive());
+        domain.setDailyCapacityMinutes(entity.getDailyCapacityMinutes());
         return domain;
     }
 }

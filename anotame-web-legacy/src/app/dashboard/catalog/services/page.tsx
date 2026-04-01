@@ -1,0 +1,399 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getServices, createService, updateService, deleteService } from "@/services/catalog/services";
+import { getAllGarments } from "@/services/catalog/garments";
+import { ServiceResponse, ServiceRequest, GarmentTypeResponse } from "@/types/dtos";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+
+import { useAuth } from "@/context/AuthContext";
+
+export default function ServicesPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
+
+  const [services, setServices] = useState<ServiceResponse[]>([]);
+  const [garments, setGarments] = useState<GarmentTypeResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [garmentFilter, setGarmentFilter] = useState("");
+
+  // Modal States
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [serviceToEdit, setServiceToEdit] = useState<ServiceResponse | null>(null);
+  const [serviceToDelete, setServiceToDelete] = useState<ServiceResponse | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Wizard Step State
+  const [createStep, setCreateStep] = useState(1);
+
+  // Form State
+  const initialFormState: ServiceRequest = {
+    name: "", description: "", defaultDurationMin: 30, basePrice: 0, garmentTypeId: ""
+  };
+  const [formData, setFormData] = useState<ServiceRequest>(initialFormState);
+
+  const fetchData = async () => {
+    try {
+      const [servicesData, garmentsData] = await Promise.all([
+        getServices(),
+        getAllGarments()
+      ]);
+
+      setServices(servicesData);
+      setGarments(garmentsData);
+
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setIsCreateModalOpen(false);
+    setServiceToEdit(null);
+    setCreateStep(1);
+  };
+
+  // --- Filter Logic ---
+  const getFilteredServices = () => {
+    return services.filter(s => {
+      // 1. Text Search
+      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      // 2. Garment Filter (Relational ID Check)
+      if (garmentFilter) {
+        if (s.garmentTypeId !== garmentFilter) return false;
+      }
+      return true;
+    });
+  };
+
+  const filteredServices = getFilteredServices();
+
+  // --- Create Logic ---
+  const handleCreateSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await createService(formData);
+      fetchData();
+      resetForm();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to create service");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- Edit Logic ---
+  const handleEditClick = (service: ServiceResponse) => {
+    setFormData({
+      name: service.name,
+      description: service.description,
+      defaultDurationMin: service.defaultDurationMin,
+      basePrice: service.basePrice,
+      garmentTypeId: service.garmentTypeId || ""
+    });
+    setServiceToEdit(service);
+  };
+
+  const handleEditSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!serviceToEdit) return;
+
+    setIsSubmitting(true);
+    try {
+      await updateService(serviceToEdit.id, formData);
+      fetchData();
+      resetForm();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update service");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- Delete Logic ---
+  const handleDeleteClick = (service: ServiceResponse) => {
+    setServiceToDelete(service);
+  };
+
+  const handleDeleteSubmit = async () => {
+    if (!serviceToDelete) return;
+    setIsSubmitting(true);
+    try {
+      await deleteService(serviceToDelete.id);
+      fetchData();
+      setServiceToDelete(null);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to delete service");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Wizard Components
+  const renderWizardContent = () => {
+    switch (createStep) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Paso 1: Seleccionar Prenda</h3>
+            <p className="text-sm text-muted-foreground">¿A qué tipo de prenda aplica este servicio?</p>
+            <div className="grid grid-cols-2 gap-2">
+              {garments.map(g => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className={`p-3 text-left border rounded-md hover:bg-secondary/10 transition-colors ${formData.garmentTypeId === g.id ? 'border-primary bg-secondary/20' : 'border-border'}`}
+                  onClick={() => setFormData({ ...formData, garmentTypeId: g.id })}
+                >
+                  <div className="font-medium">{g.name}</div>
+                </button>
+              ))}
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button onClick={() => setCreateStep(2)} disabled={!formData.garmentTypeId}>
+                Siguiente
+              </Button>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Paso 2: Detalles del Servicio</h3>
+            <Input
+              label="Nombre del Servicio"
+              placeholder="Ej. Bastilla, Ajuste de Cintura"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+            <Input
+              label="Descripción (Opcional)"
+              placeholder="Detalles adicionales..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+            <div className="flex justify-between pt-4">
+              <Button variant="outline" onClick={() => setCreateStep(1)}>Atrás</Button>
+              <Button onClick={() => setCreateStep(3)} disabled={!formData.name}>
+                Siguiente
+              </Button>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Paso 3: Precio y Tiempo</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Precio Base ($)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.basePrice}
+                onChange={(e) => setFormData({ ...formData, basePrice: parseFloat(e.target.value) || 0 })}
+                required
+              />
+              <Input
+                label="Duración Estimada (min)"
+                type="number"
+                min="1"
+                value={formData.defaultDurationMin}
+                onChange={(e) => setFormData({ ...formData, defaultDurationMin: parseInt(e.target.value) || 0 })}
+                required
+              />
+            </div>
+
+            <div className="flex justify-between pt-4">
+              <Button variant="outline" onClick={() => setCreateStep(2)}>Atrás</Button>
+              <Button onClick={handleCreateSubmit} disabled={isSubmitting || formData.basePrice <= 0}>
+                {isSubmitting ? "Creando..." : "Crear Servicio"}
+              </Button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-heading font-brand text-foreground">Servicios</h1>
+          <p className="text-muted-foreground">Gestionar servicios ofrecidos y precios.</p>
+        </div>
+        {isAdmin && (
+          <Button onClick={() => { resetForm(); setIsCreateModalOpen(true); }}>+ Agregar Servicio</Button>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-4 mb-4">
+        <div className="flex-1 max-w-sm">
+          <Input
+            placeholder="Buscar por nombre..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="w-64">
+          <Select
+            value={garmentFilter}
+            onChange={(e) => setGarmentFilter(e.target.value)}
+          >
+            <option value="">Todas las Prendas</option>
+            {garments.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      <div className="border border-border rounded-lg overflow-hidden">
+        <Table className="w-full text-sm text-left">
+          <TableHeader className="bg-secondary/20 text-muted-foreground font-medium uppercase text-xs">
+            <TableRow>
+              <TableHead className="px-4 py-3">Nombre</TableHead>
+              <TableHead className="px-4 py-3">Prenda</TableHead>
+              <TableHead className="px-4 py-3">Duración (min)</TableHead>
+              <TableHead className="px-4 py-3">Precio</TableHead>
+              <TableHead className="px-4 py-3 text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-border">
+            {loading ? (
+              <TableRow><TableCell colSpan={6} className="p-4 text-center">Cargando...</TableCell></TableRow>
+            ) : filteredServices.length === 0 ? (
+              <TableRow><TableCell colSpan={6} className="p-4 text-center text-muted-foreground">No se encontraron servicios.</TableCell></TableRow>
+            ) : (
+              filteredServices.map((service) => {
+                const garment = garments.find(g => g.id === service.garmentTypeId);
+                return (
+                  <TableRow key={service.id} className="hover:bg-secondary/10 transition-colors">
+                    <TableCell className="px-4 py-3">{service.name}</TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground">{garment?.name || '-'}</TableCell>
+                    <TableCell className="px-4 py-3">{service.defaultDurationMin}</TableCell>
+                    <TableCell className="px-4 py-3 font-bold">${service.basePrice.toFixed(2)}</TableCell>
+                    <TableCell className="px-4 py-3 text-right flex justify-end gap-2">
+                      {isAdmin && (
+                        <>
+                          <Button variant="outline" size="sm" onClick={() => handleEditClick(service)}>Editar</Button>
+                          <Button variant="danger" size="sm" onClick={() => setServiceToDelete(service)}>Eliminar</Button>
+                        </>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Create Modal (Wizard) */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => !isSubmitting && setIsCreateModalOpen(false)}
+        title="Crear Nuevo Servicio"
+      >
+        {renderWizardContent()}
+      </Modal>
+
+      {/* Edit Modal (Standard Form) */}
+      <Modal
+        isOpen={!!serviceToEdit}
+        onClose={() => !isSubmitting && setServiceToEdit(null)}
+        title="Editar Servicio"
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <Select
+            label="Prenda Asociada"
+            value={formData.garmentTypeId}
+            onChange={(e) => setFormData({ ...formData, garmentTypeId: e.target.value })}
+          >
+            <option value="">-- Sin Prenda --</option>
+            {garments.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </Select>
+
+          <Input
+            label="Nombre"
+            value={formData.name}
+            onChange={e => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Duración (min)"
+              type="number"
+              value={formData.defaultDurationMin}
+              onChange={e => setFormData({ ...formData, defaultDurationMin: parseInt(e.target.value) || 0 })}
+            />
+            <Input
+              label="Precio Base"
+              type="number"
+              step="0.01"
+              value={formData.basePrice}
+              onChange={e => setFormData({ ...formData, basePrice: parseFloat(e.target.value) || 0 })}
+            />
+          </div>
+          <Input
+            label="Descripción"
+            value={formData.description}
+            onChange={e => setFormData({ ...formData, description: e.target.value })}
+          />
+          <div className="flex justify-end pt-2">
+            <Button disabled={isSubmitting}>{isSubmitting ? "Guardando..." : "Guardar Cambios"}</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!serviceToDelete}
+        onClose={() => setServiceToDelete(null)}
+        title="Confirmar Eliminación"
+        description="¿Estás seguro de que deseas eliminar este servicio?"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setServiceToDelete(null)}>Cancelar</Button>
+            <Button variant="danger" onClick={handleDeleteSubmit} disabled={isSubmitting}>
+              {isSubmitting ? "Eliminando..." : "Eliminar"}
+            </Button>
+          </>
+        }
+      >
+        <div className="py-4">
+          <p className="text-sm">
+            Estás a punto de eliminar <strong>{serviceToDelete?.name}</strong>.
+          </p>
+        </div>
+      </Modal>
+    </div >
+  );
+}

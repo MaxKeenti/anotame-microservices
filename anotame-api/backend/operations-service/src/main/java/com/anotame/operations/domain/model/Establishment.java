@@ -13,4 +13,5 @@ public class Establishment {
     private String ownerName;
     private String taxInfo; // JSON string or object
     private boolean isActive;
+    private Integer dailyCapacityMinutes;
 }

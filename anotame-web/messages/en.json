@@ -1,0 +1,8 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "login_title": "Log In",
+  "login_button": "Enter",
+  "common_loading": "Loading...",
+  "common_error": "An unexpected error occurred.",
+  "dashboard_title": "Control Panel"
+}

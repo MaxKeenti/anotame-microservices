@@ -1,6 +1,7 @@
 package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CreateOrderRequest;
+import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.application.service.SalesService;
@@ -22,13 +23,19 @@ public class OrdersResource {
     SalesService salesService;
 
     @POST
-    public Order createOrder(CreateOrderRequest request, @HeaderParam("X-User-Name") String username) {
+    public Order createOrder(@jakarta.validation.Valid CreateOrderRequest request, @HeaderParam("X-User-Name") String username) {
         return salesService.createOrder(request, username);
     }
 
     @GET
     public List<OrderResponse> getOrders() {
         return salesService.getAllOrders();
+    }
+
+    @GET
+    @Path("/kpi/dashboard")
+    public DashboardMetricsResponse getDashboardMetrics() {
+        return salesService.getDashboardMetrics();
     }
 
     @GET
@@ -39,7 +46,7 @@ public class OrdersResource {
 
     @PUT
     @Path("/{id}")
-    public OrderResponse updateOrder(@PathParam("id") UUID id, CreateOrderRequest request) {
+    public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid CreateOrderRequest request) {
         return salesService.updateOrder(id, request);
     }
 

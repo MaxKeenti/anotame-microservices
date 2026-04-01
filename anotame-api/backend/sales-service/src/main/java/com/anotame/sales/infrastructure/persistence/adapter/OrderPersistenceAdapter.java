@@ -110,6 +110,46 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         orderRepository.deleteById(id);
     }
 
+    @Override
+    public long countActiveByDeadlineRange(java.time.LocalDateTime start, java.time.LocalDateTime end) {
+        return orderRepository.countActiveByDeadlineRange(start, end);
+    }
+
+    @Override
+    public long countActiveFromDeadline(java.time.LocalDateTime start) {
+        return orderRepository.countActiveFromDeadline(start);
+    }
+
+    @Override
+    public long countByStatusNotIn(java.util.List<String> excludedStatuses) {
+        return orderRepository.countByStatusNotIn(excludedStatuses);
+    }
+
+    @Override
+    public long countByStatus(String status) {
+        return orderRepository.countByStatus(status);
+    }
+
+    @Override
+    public java.math.BigDecimal sumPaidAmountInRange(java.time.LocalDateTime start, java.time.LocalDateTime end) {
+        return orderRepository.sumPaidAmountInRange(start, end);
+    }
+
+    @Override
+    public java.math.BigDecimal sumPendingDebt() {
+        return orderRepository.sumPendingDebt();
+    }
+
+    @Override
+    public java.util.List<Object[]> getWeeklyRevenueData(java.time.LocalDateTime start) {
+        return orderRepository.getWeeklyRevenueData(start);
+    }
+
+    @Override
+    public java.util.List<Object[]> getDailyWorkload(java.time.LocalDateTime start, java.time.LocalDateTime end) {
+        return orderRepository.getDailyWorkload(start, end);
+    }
+
     private Order toDomain(OrderEntity entity) {
         Order o = new Order();
         o.setId(entity.getId());

@@ -11,4 +11,5 @@ public class OrderItemServiceDto {
     private BigDecimal unitPrice;
     private BigDecimal adjustmentAmount;
     private String adjustmentReason;
+    private Integer durationMin;
 }

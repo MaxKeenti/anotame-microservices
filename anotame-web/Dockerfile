@@ -1,55 +1,35 @@
-
-# 1. Install dependencies only when needed
-FROM node:20-alpine AS deps
+FROM oven/bun:latest AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./ 
-RUN npm ci
 
-# 2. Rebuild the source code only when needed
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Ensure we have package.json and bun.lock initialized
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+# These args are ingested by SvelteKit's dynamic/static `$env` process at build time
+ARG PUBLIC_IDENTITY_URL
+ARG PUBLIC_CATALOG_URL
+ARG PUBLIC_SALES_URL
+ARG PUBLIC_OPERATIONS_URL
+
+ENV PUBLIC_IDENTITY_URL=$PUBLIC_IDENTITY_URL
+ENV PUBLIC_CATALOG_URL=$PUBLIC_CATALOG_URL
+ENV PUBLIC_SALES_URL=$PUBLIC_SALES_URL
+ENV PUBLIC_OPERATIONS_URL=$PUBLIC_OPERATIONS_URL
+
 COPY . .
-# Disable telemetry during build
-ENV NEXT_TELEMETRY_DISABLED 1
-# Pass build arguments for API URLs (default to localhost but can be overridden)
-# NOTE: We comment these out so they don't override .env.production with empty strings if not passed
-ARG NEXT_PUBLIC_IDENTITY_URL
-ARG NEXT_PUBLIC_CATALOG_URL
-ARG NEXT_PUBLIC_SALES_URL
-ARG NEXT_PUBLIC_OPERATIONS_URL
+RUN bun run build
 
-ENV NEXT_PUBLIC_IDENTITY_URL=$NEXT_PUBLIC_IDENTITY_URL
-ENV NEXT_PUBLIC_CATALOG_URL=$NEXT_PUBLIC_CATALOG_URL
-ENV NEXT_PUBLIC_SALES_URL=$NEXT_PUBLIC_SALES_URL
-ENV NEXT_PUBLIC_OPERATIONS_URL=$NEXT_PUBLIC_OPERATIONS_URL
-
-RUN npm run build
-
-# 3. Production image, copy all the files and run next
-FROM node:20-alpine AS runner
+FROM oven/bun:latest AS runner
 WORKDIR /app
+USER bun
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy public folder
-COPY --from=builder /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3000
+# SvelteKit node adapter outputs to `build` by default in Bun context
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY package.json .
 
 ENV PORT 3000
-# set hostname to localhost
-ENV HOSTNAME "0.0.0.0"
+EXPOSE 3000
 
-CMD ["node", "server.js"]
+# Node adapter provides a standard `index.js` server
+CMD ["bun", "./build/index.js"]
