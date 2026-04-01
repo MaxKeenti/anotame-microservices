@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
+@io.quarkus.security.Authenticated
 public class OperationsController {
 
     private final OperationsService operationsService;

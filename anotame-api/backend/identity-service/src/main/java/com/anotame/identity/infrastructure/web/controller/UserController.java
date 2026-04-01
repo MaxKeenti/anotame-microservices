@@ -14,6 +14,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
+@io.quarkus.security.Authenticated
 public class UserController {
 
     private final UserService userService;
@@ -23,6 +24,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @jakarta.annotation.security.RolesAllowed("ADMIN")
     @POST
     public UserResponse createUser(com.anotame.identity.application.dto.CreateUserRequest request) {
         return userService.createUser(request);
@@ -34,12 +36,14 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @jakarta.annotation.security.RolesAllowed("ADMIN")
     @PUT
     @Path("/{id}")
     public UserResponse updateUser(@PathParam("id") UUID id, UpdateUserRequest request) {
         return userService.updateUser(id, request);
     }
 
+    @jakarta.annotation.security.RolesAllowed("ADMIN")
     @DELETE
     @Path("/{id}")
     public void deleteUser(@PathParam("id") UUID id) {

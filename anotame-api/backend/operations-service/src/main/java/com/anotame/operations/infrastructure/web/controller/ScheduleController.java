@@ -17,6 +17,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
+@io.quarkus.security.Authenticated
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
@@ -62,6 +63,7 @@ public class ScheduleController {
 
     @GET
     @Path("/check")
+    @jakarta.annotation.security.PermitAll
     public Map<String, Boolean> checkAvailability(@QueryParam("date") String dateStr) {
         if (dateStr == null) {
             throw new BadRequestException("Date parameter is required (ISO-8601)");

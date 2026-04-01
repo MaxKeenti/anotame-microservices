@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
+@io.quarkus.security.Authenticated
 public class EstablishmentController {
 
     private final EstablishmentService service;
