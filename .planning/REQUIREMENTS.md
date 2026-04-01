@@ -16,7 +16,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### Security
 
-- [ ] **SEC-01**: Database credentials are not hardcoded in any `application.properties` — resolved via env vars (`QUARKUS_DATASOURCE_USERNAME`, `QUARKUS_DATASOURCE_PASSWORD`) across all 4 services
+- [x] **SEC-01**: Database credentials are not hardcoded in any `application.properties` — resolved via env vars (`QUARKUS_DATASOURCE_USERNAME`, `QUARKUS_DATASOURCE_PASSWORD`) across all 4 services
 - [ ] **SEC-02**: JWT private key is not present in the repository — PEM files excluded via `.gitignore`, key rotated, new key injected via env var (`SMALLRYE_JWT_SIGN_KEY`, `MP_JWT_VERIFY_PUBLICKEY`)
 - [ ] **SEC-03**: Auth cookie `secure` flag is `true` in production — `%prod.anotame.auth.cookie.secure=true` in identity-service; `%dev` override allows `false` for local development
 - [ ] **SEC-04**: `OperationsController` and `ScheduleController` are protected with `@Authenticated` at class level
@@ -106,7 +106,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 =======
 | WIP-01 | Phase 1 | Pending |
 >>>>>>> 61149ac4d1284fed73f036bc3a87e0e0b9fa6dc8
-| SEC-01 | Phase 2 | Pending |
+| SEC-01 | Phase 2 | Complete |
 | SEC-02 | Phase 2 | Pending |
 | SEC-03 | Phase 2 | Pending |
 | SEC-04 | Phase 2 | Pending |
