@@ -60,4 +60,4 @@ Set the workstream as active and suggest `/gsd-resume-work --ws <name>`.
 ## Step 3: Display Results
 
 Format the JSON output from gsd-tools into a human-readable display.
-Include the `${GSD_WS}` flag in any routing suggestions.
+Include the `--ws "$GSD_WORKSTREAM"` flag in any routing suggestions.
