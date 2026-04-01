@@ -43,9 +43,9 @@ Model profiles control which the agent model each GSD agent uses. This allows ba
 - **Required when using non-Anthropic providers** (OpenRouter, local models, etc.) — otherwise GSD may call Anthropic models directly, incurring unexpected costs
 - Use when: you want GSD to follow your currently selected runtime model
 
-## Using Non-the agent Runtimes (Codex, OpenCode, Gemini CLI)
+## Using Non-Anthropic Runtimes (Codex, OpenCode, Gemini CLI)
 
-When installed for a non-the agent runtime, the GSD installer sets `resolve_model_ids: "omit"` in `~/.gsd/defaults.json`. This returns an empty model parameter for all agents, so each agent uses the runtime's default model. No manual setup is needed.
+When installed for a non-Anthropic runtime, the GSD installer sets `resolve_model_ids: "omit"` in `~/.gsd/defaults.json`. This returns an empty model parameter for all agents, so each agent uses the runtime's default model. No manual setup is needed.
 
 To assign different models to different agents, add `model_overrides` with model IDs your runtime recognizes:
 
