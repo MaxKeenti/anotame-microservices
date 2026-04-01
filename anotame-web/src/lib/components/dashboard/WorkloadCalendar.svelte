@@ -7,7 +7,7 @@
     }>();
 
     function getOccupancyColor(percentage: number) {
-        if (percentage >= 100) return 'bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.4)]';
+        if (percentage >= 100) return 'bg-destructive shadow-[0_0_8px_oklch(from_var(--destructive)_l_c_h_/_40%)]';
         if (percentage >= 80) return 'bg-orange-500';
         if (percentage >= 50) return 'bg-yellow-500';
         if (percentage > 0) return 'bg-emerald-500';
