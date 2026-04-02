@@ -1,4 +1,17 @@
 {
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(./mvnw compile:*)",
+      "Bash(echo \"COMPILE EXIT: $?\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state record-metric --phase \"06-database-migration-framework\" --plan \"03\" --duration \"3\" --tasks \"2\" --files \"2\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"06-03\" --summary \"IF NOT EXISTS guard preserved in V2 migration — unit_price was added to live DB by Hibernate auto-DDL; migration must be no-op on existing databases\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"06-03\" --summary \"Repo-root migration.sql deleted — only referenced in docs comments, no runtime or build dependency\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"6\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" requirements mark-complete DB-03)",
+      "Read(//private/tmp/**)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -38,10 +51,5 @@
   "statusLine": {
     "type": "command",
     "command": "node .claude/hooks/gsd-statusline.js"
-  },
-  "permissions": {
-    "allow": [
-      "WebSearch"
-    ]
   }
 }
