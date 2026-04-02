@@ -9,7 +9,13 @@
       "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"06-03\" --summary \"Repo-root migration.sql deleted — only referenced in docs comments, no runtime or build dependency\")",
       "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"6\")",
       "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" requirements mark-complete DB-03)",
-      "Read(//private/tmp/**)"
+      "Read(//private/tmp/**)",
+      "Bash([ -f \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.planning/phases/06-database-migration-framework/06-04-SUMMARY.md\" ])",
+      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" state record-metric --phase \"06\" --plan \"04\" --duration \"25min\" --tasks \"3\" --files \"0\")",
+      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"06\" --summary \"Staging validate used regular dev DB \\(anotame-db\\) rather than dedicated staging container — docker-compose service-level env vars take precedence over CLI-level overrides; outcome equivalent for DB-04 validation\")",
+      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" state record-session --stopped-at \"Completed 06-04-PLAN.md — Phase 6 complete\")",
+      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"6\")",
+      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" requirements mark-complete DB-04)"
     ]
   },
   "hooks": {
