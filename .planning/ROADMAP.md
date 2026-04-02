@@ -79,12 +79,12 @@ Plans:
   2. An invalid-credentials login attempt returns HTTP 401 with a typed error message — not HTTP 500
   3. A duplicate-username registration attempt returns HTTP 409 — not HTTP 500
   4. SQL query logging does not appear in Railway (production) logs — only visible in local `%dev` profile
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Port `GlobalExceptionHandler` to identity, catalog, and operations services using the sales-service implementation as the reference
-- [ ] 04-02: Introduce typed domain exceptions in identity-service — `InvalidCredentialsException`, `UserAlreadyExistsException` extending a `DomainException` base; update `AuthService` and `UserService` to throw them
-- [ ] 04-03: Profile-gate SQL logging across all 4 services — move `quarkus.hibernate-orm.log.sql=true` and `sql-formatting=true` under `%dev.` prefix in all `application.properties`
+- [ ] 04-01-PLAN.md — Add `ErrorResponse` DTO, `DomainException` base, and `GlobalExceptionHandler` to identity, catalog, and operations services; update sales-service handler to return `{ "message": "...", "details": [] }` shape
+- [ ] 04-02-PLAN.md — Create typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`, `ResourceNotFoundException`) in identity-service; replace all 11 bare `RuntimeException` throws in `AuthService` and `UserService`
+- [ ] 04-03-PLAN.md — Gate SQL logging to `%dev` profile in all 4 services; fix incorrect `sql-formatting` property name to `log.format-sql`
 
 ### Phase 5: Frontend Pattern Compliance
 **Goal**: Standardize the two structural frontend patterns mandated by `AI_RULES.md` — table rendering through `DataTableWrapper` and form handling through `sveltekit-superforms`.
