@@ -1,17 +1,17 @@
 package com.anotame.sales.infrastructure.web.exception;
 
-import jakarta.ws.rs.WebApplicationException;
 import com.anotame.sales.domain.exception.FieldValidationException;
-import jakarta.validation.ConstraintViolation;
+import com.anotame.sales.infrastructure.web.dto.ErrorResponse;
+import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Provider
 public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
@@ -20,53 +20,39 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(Exception exception) {
-        // --- 1. Handle Jakarta Bean Validations (e.g., @NotBlank, @Email) ---
-        if (exception instanceof ConstraintViolationException) {
-            return handleValidationExceptions((ConstraintViolationException) exception);
+        // 1. Bean validation errors (@NotBlank, @Email, etc.)
+        if (exception instanceof ConstraintViolationException cve) {
+            List<String> details = cve.getConstraintViolations().stream()
+                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                    .toList();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Validation failed", details))
+                    .build();
         }
-
-        // --- 2. Handle Custom Domain Field Validations (e.g., Duplicates) ---
-        if (exception instanceof FieldValidationException) {
-            FieldValidationException fieldEx = (FieldValidationException) exception;
-            Map<String, String> error = new HashMap<>();
-
-            // Creates the format: { "phoneNumber": "Phone number already in use" }
-            error.put(fieldEx.getField(), fieldEx.getMessage());
-
-            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+        // 2. Custom domain field validations (e.g., duplicate phone)
+        if (exception instanceof FieldValidationException fve) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Validation failed",
+                            List.of(fve.getField() + ": " + fve.getMessage())))
+                    .build();
         }
-
-        // --- 3. Handle Standard HTTP Errors (like NotFoundException) ---
-        if (exception instanceof WebApplicationException) {
-            WebApplicationException webEx = (WebApplicationException) exception;
-            Map<String, String> error = new HashMap<>();
-            error.put("error", webEx.getMessage());
-            return Response.status(webEx.getResponse().getStatus()).entity(error).build();
+        // 3. Standard HTTP errors (NotFoundException, etc.)
+        if (exception instanceof WebApplicationException wae) {
+            return Response.status(wae.getResponse().getStatus())
+                    .entity(new ErrorResponse(wae.getMessage()))
+                    .build();
         }
-
-        // --- 4. Handle Database Relational Conflicts (Foreign Keys) ---
-        // This catches Hibernate/JPA errors when trying to delete tied records
-        if (exception instanceof jakarta.persistence.PersistenceException ||
-                exception.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "No se puede eliminar el cliente porque tiene registros u órdenes asociadas.");
-            return Response.status(Response.Status.CONFLICT).entity(error).build();
+        // 4. Database relational conflicts (FK constraint on delete)
+        if (exception instanceof PersistenceException
+                || exception.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse("Cannot delete: record has associated data"))
+                    .build();
         }
-
-        // --- 5. Handle Generic/Unknown RuntimeExceptions ---
+        // 5. Catch-all
         log.error("Unhandled exception", exception);
-        Map<String, String> error = new HashMap<>();
-        error.put("error", exception.getMessage() != null ? exception.getMessage() : "Unknown error");
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build();
-    }
-
-    private Response handleValidationExceptions(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-            String fieldName = violation.getPropertyPath().toString();
-            String errorMessage = violation.getMessage();
-            errors.put(fieldName, errorMessage);
-        }
-        return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(new ErrorResponse("Internal server error"))
+                .build();
     }
 }
