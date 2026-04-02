@@ -35,7 +35,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 - [x] **QUAL-02**: Identity-service throws typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`) instead of bare `RuntimeException`
 - [x] **QUAL-03**: SQL query logging is gated to the `%dev` profile in all 4 services — production logs are clean
 - [x] **QUAL-04**: Frontend `DataTableWrapper` component exists wrapping TanStack Table — used by at least orders and customers pages
-- [ ] **QUAL-05**: All form/dialog components use `sveltekit-superforms` — order wizard steps, schedule page, and settings page migrated
+- [x] **QUAL-05**: All form/dialog components use `sveltekit-superforms` — order wizard steps, schedule page, and settings page migrated
 
 ### Database Migrations
 
@@ -115,7 +115,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 | QUAL-02 | Phase 4 | Complete |
 | QUAL-03 | Phase 4 | Complete |
 | QUAL-04 | Phase 5 | Complete |
-| QUAL-05 | Phase 5 | Pending |
+| QUAL-05 | Phase 5 | Complete |
 | DB-01 | Phase 6 | Pending |
 | DB-02 | Phase 6 | Pending |
 | DB-03 | Phase 6 | Pending |

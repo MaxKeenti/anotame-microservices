@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-02T05:48:15.886Z"
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-04-02T14:24:53.447Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 14
   percent: 28
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 Phase: 05 (frontend-pattern-compliance) — EXECUTING
 Next: Execute 04-03-PLAN.md (last plan in phase 04)
-Plan: 2 of 3
+Plan: 3 of 3
 Last activity: 2026-04-02
 
 Progress: [██░░░░░░░░] 28% (2/7 phases)
@@ -60,6 +60,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 04 P02 | 3min | 3 tasks | 5 files |
 | Phase 04 P03 | 3min | 5 tasks | 4 files |
 | Phase 05-frontend-pattern-compliance P01 | 195s | 3 tasks | 3 files |
+| Phase 05-frontend-pattern-compliance P03 | 255s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Corrected property name from sql-formatting (non-standard, silently ignored by Quarkus 3.x) to log.format-sql (Quarkus 3.x standard)
 - [Phase 05-01]: Wrap createTable() in $derived() — only reactive pattern available without @tanstack/svelte-table; table instance recreated on every state change
 - [Phase 05-01]: actionCell snippet pattern: pass action columns as {#snippet actionCell(row)} to DataTableWrapper, keeping page-level handlers in pages
+- [Phase 05-03]: Flattened settingsSchema merges taxInfo fields inline so superForm binds rfc/regime/address/contactPhone directly; PUT payload re-serializes via JSON.stringify
+- [Phase 05-03]: holidaySchema uses z.string().min(1) for date field — AdaptiveDatePicker bind:value is string-compatible; no coercion needed
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T05:48:15.883Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-02T14:24:53.444Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
