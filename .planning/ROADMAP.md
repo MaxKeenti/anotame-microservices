@@ -115,7 +115,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Add `quarkus-flyway` extension to all 4 services; configure per-service history table names, baseline-on-migrate, and %prod DDL gate
+- [x] 06-01-PLAN.md — Add `quarkus-flyway` extension to all 4 services; configure per-service history table names, baseline-on-migrate, and %prod DDL gate
 - [ ] 06-02-PLAN.md — Create db/migration directories in all 4 services; populate V1__baseline.sql from live DB pg_dump (checkpoint: human must run pg_dump)
 - [ ] 06-03-PLAN.md — Convert repo-root migration.sql to V2__add_unit_price_to_order_item.sql in sales-service; delete original
 - [ ] 06-04-PLAN.md — Staging validate gate: provision local Docker PostgreSQL staging DB, restore schema dump, start all 4 services, confirm 4 history tables and no Flyway errors
@@ -149,5 +149,5 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Data Integrity Fixes | 3/3 | Complete    | 2026-04-01 |
 | 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
 | 5. Frontend Pattern Compliance | 3/3 | Complete   | 2026-04-02 |
-| 6. Database Migration Framework | 0/4 | Not started | - |
+| 6. Database Migration Framework | 1/4 | In progress | - |
 | 7. Operational Reliability & Housekeeping | 0/3 | Not started | - |
