@@ -109,7 +109,8 @@ CREATE TABLE tce_establishment (
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+    daily_capacity_minutes INTEGER
 );
 
 -- Branch (tce_branch)
@@ -275,6 +276,31 @@ CREATE TABLE tco_order_item_service (
 );
 
 -- tco_item_service deprecated in favor of unified tco_order_item model
+
+-- Work Orders (tco_work_order) — created by operations-service auto-DDL in Phase 3
+CREATE TABLE tco_work_order (
+    id_work_order UUID NOT NULL,
+    created_at TIMESTAMP(6),
+    id_order UUID NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    updated_at TIMESTAMP(6)
+);
+
+-- Work Order Items (tco_work_order_item)
+CREATE TABLE tco_work_order_item (
+    id_work_order_item UUID NOT NULL,
+    current_stage VARCHAR(255) NOT NULL,
+    notes VARCHAR(255),
+    id_sales_order_item UUID NOT NULL,
+    service_name VARCHAR(255) NOT NULL,
+    id_work_order UUID NOT NULL
+);
+
+-- Ticket number sequence (tco_ticket_number_seq) — added in Phase 3 DATA-02
+CREATE SEQUENCE IF NOT EXISTS tco_ticket_number_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO CYCLE;
 
 -- =========================================================================================
 -- INDEXES & SEEDS
