@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 04
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-04-02T00:29:07.124Z"
-last_activity: 2026-04-02 -- Phase 04 execution started
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-04-01T20:39:52Z"
+last_activity: 2026-04-01 -- Phase 04, Plan 02 completed
 progress:
   total_phases: 7
   completed_phases: 3
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 9
   percent: 28
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 ## Current Position
 
 Phase: 04 (exception-handling-standardization) — EXECUTING
-Next: Execute Phase 04 plans (04-01 + 04-03 in parallel, then 04-02)
-Plan: 1 of 3
-Last activity: 2026-04-02 -- Phase 04 execution started
+Next: Execute 04-03-PLAN.md (last plan in phase 04)
+Plan: 3 of 3 (04-02 complete, 04-03 remaining)
+Last activity: 2026-04-01 -- Phase 04 Plan 02 completed
 
 Progress: [██░░░░░░░░] 28% (2/7 phases)
 
@@ -36,7 +36,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 9
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -57,6 +57,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 02 P03 | 10m | 5 tasks | 4 files |
 | Phase 03 P01 | 84s | 3 tasks | 3 files |
 | Phase 03 P02 | 8 | 3 tasks | 4 files |
+| Phase 04 P02 | 3min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,7 @@ Recent decisions affecting current work:
 - [Phase 03]: Native query in UserRepository for tce_employee_assignment lookup — avoids new entity hierarchy for cross-context join table
 - [Phase 03]: branch_id JWT claim omitted when null (not empty string) — downstream must handle absent claim with rollout fallback
 - [Phase 03]: Use PostgreSQL sequence tco_ticket_number_seq for ticket numbers; folio_branch derives from same sequence value for consistency
+- [Phase 04-exception-handling-standardization]: Login path throws InvalidCredentialsException for both user-not-found and wrong-password — prevents username enumeration at API level
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T20:05:16.612Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-04-01T20:39:52Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
