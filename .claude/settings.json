@@ -38,5 +38,10 @@
   "statusLine": {
     "type": "command",
     "command": "node .claude/hooks/gsd-statusline.js"
+  },
+  "permissions": {
+    "allow": [
+      "WebSearch"
+    ]
   }
 }
