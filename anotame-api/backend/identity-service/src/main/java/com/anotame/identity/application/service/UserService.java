@@ -2,6 +2,8 @@ package com.anotame.identity.application.service;
 
 import com.anotame.identity.application.dto.UpdateUserRequest;
 import com.anotame.identity.application.dto.UserResponse;
+import com.anotame.identity.domain.exception.ResourceNotFoundException;
+import com.anotame.identity.domain.exception.UserAlreadyExistsException;
 import com.anotame.identity.domain.model.User;
 import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,7 @@ public class UserService {
     @Transactional
     public UserResponse createUser(com.anotame.identity.application.dto.CreateUserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already taken");
+            throw new UserAlreadyExistsException(request.getUsername());
         }
 
         User user = new User();
@@ -40,7 +42,7 @@ public class UserService {
 
         String roleCode = request.getRole() != null ? request.getRole().toUpperCase() : "EMPLOYEE";
         com.anotame.identity.domain.model.Role role = roleRepository.findByCode(roleCode)
-                .orElseThrow(() -> new RuntimeException("Role not found: " + roleCode));
+                .orElseThrow(() -> new ResourceNotFoundException("Role '" + roleCode + "'"));
         user.setRole(role);
 
         userRepository.persist(user);
@@ -50,7 +52,7 @@ public class UserService {
     public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new ResourceNotFoundException("User");
         }
         return mapToResponse(user);
     }
@@ -59,7 +61,7 @@ public class UserService {
     public UserResponse updateUser(UUID id, UpdateUserRequest request) {
         User user = userRepository.findById(id);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new ResourceNotFoundException("User");
         }
 
         user.setFirstName(request.getFirstName());

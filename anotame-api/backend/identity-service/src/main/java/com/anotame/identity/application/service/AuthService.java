@@ -3,6 +3,9 @@ package com.anotame.identity.application.service;
 import com.anotame.identity.application.dto.AuthResponse;
 import com.anotame.identity.application.dto.LoginRequest;
 import com.anotame.identity.application.dto.RegisterRequest;
+import com.anotame.identity.domain.exception.InvalidCredentialsException;
+import com.anotame.identity.domain.exception.ResourceNotFoundException;
+import com.anotame.identity.domain.exception.UserAlreadyExistsException;
 import com.anotame.identity.domain.model.User;
 import com.anotame.identity.infrastructure.persistence.repository.RoleRepository;
 import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
@@ -26,7 +29,7 @@ public class AuthService {
         @Transactional
         public AuthResponse register(RegisterRequest request) {
                 if (userRepository.existsByUsername(request.getUsername())) {
-                        throw new RuntimeException("Username already taken");
+                        throw new UserAlreadyExistsException(request.getUsername());
                 }
 
                 var user = new User();
@@ -54,10 +57,10 @@ public class AuthService {
 
         public AuthResponse login(LoginRequest request) {
                 var user = userRepository.findByUsername(request.getUsername())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                                .orElseThrow(() -> new InvalidCredentialsException());
 
                 if (!io.quarkus.elytron.security.common.BcryptUtil.matches(request.getPassword(), user.getPassword())) {
-                        throw new RuntimeException("Invalid credentials");
+                        throw new InvalidCredentialsException();
                 }
 
                 Set<String> roles = new HashSet<>();
@@ -85,7 +88,7 @@ public class AuthService {
 
         public com.anotame.identity.application.dto.UserResponse getUser(String username) {
                 var user = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("User"));
 
                 return com.anotame.identity.application.dto.UserResponse.builder()
                                 .id(user.getId())
@@ -101,19 +104,19 @@ public class AuthService {
         public AuthResponse updateCredentials(String username,
                         com.anotame.identity.application.dto.ChangeCredentialsRequest request) {
                 var user = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException("User"));
 
                 // Verify current password
                 if (!io.quarkus.elytron.security.common.BcryptUtil.matches(request.getCurrentPassword(),
                                 user.getPassword())) {
-                        throw new RuntimeException("Invalid current password");
+                        throw new InvalidCredentialsException();
                 }
 
                 // Update Username if provided and different
                 if (request.getNewUsername() != null && !request.getNewUsername().isBlank()
                                 && !request.getNewUsername().equals(user.getUsername())) {
                         if (userRepository.existsByUsername(request.getNewUsername())) {
-                                throw new RuntimeException("Username already taken");
+                                throw new UserAlreadyExistsException(request.getNewUsername());
                         }
                         user.setUsername(request.getNewUsername());
                 }

@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Close UI Color Standardization** - Merge the open WIP branch so main is clean before any security work begins
 - [ ] **Phase 2: Security Foundations** - Remove committed credentials and keys, guard all controllers, and harden cookie config
 - [ ] **Phase 3: Data Integrity Fixes** - Replace hardcoded branch UUID, collision-prone ticket numbers, and fake user ID derivation
-- [ ] **Phase 4: Exception Handling Standardization** - Consistent JSON error shape and typed domain exceptions across all 4 services
+- [x] **Phase 4: Exception Handling Standardization** - Consistent JSON error shape and typed domain exceptions across all 4 services (completed 2026-04-02)
 - [ ] **Phase 5: Frontend Pattern Compliance** - DataTableWrapper component and superforms migration for order wizard, schedule, and settings
 - [ ] **Phase 6: Database Migration Framework** - Flyway across all 4 services with V1 baseline from live schema, per-service history tables
 - [ ] **Phase 7: Operational Reliability & Housekeeping** - Health checks, SmallRye Health extension, and .env / legacy artifact cleanup
@@ -68,7 +68,7 @@ Plans:
 Plans:
 - [x] 03-01: Add `branchId` and `userId` JWT claims — extend identity-service `AuthService` to look up and embed the user's branch UUID and real UUID in the issued token
 - [x] 03-02: Resolve branch and user from JWT in sales-service — update `SalesService` to read `branchId` and `sub`/`userId` from `SecurityContext`; keep hardcoded UUID fallback until all active sessions have refreshed; remove fallback after validation
-- [ ] 03-03: Replace collision-prone ticket numbers with a DB sequence — add a `CREATE SEQUENCE` migration, update `SalesService` to call `NEXTVAL`, prepend `ORD-` prefix
+- [x] 03-03: Replace collision-prone ticket numbers with a DB sequence — add a `CREATE SEQUENCE` migration, update `SalesService` to call `NEXTVAL`, prepend `ORD-` prefix
 
 ### Phase 4: Exception Handling Standardization
 **Goal**: Every service returns the same structured JSON error shape for all failures, and identity-service uses typed domain exceptions instead of bare `RuntimeException`.
@@ -79,12 +79,12 @@ Plans:
   2. An invalid-credentials login attempt returns HTTP 401 with a typed error message — not HTTP 500
   3. A duplicate-username registration attempt returns HTTP 409 — not HTTP 500
   4. SQL query logging does not appear in Railway (production) logs — only visible in local `%dev` profile
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Port `GlobalExceptionHandler` to identity, catalog, and operations services using the sales-service implementation as the reference
-- [ ] 04-02: Introduce typed domain exceptions in identity-service — `InvalidCredentialsException`, `UserAlreadyExistsException` extending a `DomainException` base; update `AuthService` and `UserService` to throw them
-- [ ] 04-03: Profile-gate SQL logging across all 4 services — move `quarkus.hibernate-orm.log.sql=true` and `sql-formatting=true` under `%dev.` prefix in all `application.properties`
+- [x] 04-01-PLAN.md — Add `ErrorResponse` DTO, `DomainException` base, and `GlobalExceptionHandler` to identity, catalog, and operations services; update sales-service handler to return `{ "message": "...", "details": [] }` shape
+- [x] 04-02-PLAN.md — Create typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`, `ResourceNotFoundException`) in identity-service; replace all 11 bare `RuntimeException` throws in `AuthService` and `UserService`
+- [x] 04-03-PLAN.md — Gate SQL logging to `%dev` profile in all 4 services; fix incorrect `sql-formatting` property name to `log.format-sql`
 
 ### Phase 5: Frontend Pattern Compliance
 **Goal**: Standardize the two structural frontend patterns mandated by `AI_RULES.md` — table rendering through `DataTableWrapper` and form handling through `sveltekit-superforms`.
@@ -146,8 +146,8 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Close UI Color Standardization | 1/1 | Complete   | 2026-04-01 |
 | 2. Security Foundations | 4/4 | Complete   | 2026-04-01 |
-| 3. Data Integrity Fixes | 2/3 | In Progress|  |
-| 4. Exception Handling Standardization | 0/3 | Not started | - |
+| 3. Data Integrity Fixes | 3/3 | Complete    | 2026-04-01 |
+| 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
 | 5. Frontend Pattern Compliance | 0/3 | Not started | - |
 | 6. Database Migration Framework | 0/4 | Not started | - |
 | 7. Operational Reliability & Housekeeping | 0/3 | Not started | - |

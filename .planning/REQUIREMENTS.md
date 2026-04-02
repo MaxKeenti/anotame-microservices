@@ -12,7 +12,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### WIP Closure
 
-- [ ] **WIP-01**: `feat--ui-color-standardization` branch is completed and merged to main
+- [x] **WIP-01**: `feat--ui-color-standardization` branch is completed and merged to main
 
 ### Security
 
@@ -31,9 +31,9 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### Code Quality & Consistency
 
-- [ ] **QUAL-01**: All 4 services return a consistent JSON error shape `{ "message": "...", "details": [] }` for all error responses — `GlobalExceptionHandler` present in identity, catalog, and operations services
-- [ ] **QUAL-02**: Identity-service throws typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`) instead of bare `RuntimeException`
-- [ ] **QUAL-03**: SQL query logging is gated to the `%dev` profile in all 4 services — production logs are clean
+- [x] **QUAL-01**: All 4 services return a consistent JSON error shape `{ "message": "...", "details": [] }` for all error responses — `GlobalExceptionHandler` present in identity, catalog, and operations services
+- [x] **QUAL-02**: Identity-service throws typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`) instead of bare `RuntimeException`
+- [x] **QUAL-03**: SQL query logging is gated to the `%dev` profile in all 4 services — production logs are clean
 - [ ] **QUAL-04**: Frontend `DataTableWrapper` component exists wrapping TanStack Table — used by at least orders and customers pages
 - [ ] **QUAL-05**: All form/dialog components use `sveltekit-superforms` — order wizard steps, schedule page, and settings page migrated
 
@@ -111,9 +111,9 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 | DATA-01 | Phase 3 | Complete |
 | DATA-02 | Phase 3 | Complete |
 | DATA-03 | Phase 3 | Complete |
-| QUAL-01 | Phase 4 | Pending |
-| QUAL-02 | Phase 4 | Pending |
-| QUAL-03 | Phase 4 | Pending |
+| QUAL-01 | Phase 4 | Complete |
+| QUAL-02 | Phase 4 | Complete |
+| QUAL-03 | Phase 4 | Complete |
 | QUAL-04 | Phase 5 | Pending |
 | QUAL-05 | Phase 5 | Pending |
 | DB-01 | Phase 6 | Pending |
