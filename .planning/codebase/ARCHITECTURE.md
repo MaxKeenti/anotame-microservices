@@ -26,7 +26,7 @@
 - Notes: Only service that issues/expires JWT cookies. All other services validate via SmallRye JWT.
 
 **catalog-service (Port 8082):**
-- Domain: Garment types, laundry/dry-cleaning services, price lists
+- Domain: Garment types, garment repairing services, price lists
 - Root package: `com.anotame.catalog`
 - Application entry: `anotame-api/backend/catalog-service/src/main/java/com/anotame/catalog/CatalogServiceApplication.java`
 - Tables: `cci_garment_type`, `cci_service`, `tcc_price_list`, `tcc_price_list_item`
