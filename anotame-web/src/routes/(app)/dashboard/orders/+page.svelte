@@ -4,13 +4,14 @@
   import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import * as Table from '$lib/components/ui/table';
-  import { translateStatus, getStatusColor } from '$lib/utils/statusUtils';
+  import { translateStatus } from '$lib/utils/statusUtils';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Edit, Trash2, Eye } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
+  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import type { ColumnDef } from '@tanstack/table-core';
 
   let view = $state<'active' | 'drafts'>('active');
   let orders = $state<any[]>([]);
@@ -23,6 +24,24 @@
   let dateFilter = $state("");
 
   let drafts = $derived(orderWizardState.drafts.current);
+
+  const activeColumns: ColumnDef<any>[] = [
+    { accessorKey: 'ticketNumber', header: 'Ticket', enableSorting: true },
+    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: 'Cliente', enableSorting: true },
+    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: 'Prendas (Resumen)', enableSorting: false },
+    { id: 'status', accessorFn: (row) => translateStatus(row.status), header: 'Estado', enableSorting: true },
+    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: 'Entrega', enableSorting: true },
+    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: 'Total', enableSorting: true },
+    { id: 'actions', header: 'Acciones', enableSorting: false },
+  ];
+
+  const draftsColumns: ColumnDef<any>[] = [
+    { id: 'draftId', accessorFn: (row) => row.id, header: 'ID (Temporal)', enableSorting: false },
+    { id: 'customer', accessorFn: (row) => row.customer?.firstName ? `${row.customer.firstName} ${row.customer.lastName ?? ''}` : 'Sin nombre', header: 'Cliente', enableSorting: true },
+    { id: 'garments', accessorFn: (row) => `${row.items?.length || 0} prendas`, header: 'Prendas', enableSorting: false },
+    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: 'Última Modificación', enableSorting: true },
+    { id: 'actions', header: 'Acciones', enableSorting: false },
+  ];
 
   async function fetchData() {
     loading = true;
@@ -155,121 +174,50 @@
     </div>
 
     <!-- Active Orders Table -->
-    <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-      <div class="overflow-x-auto min-w-full">
-        <Table.Root class="w-full text-sm text-left align-middle">
-          <Table.Header class="bg-muted/30">
-            <Table.Row class="hover:bg-transparent">
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Ticket</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Cliente</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Prendas (Resumen)</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Estado</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Entrega</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Total</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto text-right">Aciones</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body class="divide-y divide-border">
-            {#if loading}
-              <Table.Row>
-                <Table.Cell colspan={7} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">Cargando...</Table.Cell>
-              </Table.Row>
-            {:else if filteredOrders.length === 0}
-              <Table.Row>
-                <Table.Cell colspan={7} class="h-32 text-center text-muted-foreground font-medium text-base">No se encontraron pedidos.</Table.Cell>
-              </Table.Row>
-            {:else}
-              {#each filteredOrders as order (order.id)}
-                <Table.Row class="hover:bg-muted/10 transition-colors">
-                  <Table.Cell class="px-6 py-4 font-mono font-bold">{order.ticketNumber}</Table.Cell>
-                  <Table.Cell class="px-6 py-4 font-medium whitespace-nowrap">{order.customer?.firstName} {order.customer?.lastName}</Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground text-xs max-w-[200px] truncate" title={order.items?.map((i: any) => i.garmentName).join(", ")}>
-                    {order.items?.map((i: any) => i.garmentName).join(", ")}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4">
-                    <span class={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold tracking-wide border border-border/30 shadow-sm uppercase ${getStatusColor(order.status)}`}>
-                      {translateStatus(order.status)}
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground whitespace-nowrap">{formatDate(order.committedDeadline)}</Table.Cell>
-                  <Table.Cell class="px-6 py-4 font-bold font-mono text-primary text-base">${formatCurrency(order.totalAmount).split('$')[1]}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">
-                    <div class="flex justify-end gap-2">
-                      <Button variant="ghost" href={`/dashboard/orders/${order.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
-                        <Edit class="w-4 h-4 mr-2" />
-                        Editar
-                      </Button>
-                      <Button variant="outline" href={`/dashboard/orders/${order.id}`} class="h-10 px-4 font-medium touch-manipulation">
-                        <Eye class="w-4 h-4 mr-2" />
-                        Detalles
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
-      </div>
+    <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+      <DataTableWrapper
+        columns={activeColumns}
+        data={filteredOrders}
+        loading={loading}
+        emptyMessage="No se encontraron pedidos."
+        filterPlaceholder="Buscar pedidos..."
+      >
+        {#snippet actionCell(row)}
+          <div class="flex justify-end gap-2">
+            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+              <Edit class="w-4 h-4 mr-2" />
+              Editar
+            </Button>
+            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
+              <Eye class="w-4 h-4 mr-2" />
+              Detalles
+            </Button>
+          </div>
+        {/snippet}
+      </DataTableWrapper>
     </div>
   {:else}
     <!-- Drafts View -->
-    <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-      <div class="overflow-x-auto min-w-full">
-        <Table.Root class="w-full text-sm text-left align-middle">
-          <Table.Header class="bg-muted/30">
-            <Table.Row class="hover:bg-transparent">
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">ID (Temporal)</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Cliente</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Prendas</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto">Última Modificación</Table.Head>
-              <Table.Head class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto text-right">Acciones</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body class="divide-y divide-border">
-            {#if drafts.length === 0}
-              <Table.Row>
-                <Table.Cell colspan={5} class="h-32 text-center text-muted-foreground font-medium text-base">No hay borradores guardados</Table.Cell>
-              </Table.Row>
-            {:else}
-              {#each drafts as d (d.id)}
-                <Table.Row class="hover:bg-muted/10 transition-colors">
-                  <Table.Cell class="px-6 py-6 border-0">
-                    <span class="font-mono font-bold text-xs bg-secondary/30 rounded px-2 py-1">{d.id.slice(0, 8)}...</span>
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 font-medium">
-                    {#if d.customer?.firstName}
-                      {d.customer.firstName} {d.customer.lastName || ''}
-                    {:else}
-                      <span class="text-muted-foreground italic font-normal">Sin nombre</span>
-                    {/if}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4">
-                    <span class="font-bold bg-primary/10 text-primary px-3 py-1 rounded-full text-sm border border-primary/20">
-                      {d.items?.length || 0} prendas
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground text-sm font-medium">
-                    {new Date(d.lastModified).toLocaleString()}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-right">
-                    <div class="flex justify-end gap-2">
-                      <Button variant="ghost" href={`/dashboard/orders/new?draftId=${d.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
-                        <Edit class="w-4 h-4 mr-2" />
-                        <span>Editar Borrador</span>
-                      </Button>
-                      <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(d.id)}>
-                        <Trash2 class="w-4 h-4 mr-2" />
-                        <span>Eliminar</span>
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
-      </div>
+    <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+      <DataTableWrapper
+        columns={draftsColumns}
+        data={drafts}
+        emptyMessage="No hay borradores guardados."
+        filterPlaceholder="Buscar borradores..."
+      >
+        {#snippet actionCell(row)}
+          <div class="flex justify-end gap-2">
+            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
+              <Edit class="w-4 h-4 mr-2" />
+              <span>Editar Borrador</span>
+            </Button>
+            <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
+              <Trash2 class="w-4 h-4 mr-2" />
+              <span>Eliminar</span>
+            </Button>
+          </div>
+        {/snippet}
+      </DataTableWrapper>
     </div>
   {/if}
 </div>

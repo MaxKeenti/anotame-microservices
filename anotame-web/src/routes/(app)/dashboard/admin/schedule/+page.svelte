@@ -8,6 +8,9 @@
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
   import { CalendarDays, AlertTriangle, Trash2 } from 'lucide-svelte';
+  import { superForm, defaults } from 'sveltekit-superforms';
+  import { zod4 } from 'sveltekit-superforms/adapters';
+  import { z } from 'zod';
 
   let activeTab = $state<'weekly' | 'holidays'>('weekly');
   let isLoading = $state(true);
@@ -16,11 +19,36 @@
   let workDays = $state<any[]>([]);
   let holidays = $state<any[]>([]);
 
-  // Form
-  let newHolidayDate = $state('');
-  let newHolidayDesc = $state('');
-
   const DAYS_ES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+  const holidaySchema = z.object({
+    date: z.string().min(1, 'Selecciona una fecha'),
+    description: z.string().min(1, 'La descripción es obligatoria'),
+  });
+
+  const {
+    form: holidayForm,
+    enhance: holidayEnhance,
+    errors: holidayErrors,
+    reset: resetHoliday,
+  } = superForm(defaults(zod4(holidaySchema)), {
+    SPA: true,
+    validators: zod4(holidaySchema),
+    async onUpdate({ form: f }) {
+      if (!f.valid) return;
+      try {
+        await apiService.request(`${API_OPERATIONS}/schedule/holidays`, {
+          method: 'POST',
+          body: JSON.stringify({ date: f.data.date, description: f.data.description }),
+        });
+        toast.success('Excepción agregada');
+        resetHoliday();
+        loadData();
+      } catch (err: any) {
+        toast.error(err.message || 'Error al agregar excepción');
+      }
+    },
+  });
 
   async function loadData() {
     isLoading = true;
@@ -29,7 +57,7 @@
         apiService.request<any[]>(`${API_OPERATIONS}/schedule/config`),
         apiService.request<any[]>(`${API_OPERATIONS}/schedule/holidays`)
       ]);
-      
+
       workDays = (daysData || []).sort((a, b) => a.dayOfWeek - b.dayOfWeek);
       holidays = (holsData || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     } catch (err: any) {
@@ -59,36 +87,12 @@
     }
   }
 
-  async function handleAddHoliday(e: Event) {
-    e.preventDefault();
-    if (!newHolidayDate) {
-      toast.error("Selecciona una fecha");
-      return;
-    }
-    
-    try {
-      await apiService.request(`${API_OPERATIONS}/schedule/holidays`, {
-        method: 'POST',
-        body: JSON.stringify({ 
-          date: newHolidayDate, // Format yyyy-mm-dd
-          description: newHolidayDesc 
-        })
-      });
-      toast.success("Excepción agregada");
-      newHolidayDate = '';
-      newHolidayDesc = '';
-      loadData();
-    } catch (err: any) {
-      toast.error(err.message || "Error al agregar excepción");
-    }
-  }
-
   async function handleDeleteHoliday(id: string, desc: string) {
     const ok = await adaptiveConfirm({
       title: 'Eliminar Excepción',
       description: `¿Estás seguro de que deseas eliminar la excepción "${desc}"?`
     });
-    
+
     if (ok) {
       try {
         await apiService.request(`${API_OPERATIONS}/schedule/holidays/${id}`, { method: 'DELETE' });
@@ -174,7 +178,7 @@
               </div>
             {/each}
           </div>
-          
+
           <div class="flex justify-end pt-6">
             <Button onclick={saveWeeklySchedule} disabled={isLoading} class="h-12 px-6 shadow-sm">
               {isLoading ? 'Guardando...' : 'Guardar Horario Semanal'}
@@ -187,22 +191,23 @@
     <!-- Tab 2: Excepciones -->
     <div class={activeTab === 'holidays' ? 'block animate-in fade-in' : 'hidden'}>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         <!-- Agregar Form -->
         <Card.Root class="md:col-span-1 h-fit">
           <Card.Header>
             <Card.Title>Nueva Excepción</Card.Title>
           </Card.Header>
           <Card.Content>
-            <form onsubmit={handleAddHoliday} class="space-y-4">
+            <form method="POST" use:holidayEnhance class="space-y-4">
               <div class="space-y-2">
                 <label for="hol-date" class="text-sm font-medium">Fecha (Inhábile)</label>
                 <AdaptiveDatePicker
                   id="hol-date"
-                  bind:value={newHolidayDate}
+                  bind:value={$holidayForm.date}
                   min={new Date().toISOString().slice(0, 10)}
                   placeholder="Elige una fecha"
                 />
+                {#if $holidayErrors.date}<span class="text-xs text-destructive">{$holidayErrors.date}</span>{/if}
               </div>
               <div class="space-y-2">
                 <label for="hol-desc" class="text-sm font-medium">Motivo / Descripción</label>
@@ -210,9 +215,10 @@
                   id="hol-desc"
                   placeholder="Ej. Navidad, Año Nuevo"
                   required
-                  bind:value={newHolidayDesc}
+                  bind:value={$holidayForm.description}
                   class="h-12"
                 />
+                {#if $holidayErrors.description}<span class="text-xs text-destructive">{$holidayErrors.description}</span>{/if}
               </div>
               <Button type="submit" class="w-full h-12 shadow-sm">
                 Agregar Excepción

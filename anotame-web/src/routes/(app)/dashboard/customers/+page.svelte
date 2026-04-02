@@ -3,10 +3,11 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import * as Table from '$lib/components/ui/table';
   import { Edit, Trash2 } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
+  import type { ColumnDef } from '@tanstack/table-core';
+  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
 
   // We will scaffold CustomerDialog incorporating superForms
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
@@ -17,6 +18,13 @@
 
   // Single Dialog Pattern state
   let editingCustomer = $state<any | null>(null);
+
+  const columns: ColumnDef<any>[] = [
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: 'Nombre', enableSorting: true },
+    { accessorKey: 'phoneNumber', header: 'Teléfono', enableSorting: false },
+    { accessorKey: 'email', header: 'Correo', enableSorting: false },
+    { id: 'actions', header: 'Acciones', enableSorting: false },
+  ];
 
   async function fetchCustomers(query: string = '') {
     loading = true;
@@ -90,62 +98,37 @@
     </form>
   </div>
 
-  <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-    <Table.Root class="w-full min-w-[600px]">
-      <Table.Header>
-        <Table.Row>
-          <Table.Head class="px-6 py-4">Nombre</Table.Head>
-          <Table.Head class="px-6 py-4">Teléfono</Table.Head>
-          <Table.Head class="px-6 py-4">Correo</Table.Head>
-          <Table.Head class="px-6 py-4 text-right">Acciones</Table.Head>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {#if loading}
-          <Table.Row>
-            <Table.Cell colspan={4} class="h-24 text-center">
-              Cargando...
-            </Table.Cell>
-          </Table.Row>
-        {:else if customers.length === 0}
-          <Table.Row>
-            <Table.Cell colspan={4} class="h-24 text-center text-muted-foreground">
-              No se encontraron clientes.
-            </Table.Cell>
-          </Table.Row>
-        {:else}
-          {#each customers as c (c.id)}
-            <Table.Row>
-              <Table.Cell class="px-6 py-4 font-medium">
-                {c.firstName} {c.lastName}
-              </Table.Cell>
-              <Table.Cell class="px-6 py-4">{c.phoneNumber}</Table.Cell>
-              <Table.Cell class="px-6 py-4 text-muted-foreground">{c.email || "-"}</Table.Cell>
-              <Table.Cell class="px-6 py-4 text-right space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  class="h-10 px-4 touch-manipulation font-medium"
-                  onclick={() => handleEditClick(c)}
-                >
-                  <Edit class="w-4 h-4 mr-2" />
-                  Editar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-                  onclick={() => c.id && handleDeleteClick(c.id)}
-                >
-                  <Trash2 class="w-4 h-4 mr-2" />
-                  Eliminar
-                </Button>
-              </Table.Cell>
-            </Table.Row>
-          {/each}
-        {/if}
-      </Table.Body>
-    </Table.Root>
+  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+    <DataTableWrapper
+      columns={columns}
+      data={customers}
+      loading={loading}
+      emptyMessage="No se encontraron clientes."
+      filterPlaceholder="Filtrar clientes..."
+    >
+      {#snippet actionCell(row)}
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-10 px-4 touch-manipulation font-medium"
+            onclick={() => handleEditClick(row.original)}
+          >
+            <Edit class="w-4 h-4 mr-2" />
+            Editar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+            onclick={() => row.original.id && handleDeleteClick(row.original.id)}
+          >
+            <Trash2 class="w-4 h-4 mr-2" />
+            Eliminar
+          </Button>
+        </div>
+      {/snippet}
+    </DataTableWrapper>
   </div>
 
   <!-- Single Dialog Page-level Instance -->

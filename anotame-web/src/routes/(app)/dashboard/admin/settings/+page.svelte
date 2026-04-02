@@ -6,39 +6,71 @@
   import * as Card from '$lib/components/ui/card';
   import { toast } from 'svelte-sonner';
   import { Store, ReceiptText } from 'lucide-svelte';
+  import { superForm, defaults } from 'sveltekit-superforms';
+  import { zod4 } from 'sveltekit-superforms/adapters';
+  import { z } from 'zod';
+
+  const settingsSchema = z.object({
+    name: z.string().min(1, 'El nombre es obligatorio'),
+    ownerName: z.string().optional().or(z.literal('')),
+    dailyCapacityMinutes: z.number().min(1, 'Debe ser al menos 1 minuto'),
+    rfc: z.string().optional().or(z.literal('')),
+    regime: z.string().optional().or(z.literal('')),
+    address: z.string().optional().or(z.literal('')),
+    contactPhone: z.string().optional().or(z.literal('')),
+  });
 
   let isLoading = $state(true);
   let isSaving = $state(false);
 
-  // Settings state
-  let settings = $state({
-    name: '',
-    ownerName: '',
-    taxInfo: '{}',
-    active: true,
-    dailyCapacityMinutes: 480
-  });
-
-  // Parsed tax data for form binding
-  let taxData = $state({
-    rfc: '',
-    regime: '',
-    address: '',
-    contactPhone: ''
+  const { form, enhance, errors, reset } = superForm(defaults(zod4(settingsSchema)), {
+    SPA: true,
+    validators: zod4(settingsSchema),
+    async onUpdate({ form: f }) {
+      if (!f.valid) return;
+      isSaving = true;
+      try {
+        const payload = {
+          name: f.data.name,
+          ownerName: f.data.ownerName || '',
+          dailyCapacityMinutes: f.data.dailyCapacityMinutes,
+          taxInfo: JSON.stringify({
+            rfc: f.data.rfc || '',
+            regime: f.data.regime || '',
+            address: f.data.address || '',
+            contactPhone: f.data.contactPhone || '',
+          }),
+        };
+        await apiService.request(`${API_OPERATIONS}/establishment`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        toast.success('Configuración guardada exitosamente');
+      } catch (err: any) {
+        toast.error(err.message || 'Error al guardar la configuración');
+      } finally {
+        isSaving = false;
+      }
+    },
   });
 
   onMount(async () => {
     try {
       const data = await apiService.request<any>(`${API_OPERATIONS}/establishment`);
       if (data) {
-        settings = { ...settings, ...data };
-        try {
-          if (data.taxInfo) {
-            taxData = { ...taxData, ...JSON.parse(data.taxInfo) };
-          }
-        } catch (e) {
-          console.warn("Could not parse tax info", e);
-        }
+        let taxData: any = {};
+        try { taxData = data.taxInfo ? JSON.parse(data.taxInfo) : {}; } catch {}
+        reset({
+          data: {
+            name: data.name || '',
+            ownerName: data.ownerName || '',
+            dailyCapacityMinutes: data.dailyCapacityMinutes ?? 480,
+            rfc: taxData.rfc || '',
+            regime: taxData.regime || '',
+            address: taxData.address || '',
+            contactPhone: taxData.contactPhone || '',
+          },
+        });
       }
     } catch (err: any) {
       toast.error(err.message || 'Error al cargar la configuración');
@@ -46,32 +78,6 @@
       isLoading = false;
     }
   });
-
-  async function handleSave(e: Event) {
-    e.preventDefault();
-    isSaving = true;
-    try {
-      const payload = {
-        ...settings,
-        taxInfo: JSON.stringify(taxData)
-      };
-      
-      const response = await apiService.request<any>(`${API_OPERATIONS}/establishment`, {
-        method: 'PUT',
-        body: JSON.stringify(payload)
-      });
-      
-      if (response) {
-        settings = { ...settings, ...response };
-      }
-      
-      toast.success('Configuración guardada exitosamente');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al guardar la configuración');
-    } finally {
-      isSaving = false;
-    }
-  }
 </script>
 
 <div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
@@ -85,8 +91,8 @@
       Cargando configuración...
     </div>
   {:else}
-    <form onsubmit={handleSave} class="space-y-6">
-      
+    <form method="POST" use:enhance class="space-y-6">
+
       <!-- General Info -->
       <Card.Root>
         <Card.Header>
@@ -101,32 +107,34 @@
         <Card.Content class="space-y-4">
           <div class="space-y-2">
             <label for="est-name" class="text-sm font-medium">Nombre del Establecimiento <span class="text-destructive">*</span></label>
-            <Input 
-              id="est-name" 
-              bind:value={settings.name} 
-              required 
+            <Input
+              id="est-name"
+              bind:value={$form.name}
+              required
               class="h-12"
               placeholder="Ej. Lavandería CleanExpress"
             />
+            {#if $errors.name}<span class="text-xs text-destructive">{$errors.name}</span>{/if}
           </div>
           <div class="space-y-2">
             <label for="est-owner" class="text-sm font-medium">Nombre del Propietario o Encargado</label>
-            <Input 
-              id="est-owner" 
-              bind:value={settings.ownerName} 
+            <Input
+              id="est-owner"
+              bind:value={$form.ownerName}
               class="h-12"
               placeholder="Opcional"
             />
           </div>
           <div class="space-y-2">
             <label for="est-capacity" class="text-sm font-medium">Capacidad Diaria Manual (Minutos)</label>
-            <Input 
-              id="est-capacity" 
+            <Input
+              id="est-capacity"
               type="number"
-              bind:value={settings.dailyCapacityMinutes} 
+              bind:value={$form.dailyCapacityMinutes}
               class="h-12 font-mono"
               placeholder="Ej. 480 para 8 horas"
             />
+            {#if $errors.dailyCapacityMinutes}<span class="text-xs text-destructive">{$errors.dailyCapacityMinutes}</span>{/if}
             <p class="text-xs text-muted-foreground">Define el límite de "espacios" (minutos) disponibles por día para programar pedidos.</p>
           </div>
         </Card.Content>
@@ -147,18 +155,18 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <label for="tax-rfc" class="text-sm font-medium">RFC / Identificación Fiscal</label>
-              <Input 
-                id="tax-rfc" 
-                bind:value={taxData.rfc} 
+              <Input
+                id="tax-rfc"
+                bind:value={$form.rfc}
                 class="h-12 uppercase"
                 placeholder="ABCD123456XYZ"
               />
             </div>
             <div class="space-y-2">
               <label for="tax-regime" class="text-sm font-medium">Régimen Fiscal</label>
-              <Input 
-                id="tax-regime" 
-                bind:value={taxData.regime} 
+              <Input
+                id="tax-regime"
+                bind:value={$form.regime}
                 class="h-12"
                 placeholder="Ej. PF con Actividad Empresarial"
               />
@@ -166,18 +174,18 @@
           </div>
           <div class="space-y-2">
             <label for="tax-address" class="text-sm font-medium">Dirección Completa (Para Recibo)</label>
-            <Input 
-              id="tax-address" 
-              bind:value={taxData.address} 
+            <Input
+              id="tax-address"
+              bind:value={$form.address}
               class="h-12"
               placeholder="Calle, Número, Colonia, Ciudad, C.P."
             />
           </div>
           <div class="space-y-2">
             <label for="tax-phone" class="text-sm font-medium">Teléfono / Contacto (Para Recibo)</label>
-            <Input 
-              id="tax-phone" 
-              bind:value={taxData.contactPhone} 
+            <Input
+              id="tax-phone"
+              bind:value={$form.contactPhone}
               class="h-12"
               placeholder="(123) 456-7890"
             />
@@ -186,16 +194,16 @@
       </Card.Root>
 
       <div class="flex justify-end gap-4 pt-4">
-        <Button 
-          variant="outline" 
-          type="button" 
-          class="h-12 px-6 touch-manipulation font-medium" 
+        <Button
+          variant="outline"
+          type="button"
+          class="h-12 px-6 touch-manipulation font-medium"
           href="/dashboard"
         >
           Cancelar
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSaving}
           class="h-12 px-8 touch-manipulation font-medium shadow-sm"
         >

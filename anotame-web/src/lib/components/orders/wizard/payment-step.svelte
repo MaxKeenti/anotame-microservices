@@ -9,6 +9,9 @@
     import { CreditCard, DollarSign, Wallet, AlertTriangle } from 'lucide-svelte';
     import { toast } from 'svelte-sonner';
     import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
+    import { superForm, defaults } from 'sveltekit-superforms';
+    import { zod4 } from 'sveltekit-superforms/adapters';
+    import { z } from 'zod';
 
     let props = $props<{ onNext: () => void, onBack: () => void }>();
 
@@ -17,29 +20,112 @@
 
     let draft = $derived(orderWizardState.activeDraft || {} as any);
 
-    let total = $derived((draft.items || []).reduce((acc, item) => {
-        const itemTotal = (item.services || []).reduce((sAcc, s) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0), 0);
+    let total = $derived((draft.items || []).reduce((acc: number, item: any) => {
+        const itemTotal = (item.services || []).reduce((sAcc: number, s: any) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0), 0);
         return acc + itemTotal;
     }, 0));
 
-    let balance = $derived(Math.max(0, total - (draft.amountPaid || 0)));
+    const paymentSchema = z.object({
+        paymentMethod: z.enum(['CASH', 'CARD', 'TRANSFER']).default('CASH'),
+        amountPaid: z.number().min(0, 'El monto no puede ser negativo').default(0),
+        committedDeadline: z.string().min(1, 'La fecha de entrega es obligatoria'),
+        notes: z.string().optional().or(z.literal('')),
+    });
 
-    function handlePaymentMethod(method: 'CASH' | 'CARD' | 'TRANSFER') {
-        orderWizardState.updateActiveDraft({ paymentMethod: method });
-    }
+    const { form, enhance, errors } = superForm(defaults(zod4(paymentSchema)), {
+        SPA: true,
+        validators: zod4(paymentSchema),
+        async onUpdate({ form: f }) {
+            if (!f.valid) return;
+            if (!draft.customer || !draft.items || draft.items.length === 0) {
+                error = 'Faltan datos requeridos (Cliente o Prendas)';
+                return;
+            }
+            error = null;
+            isSubmitting = true;
+            try {
+                const orderItems = draft.items.map((item: any) => ({
+                    garmentTypeId: item.garmentTypeId || item.garmentId || '',
+                    garmentName: item.garmentName || '',
+                    quantity: 1,
+                    notes: item.notes || '',
+                    services: item.services?.map((s: any) => ({
+                        serviceId: s.serviceId,
+                        serviceName: s.serviceName,
+                        unitPrice: s.unitPrice,
+                        adjustmentAmount: s.adjustmentAmount,
+                        adjustmentReason: s.adjustmentReason,
+                    })) || [],
+                }));
 
-    function handleAmountPaid(amount: string) {
-        const val = parseFloat(amount);
-        orderWizardState.updateActiveDraft({ amountPaid: isNaN(val) ? 0 : val });
-    }
+                let deadlineStr = f.data.committedDeadline;
+                if (deadlineStr.length === 10) {
+                    deadlineStr = `${deadlineStr}T18:00:00`;
+                } else {
+                    deadlineStr = deadlineStr.slice(0, 19);
+                }
 
-    function handleDeadline(date: string) {
-        orderWizardState.updateActiveDraft({ committedDeadline: date });
-    }
+                const payload: any = {
+                    customer: draft.customer,
+                    items: orderItems,
+                    committedDeadline: deadlineStr,
+                    notes: f.data.notes || '',
+                    amountPaid: f.data.amountPaid,
+                    paymentMethod: f.data.paymentMethod,
+                };
 
-    function handleNotes(notes: string) {
-        orderWizardState.updateActiveDraft({ notes });
-    }
+                if (draft.isEditing && draft.id) {
+                    await apiService.updateOrder(draft.id, payload);
+                    toast.success('Orden actualizada exitosamente');
+                    orderWizardState.clearActiveDraft();
+                    goto(`/dashboard/orders/${draft.id}?action=print`);
+                } else {
+                    const res = await apiService.request<any>(`${API_SALES}/orders`, {
+                        method: 'POST',
+                        headers: {
+                            'X-User-Name': authService.user?.username || 'Anonymous',
+                            'X-User-Id': authService.user?.id || 'unknown',
+                            'X-User-Role': authService.user?.role || 'USER',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+                    toast.success('Orden confirmada exitosamente');
+                    orderWizardState.clearActiveDraft();
+                    goto(`/dashboard/orders/${res.id}?action=print`);
+                }
+            } catch (e: any) {
+                console.error(e);
+                error = `Error de conexión: ${e.message}`;
+                toast.error('Error al procesar la orden', { description: e.message });
+            } finally {
+                isSubmitting = false;
+            }
+        },
+    });
+
+    let balance = $derived(Math.max(0, total - ($form.amountPaid || 0)));
+
+    // Sync $form fields into orderWizardState so workload display and balance derived values stay accurate
+    $effect(() => {
+        orderWizardState.updateActiveDraft({
+            paymentMethod: $form.paymentMethod,
+            amountPaid: $form.amountPaid,
+            committedDeadline: $form.committedDeadline,
+            notes: $form.notes,
+        });
+    });
+
+    // Initialize form from existing draft when component mounts (for edit mode where draft already has values)
+    $effect(() => {
+        if (draft.paymentMethod || draft.amountPaid || draft.committedDeadline) {
+            $form = {
+                paymentMethod: draft.paymentMethod || 'CASH',
+                amountPaid: draft.amountPaid || 0,
+                committedDeadline: draft.committedDeadline ? draft.committedDeadline.slice(0, 16) : '',
+                notes: draft.notes || '',
+            };
+        }
+    });
 
     // Workload validation logic
     let capacity = $state(480);
@@ -61,7 +147,7 @@
     let selectedDayWorkload = $derived.by(() => {
         if (!draft.committedDeadline || dailyWorkload.length === 0) return 0;
         const selectedDate = draft.committedDeadline.slice(0, 10);
-        const day = dailyWorkload.find(d => d.date === selectedDate);
+        const day = dailyWorkload.find((d: any) => d.date === selectedDate);
         return day ? day.totalMinutesUsed : 0;
     });
 
@@ -75,79 +161,9 @@
         const offset = now.getTimezoneOffset() * 60000;
         return new Date(now.getTime() - offset).toISOString().slice(0, 16);
     });
-
-    async function handleSubmit() {
-        if (!draft.customer || !draft.items || draft.items.length === 0) {
-            error = "Faltan datos requeridos (Cliente o Prendas)";
-            return;
-        }
-        error = null;
-        isSubmitting = true;
-
-        try {
-            const orderItems = draft.items.map(item => ({
-                garmentTypeId: item.garmentTypeId || item.garmentId || "",
-                garmentName: item.garmentName || "",
-                quantity: 1,
-                notes: item.notes || "",
-                services: item.services?.map(s => ({
-                    serviceId: s.serviceId,
-                    serviceName: s.serviceName,
-                    unitPrice: s.unitPrice,
-                    adjustmentAmount: s.adjustmentAmount,
-                    adjustmentReason: s.adjustmentReason
-                })) || []
-            }));
-
-            let deadlineStr = draft.committedDeadline;
-            if (!deadlineStr) {
-                deadlineStr = new Date().toISOString().slice(0, 19);
-            } else if (deadlineStr.length === 10) {
-                deadlineStr = `${deadlineStr}T18:00:00`;
-            } else {
-                deadlineStr = deadlineStr.slice(0, 19);
-            }
-
-            const payload: any = {
-                customer: draft.customer,
-                items: orderItems,
-                committedDeadline: deadlineStr,
-                notes: draft.notes || "",
-                amountPaid: draft.amountPaid || 0,
-                paymentMethod: draft.paymentMethod || "CASH"
-            };
-
-            if (draft.isEditing && draft.id) {
-                await apiService.updateOrder(draft.id, payload);
-                toast.success("Orden actualizada exitosamente");
-                orderWizardState.clearActiveDraft();
-                goto(`/dashboard/orders/${draft.id}?action=print`);
-            } else {
-                const res = await apiService.request<any>(`${API_SALES}/orders`, {
-                    method: 'POST',
-                    headers: {
-                        "X-User-Name": authService.user?.username || "Anonymous",
-                        "X-User-Id": authService.user?.id || "unknown",
-                        "X-User-Role": authService.user?.role || "USER"
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                toast.success("Orden confirmada exitosamente");
-                orderWizardState.clearActiveDraft();
-                goto(`/dashboard/orders/${res.id}?action=print`);
-            }
-        } catch (e: any) {
-            console.error(e);
-            error = `Error de conexión: ${e.message}`;
-            toast.error("Error al procesar la orden", { description: e.message });
-        } finally {
-            isSubmitting = false;
-        }
-    }
 </script>
 
-<div class="flex flex-col h-full gap-6">
+<form method="POST" use:enhance class="flex flex-col h-full gap-6">
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold">Paso 3: Pago y Confirmación</h2>
     </div>
@@ -164,25 +180,28 @@
             <label class="text-sm font-medium" for="payment-method">Método de Pago</label>
             <div class="grid grid-cols-3 gap-4" id="payment-method">
                 <Button
+                    type="button"
                     variant="outline"
-                    onclick={() => handlePaymentMethod("CASH")}
-                    class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'CASH' || !draft.paymentMethod ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
+                    onclick={() => { $form.paymentMethod = 'CASH'; }}
+                    class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CASH' || !$form.paymentMethod ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                 >
                     <DollarSign class="w-8 h-8 mb-2" />
                     <span class="font-semibold">Efectivo</span>
                 </Button>
                 <Button
+                    type="button"
                     variant="outline"
-                    onclick={() => handlePaymentMethod("CARD")}
-                    class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
+                    onclick={() => { $form.paymentMethod = 'CARD'; }}
+                    class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                 >
                     <CreditCard class="w-8 h-8 mb-2" />
                     <span class="font-semibold">Tarjeta</span>
                 </Button>
                 <Button
+                    type="button"
                     variant="outline"
-                    onclick={() => handlePaymentMethod("TRANSFER")}
-                    class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${draft.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
+                    onclick={() => { $form.paymentMethod = 'TRANSFER'; }}
+                    class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                 >
                     <Wallet class="w-8 h-8 mb-2" />
                     <span class="font-semibold">Transf.</span>
@@ -202,16 +221,16 @@
                         min="0"
                         step="0.01"
                         class="pl-8 text-2xl font-bold h-14 rounded-xl"
-                        value={draft.amountPaid || ""}
-                        oninput={(e) => handleAmountPaid(e.currentTarget.value)}
+                        bind:value={$form.amountPaid}
                         placeholder="0.00"
                     />
                 </div>
+                {#if $errors.amountPaid}<span class="text-xs text-destructive">{$errors.amountPaid}</span>{/if}
                 <!-- Quick Buttons -->
                 <div class="flex gap-2 mt-2">
-                    <Button variant="outline" size="sm" onclick={() => orderWizardState.updateActiveDraft({ amountPaid: total })}>Total</Button>
-                    <Button variant="outline" size="sm" onclick={() => orderWizardState.updateActiveDraft({ amountPaid: total / 2 })}>50%</Button>
-                    <Button variant="outline" size="sm" onclick={() => orderWizardState.updateActiveDraft({ amountPaid: 0 })}>0</Button>
+                    <Button type="button" variant="outline" size="sm" onclick={() => { $form.amountPaid = total; }}>Total</Button>
+                    <Button type="button" variant="outline" size="sm" onclick={() => { $form.amountPaid = total / 2; }}>50%</Button>
+                    <Button type="button" variant="outline" size="sm" onclick={() => { $form.amountPaid = 0; }}>0</Button>
                 </div>
             </div>
 
@@ -230,12 +249,13 @@
                 <!-- Adaptive: Calendar + Time popover on desktop, native datetime-local on mobile -->
                 <AdaptiveDateTimePicker
                     id="delivery-date"
-                    value={draft.committedDeadline ? draft.committedDeadline.slice(0, 16) : ''}
+                    value={$form.committedDeadline}
                     min={minDeadline}
-                    onValueChange={(v) => handleDeadline(v)}
+                    onValueChange={(v) => { $form.committedDeadline = v; }}
                     placeholder="Seleccionar fecha y hora..."
                     class="rounded-xl text-lg"
                 />
+                {#if $errors.committedDeadline}<span class="text-xs text-destructive">{$errors.committedDeadline}</span>{/if}
 
                 {#if draft.committedDeadline}
                     <div class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2">
@@ -248,7 +268,7 @@
                         <div class="h-2 w-full bg-secondary rounded-full overflow-hidden">
                             <div class="h-full {isCluttered ? 'bg-destructive' : 'bg-primary'} transition-all duration-500" style="width: {occupancyPercentage}%"></div>
                         </div>
-                        
+
                         {#if isCluttered}
                             <div class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95">
                                 <AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
@@ -269,8 +289,7 @@
                     id="order-notes"
                     placeholder="Detalles sobre entrega, atención, etc."
                     class="h-12 rounded-xl text-lg"
-                    value={draft.notes || ""}
-                    oninput={(e) => handleNotes(e.currentTarget.value)}
+                    bind:value={$form.notes}
                 />
             </div>
         </div>
@@ -283,11 +302,11 @@
     {/if}
 
     <div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
-        <Button variant="outline" size="lg" onclick={props.onBack} class="flex-1 rounded-xl h-14 text-lg touch-manipulation" disabled={isSubmitting}>
+        <Button type="button" variant="outline" size="lg" onclick={props.onBack} class="flex-1 rounded-xl h-14 text-lg touch-manipulation" disabled={isSubmitting}>
             Atrás
         </Button>
-        <Button size="lg" onclick={handleSubmit} disabled={isSubmitting} class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide">
+        <Button type="submit" size="lg" disabled={isSubmitting} class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide">
             {isSubmitting ? "Procesando..." : (draft.isEditing ? "Actualizar Orden" : "Confirmar Orden")}
         </Button>
     </div>
-</div>
+</form>

@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Security Foundations** - Remove committed credentials and keys, guard all controllers, and harden cookie config
 - [ ] **Phase 3: Data Integrity Fixes** - Replace hardcoded branch UUID, collision-prone ticket numbers, and fake user ID derivation
 - [x] **Phase 4: Exception Handling Standardization** - Consistent JSON error shape and typed domain exceptions across all 4 services (completed 2026-04-02)
-- [ ] **Phase 5: Frontend Pattern Compliance** - DataTableWrapper component and superforms migration for order wizard, schedule, and settings
+- [x] **Phase 5: Frontend Pattern Compliance** - DataTableWrapper component and superforms migration for order wizard, schedule, and settings (completed 2026-04-02)
 - [ ] **Phase 6: Database Migration Framework** - Flyway across all 4 services with V1 baseline from live schema, per-service history tables
 - [ ] **Phase 7: Operational Reliability & Housekeeping** - Health checks, SmallRye Health extension, and .env / legacy artifact cleanup
 
@@ -97,9 +97,9 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 05-01: Create `DataTableWrapper.svelte` — implement TanStack Table wrapper with sorting, filtering, and pagination slots; migrate orders and customers pages to use it
-- [ ] 05-02: Migrate order wizard steps to `sveltekit-superforms` — each wizard step form uses superforms schema validation and submission
-- [ ] 05-03: Migrate schedule and settings pages to `sveltekit-superforms`
+- [x] 05-01: Create `DataTableWrapper.svelte` — implement TanStack Table wrapper with sorting, filtering, and pagination slots; migrate orders and customers pages to use it
+- [x] 05-02: Migrate order wizard steps to `sveltekit-superforms` — each wizard step form uses superforms schema validation and submission
+- [x] 05-03: Migrate schedule and settings pages to `sveltekit-superforms`
 **UI hint**: yes
 
 ### Phase 6: Database Migration Framework
@@ -148,6 +148,6 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Security Foundations | 4/4 | Complete   | 2026-04-01 |
 | 3. Data Integrity Fixes | 3/3 | Complete    | 2026-04-01 |
 | 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
-| 5. Frontend Pattern Compliance | 0/3 | Not started | - |
+| 5. Frontend Pattern Compliance | 3/3 | Complete   | 2026-04-02 |
 | 6. Database Migration Framework | 0/4 | Not started | - |
 | 7. Operational Reliability & Housekeeping | 0/3 | Not started | - |
