@@ -39,7 +39,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### Database Migrations
 
-- [ ] **DB-01**: `quarkus-flyway` extension added to all 4 services — `database.generation=update` replaced with `validate` in production
+- [ ] **DB-01**: `quarkus-flyway` extension added to all 4 services — `database.generation=update` replaced with `none` in production (profile-gated: `%prod.quarkus.hibernate-orm.database.generation=none`; bare `update` line kept for dev local bring-up)
 - [ ] **DB-02**: Each service has a `V1__baseline.sql` generated from the live database schema using `pg_dump --schema-only`
 - [ ] **DB-03**: `migration.sql` at repo root converted to `V2__add_unit_price_to_order_item.sql` in sales-service Flyway migrations
 - [ ] **DB-04**: Each service uses an independent Flyway history table (`flyway_schema_history_{service}`)
