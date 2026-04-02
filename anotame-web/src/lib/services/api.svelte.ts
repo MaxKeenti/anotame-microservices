@@ -51,8 +51,11 @@ class ApiService {
         if (errorText) {
           const errorData = JSON.parse(errorText);
 
-          // Format 1: Generic RuntimeExceptions {"error": "Message"}
-          if (errorData.error) {
+          // Format 1: New unified shape {"message": "...", "details": [...]}
+          if (errorData.message) {
+            backendMessage = errorData.message;
+          // Format 2: Legacy shape {"error": "Message"} — kept for backward compat during migration
+          } else if (errorData.error) {
             backendMessage = errorData.error;
           }
           // Format 2: ConstraintViolations {"phoneNumber": "Phone number already in use"}
