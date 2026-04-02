@@ -82,7 +82,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Add `ErrorResponse` DTO, `DomainException` base, and `GlobalExceptionHandler` to identity, catalog, and operations services; update sales-service handler to return `{ "message": "...", "details": [] }` shape
+- [x] 04-01-PLAN.md — Add `ErrorResponse` DTO, `DomainException` base, and `GlobalExceptionHandler` to identity, catalog, and operations services; update sales-service handler to return `{ "message": "...", "details": [] }` shape
 - [ ] 04-02-PLAN.md — Create typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`, `ResourceNotFoundException`) in identity-service; replace all 11 bare `RuntimeException` throws in `AuthService` and `UserService`
 - [ ] 04-03-PLAN.md — Gate SQL logging to `%dev` profile in all 4 services; fix incorrect `sql-formatting` property name to `log.format-sql`
 
@@ -147,7 +147,7 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Close UI Color Standardization | 1/1 | Complete   | 2026-04-01 |
 | 2. Security Foundations | 4/4 | Complete   | 2026-04-01 |
 | 3. Data Integrity Fixes | 3/3 | Complete    | 2026-04-01 |
-| 4. Exception Handling Standardization | 0/3 | Planned     | - |
+| 4. Exception Handling Standardization | 1/3 | Executing   | - |
 | 5. Frontend Pattern Compliance | 0/3 | Not started | - |
 | 6. Database Migration Framework | 0/4 | Not started | - |
 | 7. Operational Reliability & Housekeeping | 0/3 | Not started | - |
