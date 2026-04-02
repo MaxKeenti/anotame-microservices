@@ -97,7 +97,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 05-01: Create `DataTableWrapper.svelte` — implement TanStack Table wrapper with sorting, filtering, and pagination slots; migrate orders and customers pages to use it
+- [x] 05-01: Create `DataTableWrapper.svelte` — implement TanStack Table wrapper with sorting, filtering, and pagination slots; migrate orders and customers pages to use it
 - [ ] 05-02: Migrate order wizard steps to `sveltekit-superforms` — each wizard step form uses superforms schema validation and submission
 - [ ] 05-03: Migrate schedule and settings pages to `sveltekit-superforms`
 **UI hint**: yes
@@ -148,6 +148,6 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Security Foundations | 4/4 | Complete   | 2026-04-01 |
 | 3. Data Integrity Fixes | 3/3 | Complete    | 2026-04-01 |
 | 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
-| 5. Frontend Pattern Compliance | 0/3 | Not started | - |
+| 5. Frontend Pattern Compliance | 1/3 | In Progress|  |
 | 6. Database Migration Framework | 0/4 | Not started | - |
 | 7. Operational Reliability & Housekeeping | 0/3 | Not started | - |
