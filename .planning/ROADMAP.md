@@ -112,13 +112,13 @@ Plans:
   3. `flyway validate` passes on a staging copy of the production DB before any production deploy
   4. Each service uses its own Flyway history table (`flyway_schema_history_{service}`) — no cross-service history conflicts
   5. The existing `migration.sql` at repo root is converted to `V2__add_unit_price_to_order_item.sql` in the sales-service migration directory
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 06-01: Add `quarkus-flyway` extension to all 4 services — update `pom.xml` files, set `database.generation=none`, configure per-service history table names and `baseline-on-migrate=true`
-- [ ] 06-02: Generate V1 baselines — run `pg_dump --schema-only` per service against the live DB; place SQL files in each service's `src/main/resources/db/migration/` directory
-- [ ] 06-03: Migrate `migration.sql` — convert to `V2__add_unit_price_to_order_item.sql` in sales-service; validate numbering is correct
-- [ ] 06-04: Staging validate gate — run `flyway validate` against a staging DB copy; confirm all services start cleanly before touching production
+- [ ] 06-01-PLAN.md — Add `quarkus-flyway` extension to all 4 services; configure per-service history table names, baseline-on-migrate, and %prod DDL gate
+- [ ] 06-02-PLAN.md — Create db/migration directories in all 4 services; populate V1__baseline.sql from live DB pg_dump (checkpoint: human must run pg_dump)
+- [ ] 06-03-PLAN.md — Convert repo-root migration.sql to V2__add_unit_price_to_order_item.sql in sales-service; delete original
+- [ ] 06-04-PLAN.md — Staging validate gate: provision local Docker PostgreSQL staging DB, restore schema dump, start all 4 services, confirm 4 history tables and no Flyway errors
 
 ### Phase 7: Operational Reliability & Housekeeping
 **Goal**: Add health check infrastructure to all backend services and clean up legacy artifacts and stale config that pollute the repository.
