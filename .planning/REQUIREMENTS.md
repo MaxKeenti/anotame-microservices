@@ -41,7 +41,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 - [ ] **DB-01**: `quarkus-flyway` extension added to all 4 services — `database.generation=update` replaced with `none` in production (profile-gated: `%prod.quarkus.hibernate-orm.database.generation=none`; bare `update` line kept for dev local bring-up)
 - [x] **DB-02**: Each service has a `V1__baseline.sql` generated from the live database schema using `pg_dump --schema-only`
-- [ ] **DB-03**: `migration.sql` at repo root converted to `V2__add_unit_price_to_order_item.sql` in sales-service Flyway migrations
+- [x] **DB-03**: `migration.sql` at repo root converted to `V2__add_unit_price_to_order_item.sql` in sales-service Flyway migrations
 - [ ] **DB-04**: Each service uses an independent Flyway history table (`flyway_schema_history_{service}`)
 
 ### Operational Reliability
@@ -118,7 +118,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 | QUAL-05 | Phase 5 | Complete |
 | DB-01 | Phase 6 | Pending |
 | DB-02 | Phase 6 | Complete |
-| DB-03 | Phase 6 | Pending |
+| DB-03 | Phase 6 | Complete |
 | DB-04 | Phase 6 | Pending |
 | OPS-01 | Phase 7 | Pending |
 | OPS-02 | Phase 7 | Pending |

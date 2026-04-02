@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-04-02T19:10:41.795Z"
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-04-02T19:25:23.327Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
   percent: 28
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 Phase: 06 (database-migration-framework) — EXECUTING
 Next: Execute 06-01-PLAN.md (first plan in phase 06)
-Plan: 2 of 4
+Plan: 3 of 4
 Last activity: 2026-04-02
 
 Progress: [██░░░░░░░░] 28% (2/7 phases)
@@ -62,6 +62,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 05-frontend-pattern-compliance P01 | 195s | 3 tasks | 3 files |
 | Phase 05-frontend-pattern-compliance P03 | 255s | 2 tasks | 2 files |
 | Phase 06 P02 | 20min | 2 tasks | 5 files |
+| Phase 06-database-migration-framework P03 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 05-03]: holidaySchema uses z.string().min(1) for date field — AdaptiveDatePicker bind:value is string-compatible; no coercion needed
 - [Phase 06-02]: V1 baseline generated via docker exec pg_dump against a fully-bootstrapped local container; tco_ticket_number_seq manually appended since it exists on Railway but not in local Docker DB
 - [Phase 06-02]: Single pg_dump output shared across all 4 services — simpler than per-service scoping; safe because baseline-version=1 means Flyway stamps V1 as already applied without executing it
+- [Phase 06-03]: IF NOT EXISTS guard preserved in V2 migration — unit_price was added to live DB by Hibernate auto-DDL; migration must be no-op on existing databases
+- [Phase 06-03]: Repo-root migration.sql deleted — only referenced in docs comments, no runtime or build dependency
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T19:10:41.792Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-04-02T19:25:23.325Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None
