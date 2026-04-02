@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Close UI Color Standardization** - Merge the open WIP branch so main is clean before any security work begins
 - [ ] **Phase 2: Security Foundations** - Remove committed credentials and keys, guard all controllers, and harden cookie config
 - [ ] **Phase 3: Data Integrity Fixes** - Replace hardcoded branch UUID, collision-prone ticket numbers, and fake user ID derivation
-- [ ] **Phase 4: Exception Handling Standardization** - Consistent JSON error shape and typed domain exceptions across all 4 services
+- [x] **Phase 4: Exception Handling Standardization** - Consistent JSON error shape and typed domain exceptions across all 4 services (completed 2026-04-02)
 - [ ] **Phase 5: Frontend Pattern Compliance** - DataTableWrapper component and superforms migration for order wizard, schedule, and settings
 - [ ] **Phase 6: Database Migration Framework** - Flyway across all 4 services with V1 baseline from live schema, per-service history tables
 - [ ] **Phase 7: Operational Reliability & Housekeeping** - Health checks, SmallRye Health extension, and .env / legacy artifact cleanup
@@ -84,7 +84,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Add `ErrorResponse` DTO, `DomainException` base, and `GlobalExceptionHandler` to identity, catalog, and operations services; update sales-service handler to return `{ "message": "...", "details": [] }` shape
 - [x] 04-02-PLAN.md — Create typed domain exceptions (`InvalidCredentialsException`, `UserAlreadyExistsException`, `ResourceNotFoundException`) in identity-service; replace all 11 bare `RuntimeException` throws in `AuthService` and `UserService`
-- [ ] 04-03-PLAN.md — Gate SQL logging to `%dev` profile in all 4 services; fix incorrect `sql-formatting` property name to `log.format-sql`
+- [x] 04-03-PLAN.md — Gate SQL logging to `%dev` profile in all 4 services; fix incorrect `sql-formatting` property name to `log.format-sql`
 
 ### Phase 5: Frontend Pattern Compliance
 **Goal**: Standardize the two structural frontend patterns mandated by `AI_RULES.md` — table rendering through `DataTableWrapper` and form handling through `sveltekit-superforms`.
@@ -147,7 +147,7 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Close UI Color Standardization | 1/1 | Complete   | 2026-04-01 |
 | 2. Security Foundations | 4/4 | Complete   | 2026-04-01 |
 | 3. Data Integrity Fixes | 3/3 | Complete    | 2026-04-01 |
-| 4. Exception Handling Standardization | 2/3 | Executing   | - |
+| 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
 | 5. Frontend Pattern Compliance | 0/3 | Not started | - |
 | 6. Database Migration Framework | 0/4 | Not started | - |
 | 7. Operational Reliability & Housekeeping | 0/3 | Not started | - |

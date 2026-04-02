@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 04
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-04-01T20:39:52Z"
-last_activity: 2026-04-01 -- Phase 04, Plan 02 completed
+status: Phase complete — ready for verification
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-04-02T05:01:53.364Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 11
   percent: 28
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 Phase: 04 (exception-handling-standardization) — EXECUTING
 Next: Execute 04-03-PLAN.md (last plan in phase 04)
 Plan: 3 of 3 (04-02 complete, 04-03 remaining)
-Last activity: 2026-04-01 -- Phase 04 Plan 02 completed
+Last activity: 2026-04-02
 
 Progress: [██░░░░░░░░] 28% (2/7 phases)
 
@@ -58,6 +58,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 03 P01 | 84s | 3 tasks | 3 files |
 | Phase 03 P02 | 8 | 3 tasks | 4 files |
 | Phase 04 P02 | 3min | 3 tasks | 5 files |
+| Phase 04 P03 | 3min | 5 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 03]: branch_id JWT claim omitted when null (not empty string) — downstream must handle absent claim with rollout fallback
 - [Phase 03]: Use PostgreSQL sequence tco_ticket_number_seq for ticket numbers; folio_branch derives from same sequence value for consistency
 - [Phase 04-exception-handling-standardization]: Login path throws InvalidCredentialsException for both user-not-found and wrong-password — prevents username enumeration at API level
+- [Phase 04]: Quarkus %dev profile prefix gates SQL logging so production (Railway) never emits Hibernate SQL; local dev retains formatted SQL
+- [Phase 04]: Corrected property name from sql-formatting (non-standard, silently ignored by Quarkus 3.x) to log.format-sql (Quarkus 3.x standard)
 
 ### Pending Todos
 
@@ -89,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T20:39:52Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-04-02T05:01:53.362Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
