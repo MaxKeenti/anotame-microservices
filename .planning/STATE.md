@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 06-04-PLAN.md — Phase 6 complete
-last_updated: "2026-04-02T19:57:28.059Z"
-last_activity: 2026-04-02
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-04-03T00:28:53.970Z"
+last_activity: 2026-04-03
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 21
+  completed_plans: 19
   percent: 28
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** A laundry business staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 06 — database-migration-framework
+**Current focus:** Phase 07 — operational-reliability-housekeeping
 
 ## Current Position
 
-Phase: 06 (database-migration-framework) — EXECUTING
+Phase: 07 (operational-reliability-housekeeping) — EXECUTING
 Next: Execute 06-01-PLAN.md (first plan in phase 06)
-Plan: 4 of 4
-Last activity: 2026-04-02
+Plan: 2 of 3
+Last activity: 2026-04-03
 
 Progress: [██░░░░░░░░] 28% (2/7 phases)
 
@@ -64,6 +64,7 @@ Progress: [██░░░░░░░░] 28% (2/7 phases)
 | Phase 06 P02 | 20min | 2 tasks | 5 files |
 | Phase 06-database-migration-framework P03 | 3 | 2 tasks | 2 files |
 | Phase 06 P04 | 25min | 3 tasks | 0 files |
+| Phase 07-operational-reliability-housekeeping P01 | 48s | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,7 @@ Recent decisions affecting current work:
 - [Phase 06-03]: IF NOT EXISTS guard preserved in V2 migration — unit_price was added to live DB by Hibernate auto-DDL; migration must be no-op on existing databases
 - [Phase 06-03]: Repo-root migration.sql deleted — only referenced in docs comments, no runtime or build dependency
 - [Phase 06]: Staging validate used regular dev DB (anotame-db) rather than dedicated staging container — docker-compose service-level env vars take precedence over CLI-level overrides; outcome equivalent for DB-04 validation
+- [Phase 07-01]: quarkus-smallrye-health added to all 4 services with no explicit version; quarkus-bom 3.27.2 manages the version to avoid drift
 
 ### Pending Todos
 
@@ -106,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T19:57:28.055Z
-Stopped at: Completed 06-04-PLAN.md — Phase 6 complete
+Last session: 2026-04-03T00:28:53.967Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
