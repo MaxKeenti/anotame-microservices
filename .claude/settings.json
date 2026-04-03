@@ -24,7 +24,12 @@
       "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" state add-decision --phase \"07-02\" --summary \"30s start_period accommodates Quarkus JVM warm-up and Flyway migration time before health polling begins\")",
       "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" state record-session --stopped-at \"Completed 07-02-PLAN.md\")",
       "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress 7)",
-      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" requirements mark-complete OPS-01)"
+      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" requirements mark-complete OPS-01)",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" roadmap complete-phase --phase \"07\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state complete-phase --phase \"07\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress --phase \"07\" --plan \"07-02\" --status \"complete\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state update --phase \"07\" --status \"complete\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"7\" \"07-01\" \"complete\")"
     ]
   },
   "hooks": {
