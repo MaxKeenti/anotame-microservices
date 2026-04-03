@@ -8,6 +8,18 @@ Anotame is the management SaaS platform for *El hilvan*, a garment care / clothi
 
 A *El hilvan* staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
 
+## Current Milestone: v1.1 — Deployment Refactor
+
+**Goal:** Restore production from v1.0 env var breakage, then replace the fragile GitHub Packages deployment with a clean, testable strategy chosen from research.
+
+**Target features:**
+- HOTFIX: Update Railway env vars for v1.0 compatibility (prod is currently down — 502 on login)
+- Research: Evaluate Railway Dockerfile deploys, VPS Docker Compose, and monorepo pipeline — produce a decision record before committing to an approach
+- Database: Migrate from custom PostGIS package to Railway's native PostgreSQL (PostGIS no longer needed by any service)
+- Deployment: Implement chosen approach across all 4 backend services + SvelteKit frontend, eliminating GitHub Packages dependency
+
+---
+
 ## Current State
 
 **Version:** v1.0 — shipped 2026-04-03
@@ -41,7 +53,10 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ### Active
 
-- [ ] Deployment refactor — Railway currently uses GitHub Packages for Quarkus services + managed PostgreSQL; full deployment strategy refactor needed (needs dedicated planning phase)
+- [ ] Production hotfix — update Railway env vars to match v1.0 renames (SMALLRYE_JWT_SIGN_KEY, MP_JWT_VERIFY_PUBLICKEY, QUARKUS_DATASOURCE_*) — v1.1
+- [ ] Deployment strategy decision — research Railway Dockerfile deploys vs VPS Docker Compose vs monorepo pipeline, produce ADR — v1.1
+- [ ] Database migration — replace custom PostGIS GitHub Package with Railway native PostgreSQL (PostGIS not needed) — v1.1
+- [ ] Deployment refactor — implement chosen strategy, eliminate GitHub Packages dependency across all 4 services + frontend — v1.1
 - [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated design phase)
 - [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
 - [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
@@ -105,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after v1.0 milestone*
+*Last updated: 2026-04-03 — v1.1 Deployment Refactor milestone started*

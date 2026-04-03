@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.1
-milestone_name: TBD
-status: Planning next milestone
-stopped_at: v1.0 milestone complete — archived 2026-04-03
+milestone_name: Deployment Refactor
+status: Defining requirements
+stopped_at: v1.1 milestone started — defining requirements
 last_updated: "2026-04-03T00:00:00.000Z"
 last_activity: 2026-04-03
 progress:
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03 after v1.0)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Planning v1.1 milestone
+**Current focus:** v1.1 — Deployment Refactor
 
 ## Current Position
 
-Phase: — (no active phase)
-Next: Run `/gsd:new-milestone` to define v1.1
+Phase: — (defining requirements)
+Next: Requirements → Roadmap → Phase 8
 Last activity: 2026-04-03
 
 Progress: [░░░░░░░░░░] 0% (0/0 phases)
