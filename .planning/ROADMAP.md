@@ -43,7 +43,7 @@ Full phase details: [.planning/milestones/v1.0-ROADMAP.md](.planning/milestones/
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Fix KPI dashboard API path (BUG-01) and DataTableWrapper reactive loop (BUG-02)
+- [x] 08-01-PLAN.md — Fix KPI dashboard API path (BUG-01) and DataTableWrapper reactive loop (BUG-02)
 - [ ] 08-02-PLAN.md — Add 409-aware FK constraint error messaging for orders and operations pages (BUG-03)
 
 **UI hint**: yes
@@ -72,5 +72,5 @@ Plans:
 | 5. Frontend Pattern Compliance | v1.0 | 3/3 | Complete | 2026-04-02 |
 | 6. Database Migration Framework | v1.0 | 4/4 | Complete | 2026-04-02 |
 | 7. Operational Reliability & Housekeeping | v1.0 | 3/3 | Complete | 2026-04-03 |
-| 8. Production Bug Fixes | v1.1 | 0/2 | Not started | - |
+| 8. Production Bug Fixes | v1.1 | 1/2 | In Progress|  |
 | 9. DataTableWrapper Pattern Completion | v1.1 | 0/? | Not started | - |

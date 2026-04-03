@@ -9,8 +9,8 @@
 
 ### Bug Fixes
 
-- [ ] **BUG-01**: KPI dashboard loads data — fix frontend API call path from `/orders/metrics/dashboard` to `/orders/kpi/dashboard` so the dashboard metrics endpoint is reached correctly
-- [ ] **BUG-02**: Customers page renders without crashing — fix `effect_update_depth_exceeded` infinite reactive loop in the DataTableWrapper integration on the customers page
+- [x] **BUG-01**: KPI dashboard loads data — fix frontend API call path from `/orders/metrics/dashboard` to `/orders/kpi/dashboard` so the dashboard metrics endpoint is reached correctly
+- [x] **BUG-02**: Customers page renders without crashing — fix `effect_update_depth_exceeded` infinite reactive loop in the DataTableWrapper integration on the customers page
 - [ ] **BUG-03**: Deleting an order or work order with associated data shows a user-friendly error — both Orders and Operations pages catch the 409 FK constraint error and display a meaningful message instead of a raw error
 
 ### Frontend Pattern Completion
@@ -62,8 +62,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 8 | Pending |
-| BUG-02 | Phase 8 | Pending |
+| BUG-01 | Phase 8 | Complete |
+| BUG-02 | Phase 8 | Complete |
 | BUG-03 | Phase 8 | Pending |
 | FE-01 | Phase 9 | Pending |
 | FE-02 | Phase 9 | Pending |
