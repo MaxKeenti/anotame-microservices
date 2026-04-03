@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
+	import { onMount, untrack, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
@@ -21,7 +21,7 @@
 	let draft = $derived(orderWizardState.activeDraft || ({} as any));
 
 	let total = $derived(
-		(draft.items || []).reduce((acc: number, item: any) => {
+		(draft?.items || []).reduce((acc: number, item: any) => {
 			const itemTotal = (item.services || []).reduce(
 				(sAcc: number, s: any) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0),
 				0
@@ -50,14 +50,14 @@
 		validators: zod4(paymentSchema),
 		async onUpdate({ form: f }) {
 			if (!f.valid) return;
-			if (!draft.customer || !draft.items || draft.items.length === 0) {
+			if (!draft?.customer || !draft?.items || draft?.items.length === 0) {
 				error = 'Faltan datos requeridos (Cliente o Prendas)';
 				return;
 			}
 			error = null;
 			isSubmitting = true;
 			try {
-				const orderItems = draft.items.map((item: any) => ({
+				const orderItems = (draft?.items || []).map((item: any) => ({
 					garmentTypeId: item.garmentTypeId || item.garmentId || '',
 					garmentName: item.garmentName || '',
 					quantity: 1,
@@ -88,7 +88,7 @@
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
 				const payload: any = {
-					customer: draft.customer,
+					customer: draft?.customer,
 					items: orderItems,
 					committedDeadline: deadlineStr,
 					notes: f.data.notes || '',
@@ -96,24 +96,33 @@
 					paymentMethod: f.data.paymentMethod
 				};
 
-				if (draft.isEditing && draft.id) {
+				if (draft?.isEditing && draft?.id) {
 					await apiService.updateOrder(draft.id, payload);
 					toast.success('Orden actualizada exitosamente');
-					orderWizardState.clearActiveDraft();
-					goto(`/dashboard/orders/${draft.id}?action=print`);
+					const targetId = draft?.id;
+					
+					// Navigate first, then cleanup to avoid UI "blink" to Step 1
+					if (targetId) {
+						await goto(`/dashboard/orders/${targetId}?action=print`);
+					} else {
+						await goto('/dashboard/orders');
+					}
+					orderWizardState.completeActiveDraft();
 				} else {
 					const res = await apiService.request<any>(`${API_SALES}/orders`, {
 						method: 'POST',
-						headers: {
-							'X-User-Name': authService.user?.username || 'Anonymous',
-							'X-User-Id': authService.user?.id || 'unknown',
-							'X-User-Role': authService.user?.role || 'USER'
-						},
 						body: JSON.stringify(payload)
 					});
 					toast.success('Orden confirmada exitosamente');
-					orderWizardState.clearActiveDraft();
-					goto(`/dashboard/orders/${res.id}?action=print`);
+					const targetId = res?.id;
+					
+					// Navigate first, then cleanup to avoid UI "blink" to Step 1
+					if (targetId) {
+						await goto(`/dashboard/orders/${targetId}?action=print`);
+					} else {
+						await goto('/dashboard/orders');
+					}
+					orderWizardState.completeActiveDraft();
 				}
 			} catch (e: any) {
 				console.error(e);
@@ -146,11 +155,11 @@
 
 	onMount(() => {
 		// Initialize form from existing draft when component mounts (for edit mode where draft already has values)
-		if (draft.paymentMethod || draft.amountPaid || draft.committedDeadline || draft.notes) {
-			$form.paymentMethod = draft.paymentMethod || 'CASH';
-			$form.amountPaid = draft.amountPaid || 0;
-			$form.committedDeadline = draft.committedDeadline ? draft.committedDeadline.slice(0, 16) : '';
-			$form.notes = draft.notes || '';
+		if (draft?.paymentMethod || draft?.amountPaid || draft?.committedDeadline || draft?.notes) {
+			$form.paymentMethod = draft?.paymentMethod || 'CASH';
+			$form.amountPaid = draft?.amountPaid || 0;
+			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : '';
+			$form.notes = draft?.notes || '';
 		}
 	});
 
@@ -198,8 +207,8 @@
 	});
 
 	let selectedDayWorkload = $derived.by(() => {
-		if (!draft.committedDeadline || dailyWorkload.length === 0) return 0;
-		const selectedDate = draft.committedDeadline.slice(0, 10);
+		if (!draft?.committedDeadline || dailyWorkload.length === 0) return 0;
+		const selectedDate = draft?.committedDeadline.slice(0, 10);
 		const day = dailyWorkload.find((d: any) => d.date === selectedDate);
 		return day ? day.totalMinutesUsed : 0;
 	});
@@ -373,7 +382,7 @@
 		</div>
 	{/if}
 
-	{#if draft.committedDeadline}
+	{#if draft?.committedDeadline}
 		<div
 			class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
 		>
@@ -424,7 +433,7 @@
 			disabled={isSubmitting}
 			class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
 		>
-			{isSubmitting ? 'Procesando...' : draft.isEditing ? 'Actualizar Orden' : 'Confirmar Orden'}
+			{isSubmitting ? 'Procesando...' : draft?.isEditing ? 'Actualizar Orden' : 'Confirmar Orden'}
 		</Button>
 	</div>
 </form>

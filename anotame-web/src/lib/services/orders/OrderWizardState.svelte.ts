@@ -46,8 +46,12 @@ class OrderWizardState {
     }
 
     createEmptyDraft() {
+        const id = typeof crypto !== 'undefined' && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : `draft_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            
         this.activeDraft = {
-            id: crypto.randomUUID(),
+            id,
             lastModified: Date.now(),
             currentStep: 0,
             items: [],
@@ -88,6 +92,17 @@ class OrderWizardState {
     }
 
     clearActiveDraft() {
+        this.activeDraft = null;
+    }
+
+    /**
+     * Completes the current draft by clearing the active state AND removing it from storage.
+     * Should be called after a successful order creation.
+     */
+    completeActiveDraft() {
+        if (this.activeDraft) {
+            this.deleteDraft(this.activeDraft.id);
+        }
         this.activeDraft = null;
     }
 }
