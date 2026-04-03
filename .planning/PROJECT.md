@@ -27,6 +27,7 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 **Backend:** All services now production-hardened — no hardcoded credentials, JWT via env vars, all controllers auth-guarded, Flyway migrations, SmallRye Health endpoints live
 **Frontend:** SvelteKit with `DataTableWrapper` (TanStack Table) and `sveltekit-superforms` standardized across all pages
 **Deployment:** Railway (main branch auto-deploy); Docker Compose for local dev with service healthchecks
+**Phase 08 Complete:** Production Bug Fixes — KPI dashboard API path corrected, DataTableWrapper pagination infinite loop fixed, FK constraint error handling with Spanish toasts added to orders and operations pages
 
 ## Requirements
 
@@ -120,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 — v1.1 Deployment Refactor milestone started*
+*Last updated: 2026-04-03 — Phase 08 (Production Bug Fixes) complete — 3 bugs fixed, ready for Phase 09*
