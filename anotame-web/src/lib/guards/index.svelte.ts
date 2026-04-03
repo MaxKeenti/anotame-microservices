@@ -2,14 +2,23 @@ import { authService } from '../services/auth.svelte';
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
 
-export function useAuthGuard(redirectTo = '/login') {
+export function useAuthGuard(adminOnly: boolean, redirectTo?: string): { checking: boolean, allowed: boolean };
+export function useAuthGuard(redirectTo?: string): { checking: boolean, allowed: boolean };
+export function useAuthGuard(arg1: boolean | string = '/login', arg2 = '/login') {
+    const adminOnly = typeof arg1 === 'boolean' ? arg1 : false;
+    const redirectTo = typeof arg1 === 'string' ? arg1 : arg2;
+
     let checking = $state(true);
     let allowed = $state(false);
 
     $effect(() => {
         if (!browser) return;
-        // In a real scenario, you might also want to verify token expiration using the API
-        if (!authService.isAuthenticated) {
+        
+        const user = authService.user;
+        const isAuthenticated = authService.isAuthenticated;
+        const isAuthorized = !adminOnly || (user?.role === 'ADMIN');
+
+        if (!isAuthenticated || !isAuthorized) {
             goto(redirectTo);
         } else {
             allowed = true;

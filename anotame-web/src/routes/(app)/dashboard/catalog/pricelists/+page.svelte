@@ -12,12 +12,12 @@
   import { goto } from '$app/navigation';
 
   // Guard: Protect this route, strictly checking 'ADMIN'
-  const isReady = useAuthGuard(true, '/dashboard');
+  const guard = useAuthGuard(true, '/dashboard');
   
   let lists = $state<any[]>([]);
   let isLoading = $state(true);
 
-  // Computed state for derived logic (though isReady handles fast redirects)
+  // Computed state for derived logic (though guard.allowed handles fast redirects)
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
   async function loadLists() {
@@ -37,7 +37,7 @@
 
   // Once guard resolves authentication state:
   $effect(() => {
-    if (isReady && isAdmin) {
+    if (guard.allowed) {
       loadLists();
     }
   });
@@ -65,9 +65,9 @@
   }
 </script>
 
-{#if !isReady || !isAdmin}
+{#if guard.checking}
   <div class="p-8 text-center text-muted-foreground animate-pulse">Verificando accesos...</div>
-{:else}
+{:else if guard.allowed}
   <div class="space-y-6 animate-in fade-in duration-300">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>

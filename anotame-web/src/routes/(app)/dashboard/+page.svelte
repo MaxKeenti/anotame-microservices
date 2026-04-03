@@ -15,7 +15,7 @@
 
 <div class="space-y-8 pb-20 p-2 sm:p-0">
   <div class="mb-8">
-     <h2 class="text-3xl sm:text-4xl font-bold font-heading">Hola, {authService.user?.firstName || 'Usuario'}</h2>
+     <h2 class="text-3xl sm:text-4xl font-bold font-heading">Hola, {authService.user?.username || 'Usuario'}</h2>
      <p class="text-muted-foreground mt-2 sm:text-lg">Bienvenido a tu panel de control.</p>
   </div>
 
