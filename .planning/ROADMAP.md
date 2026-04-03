@@ -4,7 +4,8 @@
 
 - ✅ **v1.0 Code Quality & Security** — Phases 1–7 (shipped 2026-04-03) — [archive](.planning/milestones/v1.0-ROADMAP.md)
 - 🚧 **v1.1 Production Stability** — Phases 8–9 (in progress)
-- 📋 **v1.2 Deployment Refactor** — Phases TBD (planned)
+- 📋 **v1.2 UI standardization using shadcn presets** — Phases ? (not planned)
+- 📋 **v1.3 Deployment Refactor** — Phases TBD (planned)
 
 ## Phases
 

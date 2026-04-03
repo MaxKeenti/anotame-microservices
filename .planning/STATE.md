@@ -62,8 +62,8 @@ Progress: [░░░░░░░░░░] 0% (0/2 phases)
 All v1.0 decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.1 scoped to Production Stability only — Deployment Refactor deferred to v1.2
-- [Phase ?]: Used Svelte 5 untrack() to break reactive dependency cycle in DataTableWrapper pagination effect
+- v1.1 scoped to Production Stability only — Deployment Refactor deferred to v1.3
+- [Phase 8]: Used Svelte 5 untrack() to break reactive dependency cycle in DataTableWrapper pagination effect
 
 ### Pending Todos
 
