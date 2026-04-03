@@ -135,7 +135,7 @@ Plans:
 Plans:
 - [x] 07-01: Add `quarkus-smallrye-health` extension to all 4 services — verify `/q/health/ready` responds correctly with DB connectivity
 - [ ] 07-02: Wire health checks into `docker-compose.yml` — add `healthcheck` entries for all 4 services; update `depends_on` conditions
-- [ ] 07-03: Housekeeping sweep — update `.env.example` variable names, delete legacy build artifacts, add `.gitignore` entries, add `x-user-name` to sales-service CORS config
+- [x] 07-03: Housekeeping sweep — update `.env.example` variable names, delete legacy build artifacts, add `.gitignore` entries, add `x-user-name` to sales-service CORS config
 
 ## Progress
 
@@ -150,4 +150,4 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
 | 5. Frontend Pattern Compliance | 3/3 | Complete   | 2026-04-02 |
 | 6. Database Migration Framework | 4/4 | Complete   | 2026-04-02 |
-| 7. Operational Reliability & Housekeeping | 1/3 | In Progress|  |
+| 7. Operational Reliability & Housekeeping | 2/3 | In Progress|  |

@@ -51,9 +51,9 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### Housekeeping
 
-- [ ] **HOUSE-01**: `.env.example` updated — all `NEXT_PUBLIC_*` references replaced with `PUBLIC_*`
-- [ ] **HOUSE-02**: `anotame-web-legacy/node_modules/` and `anotame-web-legacy/.next/` deleted and added to `.gitignore`
-- [ ] **HOUSE-03**: `x-user-name` header added to `sales-service` CORS `allowed-headers` config
+- [x] **HOUSE-01**: `.env.example` updated — all `NEXT_PUBLIC_*` references replaced with `PUBLIC_*`
+- [x] **HOUSE-02**: `anotame-web-legacy/node_modules/` and `anotame-web-legacy/.next/` deleted and added to `.gitignore`
+- [x] **HOUSE-03**: `x-user-name` header added to `sales-service` CORS `allowed-headers` config
 
 ---
 
@@ -122,9 +122,9 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 | DB-04 | Phase 6 | Complete |
 | OPS-01 | Phase 7 | Pending |
 | OPS-02 | Phase 7 | Complete |
-| HOUSE-01 | Phase 7 | Pending |
-| HOUSE-02 | Phase 7 | Pending |
-| HOUSE-03 | Phase 7 | Pending |
+| HOUSE-01 | Phase 7 | Complete |
+| HOUSE-02 | Phase 7 | Complete |
+| HOUSE-03 | Phase 7 | Complete |
 
 **Coverage:**
 - Milestone 1 requirements: 24 total
