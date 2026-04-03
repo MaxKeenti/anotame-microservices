@@ -44,7 +44,7 @@ Full phase details: [.planning/milestones/v1.0-ROADMAP.md](.planning/milestones/
 
 Plans:
 - [x] 08-01-PLAN.md — Fix KPI dashboard API path (BUG-01) and DataTableWrapper reactive loop (BUG-02)
-- [ ] 08-02-PLAN.md — Add 409-aware FK constraint error messaging for orders and operations pages (BUG-03)
+- [x] 08-02-PLAN.md — Add 409-aware FK constraint error messaging for orders and operations pages (BUG-03)
 
 **UI hint**: yes
 
