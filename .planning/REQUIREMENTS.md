@@ -46,7 +46,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 
 ### Operational Reliability
 
-- [ ] **OPS-01**: All 4 backend services have Docker Compose `healthcheck` entries using `/q/health/ready`
+- [x] **OPS-01**: All 4 backend services have Docker Compose `healthcheck` entries using `/q/health/ready`
 - [x] **OPS-02**: `quarkus-smallrye-health` extension added to all 4 services
 
 ### Housekeeping
@@ -120,7 +120,7 @@ Ordered by delivery sequence: WIP close → security → data integrity → qual
 | DB-02 | Phase 6 | Complete |
 | DB-03 | Phase 6 | Complete |
 | DB-04 | Phase 6 | Complete |
-| OPS-01 | Phase 7 | Pending |
+| OPS-01 | Phase 7 | Complete |
 | OPS-02 | Phase 7 | Complete |
 | HOUSE-01 | Phase 7 | Complete |
 | HOUSE-02 | Phase 7 | Complete |

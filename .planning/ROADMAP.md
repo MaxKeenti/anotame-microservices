@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Exception Handling Standardization** - Consistent JSON error shape and typed domain exceptions across all 4 services (completed 2026-04-02)
 - [x] **Phase 5: Frontend Pattern Compliance** - DataTableWrapper component and superforms migration for order wizard, schedule, and settings (completed 2026-04-02)
 - [x] **Phase 6: Database Migration Framework** - Flyway across all 4 services with V1 baseline from live schema, per-service history tables (completed 2026-04-02)
-- [ ] **Phase 7: Operational Reliability & Housekeeping** - Health checks, SmallRye Health extension, and .env / legacy artifact cleanup
+- [x] **Phase 7: Operational Reliability & Housekeeping** - Health checks, SmallRye Health extension, and .env / legacy artifact cleanup (completed 2026-04-03)
 
 ## Phase Details
 
@@ -134,7 +134,7 @@ Plans:
 
 Plans:
 - [x] 07-01: Add `quarkus-smallrye-health` extension to all 4 services — verify `/q/health/ready` responds correctly with DB connectivity
-- [ ] 07-02: Wire health checks into `docker-compose.yml` — add `healthcheck` entries for all 4 services; update `depends_on` conditions
+- [x] 07-02: Wire health checks into `docker-compose.yml` — add `healthcheck` entries for all 4 services; update `depends_on` conditions
 - [x] 07-03: Housekeeping sweep — update `.env.example` variable names, delete legacy build artifacts, add `.gitignore` entries, add `x-user-name` to sales-service CORS config
 
 ## Progress
@@ -150,4 +150,4 @@ Phases execute sequentially: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Exception Handling Standardization | 3/3 | Complete   | 2026-04-02 |
 | 5. Frontend Pattern Compliance | 3/3 | Complete   | 2026-04-02 |
 | 6. Database Migration Framework | 4/4 | Complete   | 2026-04-02 |
-| 7. Operational Reliability & Housekeeping | 2/3 | In Progress|  |
+| 7. Operational Reliability & Housekeeping | 3/3 | Complete   | 2026-04-03 |
