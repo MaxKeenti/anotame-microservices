@@ -7,7 +7,7 @@
   import { formatDate } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { CheckCircle2, Eye } from 'lucide-svelte';
+  import { CheckCircle2, Eye, XCircle } from 'lucide-svelte';
 
   let workOrders = $state<any[]>([]);
   let loading = $state(true);
@@ -47,6 +47,29 @@
     } catch (e: any) {
       console.error(e);
       toast.error("Error al actualizar el estado", { description: e.message });
+    }
+  }
+
+  async function handleCancelWorkOrder(order: any) {
+    const ok = await adaptiveConfirm({
+      title: 'Cancelar Orden de Trabajo',
+      description: `¿Estás seguro que deseas cancelar la orden ${order.ticketNumber}? Esta acción no se puede deshacer.`
+    });
+    if (!ok) return;
+
+    try {
+      await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
+      toast.success('Orden cancelada exitosamente', { description: order.ticketNumber });
+      fetchWorkOrders();
+    } catch (e: any) {
+      console.error(e);
+      if (e?.message?.includes('409')) {
+        toast.error('No se puede cancelar', {
+          description: 'La orden tiene registros de trabajo vinculados.'
+        });
+      } else {
+        toast.error('Error al cancelar la orden', { description: e?.message });
+      }
     }
   }
 </script>
@@ -112,6 +135,15 @@
                 >
                   <Eye class="w-4 h-4 mr-2" />
                   Ver
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="h-10 px-4 touch-manipulation font-medium text-destructive hover:text-destructive/90"
+                  onclick={() => handleCancelWorkOrder(wo)}
+                >
+                  <XCircle class="w-4 h-4 mr-2" />
+                  Cancelar
                 </Button>
                 <Button
                   size="sm"

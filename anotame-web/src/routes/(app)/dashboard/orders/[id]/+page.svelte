@@ -78,7 +78,13 @@
       goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
-      toast.error("Error al cancelar pedido", { description: e.message });
+      if (e?.message?.includes('409')) {
+        toast.error('No se puede eliminar', {
+          description: 'El pedido tiene órdenes de trabajo asociadas. Elimina las órdenes de trabajo primero.'
+        });
+      } else {
+        toast.error('Error al cancelar pedido', { description: e?.message });
+      }
     }
   }
 
