@@ -458,3 +458,7 @@ yarn-error.log*
 next-env.d.ts
 
 # End of https://www.toptal.com/developers/gitignore/api/nextjs,java,maven,macos
+
+# Legacy Next.js build artifacts (anotame-web-legacy is deprecated — block build dirs)
+anotame-web-legacy/node_modules/
+anotame-web-legacy/.next/
