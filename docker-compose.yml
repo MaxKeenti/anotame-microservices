@@ -62,6 +62,12 @@ services:
     depends_on:
       anotame-db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8081/q/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   catalog-service:
     build:
@@ -77,6 +83,12 @@ services:
     depends_on:
       anotame-db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8082/q/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   sales-service:
     build:
@@ -93,9 +105,15 @@ services:
       anotame-db:
         condition: service_healthy
       identity-service:
-        condition: service_started
+        condition: service_healthy
       catalog-service:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8083/q/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   operations-service:
     build:
@@ -112,7 +130,13 @@ services:
       anotame-db:
         condition: service_healthy
       sales-service:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8084/q/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   # ========================================================================================
   # FRONTEND (NextJS) - Placeholder
   # ========================================================================================
@@ -138,9 +162,12 @@ services:
     networks:
       - anotame-network
     depends_on:
-      - identity-service
-      - catalog-service
-      - sales-service
+      identity-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      sales-service:
+        condition: service_healthy
 
 volumes:
   postgres_data:
