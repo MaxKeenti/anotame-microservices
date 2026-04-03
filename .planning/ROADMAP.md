@@ -40,7 +40,12 @@ Full phase details: [.planning/milestones/v1.0-ROADMAP.md](.planning/milestones/
   1. The KPI dashboard page loads and displays metrics data without a network error
   2. The customers page renders its data table without crashing or triggering an infinite reactive loop
   3. Attempting to delete an order or work order that has associated data displays a user-friendly message instead of a raw error
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Fix KPI dashboard API path (BUG-01) and DataTableWrapper reactive loop (BUG-02)
+- [ ] 08-02-PLAN.md — Add 409-aware FK constraint error messaging for orders and operations pages (BUG-03)
+
 **UI hint**: yes
 
 ### Phase 9: DataTableWrapper Pattern Completion
@@ -67,5 +72,5 @@ Full phase details: [.planning/milestones/v1.0-ROADMAP.md](.planning/milestones/
 | 5. Frontend Pattern Compliance | v1.0 | 3/3 | Complete | 2026-04-02 |
 | 6. Database Migration Framework | v1.0 | 4/4 | Complete | 2026-04-02 |
 | 7. Operational Reliability & Housekeeping | v1.0 | 3/3 | Complete | 2026-04-03 |
-| 8. Production Bug Fixes | v1.1 | 0/? | Not started | - |
+| 8. Production Bug Fixes | v1.1 | 0/2 | Not started | - |
 | 9. DataTableWrapper Pattern Completion | v1.1 | 0/? | Not started | - |
