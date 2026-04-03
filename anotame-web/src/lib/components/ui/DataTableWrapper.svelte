@@ -40,6 +40,8 @@
   let sorting = $state<SortingState>([]);
   let globalFilter = $state('');
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
+  // Initialize columnPinning to prevent undefined state errors
+  let columnPinning = $state({ left: [], right: [] });
 
   // Reset pagination on filter change
   $effect(() => {
@@ -56,6 +58,7 @@
         sorting,
         globalFilter,
         pagination,
+        columnPinning,
       },
       onSortingChange: (updater) => {
         if (typeof updater === 'function') {
@@ -76,6 +79,13 @@
           pagination = updater(pagination);
         } else {
           pagination = updater;
+        }
+      },
+      onColumnPinningChange: (updater) => {
+        if (typeof updater === 'function') {
+          columnPinning = updater(columnPinning);
+        } else {
+          columnPinning = updater;
         }
       },
       getCoreRowModel: getCoreRowModel(),
