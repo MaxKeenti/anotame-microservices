@@ -211,6 +211,7 @@ CREATE TABLE tco_order (
     
     -- Status
     current_status VARCHAR(50) DEFAULT 'RECEIVED', -- Current state pointer
+    status VARCHAR(255) NOT NULL DEFAULT 'RECEIVED', -- Overall order status string
     
     -- Workflow Dates
     received_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
@@ -219,6 +220,9 @@ CREATE TABLE tco_order (
     committed_deadline TIMESTAMPTZ, -- Field required by OrderEntity
     
     notes TEXT,
+    ticket_number VARCHAR(255), -- Global ticket identifier
+    total_duration_min INTEGER DEFAULT 0, -- Aggregated workload
+    
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     deleted_at TIMESTAMPTZ,
@@ -271,6 +275,7 @@ CREATE TABLE tco_order_item_service (
     -- Ad-Hoc Adjustments per service
     adjustment_amount DECIMAL(19,4) DEFAULT 0.0,
     adjustment_reason VARCHAR(255),
+    duration_min INTEGER,
     
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

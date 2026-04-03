@@ -58,12 +58,21 @@ class ApiService {
           } else if (errorData.error) {
             backendMessage = errorData.error;
           }
-          // Format 2: ConstraintViolations {"phoneNumber": "Phone number already in use"}
+          // Format 3: Quarkus Constraint Violations {"violations": [{"field": "...", "message": "..."}]}
+          else if (errorData.violations && Array.isArray(errorData.violations)) {
+            const mappedErrors: Record<string, string> = {};
+            errorData.violations.forEach((v: any) => {
+              // Strip method prefix if present (e.g. "createOrder.request.committedDeadline" -> "committedDeadline")
+              const field = v.field.includes('.') ? v.field.split('.').pop()! : v.field;
+              mappedErrors[field] = v.message;
+            });
+            throw new ApiValidationError("Validation Error", mappedErrors);
+          }
+          // Format 4: Generic object catch-all
           else if (
             typeof errorData === "object" &&
             Object.keys(errorData).length > 0
           ) {
-            // Throw our custom error with the object attached!
             throw new ApiValidationError("Validation Error", errorData);
           }
         }

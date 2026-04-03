@@ -25,6 +25,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
             List<String> details = cve.getConstraintViolations().stream()
                     .map(v -> v.getPropertyPath() + ": " + v.getMessage())
                     .toList();
+            log.warn("Validation failed for request: {}", details);
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new ErrorResponse("Validation failed", details))
                     .build();
@@ -42,11 +43,12 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                     .entity(new ErrorResponse(wae.getMessage()))
                     .build();
         }
-        // 4. Database relational conflicts (FK constraint on delete)
+        // 4. Database relational conflicts (FK constraint, Unique constraint)
         if (exception instanceof PersistenceException
                 || exception.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+            log.error("Database conflict detected: ", exception);
             return Response.status(Response.Status.CONFLICT)
-                    .entity(new ErrorResponse("Cannot delete: record has associated data"))
+                    .entity(new ErrorResponse("Database conflict: unique constraint violation or record has associated data"))
                     .build();
         }
         // 5. Catch-all

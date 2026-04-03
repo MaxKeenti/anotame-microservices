@@ -32,14 +32,14 @@ class OrderWizardState {
     // Currently active draft manipulated by the wizard views
     activeDraft = $state<DraftOrder | null>(null);
 
-    totalMinutes = $derived.by(() => {
+    get totalMinutes() {
         if (!this.activeDraft || !this.activeDraft.items) return 0;
         return this.activeDraft.items.reduce((total, item) => {
             const qty = item.quantity || 1;
             const itemMins = item.services.reduce((sum, s) => sum + (s.durationMin || 0), 0);
             return total + (itemMins * qty);
         }, 0);
-    });
+    }
 
     loadDraft(id: string) {
         this.activeDraft = this.drafts.current.find((d: DraftOrder) => d.id === id) || null;

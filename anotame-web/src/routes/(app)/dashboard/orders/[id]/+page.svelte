@@ -20,7 +20,7 @@
 
   onMount(async () => {
     try {
-      const res = await apiService.request<any>(`${API_OPERATIONS}/settings/establishment`);
+      const res = await apiService.request<any>(`${API_OPERATIONS}/establishment`);
       establishment = res;
     } catch (e) {
       console.error(e);

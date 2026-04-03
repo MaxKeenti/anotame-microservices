@@ -11,20 +11,26 @@
     let isLoading = $state(true);
 
     onMount(() => {
-        // We use window.location.search because page.url might not be fully reactive on initial fast mount in SPA mode sometimes
-        const urlParams = new URLSearchParams(window.location.search);
-        const draftId = urlParams.get('draftId');
-        
-        if (draftId) {
-            orderWizardState.loadDraft(draftId);
-            if (!orderWizardState.activeDraft) {
-                // Invalid draft ID, fallback to new
+        try {
+            // We use window.location.search because page.url might not be fully reactive on initial fast mount in SPA mode sometimes
+            const urlParams = new URLSearchParams(window.location.search);
+            const draftId = urlParams.get('draftId');
+            
+            if (draftId) {
+                orderWizardState.loadDraft(draftId);
+                if (!orderWizardState.activeDraft) {
+                    // Invalid draft ID, fallback to new
+                    orderWizardState.createEmptyDraft();
+                }
+            } else {
                 orderWizardState.createEmptyDraft();
             }
-        } else {
+        } catch (e) {
+            console.error('Error initializing order wizard:', e);
             orderWizardState.createEmptyDraft();
+        } finally {
+            isLoading = false;
         }
-        isLoading = false;
     });
 
     const steps = [
