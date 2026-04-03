@@ -2,11 +2,19 @@
 
 ## What This Is
 
-Anotame is the name of the application that fulfills *El hilvan*'s system requirements, which is a clothing repair shop business, Anotame takes part as a management SaaS — a multi-service platform that lets garment care, businesses take orders, manage customers, track work through the shop, handle scheduling, and view operational KPIs. Built on 4 independent Quarkus microservices with a SvelteKit 5 frontend, serving one live business client and designed to scale to multiple tenants.
+Anotame is the management SaaS platform for *El hilvan*, a garment care / clothing repair shop. It lets staff take orders, manage customers, track work through the shop, handle scheduling, and view operational KPIs. Built on 4 independent Quarkus microservices (identity, catalog, sales, operations) with a SvelteKit 5 frontend, serving one live business client. Designed to scale to multiple tenants.
 
 ## Core Value
 
-A *El hilvan*'s business staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
+A *El hilvan* staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
+
+## Current State
+
+**Version:** v1.0 — shipped 2026-04-03
+**Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
+**Backend:** All services now production-hardened — no hardcoded credentials, JWT via env vars, all controllers auth-guarded, Flyway migrations, SmallRye Health endpoints live
+**Frontend:** SvelteKit with `DataTableWrapper` (TanStack Table) and `sveltekit-superforms` standardized across all pages
+**Deployment:** Railway (main branch auto-deploy); Docker Compose for local dev with service healthchecks
 
 ## Requirements
 
@@ -22,56 +30,62 @@ A *El hilvan*'s business staff member can take a complete order — from walk-in
 - ✓ Schedule management (work days, shifts, holidays) — existing
 - ✓ Touch-first responsive UI with adaptive components (desktop shadcn / mobile native) — existing
 - ✓ Containerized deployment via Docker Compose, targeting Railway — existing
+- ✓ UI color standardization — per-user palette customization, CSS variable overrides — v1.0
+- ✓ Security hardening — no hardcoded credentials, auth guards on all controllers, JWT key via env, cookie secure flag — v1.0
+- ✓ Data integrity fixes — real branch resolution from JWT claims, DB-sequence ticket numbers, real createdBy UUID — v1.0
+- ✓ Consistent exception handling — GlobalExceptionHandler + typed domain exceptions across all 4 services — v1.0
+- ✓ Frontend pattern compliance — DataTableWrapper + sveltekit-superforms across all major pages — v1.0
+- ✓ Database migration framework — Flyway across all 4 services, V1 baseline from live schema, per-service history tables — v1.0
+- ✓ Operational reliability — SmallRye Health on all 4 services, Docker Compose healthchecks — v1.0
+- ✓ Housekeeping — .env.example PUBLIC_* names, legacy artifacts deleted, x-user-name CORS header — v1.0
 
 ### Active
 
-- [ ] UI color standardization — close open `feat--ui-color-standardization` branch
-- [ ] Security hardening — no hardcoded credentials, auth guards on all controllers, JWT key via env, cookie secure flag
-- [ ] Data integrity fixes — real branch resolution from JWT claims, DB-sequence ticket numbers, real createdBy UUID
-- [ ] Consistent exception handling — GlobalExceptionHandler + typed domain exceptions across all 4 services
-- [ ] Operational reliability — health checks on all backend services in docker-compose, gated SQL logging
-- [ ] Housekeeping — .env.example cleanup (remove NEXT_PUBLIC_*), anotame-web-legacy artifacts removed
-- [ ] Docker and deployment checks, currently system has fragmented deployment routes, relying on github packages for all Quarkus services and postgres db, systems need a full refactor of deployment strategies (needs dedicated planning phase)
-- [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated planning phase)
-- [ ] KPI intelligence improvements — smarter metrics and planning tools to help businesses track budgets, predict order load, and act on data (needs dedicated planning phase)
+- [ ] Deployment refactor — Railway currently uses GitHub Packages for Quarkus services + managed PostgreSQL; full deployment strategy refactor needed (needs dedicated planning phase)
+- [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated design phase)
+- [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
+- [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
+- [ ] Server-side auth validation in SvelteKit hooks.server.ts before SSR render (deferred from v1.0)
+- [ ] +error.svelte pages at (app) layout level with retry/graceful degradation (deferred from v1.0)
 
 ### Out of Scope
 
-- Automated test suite — deferred to a future milestone (testing baseline not the priority for Milestone 1)
 - Multi-tenancy at the DB level — currently sharing one PostgreSQL instance; true DB-per-tenant separation is a future architecture concern
 - API gateway (Nginx/Traefik) — SvelteKit BFF proxy is acceptable for current scale; gateway is future work
-- IBM requirements documentation best practices — identified as technical debt, not a Milestone 1 priority
+- IBM requirements documentation best practices — identified as technical debt, not a current priority
 - Inter-service event bus — catalog name denormalization in sales-service is an acceptable trade-off for now
+- i18n / Paraglide rollout — all strings hardcoded Spanish; large effort deferred to dedicated phase
 
 ## Context
 
-- **Codebase**: Monorepo with `anotame-api/backend/` (4 Quarkus 3.27.2 services) and `anotame-web/` (SvelteKit 5 + Svelte 5 Runes). All services are fully standalone — the parent `pom.xml` is an aggregator only (Spring Boot parent reference was removed in cleanup).
-- **Live client**: One real business is using the platform. Schema changes must be additive or migration-safe. Railway deploy must stay functional at all times, Railway automatically pulls from main branch to deploy, all changes must be safe checked before merging into main branch.
-- **Audit**: Full codebase audit completed 2026-03-31. Findings live in `.planning/codebase/CONCERNS.md` and `docs/standardization_plan.md`. 22 items identified; security items are the highest priority.
-- **Current WIP**: `feat--ui-color-standardization` branch is almost complete — must be closed before starting security work.
-- **Known critical debt**:
-  - 4 services have hardcoded DB credentials in `application.properties`
-  - `OperationsController`, `ScheduleController`, `UserController` have no `@Authenticated` guard
-  - `privateKey.pem` may be committed to repo — needs immediate verification
-  - `SalesService` uses a hardcoded branch UUID and collision-prone ticket numbers
-  - `GlobalExceptionHandler` exists only in sales-service; others return raw 500s
+- **Live client**: One real business is using the platform. Schema changes must be additive or migration-safe. Railway deploys from main branch automatically — all changes must be validated before merging.
+- **v1.0 shipped**: Full audit backlog cleared — security, data integrity, exception handling, frontend patterns, Flyway migrations, operational health all addressed.
+- **Known deferred debt**:
+  - `branch_id` fallback in `OrdersResource.java` (sales-service) — remove after all active sessions re-login post-v1.0
+  - Staging Flyway validate isolation — re-run `flyway validate` against a true isolated staging container before first Railway deploy introducing a new migration beyond V2
+  - Human verification items from Phases 4 and 5 still require Docker Compose runtime confirmation (invalid-credentials 401, duplicate-username 409, no SQL in prod logs, DataTableWrapper rendering, superforms behavior)
 
 ## Constraints
 
 - **Deployment**: Railway deploy must remain functional throughout all changes — no config-breaking refactors without a tested migration path
-- **Database**: One live client has production data — schema changes must be additive (add columns/tables) or use safe migrations; no destructive DDL
-- **Tech stack**: Quarkus 3.27.2, Java 21, SvelteKit 5 — no major version bumps in Milestone 1
-- **No new framework deps**: Avoid introducing new libraries unless a specific work item explicitly requires it (e.g., Flyway for migrations)
+- **Database**: One live client has production data — schema changes must be additive (add columns/tables) or use safe Flyway migrations; no destructive DDL
+- **Tech stack**: Quarkus 3.27.2, Java 21, SvelteKit 5 — no major version bumps unless a specific milestone explicitly targets an upgrade
+- **No new framework deps**: Avoid introducing new libraries unless a specific work item explicitly requires it
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Security before all other debt | Live client + committed private key risk — unacceptable exposure | — Pending |
-| Testing deferred to Milestone 2 | Codebase needs structural fixes before tests are worth writing; tests on broken patterns create wrong anchors | — Pending |
-| Theming + KPI features planned as separate phases | Both need detailed design before execution — scope too fuzzy to build directly | — Pending |
+| Security before all other debt | Live client + committed private key risk — unacceptable exposure | ✓ Cleared — v1.0 |
+| Testing deferred to Milestone 2 | Codebase needs structural fixes before tests are worth writing; tests on broken patterns create wrong anchors | — Deferred |
+| Theming + KPI features planned as separate phases | Both need detailed design before execution — scope too fuzzy to build directly | — Active |
 | Parent POM stays as pure aggregator | Spring Boot inheritance removed; each service manages its own Quarkus BOM | ✓ Done |
 | Java 21 across all services | sales-service bumped from 17 → 21 to match others; Dockerfiles already used 21 | ✓ Done |
+| JWT keys delivered via env vars | SMALLRYE_JWT_SIGN_KEY + MP_JWT_VERIFY_PUBLICKEY instead of .location file path — enables Railway builds without committed PEM files | ✓ Done — v1.0 |
+| branch_id omitted from JWT when null | Downstream must handle absent claim with rollout fallback; remove fallback after re-login | — Pending cleanup |
+| Single pg_dump shared across 4 Flyway V1 baselines | Simpler than per-service scoping; safe because baseline-version=1 means Flyway stamps V1 as already applied without executing it | ✓ Done — v1.0 |
+| Per-service Flyway history tables | All 4 services share one PostgreSQL DB; unique table names prevent cross-service collision | ✓ Done — v1.0 |
+| wget --spider for Docker healthchecks | curl absent from eclipse-temurin:21-jre-alpine; wget (busybox) is correct tool | ✓ Done — v1.0 |
 
 ## Evolution
 
@@ -91,4 +105,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-01 after user's manual edition*
+*Last updated: 2026-04-03 after v1.0 milestone*
