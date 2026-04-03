@@ -1,4 +1,5 @@
 <script lang="ts" generics="TData">
+  import { untrack } from 'svelte';
   import {
     createTable,
     getCoreRowModel,
@@ -46,7 +47,9 @@
   // Reset pagination on filter change
   $effect(() => {
     void globalFilter;
-    pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+    untrack(() => {
+      pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+    });
   });
 
   // Recreate full table on every state change via $derived
