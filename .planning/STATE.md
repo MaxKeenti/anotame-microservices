@@ -74,6 +74,14 @@ Recent decisions affecting current work:
 
 None.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260403-pjv | Update init.sql with missing status column for order entity | 2026-04-04 | 4da57d2 | [260403-pjv-update-init-sql-with-missing-status-colu](./quick/260403-pjv-update-init-sql-with-missing-status-colu/) |
+
+Last activity: 2026-04-04 - Completed quick task 260403-pjv: Verify status column in order table
+
 ## Session Continuity
 
 Last session: 2026-04-03T17:13:15.666Z
