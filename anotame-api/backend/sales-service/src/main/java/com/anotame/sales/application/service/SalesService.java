@@ -224,6 +224,7 @@ public class SalesService {
                             serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
                                     : BigDecimal.ZERO);
                     service.setAdjustmentReason(serviceDto.getAdjustmentReason());
+                    service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
 
                     item.addService(service);
 
