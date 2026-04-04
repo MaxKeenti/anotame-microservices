@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: UI Standardization
-status: requirements
+status: executing
 stopped_at: null
 last_updated: "2026-04-04T04:40:00.000Z"
 last_activity: 2026-04-04
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Defining requirements for v1.2 — UI Standardization
+**Current focus:** Phase 10 — shadcn Preset Init & Design Token Refresh
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-04 — Milestone v1.2 started
+Phase: 10
+Plan: Not started
+Status: Ready to plan Phase 10
+Last activity: 2026-04-04 — Milestone v1.2 roadmap created (5 phases, 12 requirements)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
 ## Performance Metrics
 

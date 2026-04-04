@@ -48,15 +48,16 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| DESIGN-01 | — | — | Pending |
-| DESIGN-02 | — | — | Pending |
-| TABLE-01 | — | — | Pending |
-| TABLE-02 | — | — | Pending |
-| TABLE-03 | — | — | Pending |
-| FORM-01 | — | — | Pending |
-| FORM-02 | — | — | Pending |
-| A11Y-01 | — | — | Pending |
-| A11Y-02 | — | — | Pending |
-| THEME-01 | — | — | Pending |
-| THEME-02 | — | — | Pending |
-| THEME-03 | — | — | Pending |
+| DESIGN-01 | 10 | — | Pending |
+| DESIGN-02 | 10 | — | Pending |
+| TABLE-01 | 11 | — | Pending |
+| TABLE-02 | 11 | — | Pending |
+| TABLE-03 | 11 | — | Pending |
+| FORM-01 | 12 | — | Pending |
+| FORM-02 | 12 | — | Pending |
+| A11Y-01 | 13 | — | Pending |
+| A11Y-02 | 13 | — | Pending |
+| THEME-01 | 14 | — | Pending |
+| THEME-02 | 14 | — | Pending |
+| THEME-03 | 14 | — | Pending |
+
