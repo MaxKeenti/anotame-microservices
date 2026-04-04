@@ -34,8 +34,11 @@ public class OperationsService {
     }
 
     public WorkOrder getWorkOrder(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("WorkOrder ID cannot be null");
+        }
         return workOrderRepositoryPort.findById(id)
-                .orElseThrow(() -> new RuntimeException("WorkOrder not found with id: " + id));
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("WorkOrder not found with id: " + id));
     }
 
     @Transactional

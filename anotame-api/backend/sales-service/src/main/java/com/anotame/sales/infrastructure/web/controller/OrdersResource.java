@@ -35,11 +35,21 @@ public class OrdersResource {
         String branchIdClaim = (String) jwt.getClaim("branch_id");
         // Intentional backward compatibility: branch_id is optional with fallback to default branch (Oaxaca #113)
         // This supports newly registered users, legacy sessions, and v1.0 rollout without requiring re-login
-        UUID branchId = (branchIdClaim != null && !branchIdClaim.isEmpty())
-            ? UUID.fromString(branchIdClaim)
-            : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
+        UUID branchId;
+        try {
+            branchId = (branchIdClaim != null && !branchIdClaim.isEmpty())
+                ? UUID.fromString(branchIdClaim)
+                : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
+        } catch (IllegalArgumentException e) {
+            throw new jakarta.ws.rs.BadRequestException("Invalid branch_id format in JWT token: " + e.getMessage());
+        }
 
-        UUID userId = UUID.fromString(userIdClaim);
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdClaim);
+        } catch (IllegalArgumentException e) {
+            throw new jakarta.ws.rs.BadRequestException("Invalid user_id format in JWT token: " + e.getMessage());
+        }
 
         return salesService.createOrderDTO(request, userId, branchId);
     }
