@@ -24,6 +24,7 @@
     emptyMessage?: string;
     filterPlaceholder?: string;
     actionCell?: import('svelte').Snippet<[Row<TData>]>;
+    cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
   };
 
   let {
@@ -34,6 +35,7 @@
     emptyMessage = 'No hay datos.',
     filterPlaceholder = 'Buscar...',
     actionCell,
+    cellRenders = {},
   }: Props = $props();
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
@@ -157,7 +159,9 @@
             <Table.Row class="hover:bg-muted/10 transition-colors">
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell class="px-6 py-4">
-                  {#if cell.column.id === 'actions' && actionCell}
+                  {#if cellRenders && cellRenders[cell.column.id]}
+                    {@render cellRenders[cell.column.id](row)}
+                  {:else if cell.column.id === 'actions' && actionCell}
                     {@render actionCell(row)}
                   {:else}
                     {cell.getValue() as string ?? ''}
