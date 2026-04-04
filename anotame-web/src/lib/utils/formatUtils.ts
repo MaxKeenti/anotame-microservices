@@ -19,6 +19,7 @@ export const formatDate = (date: string | Date | undefined | null): string => {
 export const formatDateTime = (date: string | Date | undefined | null): string => {
     if (!date) return "-";
     return new Date(date).toLocaleString('es-MX', {
+        weekday: 'long',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',

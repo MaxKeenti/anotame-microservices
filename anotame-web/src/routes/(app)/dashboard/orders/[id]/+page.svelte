@@ -210,7 +210,7 @@
         <div class="space-y-3 text-sm">
           <div class="flex justify-between items-center">
             <span class="text-muted-foreground font-medium">Creado:</span>
-            <span class="font-mono bg-secondary/30 px-2 py-1 rounded">{new Date(order.createdAt).toLocaleString()}</span>
+            <span class="font-mono bg-secondary/30 px-2 py-1 rounded">{formatDateTime(order.createdAt)}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-muted-foreground font-medium">Entrega Estimada:</span>

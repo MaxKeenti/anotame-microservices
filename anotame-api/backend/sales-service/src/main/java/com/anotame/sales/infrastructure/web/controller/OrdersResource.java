@@ -3,7 +3,6 @@ package com.anotame.sales.infrastructure.web.controller;
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.OrderResponse;
-import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.application.service.SalesService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;

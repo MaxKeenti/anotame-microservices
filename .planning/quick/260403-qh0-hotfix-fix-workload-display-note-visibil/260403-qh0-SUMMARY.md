@@ -1,4 +1,4 @@
-commit: 4c063ca
+commit: f3160ed
 ---
 
 # Summary: Quick Task 260403-qh0
@@ -8,7 +8,8 @@ Resolve critical production issues affecting workload reporting, UI readability,
 
 ## Changes
 - **Backend (sales-service)**:
-    - Updated `OrderResponse` to include `totalDurationMin`.
+    - Updated `OrdersResource` to return `OrderResponse` DTO from `createOrder`, ensuring consistent REST responses and correct field mapping.
+    - Updated `OrderResponse` and `OrderItemServiceDto` to include and correctly map `totalDurationMin` and `durationMin`.
     - Refactored `SalesService` to calculate and persist `totalDurationMin` during order creation and updates.
     - **Fix**: Corrected a compilation error in the `totalDurationMin` calculation.
     - **Persistence**: Fixed `OrderPersistenceAdapter` to properly map `totalDurationMin` (order level) and `durationMin` (service level) to and from the database.
