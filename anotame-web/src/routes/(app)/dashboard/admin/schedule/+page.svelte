@@ -5,15 +5,17 @@
   import { Input } from '$lib/components/ui/input';
   import * as Card from '$lib/components/ui/card';
   import * as Table from '$lib/components/ui/table';
+  import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { CalendarDays, AlertTriangle, Trash2 } from 'lucide-svelte';
+  import { CalendarDays, AlertTriangle, Trash2, Loader2 } from 'lucide-svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 
   let activeTab = $state<'weekly' | 'holidays'>('weekly');
   let isLoading = $state(true);
+  let isHolidaySubmitting = $state(false);
 
   // Data
   let workDays = $state<any[]>([]);
@@ -26,16 +28,12 @@
     description: z.string().min(1, 'La descripción es obligatoria'),
   });
 
-  const {
-    form: holidayForm,
-    enhance: holidayEnhance,
-    errors: holidayErrors,
-    reset: resetHoliday,
-  } = superForm(defaults(zod4(holidaySchema)), {
+  const holidaySuperform = superForm(defaults(zod4(holidaySchema)), {
     SPA: true,
     validators: zod4(holidaySchema),
     async onUpdate({ form: f }) {
       if (!f.valid) return;
+      isHolidaySubmitting = true;
       try {
         await apiService.request(`${API_OPERATIONS}/schedule/holidays`, {
           method: 'POST',
@@ -46,9 +44,17 @@
         loadData();
       } catch (err: any) {
         toast.error(err.message || 'Error al agregar excepción');
+      } finally {
+        isHolidaySubmitting = false;
       }
     },
   });
+
+  const {
+    form: holidayForm,
+    enhance: holidayEnhance,
+    reset: resetHoliday,
+  } = holidaySuperform;
 
   async function loadData() {
     isLoading = true;
@@ -199,29 +205,43 @@
           </Card.Header>
           <Card.Content>
             <form method="POST" use:holidayEnhance class="space-y-4">
-              <div class="space-y-2">
-                <label for="hol-date" class="text-sm font-medium">Fecha (Inhábile)</label>
-                <AdaptiveDatePicker
-                  id="hol-date"
-                  bind:value={$holidayForm.date}
-                  min={new Date().toISOString().slice(0, 10)}
-                  placeholder="Elige una fecha"
-                />
-                {#if $holidayErrors.date}<span class="text-xs text-destructive">{$holidayErrors.date}</span>{/if}
-              </div>
-              <div class="space-y-2">
-                <label for="hol-desc" class="text-sm font-medium">Motivo / Descripción</label>
-                <Input
-                  id="hol-desc"
-                  placeholder="Ej. Navidad, Año Nuevo"
-                  required
-                  bind:value={$holidayForm.description}
-                  class="h-12"
-                />
-                {#if $holidayErrors.description}<span class="text-xs text-destructive">{$holidayErrors.description}</span>{/if}
-              </div>
-              <Button type="submit" class="w-full h-12 shadow-sm">
-                Agregar Excepción
+              <Form.Field form={holidaySuperform} name="date">
+                {#snippet children({ constraints })}
+                  <Form.Label>Fecha (Inhábile)</Form.Label>
+                  <AdaptiveDatePicker
+                    id="hol-date"
+                    bind:value={$holidayForm.date}
+                    min={new Date().toISOString().slice(0, 10)}
+                    placeholder="Elige una fecha"
+                  />
+                  <Form.FieldErrors />
+                {/snippet}
+              </Form.Field>
+              <Form.Field form={holidaySuperform} name="description">
+                {#snippet children({ constraints })}
+                  <Form.Control>
+                    {#snippet children({ props })}
+                      <Form.Label>Motivo / Descripción</Form.Label>
+                      <Input
+                        {...props}
+                        {...constraints}
+                        id="hol-desc"
+                        placeholder="Ej. Navidad, Año Nuevo"
+                        bind:value={$holidayForm.description}
+                        class="h-12"
+                      />
+                    {/snippet}
+                  </Form.Control>
+                  <Form.FieldErrors />
+                {/snippet}
+              </Form.Field>
+              <Button type="submit" disabled={isHolidaySubmitting} class="w-full h-12 shadow-sm">
+                {#if isHolidaySubmitting}
+                  <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+                  Agregando...
+                {:else}
+                  Agregar Excepción
+                {/if}
               </Button>
             </form>
           </Card.Content>
