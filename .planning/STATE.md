@@ -93,8 +93,9 @@ None.
 | 260404-sec | Security: Sanitize error messages to prevent information disclosure via exception details | 2026-04-04 | f97e2da | VERIFIED | .planning/quick/260404-sec-error-message-sanitization/ |
 | 260403-wks | Price lists page DataTableWrapper verification & touch target optimization | 2026-04-04 | 62a1c53 | - | [260403-wks-migrate-price-lists-page-to-datatablewra](./quick/260403-wks-migrate-price-lists-page-to-datatablewra/) |
 | 260403-wrr | Add editar credenciales dialog to user menu - reuse employee edit functionality | 2026-04-04 | 295bbb2 | - | [260403-wrr-add-editar-credenciales-dialog-to-user-m](./quick/260403-wrr-add-editar-credenciales-dialog-to-user-m/) |
+| 260403-wz8 | Migrate price list overrides table to DataTableWrapper with cell rendering support | 2026-04-04 | d6c888e | COMPLETED | [260403-wz8-migrate-overrides-table-to-datatablewrap](./quick/260403-wz8-migrate-overrides-table-to-datatablewrap/) |
 
-Last activity: 2026-04-04 - Completed quick task 260403-wrr: Editar credenciales dialog wireup to user menu
+Last activity: 2026-04-04 - Completed quick task 260403-wz8: DataTableWrapper migration with custom cell rendering support
 
 ## Session Continuity
 
