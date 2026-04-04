@@ -37,7 +37,7 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 
 - [x] Phase 10: shadcn Preset Init & Design Token Refresh (2/2 plans) — completed 2026-04-04
 - [x] Phase 11: DataTableWrapper Filter Consolidation (1/1 plans) — completed 2026-04-04
-- [ ] Phase 12: Forms & Dialogs Standardization Audit
+- [ ] Phase 12: Forms & Dialogs Standardization Audit (3 plans)
 - [ ] Phase 13: Color Audit & WCAG Compliance
 - [ ] Phase 14: Tenant Theming
 
@@ -74,6 +74,12 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 **Goal**: Verify and fix all forms and dialogs to follow consistent shadcn/ui + superforms patterns.
 **Depends on**: Phase 10
 **Requirements**: FORM-01, FORM-02
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Migrate 4 CRUD dialogs to Form.* wrappers, spinner, and customer success toast
+- [ ] 12-02-PLAN.md — Migrate payment-step and schedule holiday form to Form.* wrappers + spinner
+- [ ] 12-03-PLAN.md — Migrate login, register, pricelists/new, pricelists/[id] to superforms + Form.* wrappers
 
 **Success criteria:**
 1. All create/edit dialogs use the shadcn Dialog component with consistent header, body, and footer layout
@@ -122,6 +128,6 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 | 9. DataTableWrapper Pattern Completion | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 10. shadcn Preset Init & Design Token Refresh | v1.2 | 2/2 | Complete    | 2026-04-04 |
 | 11. DataTableWrapper Filter Consolidation | v1.2 | — | Complete    | 2026-04-04 |
-| 12. Forms & Dialogs Standardization Audit | v1.2 | — | Pending | — |
+| 12. Forms & Dialogs Standardization Audit | v1.2 | 0/3 | Pending | — |
 | 13. Color Audit & WCAG Compliance | v1.2 | — | Pending | — |
 | 14. Tenant Theming | v1.2 | — | Pending | — |
