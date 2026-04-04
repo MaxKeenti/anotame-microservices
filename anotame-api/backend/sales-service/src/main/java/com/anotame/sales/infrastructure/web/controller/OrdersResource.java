@@ -27,9 +27,18 @@ public class OrdersResource {
 
     @POST
     public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
-        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+        String userIdClaim = (String) jwt.getClaim("user_id");
+        if (userIdClaim == null || userIdClaim.isEmpty()) {
+            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
+        }
 
-        UUID branchId = UUID.fromString((String) jwt.getClaim("branch_id"));
+        String branchIdClaim = (String) jwt.getClaim("branch_id");
+        if (branchIdClaim == null || branchIdClaim.isEmpty()) {
+            throw new jakarta.ws.rs.BadRequestException("Missing or invalid branch_id claim in JWT token");
+        }
+
+        UUID userId = UUID.fromString(userIdClaim);
+        UUID branchId = UUID.fromString(branchIdClaim);
 
         return salesService.createOrderDTO(request, userId, branchId);
     }
