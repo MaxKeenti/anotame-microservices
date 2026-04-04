@@ -157,6 +157,7 @@ public class SalesService {
                 .notes(order.getNotes())
                 .items(items)
                 .createdAt(order.getCreatedAt())
+                .totalDurationMin(order.getTotalDurationMin())
                 .build();
     }
 
@@ -231,6 +232,13 @@ public class SalesService {
             total = total.add(lineTotal);
         }
         order.setTotalAmount(total);
+
+        // Calculate total duration for update
+        int totalDuration = order.getItems().stream()
+                .flatMap(i -> i.getServices().stream())
+                .mapToInt(s -> (s.getDurationMin() != null ? s.getDurationMin() : 0) * (s.getOrderItem() != null ? s.getOrderItem().getQuantity() : 1))
+                .sum();
+        order.setTotalDurationMin(totalDuration);
 
         Order saved = orderRepository.save(order);
         return mapToResponse(saved);
