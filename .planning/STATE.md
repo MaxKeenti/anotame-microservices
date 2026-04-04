@@ -84,8 +84,9 @@ None.
 | 260403-sh6 | Fix 6 detected issues: error handling (409 detection, dead code), API error propagation, timezone handling | 2026-04-04 | 3955300 | Verified | [260403-sh6-fix-6-detected-issues-frontend-error-han](./quick/260403-sh6-fix-6-detected-issues-frontend-error-han/) |
 | 260403-sh6-fix | Fix 500 regression: add missing OffsetDateTime field mappings in OrderPersistenceAdapter, remove conflicting Hibernate timestamp annotations | 2026-04-04 | 8475338 | Verified | [260403-sh6-fix-order-persistence-regression](./quick/260403-sh6-fix-order-persistence-regression/) |
 | 260403-tcn | Fix 500 errors from timestamp type mismatches - update OrderRepository queries and SalesService to use OffsetDateTime | 2026-04-04 | 90082e3 | Verified | [260403-tcn-fix-timestamp-query-mismatches](./quick/260403-tcn-fix-timestamp-query-mismatches/) |
+| 260403-tqw | Fix JWT branch_id validation - restore optional fallback for backward compatibility with newly registered users and legacy sessions | 2026-04-04 | 5a34304 | Verified | [260403-tqw-fix-jwt-branch-id-claim-validation](./quick/260403-tqw-fix-jwt-branch-id-claim-validation/) |
 
-Last activity: 2026-04-04 - Fixed timestamp query type mismatches (OrderRepository, SalesService, OperationsService)
+Last activity: 2026-04-04 - Fixed JWT branch_id validation (backward compatibility for existing users)
 
 ## Session Continuity
 
