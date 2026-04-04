@@ -121,7 +121,7 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 | 8. Production Bug Fixes | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 9. DataTableWrapper Pattern Completion | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 10. shadcn Preset Init & Design Token Refresh | v1.2 | 2/2 | Complete    | 2026-04-04 |
-| 11. DataTableWrapper Filter Consolidation | v1.2 | — | Pending | — |
+| 11. DataTableWrapper Filter Consolidation | v1.2 | — | Complete    | 2026-04-04 |
 | 12. Forms & Dialogs Standardization Audit | v1.2 | — | Pending | — |
 | 13. Color Audit & WCAG Compliance | v1.2 | — | Pending | — |
 | 14. Tenant Theming | v1.2 | — | Pending | — |
