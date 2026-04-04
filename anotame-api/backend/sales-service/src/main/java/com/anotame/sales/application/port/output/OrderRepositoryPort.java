@@ -20,12 +20,12 @@ public interface OrderRepositoryPort {
     String nextTicketNumber();
 
     // KPI Metrics
-    long countActiveByDeadlineRange(java.time.LocalDateTime start, java.time.LocalDateTime end);
-    long countActiveFromDeadline(java.time.LocalDateTime start);
+    long countActiveByDeadlineRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+    long countActiveFromDeadline(java.time.OffsetDateTime start);
     long countByStatusNotIn(java.util.List<String> excludedStatuses);
     long countByStatus(String status);
-    java.math.BigDecimal sumPaidAmountInRange(java.time.LocalDateTime start, java.time.LocalDateTime end);
+    java.math.BigDecimal sumPaidAmountInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
     java.math.BigDecimal sumPendingDebt();
-    java.util.List<Object[]> getWeeklyRevenueData(java.time.LocalDateTime start);
-    java.util.List<Object[]> getDailyWorkload(java.time.LocalDateTime start, java.time.LocalDateTime end);
+    java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start);
+    java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
 }
