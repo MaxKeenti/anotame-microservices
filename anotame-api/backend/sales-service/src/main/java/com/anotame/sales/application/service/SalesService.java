@@ -32,6 +32,12 @@ public class SalesService {
     private final CustomerRepositoryPort customerRepository;
 
     @Transactional
+    public com.anotame.sales.application.dto.OrderResponse createOrderDTO(CreateOrderRequest request, UUID userId, UUID branchId) {
+        Order saved = createOrder(request, userId, branchId);
+        return mapToResponse(saved);
+    }
+
+    @Transactional
     public Order createOrder(CreateOrderRequest request, UUID userId, UUID branchId) {
         // 1. Resolve or Create Customer
         Customer customer = resolveCustomer(request.getCustomer());
