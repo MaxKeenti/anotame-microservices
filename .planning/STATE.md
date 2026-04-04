@@ -1,42 +1,42 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Production Stability
-status: executing
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-04-04T01:19:00.000Z"
+milestone: v1.2
+milestone_name: UI Standardization
+status: requirements
+stopped_at: null
+last_updated: "2026-04-04T04:40:00.000Z"
 last_activity: 2026-04-04
 progress:
-  total_phases: 2
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 2
-  percent: 50
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-03 after v1.0)
+See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 09 — datatablewrapper-pattern-completion
+**Current focus:** Defining requirements for v1.2 — UI Standardization
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
-Status: Executing Phase 09
-Last activity: 2026-04-04
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-04 — Milestone v1.2 started
 
-Progress: [░░░░░░░░░░] 0% (0/2 phases)
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0 (v1.1)
+- Total plans completed: 0 (v1.2)
 - Average duration: —
 - Total execution time: —
 
@@ -52,19 +52,17 @@ Progress: [░░░░░░░░░░] 0% (0/2 phases)
 - Trend: —
 
 *Updated after each plan completion*
-| Phase 08 P01 | 12 | 2 tasks | 2 files |
-| Phase 08 P02 | 12min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-All v1.0 decisions are logged in PROJECT.md Key Decisions table.
+All v1.0 & v1.1 decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.1 scoped to Production Stability only — Deployment Refactor deferred to v1.3
-- [Phase 8]: Used Svelte 5 untrack() to break reactive dependency cycle in DataTableWrapper pagination effect
-- [Quick 260403-qh0]: Corrected durationMin payload from wizard to enable workload tracking; introduced text-warning-text for high-contrast note visibility.
+- v1.2 scoped to UI Standardization — shadcn preset init is foundation, tenant theming builds on color audit
+- [Quick 260403-qh0]: Corrected durationMin payload from wizard to enable workload tracking; introduced text-warning-text for high-contrast note visibility
+- DataTableWrapper filter deduplication is a priority bug fix — some pages duplicate filtering UI
 
 ### Pending Todos
 
@@ -89,10 +87,10 @@ None.
 | 260404-qz1 | Fix production workload display — add missing durationMin assignment in SalesService.updateOrder() | 2026-04-04 | eeba589 | VERIFIED | .planning/quick/260404-qz1-fix-missing-durationmin-in-update-order/ |
 | 260404-sec | Security: Sanitize error messages to prevent information disclosure via exception details | 2026-04-04 | f97e2da | VERIFIED | .planning/quick/260404-sec-error-message-sanitization/ |
 
-Last activity: 2026-04-04 - Fixed error message exposure (prevented information disclosure in 5 services)
+Last activity: 2026-04-04 - Milestone v1.2 started
 
 ## Session Continuity
 
-Last session: 2026-04-03T17:13:15.666Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-04-04T04:40:00.000Z
+Stopped at: Defining requirements for v1.2
 Resume file: None

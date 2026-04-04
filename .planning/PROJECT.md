@@ -10,12 +10,14 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ## Current Milestone: v1.2 — UI Standardization
 
-**Goal:** Standardize the UI using shadcn presets and improve visual consistency across all adaptive components.
+**Goal:** Standardize the frontend using shadcn presets, fix UI inconsistencies, and establish a theming foundation for multi-tenant branding.
 
 **Target features:**
-- UI: Implement shadcn/ui components for all major forms and dialogs
-- Consistency: Audit and fix color palette drifts across branch/establishment settings
-- Feedback: Standardize toast/loading states across the entire application
+- shadcn preset init (`bun x shadcn-svelte init --preset b4akO6QUQs`) — apply curated design tokens (priority)
+- DataTableWrapper filter deduplication — consolidate duplicate filter UIs; pages pass custom filters to DataTableWrapper (priority bug fix)
+- UI standardization audit — verify all forms and dialogs follow shadcn/ui + superforms patterns
+- Color audit — find and fix palette drifts, ensure WCAG compliance across light/dark modes
+- Tenant theming — per-tenant font and color customization via CSS variable overrides
 
 ---
 
@@ -56,11 +58,13 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ### Active
 
-- [ ] UI standardization — implement shadcn/ui components for all forms and dialogs — v1.2
-- [ ] Color audit — resolve palette drifts and ensure WCAG compliance — v1.2
+- [ ] shadcn preset init — apply design tokens via `bun x shadcn-svelte init --preset b4akO6QUQs` — v1.2
+- [ ] DataTableWrapper filter dedup — consolidate duplicate filter UIs, pass custom filters to wrapper — v1.2
+- [ ] UI standardization audit — verify all forms/dialogs follow shadcn/ui + superforms patterns — v1.2
+- [ ] Color audit — fix palette drifts, ensure WCAG compliance across light/dark modes — v1.2
+- [ ] Tenant theming — per-tenant font and color customization via CSS variable overrides — v1.2
 - [ ] Deployment refactor — research Railway Dockerfile deploys, migrate from PostGIS to native PostgreSQL — v1.3
 - [ ] Deployment implementation — eliminate GitHub Packages dependency across all services — v1.3
-- [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated design phase)
 - [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
 - [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
 - [ ] Server-side auth validation in SvelteKit hooks.server.ts before SSR render (deferred from v1.0)
