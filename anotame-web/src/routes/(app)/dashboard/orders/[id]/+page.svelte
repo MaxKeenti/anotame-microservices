@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
+  import { ApiError } from "$lib/services/ApiError";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
   import { translateStatus, getStatusColor } from "$lib/utils/statusUtils";
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
@@ -77,7 +78,7 @@
       goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
-      if (e?.message?.includes('409')) {
+      if (e instanceof ApiError && e.status === 409) {
         toast.error('No se puede eliminar', {
           description: 'El pedido tiene órdenes de trabajo asociadas. Elimina las órdenes de trabajo primero.'
         });

@@ -11,19 +11,10 @@
     let isLoading = $state(true);
 
     onMount(() => {
-        const timeout = setTimeout(() => {
-            if (isLoading) {
-                if (!orderWizardState.activeDraft) {
-                    orderWizardState.createEmptyDraft();
-                }
-                isLoading = false;
-            }
-        }, 2000);
-
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const draftId = urlParams.get('draftId');
-            
+
             if (draftId) {
                 orderWizardState.loadDraft(draftId);
                 if (!orderWizardState.activeDraft) {
@@ -36,7 +27,6 @@
             console.error('Order Wizard: Initialization failed:', e);
             orderWizardState.createEmptyDraft();
         } finally {
-            clearTimeout(timeout);
             isLoading = false;
         }
     });
