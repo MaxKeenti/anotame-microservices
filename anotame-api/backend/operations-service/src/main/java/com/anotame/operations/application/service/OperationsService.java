@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
+
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
