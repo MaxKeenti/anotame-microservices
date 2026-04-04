@@ -1,7 +1,9 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
+  import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { Loader2 } from 'lucide-svelte';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
   
@@ -24,7 +26,7 @@
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
 
-  const { form, enhance, errors, reset } = superForm(defaults(zod4(garmentSchema)), {
+  const superform = superForm(defaults(zod4(garmentSchema)), {
     SPA: true,
     validators: zod4(garmentSchema),
     async onUpdate({ form }) {
@@ -61,6 +63,8 @@
     }
   });
 
+  const { form, enhance, reset } = superform;
+
   $effect(() => {
     if (item) {
       $form = {
@@ -87,24 +91,41 @@
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
-      <div class="space-y-2">
-        <label for="g-name" class="text-sm font-medium">Nombre</label>
-        <Input id="g-name" name="name" placeholder="Ej. Pantalón de Mezclilla" bind:value={$form.name} class="h-12" />
-        {#if $errors.name}<span class="text-xs text-destructive">{$errors.name}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="name">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Nombre</Form.Label>
+              <Input {...props} {...constraints} placeholder="Ej. Pantalón de Mezclilla" bind:value={$form.name} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
       
-      <div class="space-y-2">
-        <label for="g-desc" class="text-sm font-medium">Descripción</label>
-        <Input id="g-desc" name="description" placeholder="Opcional" bind:value={$form.description} class="h-12" />
-        {#if $errors.description}<span class="text-xs text-destructive">{$errors.description}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="description">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Descripción</Form.Label>
+              <Input {...props} {...constraints} placeholder="Opcional" bind:value={$form.description} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
           Cancelar
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
-          {isSubmitting ? 'Guardando...' : 'Guardar'}
+          {#if isSubmitting}
+            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            Guardando...
+          {:else}
+            Guardar
+          {/if}
         </Button>
       </Dialog.Footer>
     </form>

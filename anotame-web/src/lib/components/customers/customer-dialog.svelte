@@ -1,7 +1,9 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
+  import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { Loader2 } from 'lucide-svelte';
   import { apiService, API_SALES, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
   import { superForm, defaults, setError } from 'sveltekit-superforms';
@@ -25,7 +27,7 @@
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
 
-  const { form, enhance, errors, reset } = superForm(defaults(zod4(customerSchema)), {
+  const superform = superForm(defaults(zod4(customerSchema)), {
     SPA: true,
     validators: zod4(customerSchema),
     async onUpdate({ form }) {
@@ -34,22 +36,21 @@
       try {
         if (form.data.id) {
           await apiService.request(`${API_SALES}/api/customers/${form.data.id}`, { method: 'PUT', body: JSON.stringify(form.data) });
+          toast.success("Cliente actualizado exitosamente");
         } else {
           await apiService.request(`${API_SALES}/api/customers`, { method: 'POST', body: JSON.stringify(form.data) });
+          toast.success("Cliente creado exitosamente");
         }
-        
+
         onClose();
         onSuccess?.();
       } catch (e: any) {
         if (e instanceof ApiValidationError) {
-          // Iterate through the backend errors and apply them to the form fields
           for (const [field, message] of Object.entries(e.validationErrors)) {
-            // We use 'as keyof typeof form.data' to satisfy TypeScript's strict typing
             setError(form, field as keyof typeof form.data, message);
           }
           toast.error("Por favor, revisa los campos marcados en rojo.");
         } else {
-          // Fallback for generic 500s or standard errors
           toast.error(e.message || "Error al guardar el cliente.");
         }
       } finally {
@@ -57,6 +58,8 @@
       }
     }
   });
+
+  const { form, enhance, reset } = superform;
 
   $effect(() => {
     if (item) {
@@ -89,34 +92,63 @@
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <label for="c-firstName" class="text-sm font-medium">Nombre</label>
-          <Input id="c-firstName" name="firstName" bind:value={$form.firstName} class="h-12" />
-          {#if $errors.firstName}<span class="text-xs text-destructive">{$errors.firstName}</span>{/if}
-        </div>
-        <div class="space-y-2">
-          <label for="c-lastName" class="text-sm font-medium">Apellido</label>
-          <Input id="c-lastName" name="lastName" bind:value={$form.lastName} class="h-12" />
-          {#if $errors.lastName}<span class="text-xs text-destructive">{$errors.lastName}</span>{/if}
-        </div>
+        <Form.Field form={superform} name="firstName">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Nombre</Form.Label>
+                <Input {...props} {...constraints} bind:value={$form.firstName} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
+        <Form.Field form={superform} name="lastName">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Apellido</Form.Label>
+                <Input {...props} {...constraints} bind:value={$form.lastName} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
       </div>
-      <div class="space-y-2">
-        <label for="c-phone" class="text-sm font-medium">Teléfono</label>
-        <Input id="c-phone" name="phoneNumber" type="tel" bind:value={$form.phoneNumber} class="h-12" />
-        {#if $errors.phoneNumber}<span class="text-xs text-destructive">{$errors.phoneNumber}</span>{/if}
-      </div>
-      <div class="space-y-2">
-        <label for="c-email" class="text-sm font-medium">Correo Electrónico (opcional)</label>
-        <Input id="c-email" name="email" type="email" bind:value={$form.email} class="h-12" />
-        {#if $errors.email}<span class="text-xs text-destructive">{$errors.email}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="phoneNumber">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Teléfono</Form.Label>
+              <Input {...props} {...constraints} type="tel" bind:value={$form.phoneNumber} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
+      <Form.Field form={superform} name="email">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Correo Electrónico (opcional)</Form.Label>
+              <Input {...props} {...constraints} type="email" bind:value={$form.email} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
           Cancelar
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
-          {isSubmitting ? 'Guardando...' : 'Guardar'}
+          {#if isSubmitting}
+            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            Guardando...
+          {:else}
+            Guardar
+          {/if}
         </Button>
       </Dialog.Footer>
     </form>

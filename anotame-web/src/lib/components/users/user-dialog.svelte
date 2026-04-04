@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
+  import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { Loader2 } from 'lucide-svelte';
   import { apiService, API_IDENTITY, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
 
@@ -30,7 +32,7 @@
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
 
-  const { form, enhance, errors, reset } = superForm(defaults(zod4(userSchema)), {
+  const superform = superForm(defaults(zod4(userSchema)), {
     SPA: true,
     validators: zod4(userSchema),
     async onUpdate({ form }) {
@@ -92,6 +94,7 @@
     }
   });
 
+  const { form, enhance, reset } = superform;
 
   $effect(() => {
     // We only want to run this when `item` changes.
@@ -129,65 +132,106 @@
       {#if $form.id}
         <!-- Username: read-only -->
         <div class="space-y-2">
-          <label for="u-username" class="text-sm font-medium">Usuario</label>
+          <Form.Label>Usuario</Form.Label>
           <div id="u-username" class="flex h-12 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
             {$form.username}
           </div>
         </div>
       {:else}
         <!-- Username input for creation -->
-        <div class="space-y-2">
-          <label for="u-username" class="text-sm font-medium">Usuario (Login) <span class="text-destructive">*</span></label>
-          <Input id="u-username" name="username" bind:value={$form.username} class="h-12" />
-          {#if $errors.username}<span class="text-xs text-destructive">{$errors.username}</span>{/if}
-        </div>
+        <Form.Field form={superform} name="username">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Usuario (Login) <span class="text-destructive">*</span></Form.Label>
+                <Input {...props} {...constraints} id="u-username" bind:value={$form.username} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
+
         <!-- Password input for creation -->
-        <div class="space-y-2">
-          <label for="u-password" class="text-sm font-medium">Contraseña <span class="text-destructive">*</span></label>
-          <Input id="u-password" name="password" type="password" bind:value={$form.password} class="h-12" />
-          {#if $errors.password}<span class="text-xs text-destructive">{$errors.password}</span>{/if}
-        </div>
+        <Form.Field form={superform} name="password">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Contraseña <span class="text-destructive">*</span></Form.Label>
+                <Input {...props} {...constraints} id="u-password" type="password" bind:value={$form.password} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
+
         <!-- Role input for creation -->
-        <div class="space-y-2">
-          <label for="u-role" class="text-sm font-medium">Rol <span class="text-destructive">*</span></label>
-          <AdaptiveSelect 
-            id="u-role" 
-            bind:value={$form.role} 
-            items={[
-                {value: 'EMPLOYEE', label: 'Empleado'},
-                {value: 'ADMIN', label: 'Administrador'}
-            ]}
-          />
-        </div>
+        <Form.Field form={superform} name="role">
+          {#snippet children({ constraints })}
+            <Form.Label>Rol <span class="text-destructive">*</span></Form.Label>
+            <AdaptiveSelect 
+              id="u-role" 
+              bind:value={$form.role} 
+              items={[
+                  {value: 'EMPLOYEE', label: 'Empleado'},
+                  {value: 'ADMIN', label: 'Administrador'}
+              ]}
+            />
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
       {/if}
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <label for="u-firstname" class="text-sm font-medium">Nombre</label>
-          <Input id="u-firstname" name="firstName" bind:value={$form.firstName} class="h-12" />
-          {#if $errors.firstName}<span class="text-xs text-destructive">{$errors.firstName}</span>{/if}
-        </div>
-        <div class="space-y-2">
-          <label for="u-lastname" class="text-sm font-medium">Apellido</label>
-          <Input id="u-lastname" name="lastName" bind:value={$form.lastName} class="h-12" />
-          {#if $errors.lastName}<span class="text-xs text-destructive">{$errors.lastName}</span>{/if}
-        </div>
+        <Form.Field form={superform} name="firstName">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Nombre</Form.Label>
+                <Input {...props} {...constraints} id="u-firstname" bind:value={$form.firstName} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
+        <Form.Field form={superform} name="lastName">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Apellido</Form.Label>
+                <Input {...props} {...constraints} id="u-lastname" bind:value={$form.lastName} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
       </div>
 
-      <div class="space-y-2">
-        <label for="u-email" class="text-sm font-medium">Correo Electrónico</label>
-        <Input id="u-email" name="email" type="email" bind:value={$form.email} class="h-12" />
-        {#if $errors.email}<span class="text-xs text-destructive">{$errors.email}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="email">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Correo Electrónico</Form.Label>
+              <Input {...props} {...constraints} id="u-email" type="email" bind:value={$form.email} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
           Cancelar
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
-          {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+          {#if isSubmitting}
+            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            Guardando...
+          {:else}
+            { $form.id ? 'Guardar Cambios' : 'Guardar' }
+          {/if}
         </Button>
       </Dialog.Footer>
     </form>
   </Dialog.Content>
 </Dialog.Root>
+
