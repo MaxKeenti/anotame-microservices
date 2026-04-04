@@ -3,11 +3,13 @@ package com.anotame.sales.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,8 +40,8 @@ public class OrderEntity {
     @JoinColumn(name = "id_customer", nullable = false)
     private CustomerEntity customer;
 
-    @Column(name = "committed_deadline", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime committedDeadline;
+    @Column(name = "committed_deadline")
+    private LocalDateTime committedDeadline;
 
     @Column(nullable = false)
     private String status = "RECEIVED";
@@ -62,17 +64,19 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items = new ArrayList<>();
 
-    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "created_by_user_id", nullable = false)
     private UUID createdBy;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime updatedAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime deletedAt;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Column(name = "is_deleted")
     private boolean deleted = false;

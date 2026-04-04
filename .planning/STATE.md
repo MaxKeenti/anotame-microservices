@@ -81,12 +81,8 @@ None.
 |---|-------------|------|--------|--------|-----------|
 | 260403-pjv | Update init.sql with missing status column for order entity | 2026-04-04 | 4da57d2 | - | [260403-pjv-update-init-sql-with-missing-status-colu](./quick/260403-pjv-update-init-sql-with-missing-status-colu/) |
 | 260403-qh0 | Production Hotfixes: Workload logic, Note Visibility, Order details | 2026-04-04 | f3160ed | PASSED | [260403-qh0-hotfix-fix-workload-display-note-visibil](./quick/260403-qh0-hotfix-fix-workload-display-note-visibil/) |
-| 260403-sh6 | Fix 6 detected issues: error handling (409 detection, dead code), API error propagation, timezone handling | 2026-04-04 | 3955300 | Verified | [260403-sh6-fix-6-detected-issues-frontend-error-han](./quick/260403-sh6-fix-6-detected-issues-frontend-error-han/) |
-| 260403-sh6-fix | Fix 500 regression: add missing OffsetDateTime field mappings in OrderPersistenceAdapter, remove conflicting Hibernate timestamp annotations | 2026-04-04 | 8475338 | Verified | [260403-sh6-fix-order-persistence-regression](./quick/260403-sh6-fix-order-persistence-regression/) |
-| 260403-tcn | Fix 500 errors from timestamp type mismatches - update OrderRepository queries and SalesService to use OffsetDateTime | 2026-04-04 | 90082e3 | Verified | [260403-tcn-fix-timestamp-query-mismatches](./quick/260403-tcn-fix-timestamp-query-mismatches/) |
-| 260403-tqw | Fix JWT branch_id validation - restore optional fallback for backward compatibility with newly registered users and legacy sessions | 2026-04-04 | 5a34304 | Verified | [260403-tqw-fix-jwt-branch-id-claim-validation](./quick/260403-tqw-fix-jwt-branch-id-claim-validation/) |
 
-Last activity: 2026-04-04 - Fixed JWT branch_id validation (backward compatibility for existing users)
+Last activity: 2026-04-04 - Completed quick task 260403-qh0: Production Hotfixes
 
 ## Session Continuity
 

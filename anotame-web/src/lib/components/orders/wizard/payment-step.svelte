@@ -4,7 +4,6 @@
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
 	import { apiService, API_SALES, API_OPERATIONS, ApiValidationError } from '$lib/services/api.svelte';
-	import { ApiError } from '$lib/services/ApiError';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { CreditCard, DollarSign, Wallet, AlertTriangle } from 'lucide-svelte';
@@ -140,7 +139,7 @@
 					toast.error('Error de Validación', {
 						description: errorMessages || 'Hay errores en los campos marcados'
 					});
-				} else if (e instanceof ApiError && e.status === 409) {
+				} else if (e.message.includes('Database conflict')) {
 					error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
 					toast.error('Error al procesar la orden', { description: e.message });
 				} else {

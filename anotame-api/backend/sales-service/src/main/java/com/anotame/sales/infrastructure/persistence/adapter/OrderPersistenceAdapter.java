@@ -51,8 +51,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setPaymentMethod(order.getPaymentMethod());
         entity.setCommittedDeadline(order.getCommittedDeadline());
         entity.setCreatedBy(order.getCreatedBy());
-        entity.setCreatedAt(order.getCreatedAt());
-        entity.setUpdatedAt(order.getUpdatedAt());
         entity.setTotalDurationMin(order.getTotalDurationMin());
 
         // Map items
@@ -118,12 +116,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public long countActiveByDeadlineRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+    public long countActiveByDeadlineRange(java.time.LocalDateTime start, java.time.LocalDateTime end) {
         return orderRepository.countActiveByDeadlineRange(start, end);
     }
 
     @Override
-    public long countActiveFromDeadline(java.time.OffsetDateTime start) {
+    public long countActiveFromDeadline(java.time.LocalDateTime start) {
         return orderRepository.countActiveFromDeadline(start);
     }
 
@@ -138,7 +136,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.math.BigDecimal sumPaidAmountInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+    public java.math.BigDecimal sumPaidAmountInRange(java.time.LocalDateTime start, java.time.LocalDateTime end) {
         return orderRepository.sumPaidAmountInRange(start, end);
     }
 
@@ -148,12 +146,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start) {
+    public java.util.List<Object[]> getWeeklyRevenueData(java.time.LocalDateTime start) {
         return orderRepository.getWeeklyRevenueData(start);
     }
 
     @Override
-    public java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+    public java.util.List<Object[]> getDailyWorkload(java.time.LocalDateTime start, java.time.LocalDateTime end) {
         return orderRepository.getDailyWorkload(start, end);
     }
 

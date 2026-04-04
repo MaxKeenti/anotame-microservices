@@ -14,9 +14,7 @@ import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +45,9 @@ public class SalesService {
         // 2. Create Order
         Order order = new Order();
         order.setCustomer(customer);
-        order.setCommittedDeadline(request.getCommittedDeadline());
+        order.setCommittedDeadline(request.getCommittedDeadline() != null
+                ? request.getCommittedDeadline().toLocalDateTime()
+                : null);
         order.setNotes(request.getNotes());
         String ticketNumber = orderRepository.nextTicketNumber();
         order.setTicketNumber(ticketNumber);
@@ -57,8 +57,7 @@ public class SalesService {
         order.setFolioBranch(folioNumber);
         order.setBranchId(branchId);
         order.setCreatedBy(userId);
-        order.setCreatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
-        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
+        order.setCreatedAt(LocalDateTime.now());
         order.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());
 
@@ -191,7 +190,7 @@ public class SalesService {
             order.setNotes(request.getNotes());
         }
         if (request.getCommittedDeadline() != null) {
-            order.setCommittedDeadline(request.getCommittedDeadline());
+            order.setCommittedDeadline(request.getCommittedDeadline().toLocalDateTime());
         }
         if (request.getAmountPaid() != null) {
             order.setAmountPaid(request.getAmountPaid());
@@ -249,7 +248,6 @@ public class SalesService {
                         .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
                 .sum();
         order.setTotalDurationMin(totalDuration);
-        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
 
         Order saved = orderRepository.save(order);
         return mapToResponse(saved);
@@ -260,7 +258,6 @@ public class SalesService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         order.setStatus(status);
-        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         orderRepository.save(order);
     }
 
@@ -292,11 +289,11 @@ public class SalesService {
     @Transactional
     public DashboardMetricsResponse getDashboardMetrics() {
         LocalDate today = LocalDate.now();
-        OffsetDateTime startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
-        OffsetDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
-        OffsetDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
-        OffsetDateTime startOfNextMonth = startOfMonth.plusMonths(1);
-        OffsetDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
+        LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfMonth.plusMonths(1);
+        LocalDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay();
 
         // Workload Metrics
         long todayDeliveries = orderRepository.countActiveByDeadlineRange(startOfDay, startOfTomorrow);
@@ -339,7 +336,7 @@ public class SalesService {
         }
 
         // Daily Workload (Next 30 days)
-        OffsetDateTime endOfWorkloadRange = startOfDay.plusDays(30);
+        LocalDateTime endOfWorkloadRange = startOfDay.plusDays(30);
         List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange);
         List<DashboardMetricsResponse.WorkloadDayPoint> dailyWorkload = new ArrayList<>();
 

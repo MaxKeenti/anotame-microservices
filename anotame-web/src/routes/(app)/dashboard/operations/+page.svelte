@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
-  import { ApiError } from '$lib/services/ApiError';
   import { Button } from '$lib/components/ui/button';
   import * as Table from '$lib/components/ui/table';
   import { translateStatus, getStatusColor } from '$lib/utils/statusUtils';
@@ -64,7 +63,7 @@
       fetchWorkOrders();
     } catch (e: any) {
       console.error(e);
-      if (e instanceof ApiError && e.status === 409) {
+      if (e?.message?.includes('409')) {
         toast.error('No se puede cancelar', {
           description: 'La orden tiene registros de trabajo vinculados.'
         });
