@@ -105,6 +105,7 @@
       loading={loading}
       emptyMessage="No se encontraron clientes."
       filterPlaceholder="Filtrar clientes..."
+      showFilter={false}
     >
       {#snippet actionCell(row)}
         <div class="flex justify-end gap-2">
