@@ -235,8 +235,10 @@ public class SalesService {
 
         // Calculate total duration for update
         int totalDuration = order.getItems().stream()
-                .flatMap(i -> i.getServices().stream())
-                .mapToInt(s -> (s.getDurationMin() != null ? s.getDurationMin() : 0) * (s.getOrderItem() != null ? s.getOrderItem().getQuantity() : 1))
+                .filter(item -> !item.isDeleted())
+                .mapToInt(item -> item.getServices().stream()
+                        .mapToInt(s -> s.getDurationMin() != null ? s.getDurationMin() : 0)
+                        .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
                 .sum();
         order.setTotalDurationMin(totalDuration);
 
