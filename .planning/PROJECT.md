@@ -8,26 +8,24 @@ Anotame is the management SaaS platform for *El hilvan*, a garment care / clothi
 
 A *El hilvan* staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
 
-## Current Milestone: v1.1 — Deployment Refactor
+## Current Milestone: v1.2 — UI Standardization
 
-**Goal:** Restore production from v1.0 env var breakage, then replace the fragile GitHub Packages deployment with a clean, testable strategy chosen from research.
+**Goal:** Standardize the UI using shadcn presets and improve visual consistency across all adaptive components.
 
 **Target features:**
-- HOTFIX: Update Railway env vars for v1.0 compatibility (prod is currently down — 502 on login)
-- Research: Evaluate Railway Dockerfile deploys, VPS Docker Compose, and monorepo pipeline — produce a decision record before committing to an approach
-- Database: Migrate from custom PostGIS package to Railway's native PostgreSQL (PostGIS no longer needed by any service)
-- Deployment: Implement chosen approach across all 4 backend services + SvelteKit frontend, eliminating GitHub Packages dependency
+- UI: Implement shadcn/ui components for all major forms and dialogs
+- Consistency: Audit and fix color palette drifts across branch/establishment settings
+- Feedback: Standardize toast/loading states across the entire application
 
 ---
 
 ## Current State
 
-**Version:** v1.0 — shipped 2026-04-03
+**Version:** v1.1 — shipped 2026-04-04
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
-**Backend:** All services now production-hardened — no hardcoded credentials, JWT via env vars, all controllers auth-guarded, Flyway migrations, SmallRye Health endpoints live
-**Frontend:** SvelteKit with `DataTableWrapper` (TanStack Table) and `sveltekit-superforms` standardized across all pages
-**Deployment:** Railway (main branch auto-deploy); Docker Compose for local dev with service healthchecks
-**Phase 08 Complete:** Production Bug Fixes — KPI dashboard API path corrected, DataTableWrapper pagination infinite loop fixed, FK constraint error handling with Spanish toasts added to orders and operations pages
+**Backend:** All services production-hardened; common exception handling and Flyway migrations active
+**Frontend:** All management pages (7 total) migrated to `DataTableWrapper` pattern with TanStack Table
+**Deployment:** Railway (main branch auto-deploy); v1.1 fixed production bugs and standardized the UI table patterns
 
 ## Requirements
 
@@ -51,13 +49,17 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - ✓ Database migration framework — Flyway across all 4 services, V1 baseline from live schema, per-service history tables — v1.0
 - ✓ Operational reliability — SmallRye Health on all 4 services, Docker Compose healthchecks — v1.0
 - ✓ Housekeeping — .env.example PUBLIC_* names, legacy artifacts deleted, x-user-name CORS header — v1.0
+- ✓ KPI dashboard fix — corrected metrics API path — v1.1
+- ✓ DataTableWrapper stability — fixed infinite reactive loop with `untrack()` — v1.1
+- ✓ Spanish error toasts — user-friendly messages for FK constraint violations — v1.1
+- ✓ Catalog migration — all remaining management pages (Garments, Services, Price Lists, Users) migrated to DataTableWrapper — v1.1
 
 ### Active
 
-- [ ] Production hotfix — update Railway env vars to match v1.0 renames (SMALLRYE_JWT_SIGN_KEY, MP_JWT_VERIFY_PUBLICKEY, QUARKUS_DATASOURCE_*) — v1.1
-- [ ] Deployment strategy decision — research Railway Dockerfile deploys vs VPS Docker Compose vs monorepo pipeline, produce ADR — v1.1
-- [ ] Database migration — replace custom PostGIS GitHub Package with Railway native PostgreSQL (PostGIS not needed) — v1.1
-- [ ] Deployment refactor — implement chosen strategy, eliminate GitHub Packages dependency across all 4 services + frontend — v1.1
+- [ ] UI standardization — implement shadcn/ui components for all forms and dialogs — v1.2
+- [ ] Color audit — resolve palette drifts and ensure WCAG compliance — v1.2
+- [ ] Deployment refactor — research Railway Dockerfile deploys, migrate from PostGIS to native PostgreSQL — v1.3
+- [ ] Deployment implementation — eliminate GitHub Packages dependency across all services — v1.3
 - [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated design phase)
 - [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
 - [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
@@ -121,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 — Phase 08 (Production Bug Fixes) complete — 3 bugs fixed, ready for Phase 09*
+*Last updated: 2026-04-04 — Milestone v1.1 (Production Stability) SHIPPED; v1.2 Active*
