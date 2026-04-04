@@ -2,8 +2,8 @@
 
 ## Design Foundation (DESIGN)
 
-- [ ] **DESIGN-01**: User sees a consistent design language across all pages after applying the shadcn preset (`b4akO6QUQs`)
-- [ ] **DESIGN-02**: User sees updated color tokens, border radii, and spacing from the preset applied globally without breaking existing components
+- [x] **DESIGN-01**: User sees a consistent design language across all pages after applying the shadcn preset (`b4akO6QUQs`)
+- [x] **DESIGN-02**: User sees updated color tokens, border radii, and spacing from the preset applied globally without breaking existing components
 
 ## Data Table UX (TABLE)
 
