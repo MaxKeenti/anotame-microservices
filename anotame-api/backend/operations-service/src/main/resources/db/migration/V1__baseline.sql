@@ -339,10 +339,10 @@ ALTER TABLE public.tco_order_item_service OWNER TO admin;
 
 CREATE TABLE public.tco_work_order (
     id_work_order uuid NOT NULL,
-    created_at timestamp(6) without time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
     id_order uuid NOT NULL,
     status character varying(255) NOT NULL,
-    updated_at timestamp(6) without time zone
+    updated_at timestamp with time zone DEFAULT now()
 );
 
 

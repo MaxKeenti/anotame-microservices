@@ -1,6 +1,7 @@
 package com.anotame.operations.infrastructure.web.exception;
 
 import com.anotame.operations.infrastructure.web.dto.ErrorResponse;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -26,9 +27,22 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                     .entity(new ErrorResponse("Validation failed", details))
                     .build();
         }
+        if (exception instanceof EntityNotFoundException enfe) {
+            log.warn("Entity not found: {}", enfe.getMessage());
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse("Resource not found"))
+                    .build();
+        }
+        if (exception instanceof IllegalArgumentException iae) {
+            log.warn("Illegal argument: {}", iae.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Invalid request"))
+                    .build();
+        }
         if (exception instanceof WebApplicationException wae) {
+            log.warn("Web application exception: {}", wae.getMessage());
             return Response.status(wae.getResponse().getStatus())
-                    .entity(new ErrorResponse(wae.getMessage()))
+                    .entity(new ErrorResponse("Request could not be processed"))
                     .build();
         }
         log.error("Unhandled exception", exception);

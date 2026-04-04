@@ -85,8 +85,11 @@ None.
 | 260403-sh6-fix | Fix 500 regression: add missing OffsetDateTime field mappings in OrderPersistenceAdapter, remove conflicting Hibernate timestamp annotations | 2026-04-04 | 8475338 | Verified | [260403-sh6-fix-order-persistence-regression](./quick/260403-sh6-fix-order-persistence-regression/) |
 | 260403-tcn | Fix 500 errors from timestamp type mismatches - update OrderRepository queries and SalesService to use OffsetDateTime | 2026-04-04 | 90082e3 | Verified | [260403-tcn-fix-timestamp-query-mismatches](./quick/260403-tcn-fix-timestamp-query-mismatches/) |
 | 260403-tqw | Fix JWT branch_id validation - restore optional fallback for backward compatibility with newly registered users and legacy sessions | 2026-04-04 | 5a34304 | Verified | [260403-tqw-fix-jwt-branch-id-claim-validation](./quick/260403-tqw-fix-jwt-branch-id-claim-validation/) |
+| 260403-uao | Fix 3 detected validation issues: WorkOrderJpa/Flyway schema mismatch, OperationsService UUID validation, OrdersResource JWT claim parsing | 2026-04-04 | da8251d | Verified | [260403-uao-fix-3-detected-validation-issues-workord](./quick/260403-uao-fix-3-detected-validation-issues-workord/) |
+| 260404-qz1 | Fix production workload display — add missing durationMin assignment in SalesService.updateOrder() | 2026-04-04 | eeba589 | VERIFIED | .planning/quick/260404-qz1-fix-missing-durationmin-in-update-order/ |
+| 260404-sec | Security: Sanitize error messages to prevent information disclosure via exception details | 2026-04-04 | f97e2da | VERIFIED | .planning/quick/260404-sec-error-message-sanitization/ |
 
-Last activity: 2026-04-04 - Fixed JWT branch_id validation (backward compatibility for existing users)
+Last activity: 2026-04-04 - Fixed error message exposure (prevented information disclosure in 5 services)
 
 ## Session Continuity
 
