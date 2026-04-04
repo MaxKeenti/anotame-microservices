@@ -1,13 +1,25 @@
 <script lang="ts">
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
+  import UserDialog from '$lib/components/users/user-dialog.svelte';
   import { paletteStore } from '$lib/stores/palette.svelte';
+  import { authService } from '$lib/services/auth.svelte';
 
   let { children } = $props();
   const guard = useAuthGuard('/login');
 
   let isMenuOpen = $state(false);
   let isProfileOpen = $state(false);
+  let currentUserForEdit = $state<any | null>(null);
+
+  const user = $derived(authService.user);
+
+  // When profile is opened, set current user for editing
+  $effect(() => {
+    if (isProfileOpen && user) {
+      currentUserForEdit = user;
+    }
+  });
 
   $effect(() => {
     const palette = paletteStore.current;
@@ -36,19 +48,25 @@
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
   <div class="flex flex-col min-h-screen bg-background text-foreground overflow-x-hidden">
-      
+
       <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isProfileOpen = true; }} />
-      
+
+      <UserDialog
+        item={currentUserForEdit}
+        onClose={() => { isProfileOpen = false; currentUserForEdit = null; }}
+        onSuccess={() => { /* User data will be refetched via authService */ }}
+      />
+
       <!-- Top navbar placeholder (Touch-friendly rules: tall enough for thumbs) -->
       <header class="h-16 shrink-0 border-b flex items-center justify-between px-4 sticky top-0 bg-background z-10 w-full">
         <h1 class="text-xl font-bold">Anotame</h1>
-        
+
         <!-- Menu Modal Button Placeholder. Touch targets must be generous. -->
         <button onclick={() => isMenuOpen = true} class="h-10 px-4 py-2 border rounded-md hover:bg-accent hover:text-accent-foreground touch-manipulation font-medium">
            Menú
         </button>
       </header>
-      
+
       <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
         {@render children()}
       </main>
