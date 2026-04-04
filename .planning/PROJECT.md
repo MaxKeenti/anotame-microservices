@@ -23,11 +23,11 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ## Current State
 
-**Version:** v1.1 — shipped 2026-04-04
+**Version:** v1.2 — shipping Phase 11 (in progress)
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
 **Backend:** All services production-hardened; common exception handling and Flyway migrations active
-**Frontend:** All management pages (7 total) migrated to `DataTableWrapper` pattern with TanStack Table
-**Deployment:** Railway (main branch auto-deploy); v1.1 fixed production bugs and standardized the UI table patterns
+**Frontend:** All management pages (7 total) use DataTableWrapper with configurable filter visibility; shadcn preset tokens applied; filter UIs consolidated on 2 pages (Customers, Orders)
+**Deployment:** Railway (main branch auto-deploy); v1.2 Phase 11 eliminated duplicate table filters across data pages
 
 ## Requirements
 
@@ -56,10 +56,9 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - ✓ Spanish error toasts — user-friendly messages for FK constraint violations — v1.1
 - ✓ Catalog migration — all remaining management pages (Garments, Services, Price Lists, Users) migrated to DataTableWrapper — v1.1
 - ✓ shadcn preset init — design tokens applied via `bun x shadcn-svelte init --preset b4akO6QUQs`; custom semantic tokens preserved — v1.2 Phase 10
+- ✓ DataTableWrapper filter dedup — consolidate duplicate filter UIs, hide wrapper filter on Customers/Orders pages — v1.2 Phase 11
 
 ### Active
-
-- [ ] DataTableWrapper filter dedup — consolidate duplicate filter UIs, pass custom filters to wrapper — v1.2
 - [ ] UI standardization audit — verify all forms/dialogs follow shadcn/ui + superforms patterns — v1.2
 - [ ] Color audit — fix palette drifts, ensure WCAG compliance across light/dark modes — v1.2
 - [ ] Tenant theming — per-tenant font and color customization via CSS variable overrides — v1.2
@@ -127,4 +126,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 — Phase 10 (shadcn Preset Init) COMPLETE; v1.2 Phase 11 ready*
+*Last updated: 2026-04-04 — Phase 11 (DataTableWrapper Filter Consolidation) COMPLETE; Phase 12 ready*
