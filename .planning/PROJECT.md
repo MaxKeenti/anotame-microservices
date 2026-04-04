@@ -55,10 +55,10 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - ✓ DataTableWrapper stability — fixed infinite reactive loop with `untrack()` — v1.1
 - ✓ Spanish error toasts — user-friendly messages for FK constraint violations — v1.1
 - ✓ Catalog migration — all remaining management pages (Garments, Services, Price Lists, Users) migrated to DataTableWrapper — v1.1
+- ✓ shadcn preset init — design tokens applied via `bun x shadcn-svelte init --preset b4akO6QUQs`; custom semantic tokens preserved — v1.2 Phase 10
 
 ### Active
 
-- [ ] shadcn preset init — apply design tokens via `bun x shadcn-svelte init --preset b4akO6QUQs` — v1.2
 - [ ] DataTableWrapper filter dedup — consolidate duplicate filter UIs, pass custom filters to wrapper — v1.2
 - [ ] UI standardization audit — verify all forms/dialogs follow shadcn/ui + superforms patterns — v1.2
 - [ ] Color audit — fix palette drifts, ensure WCAG compliance across light/dark modes — v1.2
@@ -127,4 +127,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 — Milestone v1.1 (Production Stability) SHIPPED; v1.2 Active*
+*Last updated: 2026-04-04 — Phase 10 (shadcn Preset Init) COMPLETE; v1.2 Phase 11 ready*
