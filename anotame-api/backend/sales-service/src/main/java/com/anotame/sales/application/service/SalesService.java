@@ -292,11 +292,11 @@ public class SalesService {
     @Transactional
     public DashboardMetricsResponse getDashboardMetrics() {
         LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
-        LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay();
-        LocalDateTime startOfNextMonth = startOfMonth.plusMonths(1);
-        LocalDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay();
+        OffsetDateTime startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
+        OffsetDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
+        OffsetDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
+        OffsetDateTime startOfNextMonth = startOfMonth.plusMonths(1);
+        OffsetDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
 
         // Workload Metrics
         long todayDeliveries = orderRepository.countActiveByDeadlineRange(startOfDay, startOfTomorrow);
@@ -339,7 +339,7 @@ public class SalesService {
         }
 
         // Daily Workload (Next 30 days)
-        LocalDateTime endOfWorkloadRange = startOfDay.plusDays(30);
+        OffsetDateTime endOfWorkloadRange = startOfDay.plusDays(30);
         List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange);
         List<DashboardMetricsResponse.WorkloadDayPoint> dailyWorkload = new ArrayList<>();
 
