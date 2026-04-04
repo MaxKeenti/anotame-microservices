@@ -27,8 +27,9 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                     .build();
         }
         if (exception instanceof WebApplicationException wae) {
+            log.warn("Web application exception: {}", wae.getMessage());
             return Response.status(wae.getResponse().getStatus())
-                    .entity(new ErrorResponse(wae.getMessage()))
+                    .entity(new ErrorResponse("Request could not be processed"))
                     .build();
         }
         log.error("Unhandled exception", exception);
