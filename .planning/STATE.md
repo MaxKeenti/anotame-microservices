@@ -103,8 +103,9 @@ None.
 | 260403-wz8 | Migrate price list overrides table to DataTableWrapper with cell rendering support | 2026-04-04 | d6c888e | COMPLETED | [260403-wz8-migrate-overrides-table-to-datatablewrap](./quick/260403-wz8-migrate-overrides-table-to-datatablewrap/) |
 | 260404-g9x | Fix JavaScript error: this.control.labelId undefined in Form.Label | 2026-04-04 | 433ddcd | COMPLETED | [260404-g9x-fix-javascript-error-this-control-labeli](./quick/260404-g9x-fix-javascript-error-this-control-labeli/) |
 | 260404-ge3 | Fix TypeScript error: asChild prop does not exist on FormPrimitive.Label type | 2026-04-04 | 521cef6 | COMPLETED | [260404-ge3-fix-typescript-error-aschild-prop-does-n](./quick/260404-ge3-fix-typescript-error-aschild-prop-does-n/) |
+| 260404-giv | Investigate and fix formsnap Label control.labelId undefined error | 2026-04-04 | 8c1be3c | VERIFIED | .planning/quick/260404-giv-investigate-and-fix-formsnap-label-contr/ |
 
-Last activity: 2026-04-04 - Completed quick task 260404-ge3: Fix TypeScript error in FormPrimitive.Label
+Last activity: 2026-04-04 - Completed quick task 260404-giv: Implement FormSnap Label context guard fix
 
 ## Session Continuity
 
