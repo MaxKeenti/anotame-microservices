@@ -11,7 +11,7 @@
 	}: WithoutChild<FormPrimitive.LabelProps> = $props();
 </script>
 
-<FormPrimitive.Label asChild {...restProps} bind:ref>
+<FormPrimitive.Label {...restProps} bind:ref>
 	{#snippet child({ props })}
 		<Label
 			{...props}
