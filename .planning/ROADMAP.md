@@ -35,7 +35,7 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 
 ### v1.2 UI Standardization (Phases 10–14)
 
-- [ ] Phase 10: shadcn Preset Init & Design Token Refresh
+- [x] Phase 10: shadcn Preset Init & Design Token Refresh (1/2 plans) — in progress
 - [ ] Phase 11: DataTableWrapper Filter Consolidation
 - [ ] Phase 12: Forms & Dialogs Standardization Audit
 - [ ] Phase 13: Color Audit & WCAG Compliance
