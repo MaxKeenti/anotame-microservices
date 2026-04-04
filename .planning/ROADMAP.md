@@ -35,8 +35,8 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 
 ### v1.2 UI Standardization (Phases 10–14)
 
-- [x] Phase 10: shadcn Preset Init & Design Token Refresh (2/2 plans) — completed 2026-04-05
-- [ ] Phase 11: DataTableWrapper Filter Consolidation
+- [x] Phase 10: shadcn Preset Init & Design Token Refresh (2/2 plans) — completed 2026-04-04
+- [x] Phase 11: DataTableWrapper Filter Consolidation (1/1 plans) — completed 2026-04-04
 - [ ] Phase 12: Forms & Dialogs Standardization Audit
 - [ ] Phase 13: Color Audit & WCAG Compliance
 - [ ] Phase 14: Tenant Theming
@@ -60,14 +60,15 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 **Goal**: Eliminate duplicate filter UIs across data table pages by making DataTableWrapper's filter configurable.
 **Depends on**: Phase 10
 **Requirements**: TABLE-01, TABLE-02, TABLE-03
+**Status**: ✅ COMPLETED 2026-04-04
 
 **Success criteria:**
-1. DataTableWrapper accepts an optional `showFilter` prop (default: true) to hide its built-in search bar when the page provides its own
-2. Pages with custom filters (orders, customers) pass `showFilter={false}` and use their own filter UI above the wrapper
-3. A visible divider or spacing separates the filter area from the table content on all 6 data table pages
-4. No page shows duplicate search/filter inputs
+1. ✅ DataTableWrapper accepts an optional `showFilter` prop (default: true) to hide its built-in search bar when the page provides its own
+2. ✅ Pages with custom filters (orders, customers) pass `showFilter={false}` and use their own filter UI above the wrapper
+3. ✅ A visible divider or spacing separates the filter area from the table content on all 7 data table pages
+4. ✅ No page shows duplicate search/filter inputs
 
----
+**Summary**: [11-01-SUMMARY.md](.planning/phases/11-datatablewrapper-filter-consolidation/11-01-SUMMARY.md)
 
 ### Phase 12: Forms & Dialogs Standardization Audit
 **Goal**: Verify and fix all forms and dialogs to follow consistent shadcn/ui + superforms patterns.
