@@ -3,7 +3,6 @@ package com.anotame.sales.infrastructure.web.controller;
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.OrderResponse;
-import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.application.service.SalesService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -27,7 +26,7 @@ public class OrdersResource {
     JsonWebToken jwt;
 
     @POST
-    public Order createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
+    public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
         UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
 
         // TODO: remove fallback after all sessions refreshed following 03-01 deployment
@@ -36,7 +35,7 @@ public class OrdersResource {
                 ? UUID.fromString(branchClaim)
                 : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
 
-        return salesService.createOrder(request, userId, branchId);
+        return salesService.createOrderDTO(request, userId, branchId);
     }
 
     @GET

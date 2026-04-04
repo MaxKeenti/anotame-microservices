@@ -11,10 +11,8 @@
     let isLoading = $state(true);
 
     onMount(() => {
-        console.log('Order Wizard: onMount started');
         const timeout = setTimeout(() => {
             if (isLoading) {
-                console.warn('Order Wizard: Initialization timed out after 2s, forcing load.');
                 if (!orderWizardState.activeDraft) {
                     orderWizardState.createEmptyDraft();
                 }
@@ -23,29 +21,23 @@
         }, 2000);
 
         try {
-            console.log('Order Wizard: Checking URL parameters');
             const urlParams = new URLSearchParams(window.location.search);
             const draftId = urlParams.get('draftId');
             
             if (draftId) {
-                console.log('Order Wizard: Loading draft:', draftId);
                 orderWizardState.loadDraft(draftId);
                 if (!orderWizardState.activeDraft) {
-                    console.log('Order Wizard: Draft invalid, creating empty');
                     orderWizardState.createEmptyDraft();
                 }
             } else {
-                console.log('Order Wizard: No draft ID, creating new');
                 orderWizardState.createEmptyDraft();
             }
-            console.log('Order Wizard: Final check, draft active:', !!orderWizardState.activeDraft);
         } catch (e) {
             console.error('Order Wizard: Initialization failed:', e);
             orderWizardState.createEmptyDraft();
         } finally {
             clearTimeout(timeout);
             isLoading = false;
-            console.log('Order Wizard: onMount completed, isLoading = false');
         }
     });
 
@@ -77,7 +69,6 @@
 {#if isLoading}
     <div class="flex flex-col h-full items-center justify-center text-muted-foreground gap-2">
         <div>Cargando...</div>
-        <div class="text-[10px] opacity-30">Diagnostic: (L: {isLoading}, D: {!!orderWizardState.activeDraft})</div>
     </div>
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}

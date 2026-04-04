@@ -68,7 +68,8 @@
 							serviceName: s.serviceName,
 							unitPrice: s.unitPrice,
 							adjustmentAmount: s.adjustmentAmount,
-							adjustmentReason: s.adjustmentReason
+							adjustmentReason: s.adjustmentReason,
+							durationMin: s.durationMin
 						})) || []
 				}));
 

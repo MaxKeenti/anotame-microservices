@@ -210,11 +210,15 @@
         <div class="space-y-3 text-sm">
           <div class="flex justify-between items-center">
             <span class="text-muted-foreground font-medium">Creado:</span>
-            <span class="font-mono bg-secondary/30 px-2 py-1 rounded">{new Date(order.createdAt).toLocaleString()}</span>
+            <span class="font-mono bg-secondary/30 px-2 py-1 rounded">{formatDateTime(order.createdAt)}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-muted-foreground font-medium">Entrega Estimada:</span>
             <span class="font-medium bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20">{formatDateTime(order.committedDeadline)}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-muted-foreground font-medium">Carga de Trabajo:</span>
+            <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>
           </div>
 
           <div class="h-px bg-border my-4"></div>
@@ -245,7 +249,7 @@
 
     <!-- Order Notes -->
     {#if order.notes}
-      <div class="bg-warning/10 p-5 rounded-2xl border-2 border-warning/30 text-warning-foreground shadow-sm">
+      <div class="bg-warning/10 p-5 rounded-2xl border-2 border-warning/30 text-warning-text shadow-sm">
         <h3 class="font-bold mb-2 text-sm uppercase tracking-wider opacity-80 flex items-center gap-2">Notas Generales</h3>
         <p class="text-base font-medium">{order.notes}</p>
       </div>
@@ -271,7 +275,7 @@
                 <Table.Cell class="px-6 py-4 align-top">
                   <div class="font-bold text-base">{item.garmentName}</div>
                   {#if item.notes}
-                    <div class="text-sm text-muted-foreground mt-2 bg-warning/10 text-warning-foreground p-2 rounded-lg border border-warning/20 inline-block">
+                    <div class="text-sm text-muted-foreground mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
                       <span class="font-bold mr-1">Nota:</span>{item.notes}
                     </div>
                   {/if}

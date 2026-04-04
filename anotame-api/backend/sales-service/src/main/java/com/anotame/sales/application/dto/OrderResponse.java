@@ -21,4 +21,5 @@ public class OrderResponse {
     private String notes;
     private List<OrderItemResponse> items;
     private LocalDateTime createdAt;
+    private Integer totalDurationMin;
 }

@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +29,13 @@ public class SalesService {
 
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
+
+    @Transactional
+    public com.anotame.sales.application.dto.OrderResponse createOrderDTO(CreateOrderRequest request, UUID userId,
+            UUID branchId) {
+        Order saved = createOrder(request, userId, branchId);
+        return mapToResponse(saved);
+    }
 
     @Transactional
     public Order createOrder(CreateOrderRequest request, UUID userId, UUID branchId) {
@@ -129,6 +135,7 @@ public class SalesService {
                             dto.setUnitPrice(s.getUnitPrice());
                             dto.setAdjustmentAmount(s.getAdjustmentAmount());
                             dto.setAdjustmentReason(s.getAdjustmentReason());
+                            dto.setDurationMin(s.getDurationMin()); // Map duration to DTO
                             return dto;
                         }).collect(java.util.stream.Collectors.toList());
                     }
@@ -157,6 +164,7 @@ public class SalesService {
                 .notes(order.getNotes())
                 .items(items)
                 .createdAt(order.getCreatedAt())
+                .totalDurationMin(order.getTotalDurationMin())
                 .build();
     }
 
@@ -231,6 +239,15 @@ public class SalesService {
             total = total.add(lineTotal);
         }
         order.setTotalAmount(total);
+
+        // Calculate total duration for update
+        int totalDuration = order.getItems().stream()
+                .filter(item -> !item.isDeleted())
+                .mapToInt(item -> item.getServices().stream()
+                        .mapToInt(s -> s.getDurationMin() != null ? s.getDurationMin() : 0)
+                        .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
+                .sum();
+        order.setTotalDurationMin(totalDuration);
 
         Order saved = orderRepository.save(order);
         return mapToResponse(saved);
