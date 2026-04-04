@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: UI Standardization
 status: executing
-stopped_at: Phase 11 context gathered
-last_updated: "2026-04-04T06:37:07.589Z"
-last_activity: 2026-04-04
+stopped_at: Completed Phase 11 Plan 01 - DataTableWrapper Filter Consolidation
+last_updated: "2026-04-04T06:53:42Z"
+last_activity: 2026-04-04 -- Executed 11-01-PLAN.md
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 50
+  completed_phases: 2
+  total_plans: 3
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 10 — shadcn Preset Init & Design Token Refresh
+**Current focus:** Phase 11 — DataTableWrapper Filter Consolidation (COMPLETE)
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-04
+Phase: 11 (datatablewrapper-filter-consolidation) — COMPLETED
+Plan: 1 of 1 — Completed
+Status: Phase 11 Complete
+Last activity: 2026-04-04 -- Executed 11-01-PLAN.md
 
-Progress: [█░░░░░░░░░] 50% (1/2 plans)
+Progress: [██████████] 100% (3/3 plans)
 
 ## Performance Metrics
 
@@ -44,7 +44,8 @@ Progress: [█░░░░░░░░░] 50% (1/2 plans)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 10 (shadcn-preset-init) | 1/2 | 18 min | 18 min |
+| 10 (shadcn-preset-init) | 1/1 | 18 min | 18 min |
+| 11 (datatablewrapper-filter-consolidation) | 1/1 | 4 min | 4 min |
 
 **Recent Trend:**
 
@@ -68,6 +69,12 @@ Recent decisions affecting current work:
 - [Quick 260403-qh0]: Corrected durationMin payload from wizard to enable workload tracking; introduced text-warning-text for high-contrast note visibility
 - DataTableWrapper filter deduplication is a priority bug fix — some pages duplicate filtering UI
 - [Phase 10]: [10-02]: Verified all component imports correct after preset regeneration—no follow-up API fixes required
+- [11-01]: Added optional `showFilter` prop to DataTableWrapper (defaults to true for backward compatibility)
+- [11-01]: Applied conditional rendering for search filter via {#if showFilter} block
+- [11-01]: Always render horizontal divider using --border design token to separate filter from table
+- [11-01]: Hide wrapper's filter on Customers page (uses custom server-side search form)
+- [11-01]: Hide wrapper's filter on Orders page (uses custom multi-filter form with search + garment + date)
+- [11-01]: Keep wrapper's filter on Garments, Services, Price Lists, Users, Schedule pages (client-side filtering)
 
 ### Pending Todos
 
@@ -99,6 +106,6 @@ Last activity: 2026-04-04 - Completed quick task 260403-wz8: DataTableWrapper mi
 
 ## Session Continuity
 
-Last session: 2026-04-04T06:37:07.583Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-datatablewrapper-filter-consolidation/11-CONTEXT.md
+Last session: 2026-04-04T06:53:42Z
+Stopped at: Completed Phase 11-01 plan execution
+Resume file: .planning/phases/11-datatablewrapper-filter-consolidation/11-01-SUMMARY.md
