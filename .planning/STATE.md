@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Production Stability
 status: executing
 stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-04-03T23:40:38.772Z"
-last_activity: 2026-04-03
+last_updated: "2026-04-04T01:19:00.000Z"
+last_activity: 2026-04-04
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 4
   completed_plans: 2
-  percent: 0
+  percent: 50
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-03 after v1.0)
 Phase: 09
 Plan: Not started
 Status: Executing Phase 09
-Last activity: 2026-04-03
+Last activity: 2026-04-04
 
 Progress: [░░░░░░░░░░] 0% (0/2 phases)
 
@@ -64,6 +64,7 @@ Recent decisions affecting current work:
 
 - v1.1 scoped to Production Stability only — Deployment Refactor deferred to v1.3
 - [Phase 8]: Used Svelte 5 untrack() to break reactive dependency cycle in DataTableWrapper pagination effect
+- [Quick 260403-qh0]: Corrected durationMin payload from wizard to enable workload tracking; introduced text-warning-text for high-contrast note visibility.
 
 ### Pending Todos
 
@@ -79,8 +80,9 @@ None.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260403-pjv | Update init.sql with missing status column for order entity | 2026-04-04 | 4da57d2 | [260403-pjv-update-init-sql-with-missing-status-colu](./quick/260403-pjv-update-init-sql-with-missing-status-colu/) |
+| 260403-qh0 | Production Hotfixes: Workload logic, Note Visibility, Order details | 2026-04-04 | c22f680 | [260403-qh0-hotfix-fix-workload-display-note-visibil](./quick/260403-qh0-hotfix-fix-workload-display-note-visibil/) |
 
-Last activity: 2026-04-04 - Completed quick task 260403-pjv: Verify status column in order table
+Last activity: 2026-04-04 - Completed quick task 260403-qh0: Production Hotfixes
 
 ## Session Continuity
 
