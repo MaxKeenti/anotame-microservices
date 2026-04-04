@@ -3,7 +3,7 @@ package com.anotame.sales.application.dto;
 import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,13 +13,13 @@ public class OrderResponse {
     private UUID id;
     private String ticketNumber;
     private CustomerDto customer;
-    private LocalDateTime committedDeadline;
+    private OffsetDateTime committedDeadline;
     private String status;
     private BigDecimal totalAmount;
     private BigDecimal amountPaid;
     private String paymentMethod;
     private String notes;
     private List<OrderItemResponse> items;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private Integer totalDurationMin;
 }

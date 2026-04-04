@@ -276,7 +276,7 @@
                 <Table.Cell class="px-6 py-4 align-top">
                   <div class="font-bold text-base">{item.garmentName}</div>
                   {#if item.notes}
-                    <div class="text-sm text-muted-foreground mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
+                    <div class="text-sm mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
                       <span class="font-bold mr-1">Nota:</span>{item.notes}
                     </div>
                   {/if}

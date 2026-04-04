@@ -29,11 +29,7 @@ public class OrdersResource {
     public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
         UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
 
-        // TODO: remove fallback after all sessions refreshed following 03-01 deployment
-        String branchClaim = jwt.getClaim("branch_id");
-        UUID branchId = (branchClaim != null)
-                ? UUID.fromString(branchClaim)
-                : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
+        UUID branchId = UUID.fromString((String) jwt.getClaim("branch_id"));
 
         return salesService.createOrderDTO(request, userId, branchId);
     }
