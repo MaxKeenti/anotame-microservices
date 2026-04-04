@@ -1,0 +1,140 @@
+# Quick Reference: totalDurationMin=0 Fix
+
+## The Problem (1 Sentence)
+When orders are updated, durationMin values are not copied to the database, causing totalDurationMin to be calculated as 0, breaking workload displays in dashboards.
+
+---
+
+## The Root Cause (Code Comparison)
+
+### ✓ WORKS - createOrder() (line 88)
+```java
+service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
+```
+
+### ✗ BROKEN - updateOrder() (line 217-232)
+Missing the line above! Services created in update loop don't have durationMin set.
+
+---
+
+## The Fix (1 Line)
+
+**File:** `SalesService.java`
+**Location:** After line 226 in updateOrder() method
+**Add this line:**
+```java
+service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
+```
+
+That's it. Copy line 88 from createOrder() to line 227 in updateOrder().
+
+---
+
+## Data Flow (Why It Matters)
+
+```
+CREATE ORDER:
+  Request (durationMin: 45)
+    ↓
+  SalesService.createOrder() sets durationMin ✓
+    ↓
+  OrderPersistenceAdapter saves to DB ✓
+    ↓
+  Database: duration_min = 45 ✓
+  Response: totalDurationMin = 45 ✓
+
+UPDATE ORDER:
+  Request (durationMin: 45)
+    ↓
+  SalesService.updateOrder() does NOT set durationMin ✗
+    ↓
+  OrderPersistenceAdapter saves to DB (with NULL)
+    ↓
+  Database: duration_min = NULL ✗
+  Response: totalDurationMin = 0 ✗ (sums null values)
+```
+
+---
+
+## Verification (After Fix)
+
+### Quick Test
+1. Create order with service (durationMin: 45)
+   - Response shows: totalDurationMin > 0 ✓
+2. Update same order (change notes only)
+   - Response shows: totalDurationMin > 0 ✓ (NOT 0)
+3. Check `/orders/kpi/dashboard`
+   - Workload chart displays values ✓
+
+### Database Check
+```sql
+-- After update, this should show duration_min = 45 (not NULL)
+SELECT duration_min FROM tco_order_item_service
+WHERE id_order_item IN (
+  SELECT id_order_item FROM tco_order_item
+  WHERE id_order = '{updated_order_id}'
+);
+```
+
+---
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| SalesService.java | +1 line (durationMin assignment) |
+| SalesServiceTest.java | +1 test method (~15 lines) |
+
+---
+
+## Commit Message Template
+
+```
+fix(sales-service): restore durationMin in updateOrder() flow
+
+Missing durationMin assignment caused updated orders to show totalDurationMin=0,
+breaking dashboard workload metrics. Added missing line that exists in createOrder().
+
+Fixes: Production dashboard issue where workload not displayed
+```
+
+---
+
+## Why This Happened
+
+1. **Previous task (260403-qh0):** Added durationMin field to schema + createOrder() fix
+2. **Gap:** Didn't update updateOrder() method to use the same logic
+3. **Result:** New orders work fine, but any order that gets updated loses its workload data
+4. **Solution:** Copy the one line from createOrder() to updateOrder()
+
+---
+
+## Implementation Checklist
+
+- [ ] Add 1 line to SalesService.updateOrder() (after line 226)
+- [ ] Add unit test to verify behavior
+- [ ] Run: `mvn test -f anotame-api/backend/sales-service`
+- [ ] Manual test: Create → Update → Verify totalDurationMin persists
+- [ ] Check DB: Verify duration_min values populated
+- [ ] Deploy to production
+- [ ] Monitor dashboard metrics show workload
+
+---
+
+## Time Estimate
+
+- Code fix: 2 min
+- Add test: 5 min
+- Testing: 5 min
+- Deployment: 5 min
+- **Total: ~15 minutes**
+
+---
+
+## Next Steps
+
+1. Open `SalesService.java` at line 227
+2. Add the durationMin assignment line
+3. Run tests to confirm
+4. Deploy (can go to production immediately - safe change)
+5. Verify dashboard metrics improve
