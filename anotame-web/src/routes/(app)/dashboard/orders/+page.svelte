@@ -181,6 +181,7 @@
         loading={loading}
         emptyMessage="No se encontraron pedidos."
         filterPlaceholder="Buscar pedidos..."
+        showFilter={false}
       >
         {#snippet actionCell(row)}
           <div class="flex justify-end gap-2">
@@ -204,6 +205,7 @@
         data={drafts}
         emptyMessage="No hay borradores guardados."
         filterPlaceholder="Buscar borradores..."
+        showFilter={false}
       >
         {#snippet actionCell(row)}
           <div class="flex justify-end gap-2">
