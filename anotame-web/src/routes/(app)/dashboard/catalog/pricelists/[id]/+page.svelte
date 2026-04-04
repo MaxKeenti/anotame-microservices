@@ -5,6 +5,7 @@
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
   import * as Table from '$lib/components/ui/table';
@@ -12,6 +13,10 @@
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
+  import { Loader2 } from 'lucide-svelte';
+  import { superForm, defaults } from 'sveltekit-superforms';
+  import { zod4 } from 'sveltekit-superforms/adapters';
+  import { z } from 'zod';
 
   // Derived ID
   let listId = $derived($page.params.id);
@@ -21,18 +26,60 @@
   let isSaving = $state(false);
   let services = $state<any[]>([]);
 
-  // Form State
-  let name = $state('');
-  let priority = $state(0);
-  let validFrom = $state(new Date().toISOString().split('T')[0]);
-  let validTo = $state('');
-  let active = $state(true);
+  const pricelistSchema = z.object({
+    name: z.string().min(1, 'El nombre es obligatorio'),
+    priority: z.number().default(0),
+    validFrom: z.string().min(1, 'La fecha de inicio es obligatoria'),
+    validTo: z.string().optional().or(z.literal('')),
+    active: z.boolean().default(true),
+  });
 
   // Overrides Map: ServiceID -> String Price
   let overrides = $state<Record<string, string>>({});
 
   // Original state reference for resets
   let originalOverrides = $state<Record<string, string>>({});
+
+  const superform = superForm(defaults(zod4(pricelistSchema)), {
+    SPA: true,
+    validators: zod4(pricelistSchema),
+    async onUpdate({ form: f }) {
+      if (!f.valid) return;
+
+      isSaving = true;
+      try {
+        const items = Object.entries(overrides)
+          .filter(([_, val]) => val !== null && val !== undefined && String(val).trim() !== '')
+          .map(([serviceId, val]) => ({
+            serviceId,
+            price: parseFloat(String(val))
+          }));
+
+        const payload = {
+          name: f.data.name,
+          priority: f.data.priority,
+          validFrom: new Date(f.data.validFrom).toISOString(),
+          validTo: f.data.validTo ? new Date(f.data.validTo).toISOString() : null,
+          active: f.data.active,
+          items
+        };
+
+        await apiService.request(`${API_CATALOG}/pricelists/${listId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+
+        toast.success('Lista de precios actualizada exitosamente');
+        goto('/dashboard/catalog/pricelists');
+      } catch (err: any) {
+        toast.error(err.message || 'Error al actualizar la lista');
+      } finally {
+        isSaving = false;
+      }
+    }
+  });
+
+  const { form, enhance } = superform;
 
   // Column definitions for overrides table
   const overrideColumns: ColumnDef<any>[] = [
@@ -66,11 +113,11 @@
 
       const list = listRes;
       if (list) {
-        name = list.name;
-        priority = list.priority;
-        active = list.active;
-        if (list.validFrom) validFrom = new Date(list.validFrom).toISOString().split('T')[0];
-        if (list.validTo) validTo = new Date(list.validTo).toISOString().split('T')[0];
+        $form.name = list.name;
+        $form.priority = list.priority;
+        $form.active = list.active;
+        if (list.validFrom) $form.validFrom = new Date(list.validFrom).toISOString().split('T')[0];
+        if (list.validTo) $form.validTo = new Date(list.validTo).toISOString().split('T')[0];
 
         const newOverrides: Record<string, string> = {};
         if (list.items) {
@@ -104,45 +151,6 @@
     overrides = { ...originalOverrides };
     toast.info('Valores restaurados a la configuración guardada.');
   }
-
-  async function handleSubmit(e: Event) {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast.error('El nombre es obligatorio');
-      return;
-    }
-
-    isSaving = true;
-    try {
-      const items = Object.entries(overrides)
-        .filter(([_, val]) => val !== null && val !== undefined && String(val).trim() !== '')
-        .map(([serviceId, val]) => ({
-          serviceId,
-          price: parseFloat(String(val))
-        }));
-
-      const payload = {
-        name,
-        priority,
-        validFrom: new Date(validFrom).toISOString(),
-        validTo: validTo ? new Date(validTo).toISOString() : null,
-        active,
-        items
-      };
-
-      await apiService.request(`${API_CATALOG}/pricelists/${listId}`, {
-        method: 'PUT',
-        body: JSON.stringify(payload)
-      });
-
-      toast.success('Lista de precios actualizada exitosamente');
-      goto('/dashboard/catalog/pricelists');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al actualizar la lista');
-    } finally {
-      isSaving = false;
-    }
-  }
 </script>
 
 {#if isLoading}
@@ -169,48 +177,74 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-3xl font-heading font-bold text-foreground">Editar Lista de Precios</h1>
-        <p class="text-muted-foreground">Actualiza la estrategia "{name}"</p>
+        <p class="text-muted-foreground">Actualiza la estrategia "{$form.name}"</p>
       </div>
       <Button variant="outline" class="h-10 touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>
     </div>
 
-    <form onsubmit={handleSubmit} class="space-y-6">
+    <form method="POST" use:enhance class="space-y-6">
       <Card.Root>
         <Card.Header>
           <Card.Title>Detalles de la Estrategia</Card.Title>
         </Card.Header>
         <Card.Content class="space-y-4">
-          <div class="space-y-2">
-            <label for="pl-name" class="text-sm font-medium">Nombre de la Lista <span class="text-destructive">*</span></label>
-            <Input id="pl-name" placeholder="Ej. Promoción de Verano 2026" required bind:value={name} class="h-12" />
+          <Form.Field form={superform} name="name">
+            {#snippet children({ constraints })}
+              <Form.Control>
+                {#snippet children({ props })}
+                  <Form.Label>Nombre de la Lista <span class="text-destructive">*</span></Form.Label>
+                  <Input {...props} {...constraints} id="pl-name" placeholder="Ej. Promoción de Verano 2026" bind:value={$form.name} class="h-12" />
+                {/snippet}
+              </Form.Control>
+              <Form.FieldErrors />
+            {/snippet}
+          </Form.Field>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Form.Field form={superform} name="priority">
+              {#snippet children({ constraints })}
+                <Form.Control>
+                  {#snippet children({ props })}
+                    <Form.Label>Prioridad (Mayor gana)</Form.Label>
+                    <Input {...props} {...constraints} id="pl-priority" type="number" bind:value={$form.priority} class="h-12 font-mono" />
+                  {/snippet}
+                </Form.Control>
+                <Form.FieldErrors />
+              {/snippet}
+            </Form.Field>
+
+            <Form.Field form={superform} name="active">
+              {#snippet children({ constraints })}
+                <div class="flex items-center gap-2 pt-8">
+                  <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
+                    <input
+                      type="checkbox"
+                      class="w-5 h-5 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors after:content-['✓'] after:text-white after:font-bold after:hidden checked:after:block after:text-xs"
+                      bind:checked={$form.active}
+                    />
+                    Estrategia Activa
+                  </label>
+                </div>
+                <Form.FieldErrors />
+              {/snippet}
+            </Form.Field>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label for="pl-priority" class="text-sm font-medium">Prioridad (Mayor gana)</label>
-              <Input id="pl-priority" type="number" required bind:value={priority} class="h-12 font-mono" />
-            </div>
-            <div class="flex items-center gap-2 pt-8">
-              <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
-                <input
-                  type="checkbox"
-                  class="w-5 h-5 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors after:content-['✓'] after:text-white after:font-bold after:hidden checked:after:block after:text-xs"
-                  bind:checked={active}
-                />
-                Estrategia Activa
-              </label>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label for="pl-from" class="text-sm font-medium">Válido Desde</label>
-              <AdaptiveDatePicker id="pl-from" bind:value={validFrom} />
-            </div>
-            <div class="space-y-2">
-              <label for="pl-to" class="text-sm font-medium">Válido Hasta (Opcional)</label>
-              <AdaptiveDatePicker id="pl-to" bind:value={validTo} placeholder="Permanente si está vacío" />
-            </div>
+            <Form.Field form={superform} name="validFrom">
+              {#snippet children({ constraints })}
+                <Form.Label>Válido Desde</Form.Label>
+                <AdaptiveDatePicker id="pl-from" bind:value={$form.validFrom} />
+                <Form.FieldErrors />
+              {/snippet}
+            </Form.Field>
+            <Form.Field form={superform} name="validTo">
+              {#snippet children({ constraints })}
+                <Form.Label>Válido Hasta (Opcional)</Form.Label>
+                <AdaptiveDatePicker id="pl-to" bind:value={$form.validTo} placeholder="Permanente si está vacío" />
+                <Form.FieldErrors />
+              {/snippet}
+            </Form.Field>
           </div>
         </Card.Content>
       </Card.Root>
@@ -275,9 +309,15 @@
           Descartar Cambios
         </Button>
         <Button type="submit" disabled={isSaving} class="h-14 px-8 text-lg shadow-md touch-manipulation">
-          {isSaving ? "Guardando..." : "Guardar Estrategia"}
+          {#if isSaving}
+            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            Guardando...
+          {:else}
+            Guardar Estrategia
+          {/if}
         </Button>
       </div>
     </form>
   </div>
 {/if}
+
