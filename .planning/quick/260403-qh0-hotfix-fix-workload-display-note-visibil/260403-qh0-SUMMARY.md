@@ -1,4 +1,4 @@
-commit: 105530d
+commit: 4c063ca
 ---
 
 # Summary: Quick Task 260403-qh0
@@ -10,11 +10,13 @@ Resolve critical production issues affecting workload reporting, UI readability,
 - **Backend (sales-service)**:
     - Updated `OrderResponse` to include `totalDurationMin`.
     - Refactored `SalesService` to calculate and persist `totalDurationMin` during order creation and updates.
-    - **Fix**: Corrected a compilation error in the `totalDurationMin` calculation by properly iterating through item services and multiplying by item quantity.
+    - **Fix**: Corrected a compilation error in the `totalDurationMin` calculation.
+    - **Persistence**: Fixed `OrderPersistenceAdapter` to properly map `totalDurationMin` (order level) and `durationMin` (service level) to and from the database.
 - **Frontend (anotame-web)**:
     - Fixed `payment-step.svelte` to include `durationMin` in the API payload, enabling accurate workload tracking.
     - Standardized "Notas" text color in `[id]/+page.svelte` using `text-warning-text` for dark/light mode contrast.
     - Added "Carga de Trabajo" summary row to the order detail view.
+    - **Cleanup**: Removed extraneous debug logs and diagnostic UI from the Order Wizard.
 
 ## Verification
 - [x] Backend compilation successful (`mvn compile`).
