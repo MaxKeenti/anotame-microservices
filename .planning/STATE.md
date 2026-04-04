@@ -81,8 +81,9 @@ None.
 |---|-------------|------|--------|--------|-----------|
 | 260403-pjv | Update init.sql with missing status column for order entity | 2026-04-04 | 4da57d2 | - | [260403-pjv-update-init-sql-with-missing-status-colu](./quick/260403-pjv-update-init-sql-with-missing-status-colu/) |
 | 260403-qh0 | Production Hotfixes: Workload logic, Note Visibility, Order details | 2026-04-04 | f3160ed | PASSED | [260403-qh0-hotfix-fix-workload-display-note-visibil](./quick/260403-qh0-hotfix-fix-workload-display-note-visibil/) |
+| 260403-sh6 | Fix 6 detected issues: error handling (409 detection, dead code), API error propagation, timezone handling | 2026-04-04 | 3955300 | Verified | [260403-sh6-fix-6-detected-issues-frontend-error-han](./quick/260403-sh6-fix-6-detected-issues-frontend-error-han/) |
 
-Last activity: 2026-04-04 - Completed quick task 260403-qh0: Production Hotfixes
+Last activity: 2026-04-04 - Completed quick task 260403-sh6: Fix 6 detected issues
 
 ## Session Continuity
 
