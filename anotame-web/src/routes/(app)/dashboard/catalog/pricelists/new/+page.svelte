@@ -204,7 +204,7 @@
           <AdaptiveSelect
             id="pl-base"
             bind:value={baseListId}
-            onchange={() => handleBaseListChange(baseListId)}
+            onValueChange={() => handleBaseListChange(baseListId)}
             placeholder="-- Iniciar desde cero (Precios Base) --"
             items={availableListItems}
           />

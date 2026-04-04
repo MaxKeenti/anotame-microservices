@@ -42,7 +42,7 @@
   onMount(async () => {
     try {
       const [metricsData, estData] = await Promise.all([
-        apiService.request<DashboardMetrics>(`${API_SALES}/orders/metrics/dashboard`),
+        apiService.request<DashboardMetrics>(`${API_SALES}/orders/kpi/dashboard`),
         apiService.request<any>(`${API_OPERATIONS}/establishment`)
       ]);
       metrics = metricsData;

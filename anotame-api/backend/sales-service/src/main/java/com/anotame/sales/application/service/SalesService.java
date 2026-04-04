@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,9 @@ public class SalesService {
         // 2. Create Order
         Order order = new Order();
         order.setCustomer(customer);
-        order.setCommittedDeadline(request.getCommittedDeadline());
+        order.setCommittedDeadline(request.getCommittedDeadline() != null
+                ? request.getCommittedDeadline().toLocalDateTime()
+                : null);
         order.setNotes(request.getNotes());
         String ticketNumber = orderRepository.nextTicketNumber();
         order.setTicketNumber(ticketNumber);
@@ -179,7 +182,7 @@ public class SalesService {
             order.setNotes(request.getNotes());
         }
         if (request.getCommittedDeadline() != null) {
-            order.setCommittedDeadline(request.getCommittedDeadline());
+            order.setCommittedDeadline(request.getCommittedDeadline().toLocalDateTime());
         }
         if (request.getAmountPaid() != null) {
             order.setAmountPaid(request.getAmountPaid());

@@ -58,9 +58,9 @@
                 <div class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <User class="w-10 h-10" />
                 </div>
-                <h3 class="text-2xl font-bold">{draft.customer.firstName} {draft.customer.lastName}</h3>
-                <p class="text-muted-foreground">{draft.customer.phoneNumber}</p>
-                <p class="text-muted-foreground text-sm">{draft.customer.email}</p>
+                <h3 class="text-2xl font-bold">{draft?.customer?.firstName} {draft?.customer?.lastName}</h3>
+                <p class="text-muted-foreground">{draft?.customer?.phoneNumber}</p>
+                <p class="text-muted-foreground text-sm">{draft?.customer?.email}</p>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
                     <Button variant="outline" class="h-14 px-8 text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>Cambiar</Button>

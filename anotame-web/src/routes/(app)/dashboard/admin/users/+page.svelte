@@ -2,10 +2,11 @@
   import { onMount } from 'svelte';
   import { apiService, API_IDENTITY } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
-  import * as Table from '$lib/components/ui/table';
   import { Edit, Trash2 } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
+  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import type { ColumnDef } from '@tanstack/table-core';
 
   import UserDialog from '$lib/components/users/user-dialog.svelte';
 
@@ -14,6 +15,14 @@
 
   // Single dialog state
   let editingUser = $state<any | null>(null);
+
+  const columns: ColumnDef<any>[] = [
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: 'Nombre', enableSorting: true },
+    { accessorKey: 'username', header: 'Usuario', enableSorting: true },
+    { accessorKey: 'email', header: 'Email', enableSorting: false },
+    { id: 'role', accessorFn: (row) => row.role, header: 'Rol', enableSorting: true },
+    { id: 'actions', header: 'Acciones', enableSorting: false },
+  ];
 
   async function fetchUsers() {
     loading = true;
@@ -61,14 +70,6 @@
     editingUser = null;
     fetchUsers();
   }
-
-  function getRoleBadge(role: string): string {
-    switch (role) {
-      case 'ADMIN': return 'bg-primary/10 text-primary';
-      case 'MANAGER': return 'bg-amber-500/10 text-amber-600';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  }
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
@@ -82,66 +83,37 @@
       </Button>
     </div>
 
-  <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-    <Table.Root class="w-full min-w-[600px]">
-      <Table.Header>
-        <Table.Row>
-          <Table.Head class="px-6 py-4">Nombre</Table.Head>
-          <Table.Head class="px-6 py-4">Usuario</Table.Head>
-          <Table.Head class="px-6 py-4">Email</Table.Head>
-          <Table.Head class="px-6 py-4">Rol</Table.Head>
-          <Table.Head class="px-6 py-4 text-right">Acciones</Table.Head>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {#if loading}
-          <Table.Row>
-            <Table.Cell colspan={5} class="h-24 text-center">
-              Cargando...
-            </Table.Cell>
-          </Table.Row>
-        {:else if users.length === 0}
-          <Table.Row>
-            <Table.Cell colspan={5} class="h-24 text-center text-muted-foreground">
-              No se encontraron usuarios.
-            </Table.Cell>
-          </Table.Row>
-        {:else}
-          {#each users as user (user.id)}
-            <Table.Row class="hover:bg-muted/30 transition-colors">
-              <Table.Cell class="px-6 py-4 font-medium">{user.firstName} {user.lastName}</Table.Cell>
-              <Table.Cell class="px-6 py-4 font-mono text-sm">{user.username}</Table.Cell>
-              <Table.Cell class="px-6 py-4 text-muted-foreground">{user.email}</Table.Cell>
-              <Table.Cell class="px-6 py-4">
-                <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadge(user.role)}`}>
-                  {user.role}
-                </span>
-              </Table.Cell>
-              <Table.Cell class="px-6 py-4 text-right space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  class="h-10 px-4 touch-manipulation font-medium"
-                  onclick={() => handleEditClick(user)}
-                >
-                  <Edit class="w-4 h-4 mr-2" />
-                  Editar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-                  onclick={() => handleDeleteClick(user)}
-                >
-                  <Trash2 class="w-4 h-4 mr-2" />
-                  Eliminar
-                </Button>
-              </Table.Cell>
-            </Table.Row>
-          {/each}
-        {/if}
-      </Table.Body>
-    </Table.Root>
+  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+    <DataTableWrapper
+      {columns}
+      data={users}
+      {loading}
+      emptyMessage="No se encontraron usuarios."
+      filterPlaceholder="Buscar usuarios..."
+    >
+      {#snippet actionCell(row)}
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-10 px-4 touch-manipulation font-medium"
+            onclick={() => handleEditClick(row.original)}
+          >
+            <Edit class="w-4 h-4 mr-2" />
+            Editar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+            onclick={() => handleDeleteClick(row.original)}
+          >
+            <Trash2 class="w-4 h-4 mr-2" />
+            Eliminar
+          </Button>
+        </div>
+      {/snippet}
+    </DataTableWrapper>
   </div>
 
   <UserDialog

@@ -11,7 +11,7 @@
   const customerSchema = z.object({
     id: z.string().nullable().optional(),
     firstName: z.string().min(2, 'El nombre es obligatorio'),
-    lastName: z.string().min(2, 'El apellido es obligatorio'),
+    lastName: z.string().optional().or(z.literal('')),
     phoneNumber: z.string().regex(/^\d{10}$/, 'Debe ser un número de 10 dígitos'),
     email: z.string().email('Correo inválido').optional().or(z.literal(''))
   });

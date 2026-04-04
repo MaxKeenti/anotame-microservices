@@ -32,22 +32,26 @@ class OrderWizardState {
     // Currently active draft manipulated by the wizard views
     activeDraft = $state<DraftOrder | null>(null);
 
-    totalMinutes = $derived.by(() => {
+    get totalMinutes() {
         if (!this.activeDraft || !this.activeDraft.items) return 0;
         return this.activeDraft.items.reduce((total, item) => {
             const qty = item.quantity || 1;
             const itemMins = item.services.reduce((sum, s) => sum + (s.durationMin || 0), 0);
             return total + (itemMins * qty);
         }, 0);
-    });
+    }
 
     loadDraft(id: string) {
         this.activeDraft = this.drafts.current.find((d: DraftOrder) => d.id === id) || null;
     }
 
     createEmptyDraft() {
+        const id = typeof crypto !== 'undefined' && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : `draft_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            
         this.activeDraft = {
-            id: crypto.randomUUID(),
+            id,
             lastModified: Date.now(),
             currentStep: 0,
             items: [],
@@ -88,6 +92,17 @@ class OrderWizardState {
     }
 
     clearActiveDraft() {
+        this.activeDraft = null;
+    }
+
+    /**
+     * Completes the current draft by clearing the active state AND removing it from storage.
+     * Should be called after a successful order creation.
+     */
+    completeActiveDraft() {
+        if (this.activeDraft) {
+            this.deleteDraft(this.activeDraft.id);
+        }
         this.activeDraft = null;
     }
 }

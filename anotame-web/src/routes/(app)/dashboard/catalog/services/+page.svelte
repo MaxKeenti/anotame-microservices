@@ -4,11 +4,12 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import * as Table from '$lib/components/ui/table';
   import { Edit, Trash2 } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
+  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import type { ColumnDef } from '@tanstack/table-core';
 
   import ServiceDialog from '$lib/components/catalog/service-dialog.svelte';
 
@@ -38,6 +39,14 @@
       return true;
     });
   });
+
+  let columns = $derived<ColumnDef<any>[]>([
+    { accessorKey: 'name', header: 'Nombre', enableSorting: true },
+    { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: 'Prenda', enableSorting: true },
+    { accessorKey: 'defaultDurationMin', header: 'Duración (min)', enableSorting: true },
+    { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: 'Precio', enableSorting: true },
+    ...(isAdmin ? [{ id: 'actions', header: 'Acciones', enableSorting: false } as ColumnDef<any>] : []),
+  ]);
 
   async function fetchData() {
     loading = true;
@@ -116,7 +125,7 @@
     {/if}
   </div>
 
-  <!-- Filters -->
+  <!-- External Filters -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
     <div class="col-span-1 md:col-span-2 space-y-1.5">
       <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-services">Buscar</label>
@@ -141,66 +150,37 @@
   </div>
 
   <!-- Table -->
-  <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-    <Table.Root class="w-full min-w-[700px]">
-      <Table.Header>
-        <Table.Row>
-          <Table.Head class="px-6 py-4">Nombre</Table.Head>
-          <Table.Head class="px-6 py-4">Prenda</Table.Head>
-          <Table.Head class="px-6 py-4">Duración (min)</Table.Head>
-          <Table.Head class="px-6 py-4">Precio</Table.Head>
-          {#if isAdmin}
-            <Table.Head class="px-6 py-4 text-right">Acciones</Table.Head>
-          {/if}
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {#if loading}
-          <Table.Row>
-            <Table.Cell colspan={isAdmin ? 5 : 4} class="h-24 text-center">
-              Cargando...
-            </Table.Cell>
-          </Table.Row>
-        {:else if filteredServices.length === 0}
-          <Table.Row>
-            <Table.Cell colspan={isAdmin ? 5 : 4} class="h-24 text-center text-muted-foreground">
-              No se encontraron servicios.
-            </Table.Cell>
-          </Table.Row>
-        {:else}
-          {#each filteredServices as service (service.id)}
-            <Table.Row>
-              <Table.Cell class="px-6 py-4 font-medium">{service.name}</Table.Cell>
-              <Table.Cell class="px-6 py-4 text-muted-foreground">{getGarmentName(service.garmentTypeId)}</Table.Cell>
-              <Table.Cell class="px-6 py-4">{service.defaultDurationMin}</Table.Cell>
-              <Table.Cell class="px-6 py-4 font-bold font-mono">${service.basePrice.toFixed(2)}</Table.Cell>
-              {#if isAdmin}
-                <Table.Cell class="px-6 py-4 text-right space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    class="h-10 px-4 touch-manipulation font-medium"
-                    onclick={() => handleEditClick(service)}
-                  >
-                    <Edit class="w-4 h-4 mr-2" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-                    onclick={() => handleDeleteClick(service)}
-                  >
-                    <Trash2 class="w-4 h-4 mr-2" />
-                    Eliminar
-                  </Button>
-                </Table.Cell>
-              {/if}
-            </Table.Row>
-          {/each}
-        {/if}
-      </Table.Body>
-    </Table.Root>
+  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+    <DataTableWrapper
+      {columns}
+      data={filteredServices}
+      {loading}
+      emptyMessage="No se encontraron servicios."
+      filterPlaceholder="Filtrar servicios..."
+    >
+      {#snippet actionCell(row)}
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-10 px-4 touch-manipulation font-medium"
+            onclick={() => handleEditClick(row.original)}
+          >
+            <Edit class="w-4 h-4 mr-2" />
+            Editar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+            onclick={() => handleDeleteClick(row.original)}
+          >
+            <Trash2 class="w-4 h-4 mr-2" />
+            Eliminar
+          </Button>
+        </div>
+      {/snippet}
+    </DataTableWrapper>
   </div>
 
   <ServiceDialog

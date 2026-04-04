@@ -11,6 +11,21 @@ export interface User {
 class AuthService {
     // Tracks current user, persists across reloads via localStorage
     private userState = new PersistedState<User | null>('auth_user', null);
+    
+    // Track hydration/loading status
+    private loadingState = $state(true);
+
+    constructor() {
+        if (typeof window !== 'undefined') {
+            // Signal loading is finished once the component or service is mounted/initialized
+            // In a more complex app, you might wait for an actual token validation
+            this.loadingState = false;
+        }
+    }
+
+    get loading(): boolean {
+        return this.loadingState;
+    }
 
     get user(): User | null {
         return this.userState.current;

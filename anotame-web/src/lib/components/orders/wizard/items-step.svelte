@@ -10,8 +10,8 @@
    let isAddingItem = $state(false);
    let editingIndex = $state<number | null>(null);
 
-   let draft = $derived(orderWizardState.activeDraft!);
-   let items = $derived(draft.items || []);
+   let draft = $derived(orderWizardState.activeDraft || {} as any);
+   let items = $derived(draft?.items || []);
 
    let total = $derived(items.reduce((acc, item) => {
        const servicesTotal = (item.services || []).reduce((sAcc, s) => sAcc + s.unitPrice + (s.adjustmentAmount || 0), 0);

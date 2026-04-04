@@ -19,12 +19,10 @@
   let establishment = $state<any | null>(null);
 
   onMount(async () => {
-    try {
-      const res = await apiService.request<any>(`${API_OPERATIONS}/settings/establishment`);
-      establishment = res;
-    } catch (e) {
-      console.error(e);
-    }
+    // Non-blocking establishment fetch
+    apiService.request<any>(`${API_OPERATIONS}/establishment`)
+      .then(res => establishment = res)
+      .catch(e => console.warn('Could not load establishment settings (non-blocking):', e));
   });
 
   // Watch for ID changes to fetch order
@@ -50,7 +48,8 @@
 
   // Handle auto-print action
   $effect(() => {
-    if (action === 'print' && order && establishment && !loading) {
+    // We only need the order to be loaded; establishment can be null (we have fallbacks in handlePrint)
+    if (action === 'print' && order && !loading) {
       const url = new URL(window.location.href);
       url.searchParams.delete('action');
       window.history.replaceState(null, '', url.toString());
@@ -78,7 +77,13 @@
       goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
-      toast.error("Error al cancelar pedido", { description: e.message });
+      if (e?.message?.includes('409')) {
+        toast.error('No se puede eliminar', {
+          description: 'El pedido tiene órdenes de trabajo asociadas. Elimina las órdenes de trabajo primero.'
+        });
+      } else {
+        toast.error('Error al cancelar pedido', { description: e?.message });
+      }
     }
   }
 
@@ -155,10 +160,27 @@
   }
 </script>
 
-{#if !id || loading}
-  <div class="p-8 text-center text-muted-foreground animate-pulse">Cargando pedido...</div>
+{#if loading}
+  <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center text-muted-foreground animate-pulse gap-4">
+    <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+    <div class="text-lg font-medium">Cargando pedido...</div>
+    <div class="text-sm opacity-50 font-mono">ID: {id}</div>
+  </div>
 {:else if !order}
-  <div class="p-8 text-center text-destructive font-bold text-lg">Pedido no encontrado</div>
+  <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
+    <div class="bg-destructive/10 p-6 rounded-full">
+      <svg class="w-16 h-16 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+    <div>
+      <h2 class="text-2xl font-bold text-destructive">Pedido no encontrado</h2>
+      <p class="text-muted-foreground mt-2 max-w-md">No pudimos localizar la información del pedido. Esto puede ocurrir si el pedido fue eliminado o si el ID es inválido.</p>
+    </div>
+    <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
+      Volver a la lista
+    </Button>
+  </div>
 {:else}
   <div class="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-20">
     <div class="flex items-center gap-4">

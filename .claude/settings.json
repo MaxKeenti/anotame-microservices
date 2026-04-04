@@ -31,7 +31,9 @@
       "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" state update --phase \"07\" --status \"complete\")",
       "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" roadmap update-plan-progress \"7\" \"07-01\" \"complete\")",
       "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" init new-milestone)",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "Bash(wc -l \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.planning/research/\"*.md)",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs: create milestone v1.1 roadmap \\(2 phases\\)\" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md)"
     ]
   },
   "hooks": {

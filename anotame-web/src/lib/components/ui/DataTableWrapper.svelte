@@ -1,4 +1,5 @@
 <script lang="ts" generics="TData">
+  import { untrack } from 'svelte';
   import {
     createTable,
     getCoreRowModel,
@@ -8,6 +9,7 @@
     type ColumnDef,
     type SortingState,
     type PaginationState,
+    type ColumnPinningState,
     type Row,
   } from '@tanstack/table-core';
   import * as Table from '$lib/components/ui/table';
@@ -35,18 +37,20 @@
   }: Props = $props();
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
-  let initialPageSize = pageSizeProp;
+  let initialPageSize = untrack(() => pageSizeProp);
 
   let sorting = $state<SortingState>([]);
   let globalFilter = $state('');
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
   // Initialize columnPinning to prevent undefined state errors
-  let columnPinning = $state({ left: [], right: [] });
+  let columnPinning = $state<ColumnPinningState>({ left: [], right: [] });
 
   // Reset pagination on filter change
   $effect(() => {
     void globalFilter;
-    pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+    untrack(() => {
+      pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+    });
   });
 
   // Recreate full table on every state change via $derived
@@ -60,6 +64,7 @@
         pagination,
         columnPinning,
       },
+      onStateChange: () => {},
       onSortingChange: (updater) => {
         if (typeof updater === 'function') {
           sorting = updater(sorting);
@@ -92,6 +97,7 @@
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
+      renderFallbackValue: null,
     })
   );
 </script>
