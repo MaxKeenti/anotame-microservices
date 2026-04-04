@@ -1,3 +1,5 @@
+import { ApiError } from './ApiError';
+
 export const API_IDENTITY = "/api/identity";
 export const API_CATALOG = "/api/catalog";
 export const API_SALES = "/api/sales";
@@ -46,10 +48,11 @@ class ApiService {
 
       // --- Extract backend error payload ---
       let backendMessage = `API Error: ${response.status} ${response.statusText}`;
+      let errorData: any = undefined;
       try {
         const errorText = await response.text();
         if (errorText) {
-          const errorData = JSON.parse(errorText);
+          errorData = JSON.parse(errorText);
 
           // Format 1: New unified shape {"message": "...", "details": [...]}
           if (errorData.message) {
@@ -81,8 +84,8 @@ class ApiService {
         console.warn("Could not parse error response as JSON", parseError);
       }
 
-      // Throw the extracted backend message so Svelte can catch it
-      throw new Error(backendMessage);
+      // Throw ApiError with status code so catch blocks can check error.status
+      throw new ApiError(backendMessage, response.status, errorData);
     }
 
     // Handle empty responses
