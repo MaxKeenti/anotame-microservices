@@ -80,7 +80,7 @@ None.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260403-pjv | Update init.sql with missing status column for order entity | 2026-04-04 | 4da57d2 | [260403-pjv-update-init-sql-with-missing-status-colu](./quick/260403-pjv-update-init-sql-with-missing-status-colu/) |
-| 260403-qh0 | Production Hotfixes: Workload logic, Note Visibility, Order details | 2026-04-04 | c22f680 | [260403-qh0-hotfix-fix-workload-display-note-visibil](./quick/260403-qh0-hotfix-fix-workload-display-note-visibil/) |
+| 260403-qh0 | Production Hotfixes: Workload logic, Note Visibility, Order details | 2026-04-04 | 105530d | [260403-qh0-hotfix-fix-workload-display-note-visibil](./quick/260403-qh0-hotfix-fix-workload-display-note-visibil/) |
 
 Last activity: 2026-04-04 - Completed quick task 260403-qh0: Production Hotfixes
 

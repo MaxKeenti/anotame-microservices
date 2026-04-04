@@ -1,9 +1,4 @@
----
-quick_id: 260403-qh0
-description: Production Hotfixes: Workload logic, Note Visibility, Order details
-date: 2026-04-04
-status: completed
-commit: c22f680
+commit: 105530d
 ---
 
 # Summary: Quick Task 260403-qh0
@@ -15,6 +10,7 @@ Resolve critical production issues affecting workload reporting, UI readability,
 - **Backend (sales-service)**:
     - Updated `OrderResponse` to include `totalDurationMin`.
     - Refactored `SalesService` to calculate and persist `totalDurationMin` during order creation and updates.
+    - **Fix**: Corrected a compilation error in the `totalDurationMin` calculation by properly iterating through item services and multiplying by item quantity.
 - **Frontend (anotame-web)**:
     - Fixed `payment-step.svelte` to include `durationMin` in the API payload, enabling accurate workload tracking.
     - Standardized "Notas" text color in `[id]/+page.svelte` using `text-warning-text` for dark/light mode contrast.
