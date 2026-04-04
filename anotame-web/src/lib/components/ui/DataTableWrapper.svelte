@@ -23,6 +23,7 @@
     loading?: boolean;
     emptyMessage?: string;
     filterPlaceholder?: string;
+    showFilter?: boolean;
     actionCell?: import('svelte').Snippet<[Row<TData>]>;
     cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
   };
@@ -34,6 +35,7 @@
     loading = false,
     emptyMessage = 'No hay datos.',
     filterPlaceholder = 'Buscar...',
+    showFilter = true,
     actionCell,
     cellRenders = {},
   }: Props = $props();
@@ -106,15 +108,20 @@
 
 <div class="space-y-3">
   <!-- Search input -->
-  <div>
-    <label for="dt-filter" class="sr-only text-sm font-medium">Buscar</label>
-    <Input
-      id="dt-filter"
-      placeholder={filterPlaceholder}
-      bind:value={globalFilter}
-      class="h-12 touch-manipulation"
-    />
-  </div>
+  {#if showFilter}
+    <div>
+      <label for="dt-filter" class="sr-only text-sm font-medium">Buscar</label>
+      <Input
+        id="dt-filter"
+        placeholder={filterPlaceholder}
+        bind:value={globalFilter}
+        class="h-12 touch-manipulation"
+      />
+    </div>
+  {/if}
+
+  <!-- Divider -->
+  <div class="border-t border-border"></div>
 
   <!-- Table -->
   <div class="overflow-x-auto">
