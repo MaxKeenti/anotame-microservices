@@ -58,6 +58,7 @@ public class SalesService {
         order.setBranchId(branchId);
         order.setCreatedBy(userId);
         order.setCreatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
+        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         order.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());
 
@@ -248,6 +249,7 @@ public class SalesService {
                         .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
                 .sum();
         order.setTotalDurationMin(totalDuration);
+        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
 
         Order saved = orderRepository.save(order);
         return mapToResponse(saved);
@@ -258,6 +260,7 @@ public class SalesService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         order.setStatus(status);
+        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         orderRepository.save(order);
     }
 

@@ -51,6 +51,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setPaymentMethod(order.getPaymentMethod());
         entity.setCommittedDeadline(order.getCommittedDeadline());
         entity.setCreatedBy(order.getCreatedBy());
+        entity.setCreatedAt(order.getCreatedAt());
+        entity.setUpdatedAt(order.getUpdatedAt());
         entity.setTotalDurationMin(order.getTotalDurationMin());
 
         // Map items
