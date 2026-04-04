@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
+  import { ApiError } from "$lib/services/ApiError";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
   import { translateStatus, getStatusColor } from "$lib/utils/statusUtils";
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
@@ -77,7 +78,7 @@
       goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
-      if (e?.message?.includes('409')) {
+      if (e instanceof ApiError && e.status === 409) {
         toast.error('No se puede eliminar', {
           description: 'El pedido tiene órdenes de trabajo asociadas. Elimina las órdenes de trabajo primero.'
         });
@@ -275,7 +276,7 @@
                 <Table.Cell class="px-6 py-4 align-top">
                   <div class="font-bold text-base">{item.garmentName}</div>
                   {#if item.notes}
-                    <div class="text-sm text-muted-foreground mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
+                    <div class="text-sm mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
                       <span class="font-bold mr-1">Nota:</span>{item.notes}
                     </div>
                   {/if}

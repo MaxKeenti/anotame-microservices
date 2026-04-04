@@ -2,7 +2,7 @@ package com.anotame.sales.domain.model;
 
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +14,7 @@ public class Order {
     private Integer folioBranch;
     private UUID branchId;
     private Customer customer;
-    private LocalDateTime committedDeadline;
+    private OffsetDateTime committedDeadline;
     private String status = "RECEIVED";
     private BigDecimal totalAmount = BigDecimal.ZERO;
     private String notes;
@@ -22,10 +22,10 @@ public class Order {
     private String paymentMethod;
     private Integer totalDurationMin = 0;
     private List<OrderItem> items = new ArrayList<>();
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private UUID createdBy;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
     private boolean deleted = false;
 
     public void addItem(OrderItem item) {

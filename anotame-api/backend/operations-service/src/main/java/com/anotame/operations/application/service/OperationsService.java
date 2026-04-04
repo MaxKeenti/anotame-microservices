@@ -7,7 +7,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +42,7 @@ public class OperationsService {
     public WorkOrder updateStatus(UUID id, String status) {
         WorkOrder workOrder = getWorkOrder(id);
         workOrder.setStatus(status);
-        workOrder.setUpdatedAt(LocalDateTime.now());
+        workOrder.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         return workOrderRepositoryPort.save(workOrder);
     }
 

@@ -27,13 +27,19 @@ public class OrdersResource {
 
     @POST
     public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
-        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+        String userIdClaim = (String) jwt.getClaim("user_id");
+        if (userIdClaim == null || userIdClaim.isEmpty()) {
+            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
+        }
 
-        // TODO: remove fallback after all sessions refreshed following 03-01 deployment
-        String branchClaim = jwt.getClaim("branch_id");
-        UUID branchId = (branchClaim != null)
-                ? UUID.fromString(branchClaim)
-                : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
+        String branchIdClaim = (String) jwt.getClaim("branch_id");
+        // Intentional backward compatibility: branch_id is optional with fallback to default branch (Oaxaca #113)
+        // This supports newly registered users, legacy sessions, and v1.0 rollout without requiring re-login
+        UUID branchId = (branchIdClaim != null && !branchIdClaim.isEmpty())
+            ? UUID.fromString(branchIdClaim)
+            : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
+
+        UUID userId = UUID.fromString(userIdClaim);
 
         return salesService.createOrderDTO(request, userId, branchId);
     }
