@@ -129,6 +129,7 @@ public class SalesService {
                             dto.setUnitPrice(s.getUnitPrice());
                             dto.setAdjustmentAmount(s.getAdjustmentAmount());
                             dto.setAdjustmentReason(s.getAdjustmentReason());
+                            dto.setDurationMin(s.getDurationMin()); // Map duration to DTO
                             return dto;
                         }).collect(java.util.stream.Collectors.toList());
                     }

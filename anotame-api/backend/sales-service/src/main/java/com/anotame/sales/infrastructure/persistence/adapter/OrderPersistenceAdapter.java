@@ -51,6 +51,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setPaymentMethod(order.getPaymentMethod());
         entity.setCommittedDeadline(order.getCommittedDeadline());
         entity.setCreatedBy(order.getCreatedBy());
+        entity.setTotalDurationMin(order.getTotalDurationMin());
 
         // Map items
         // Simplified: Clear and re-add for now
@@ -74,6 +75,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                         se.setUnitPrice(service.getUnitPrice());
                         se.setAdjustmentAmount(service.getAdjustmentAmount());
                         se.setAdjustmentReason(service.getAdjustmentReason());
+                        se.setDurationMin(service.getDurationMin()); // Map duration
                         se.setOrderItem(ie); // Link parent
                         ie.getServices().add(se);
                     }
@@ -177,6 +179,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         o.setUpdatedAt(entity.getUpdatedAt());
         o.setDeletedAt(entity.getDeletedAt());
         o.setDeleted(entity.isDeleted());
+        o.setTotalDurationMin(entity.getTotalDurationMin());
 
         // Map Customer
         if (entity.getCustomer() != null) {
@@ -212,6 +215,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                         s.setUnitPrice(se.getUnitPrice());
                         s.setAdjustmentAmount(se.getAdjustmentAmount());
                         s.setAdjustmentReason(se.getAdjustmentReason());
+                        s.setDurationMin(se.getDurationMin()); // Map back
                         item.addService(s);
                     }
                 }
