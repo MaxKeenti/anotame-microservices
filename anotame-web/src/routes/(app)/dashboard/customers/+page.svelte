@@ -71,7 +71,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
       <h1 class="text-3xl font-heading font-bold text-foreground">Clientes</h1>
@@ -80,7 +80,7 @@
     <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">+ Nuevo Cliente</Button>
   </div>
 
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
     <DataTableWrapper
       columns={columns}
       data={customers}
