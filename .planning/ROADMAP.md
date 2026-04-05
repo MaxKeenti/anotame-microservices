@@ -106,12 +106,19 @@ Plans:
 **Goal**: Enable per-tenant visual customization via CSS variable overrides stored in operations-service.
 **Depends on**: Phase 13
 **Requirements**: THEME-01, THEME-02, THEME-03
+**Plans**: 3 plans
 
 **Success criteria:**
 1. Tenant admin can set a primary brand color and font family in the establishment settings UI
 2. The configured color and font are stored in operations-service (establishment settings) and retrieved on app load
 3. CSS variables (--primary, --font-sans) are dynamically overridden at the :root level using the tenant's configuration
 4. When no tenant customization exists, the default Anotame theme (from shadcn preset) applies without visual artifacts
+
+Plans:
+- [ ] 14-01-PLAN.md — Backend: Database schema & Operations-service API
+- [ ] 14-02-PLAN.md — Frontend: Tenant theme store & CSS variable injection
+- [ ] 14-03-PLAN.md — Frontend: Admin UI with color picker & font dropdown
+
 
 ## Progress
 
@@ -130,4 +137,4 @@ Plans:
 | 11. DataTableWrapper Filter Consolidation | v1.2 | — | Complete    | 2026-04-04 |
 | 12. Forms & Dialogs Standardization Audit | v1.2 | 0/3 | Pending | — |
 | 13. Color Audit & WCAG Compliance | v1.2 | — | Complete    | 2026-04-05 |
-| 14. Tenant Theming | v1.2 | — | Pending | — |
+| 14. Tenant Theming | v1.2 | 0/3 | Ready for Execution | — |
