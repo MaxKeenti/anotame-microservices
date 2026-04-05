@@ -14,4 +14,6 @@ public class Establishment {
     private String taxInfo; // JSON string or object
     private boolean isActive;
     private Integer dailyCapacityMinutes;
+    private String primaryColor; // Hex format: "#FF6B6B", nullable
+    private String fontFamily; // Font family name, nullable
 }
