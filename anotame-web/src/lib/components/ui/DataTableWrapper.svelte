@@ -106,7 +106,7 @@
   );
 </script>
 
-<div class="space-y-3">
+<div class="space-y-6">
   <!-- Search input -->
   {#if showFilter}
     <div>
