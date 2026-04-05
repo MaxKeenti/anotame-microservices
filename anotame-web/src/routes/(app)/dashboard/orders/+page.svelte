@@ -12,6 +12,7 @@
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
+  import * as Tabs from '$lib/components/ui/tabs';
 
   let view = $state<'active' | 'drafts'>('active');
   let orders = $state<any[]>([]);
@@ -119,107 +120,96 @@
     <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ Nuevo Pedido</Button>
   </div>
 
-  <div class="flex bg-muted/20 p-1.5 rounded-xl w-fit shadow-sm border border-border/50">
-    <button
-      onclick={() => setView('active')}
-      class={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 touch-manipulation ${view === 'active'
-        ? 'bg-background text-foreground shadow-sm border-border border'
-        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
-        }`}
-    >
-      Órdenes Activas
-    </button>
-    <button
-      onclick={() => setView('drafts')}
-      class={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 touch-manipulation ${view === 'drafts'
-        ? 'bg-background text-foreground shadow-sm border-border border'
-        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
-        }`}
-    >
-      Borradores {drafts.length > 0 ? `(${drafts.length})` : ''}
-    </button>
-  </div>
+  <Tabs.Root bind:value={view} class="space-y-6">
+    <Tabs.List class="shadow-sm border border-border/50">
+      <Tabs.Trigger value="active" class="px-6 font-bold">Órdenes Activas</Tabs.Trigger>
+      <Tabs.Trigger value="drafts" class="px-6 font-bold">
+        Borradores {drafts.length > 0 ? `(${drafts.length})` : ''}
+      </Tabs.Trigger>
+    </Tabs.List>
 
-  {#if view === 'active'}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
-      <div class="col-span-1 md:col-span-2 space-y-1.5">
-        <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-orders">Buscar</label>
-        <Input
-          id="search-orders"
-          placeholder="Ticket, Nombre del Cliente..."
-          bind:value={searchQuery}
-          class="h-12 text-base touch-manipulation"
-        />
+    <Tabs.Content value="active" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
+        <div class="col-span-1 md:col-span-2 space-y-1.5">
+          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-orders">Buscar</label>
+          <Input
+            id="search-orders"
+            placeholder="Ticket, Nombre del Cliente..."
+            bind:value={searchQuery}
+            class="h-12 text-base touch-manipulation"
+          />
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">Filtrar por Prenda</label>
+          <AdaptiveSelect
+            id="filter-garment"
+            bind:value={garmentFilter}
+            placeholder="Selecciona una prenda"
+            items={garments.map(g => ({ value: g.id, label: g.name }))}
+            allowClear={true}
+            clearText="Todas las prendas"
+            class=""
+          />
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">Fecha de Entrega</label>
+          <AdaptiveDatePicker
+            id="filter-date"
+            bind:value={dateFilter}
+            placeholder="Seleccionar fecha..."
+          />
+        </div>
       </div>
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">Filtrar por Prenda</label>
-        <AdaptiveSelect
-          id="filter-garment"
-          bind:value={garmentFilter}
-          placeholder="Selecciona una prenda"
-          items={garments.map(g => ({ value: g.id, label: g.name }))}
-          allowClear={true}
-          clearText="Todas las prendas"
-          class=""
-        />
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">Fecha de Entrega</label>
-        <AdaptiveDatePicker
-          id="filter-date"
-          bind:value={dateFilter}
-          placeholder="Seleccionar fecha..."
-        />
-      </div>
-    </div>
 
-    <!-- Active Orders Table -->
-    <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-      <DataTableWrapper
-        columns={activeColumns}
-        data={filteredOrders}
-        loading={loading}
-        emptyMessage="No se encontraron pedidos."
-        filterPlaceholder="Buscar pedidos..."
-        showFilter={false}
-      >
-        {#snippet actionCell(row)}
-          <div class="flex justify-end gap-2">
-            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
-              <Edit class="w-4 h-4 mr-2" />
-              Editar
-            </Button>
-            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
-              <Eye class="w-4 h-4 mr-2" />
-              Detalles
-            </Button>
-          </div>
-        {/snippet}
-      </DataTableWrapper>
-    </div>
-  {:else}
-    <!-- Drafts View -->
-    <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-      <DataTableWrapper
-        columns={draftsColumns}
-        data={drafts}
-        emptyMessage="No hay borradores guardados."
-        filterPlaceholder="Buscar borradores..."
-        showFilter={false}
-      >
-        {#snippet actionCell(row)}
-          <div class="flex justify-end gap-2">
-            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
-              <Edit class="w-4 h-4 mr-2" />
-              <span>Editar Borrador</span>
-            </Button>
-            <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
-              <Trash2 class="w-4 h-4 mr-2" />
-              <span>Eliminar</span>
-            </Button>
-          </div>
-        {/snippet}
-      </DataTableWrapper>
-    </div>
-  {/if}
+      <!-- Active Orders Table -->
+      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+        <DataTableWrapper
+          columns={activeColumns}
+          data={filteredOrders}
+          loading={loading}
+          emptyMessage="No se encontraron pedidos."
+          filterPlaceholder="Buscar pedidos..."
+          showFilter={false}
+        >
+          {#snippet actionCell(row)}
+            <div class="flex justify-end gap-2">
+              <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+                <Edit class="w-4 h-4 mr-2" />
+                Editar
+              </Button>
+              <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
+                <Eye class="w-4 h-4 mr-2" />
+                Detalles
+              </Button>
+            </div>
+          {/snippet}
+        </DataTableWrapper>
+      </div>
+    </Tabs.Content>
+
+    <Tabs.Content value="drafts" class="space-y-6">
+      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+        <DataTableWrapper
+          columns={draftsColumns}
+          data={drafts}
+          emptyMessage="No hay borradores guardados."
+          filterPlaceholder="Buscar borradores..."
+          showFilter={false}
+        >
+          {#snippet actionCell(row)}
+            <div class="flex justify-end gap-2">
+              <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
+                <Edit class="w-4 h-4 mr-2" />
+                <span>Editar Borrador</span>
+              </Button>
+              <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
+                <Trash2 class="w-4 h-4 mr-2" />
+                <span>Eliminar</span>
+              </Button>
+            </div>
+          {/snippet}
+        </DataTableWrapper>
+      </div>
+    </Tabs.Content>
+  </Tabs.Root>
 </div>
