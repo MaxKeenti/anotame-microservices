@@ -5,7 +5,7 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import { ApiError } from "$lib/services/ApiError";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { translateStatus, getStatusColor } from "$lib/utils/statusUtils";
+  import StatusBadge from "$lib/components/ui/StatusBadge.svelte";
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import * as Table from "$lib/components/ui/table";
@@ -189,9 +189,7 @@
         &larr; Atrás
       </a>
       <h1 class="text-2xl font-bold">Pedido {order.ticketNumber}</h1>
-      <span class={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border border-border/50 shadow-sm ${getStatusColor(order.status)}`}>
-        {translateStatus(order.status)}
-      </span>
+      <StatusBadge status={order.status} />
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -198,7 +198,7 @@
                 <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
                   <input
                     type="checkbox"
-                    class="w-5 h-5 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors after:content-['✓'] after:text-white after:font-bold after:hidden checked:after:block after:text-xs"
+                    class="checkbox-custom"
                     bind:checked={$form.active}
                   />
                   Estrategia Activa

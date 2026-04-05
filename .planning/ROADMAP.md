@@ -37,8 +37,8 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 
 - [x] Phase 10: shadcn Preset Init & Design Token Refresh (2/2 plans) — completed 2026-04-04
 - [x] Phase 11: DataTableWrapper Filter Consolidation (1/1 plans) — completed 2026-04-04
-- [ ] Phase 12: Forms & Dialogs Standardization Audit (3 plans)
-- [ ] Phase 13: Color Audit & WCAG Compliance
+- [ ] Phase 12: Forms & Dialogs Standardization Audit (3 plans) — *skipped; form standardization completed in Phase 13*
+- [x] Phase 13: Color Audit & WCAG Compliance — completed 2026-04-05 — [Summary](.planning/phases/13-color-audit-wcag-compliance/13-SUMMARY.md)
 - [ ] Phase 14: Tenant Theming
 
 ## Phase Details
@@ -129,5 +129,5 @@ Plans:
 | 10. shadcn Preset Init & Design Token Refresh | v1.2 | 2/2 | Complete    | 2026-04-04 |
 | 11. DataTableWrapper Filter Consolidation | v1.2 | — | Complete    | 2026-04-04 |
 | 12. Forms & Dialogs Standardization Audit | v1.2 | 0/3 | Pending | — |
-| 13. Color Audit & WCAG Compliance | v1.2 | — | Pending | — |
+| 13. Color Audit & WCAG Compliance | v1.2 | — | Complete    | 2026-04-05 |
 | 14. Tenant Theming | v1.2 | — | Pending | — |

@@ -4,7 +4,7 @@
   import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { translateStatus } from '$lib/utils/statusUtils';
+  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Edit, Trash2, Eye } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -30,7 +30,7 @@
     { accessorKey: 'ticketNumber', header: 'Ticket', enableSorting: true },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: 'Cliente', enableSorting: true },
     { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: 'Prendas (Resumen)', enableSorting: false },
-    { id: 'status', accessorFn: (row) => translateStatus(row.status), header: 'Estado', enableSorting: true },
+    { id: 'status', accessorFn: (row) => row.status, header: 'Estado', enableSorting: true },
     { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: 'Entrega', enableSorting: true },
     { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: 'Total', enableSorting: true },
     { id: 'actions', header: 'Acciones', enableSorting: false },
@@ -163,6 +163,10 @@
 
       <!-- Active Orders Table -->
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+        {#snippet statusCell(row: any)}
+          <StatusBadge status={row.original.status} />
+        {/snippet}
+
         <DataTableWrapper
           columns={activeColumns}
           data={filteredOrders}
@@ -170,6 +174,9 @@
           emptyMessage="No se encontraron pedidos."
           filterPlaceholder="Buscar pedidos..."
           showFilter={false}
+          cellRenders={{
+            status: statusCell
+          }}
         >
           {#snippet actionCell(row)}
             <div class="flex justify-end gap-2">

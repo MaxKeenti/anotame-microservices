@@ -117,7 +117,7 @@
                        
                        <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-border">
                            <div class="font-mono font-bold text-2xl text-primary sm:mb-4">
-                               ${(item.services || []).reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
+                               ${(item.services || []).reduce((acc: number, s: any) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
                            </div>
                            <div class="flex gap-2 bg-secondary/30 p-1.5 rounded-xl">
                                <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title="Duplicar" onclick={() => handleDuplicateItem(idx)}>

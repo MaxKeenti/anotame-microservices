@@ -131,17 +131,30 @@
           <Table.Row class="hover:bg-transparent">
             {#each headerGroup.headers as header (header.id)}
               <Table.Head
-                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.getCanSort() ? 'cursor-pointer select-none' : ''}"
-                onclick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
               >
                 {#if !header.isPlaceholder}
-                  {header.column.columnDef.header as string}{header.column.getCanSort()
-                    ? header.column.getIsSorted() === 'asc'
-                      ? ' ↑'
-                      : header.column.getIsSorted() === 'desc'
-                        ? ' ↓'
-                        : ' ↕'
-                    : ''}
+                  {#if header.column.getCanSort()}
+                    <button
+                      class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
+                      onclick={header.column.getToggleSortingHandler()}
+                      aria-label={`Ordenar por ${header.column.columnDef.header as string}`}
+                    >
+                      {header.column.columnDef.header as string}
+                      {#if header.column.getIsSorted() === 'asc'}
+                        <span aria-hidden="true">↑</span>
+                      {:else if header.column.getIsSorted() === 'desc'}
+                        <span aria-hidden="true">↓</span>
+                      {:else}
+                        <span aria-hidden="true" class="opacity-20 flex flex-col -space-y-1.5 text-[8px] leading-none">
+                          <span>▲</span>
+                          <span>▼</span>
+                        </span>
+                      {/if}
+                    </button>
+                  {:else}
+                    {header.column.columnDef.header as string}
+                  {/if}
                 {/if}
               </Table.Head>
             {/each}

@@ -4,7 +4,7 @@
   import { ApiError } from '$lib/services/ApiError';
   import { Button } from '$lib/components/ui/button';
   import * as Table from '$lib/components/ui/table';
-  import { translateStatus, getStatusColor } from '$lib/utils/statusUtils';
+  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import { formatDate } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
@@ -117,9 +117,7 @@
               <Table.Cell class="px-6 py-4 font-medium font-mono text-sm">{wo.ticketNumber}</Table.Cell>
               <Table.Cell class="px-6 py-4">{wo.customer?.firstName} {wo.customer?.lastName}</Table.Cell>
               <Table.Cell class="px-6 py-4">
-                <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(wo.status)}`}>
-                  {translateStatus(wo.status)}
-                </span>
+                <StatusBadge status={wo.status} />
               </Table.Cell>
               <Table.Cell class="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
                 {wo.items?.map((i: any) => i.services?.map((s: any) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-'}
