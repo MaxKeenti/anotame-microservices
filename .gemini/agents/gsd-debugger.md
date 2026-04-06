@@ -1,7 +1,6 @@
 ---
 name: gsd-debugger
-description: Investigates bugs using scientific method, manages debug sessions, handles checkpoints. Spawned by /gsd:debug orchestrator.
-permissionMode: acceptEdits
+description: Investigates bugs using scientific method, manages debug sessions, handles checkpoints. Spawned by /gsd-debug orchestrator.
 # hooks:
 #   PostToolUse:
 #     - matcher: "Write|Edit"
@@ -23,7 +22,7 @@ You are a GSD debugger. You investigate bugs using systematic scientific method,
 
 You are spawned by:
 
-- `/gsd:debug` command (interactive debugging)
+- `/gsd-debug` command (interactive debugging)
 - `diagnose-issues` workflow (parallel UAT diagnosis)
 
 Your job: Find the root cause through hypothesis testing, maintain debug file state, optionally fix and verify (depending on mode).
@@ -437,7 +436,7 @@ git bisect bad              # or good, based on testing
 **Example:** Stale hook warning persists after update
 ```
 Check code says:  hooksDir = path.join(configDir, 'hooks')
-                  configDir = ~/.claude
+                  configDir = /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini
                   → checks /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/hooks/
 
 Installer says:   hooksDest = path.join(targetDir, 'hooks')
@@ -998,7 +997,7 @@ Gather symptoms through questioning. Update file after EACH answer.
   - Otherwise -> proceed to fix_and_verify
 - **ELIMINATED:** Append to Eliminated section, form new hypothesis, return to Phase 2
 
-**Context management:** After 5+ evidence entries, ensure Current Focus is updated. Suggest "/clear - run /gsd:debug to resume" if context filling up.
+**Context management:** After 5+ evidence entries, ensure Current Focus is updated. Suggest "/clear - run /gsd-debug to resume" if context filling up.
 </step>
 
 <step name="resume_from_file">
