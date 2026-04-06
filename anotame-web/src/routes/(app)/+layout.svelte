@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import { Snippet, untrack } from 'svelte';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
@@ -25,21 +25,30 @@
   });
 
   // Initialize store with server-loaded theme during hydration
+  // We use untrack to avoid dependency tracking on the store itself, preventing hydration loops
   $effect.pre(() => {
     if (data.establishmentTheme) {
-      tenantThemeStore.set(data.establishmentTheme);
+      untrack(() => {
+        tenantThemeStore.set(data.establishmentTheme);
+      });
     }
   });
 
-  // User palette injection (existing effect - unchanged)
+  // Unified CSS variable injection (User palette + Tenant theme)
+  // Tenant theme primaryColor takes priority over user palette primary
   $effect(() => {
     const palette = paletteStore.current;
+    const theme = tenantThemeStore.current;
     const el = document.documentElement;
+
+    const primary = theme.primaryColor || palette.primary;
+
     const vars: Array<[string, string | null]> = [
-      ['--primary', palette.primary],
+      ['--primary', primary],
       ['--accent', palette.accent],
       ['--destructive', palette.destructive],
     ];
+
     for (const [prop, value] of vars) {
       if (value) {
         el.style.setProperty(prop, value);
@@ -47,30 +56,17 @@
         el.style.removeProperty(prop);
       }
     }
-  });
 
-  // Inject tenant theme CSS variables whenever theme changes
-  $effect(() => {
-    const theme = tenantThemeStore.current;
-    const root = document.documentElement;
-
-    // Inject primary color if customized
-    if (theme.primaryColor) {
-      root.style.setProperty('--primary', theme.primaryColor);
-    } else {
-      root.style.removeProperty('--primary'); // Fallback to CSS default
-    }
-
-    // Inject font family if customized
+    // Font family injection
     if (theme.fontFamily) {
       const fontMap = {
         'Inter': "'Inter Variable', sans-serif",
         'Outfit': "'Outfit Variable', sans-serif",
         'Merriweather': "'Merriweather Variable', serif",
       };
-      root.style.setProperty('--font-sans', fontMap[theme.fontFamily]);
+      el.style.setProperty('--font-sans', fontMap[theme.fontFamily]);
     } else {
-      root.style.removeProperty('--font-sans'); // Fallback to CSS default
+      el.style.removeProperty('--font-sans');
     }
   });
 </script>
