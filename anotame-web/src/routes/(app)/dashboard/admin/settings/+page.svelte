@@ -4,11 +4,14 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import * as Card from '$lib/components/ui/card';
+  import * as Select from '$lib/components/ui/select';
   import { toast } from 'svelte-sonner';
-  import { Store, ReceiptText } from 'lucide-svelte';
+  import { Store, ReceiptText, Palette } from 'lucide-svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+
+  let { data } = $props();
 
   const settingsSchema = z.object({
     name: z.string().min(1, 'El nombre es obligatorio'),
@@ -18,6 +21,15 @@
     regime: z.string().optional().or(z.literal('')),
     address: z.string().optional().or(z.literal('')),
     contactPhone: z.string().optional().or(z.literal('')),
+    primaryColor: z.string()
+      .regex(/^#[0-9A-Fa-f]{6}$/, 'Formato de color hexadecimal inválido #RRGGBB')
+      .nullable()
+      .optional()
+      .or(z.literal('')),
+    fontFamily: z.enum(['Inter', 'Outfit', 'Merriweather'])
+      .nullable()
+      .optional()
+      .or(z.literal('')),
   });
 
   let isLoading = $state(true);
@@ -40,6 +52,8 @@
             address: f.data.address || '',
             contactPhone: f.data.contactPhone || '',
           }),
+          primaryColor: f.data.primaryColor || null,
+          fontFamily: f.data.fontFamily || null,
         };
         await apiService.request(`${API_OPERATIONS}/establishment`, {
           method: 'PUT',
@@ -69,6 +83,8 @@
             regime: taxData.regime || '',
             address: taxData.address || '',
             contactPhone: taxData.contactPhone || '',
+            primaryColor: data.primaryColor || '',
+            fontFamily: data.fontFamily || '',
           },
         });
       }
@@ -189,6 +205,73 @@
               class="h-12"
               placeholder="(123) 456-7890"
             />
+          </div>
+        </Card.Content>
+      </Card.Root>
+
+      <!-- Branding & Theme -->
+      <Card.Root>
+        <Card.Header>
+          <div class="flex items-center gap-2">
+            <Palette class="w-5 h-5 text-primary" />
+            <Card.Title>Personalización de Marca</Card.Title>
+          </div>
+          <Card.Description>
+            Personaliza el color y la fuente de tu establecimiento.
+          </Card.Description>
+        </Card.Header>
+        <Card.Content class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Brand Color Picker -->
+            <div class="space-y-2">
+              <label for="brand-color" class="text-sm font-medium">Color de Marca</label>
+              <div class="flex items-center gap-3">
+                <input
+                  id="brand-color"
+                  type="color"
+                  bind:value={$form.primaryColor}
+                  class="h-12 w-16 border border-input rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  bind:value={$form.primaryColor}
+                  placeholder="#FF6B6B"
+                  class="flex-1 h-12 px-3 border border-input rounded text-xs font-mono"
+                />
+              </div>
+              {#if $errors.primaryColor}
+                <span class="text-xs text-destructive">{$errors.primaryColor}</span>
+              {/if}
+              <p class="text-xs text-muted-foreground">Formato hexadecimal: #RRGGBB</p>
+            </div>
+
+            <!-- Font Family Dropdown -->
+            <div class="space-y-2">
+              <label for="font-family" class="text-sm font-medium">Tipografía</label>
+              <Select.Root
+                type="single"
+                value={$form.fontFamily || ''}
+                onValueChange={(v) => {
+                  $form.fontFamily = v || '';
+                }}
+              >
+                <Select.Trigger id="font-family" class="h-12">
+                  {#if $form.fontFamily}
+                    {$form.fontFamily === 'Inter' ? 'Inter Variable (Por defecto)' : $form.fontFamily === 'Outfit' ? 'Outfit Variable' : 'Merriweather Variable'}
+                  {:else}
+                    <span class="text-muted-foreground">Selecciona una fuente...</span>
+                  {/if}
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="Inter">Inter Variable (Por defecto)</Select.Item>
+                  <Select.Item value="Outfit">Outfit Variable</Select.Item>
+                  <Select.Item value="Merriweather">Merriweather Variable</Select.Item>
+                </Select.Content>
+              </Select.Root>
+              {#if $errors.fontFamily}
+                <span class="text-xs text-destructive">{$errors.fontFamily}</span>
+              {/if}
+            </div>
           </div>
         </Card.Content>
       </Card.Root>
