@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
   import UserDialog from '$lib/components/users/user-dialog.svelte';
@@ -6,7 +8,7 @@
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
 
-  let { data, children } = $props();
+  let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
 
   let isMenuOpen = $state(false);
