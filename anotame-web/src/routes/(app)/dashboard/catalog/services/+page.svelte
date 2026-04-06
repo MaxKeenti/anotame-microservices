@@ -155,6 +155,7 @@
       {columns}
       data={filteredServices}
       {loading}
+      showFilter={false}
       emptyMessage="No se encontraron servicios."
       filterPlaceholder="Filtrar servicios..."
     >
