@@ -3,9 +3,10 @@
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
   import UserDialog from '$lib/components/users/user-dialog.svelte';
   import { paletteStore } from '$lib/stores/palette.svelte';
+  import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
 
-  let { children } = $props();
+  let { data, children } = $props();
   const guard = useAuthGuard('/login');
 
   let isMenuOpen = $state(false);
@@ -21,6 +22,14 @@
     }
   });
 
+  // Initialize store with server-loaded theme during hydration
+  $effect.pre(() => {
+    if (data.establishmentTheme) {
+      tenantThemeStore.set(data.establishmentTheme);
+    }
+  });
+
+  // User palette injection (existing effect - unchanged)
   $effect(() => {
     const palette = paletteStore.current;
     const el = document.documentElement;
@@ -35,6 +44,31 @@
       } else {
         el.style.removeProperty(prop);
       }
+    }
+  });
+
+  // Inject tenant theme CSS variables whenever theme changes
+  $effect(() => {
+    const theme = tenantThemeStore.current;
+    const root = document.documentElement;
+
+    // Inject primary color if customized
+    if (theme.primaryColor) {
+      root.style.setProperty('--primary', theme.primaryColor);
+    } else {
+      root.style.removeProperty('--primary'); // Fallback to CSS default
+    }
+
+    // Inject font family if customized
+    if (theme.fontFamily) {
+      const fontMap = {
+        'Inter': "'Inter Variable', sans-serif",
+        'Outfit': "'Outfit Variable', sans-serif",
+        'Merriweather': "'Merriweather Variable', serif",
+      };
+      root.style.setProperty('--font-sans', fontMap[theme.fontFamily]);
+    } else {
+      root.style.removeProperty('--font-sans'); // Fallback to CSS default
     }
   });
 </script>
