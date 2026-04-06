@@ -37,55 +37,38 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 
 - [x] Phase 10: shadcn Preset Init & Design Token Refresh (2/2 plans) — completed 2026-04-04
 - [x] Phase 11: DataTableWrapper Filter Consolidation (1/1 plans) — completed 2026-04-04
-- [ ] Phase 12: Forms & Dialogs Standardization Audit (3 plans) — *skipped; form standardization completed in Phase 13 & 14*
+- [x] Phase 12: Forms & Dialogs Standardization Audit (3/3 plans) — completed 2026-04-05
 - [x] Phase 13: Color Audit & WCAG Compliance — completed 2026-04-05 — [Summary](.planning/phases/13-color-audit-wcag-compliance/13-SUMMARY.md)
 - [x] Phase 14: Tenant Theming (3/3 waves) — completed 2026-04-06 — [Summary](.planning/phases/14-tenant-theming/14-SUMMARY.md)
 
+## Milestone v1.3: Advanced Operations (Planned)
+
+- [ ] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions)
+- [ ] Phase 16: Multi-branch Dashboard Features
+- [ ] Phase 17: External Print Server Integration
+
 ## Phase Details
 
-### Phase 10: shadcn Preset Init & Design Token Refresh
-**Goal**: Apply the shadcn-svelte preset to establish the design foundation for all subsequent UI work.
-**Depends on**: None (foundation phase)
-**Requirements**: DESIGN-01, DESIGN-02
-
-**Success criteria:**
-1. `bun x shadcn-svelte init --preset b4akO6QUQs` runs without errors and updates design tokens
-2. All existing pages render correctly with the new tokens — no visual regressions in navigation, tables, forms, or dialogs
-3. Light and dark mode switching works correctly after preset application
-4. `bun run build` passes with zero errors
+### Phase 08: Production Bug Fixes
+**Goal**: All three production bugs fixed — KPI dashboard loads, customers page renders, delete operations show meaningful errors.
+**Status**: ✅ COMPLETED 2026-04-03
+**Note**: "Edit Order" feature was identified as missing (blocked) in UAT and has been moved to Milestone v1.3 (Phase 15).
 
 ---
-
-### Phase 11: DataTableWrapper Filter Consolidation
-**Goal**: Eliminate duplicate filter UIs across data table pages by making DataTableWrapper's filter configurable.
-**Depends on**: Phase 10
-**Requirements**: TABLE-01, TABLE-02, TABLE-03
-**Status**: ✅ COMPLETED 2026-04-04
-
-**Success criteria:**
-1. ✅ DataTableWrapper accepts an optional `showFilter` prop (default: true) to hide its built-in search bar when the page provides its own
-2. ✅ Pages with custom filters (orders, customers) pass `showFilter={false}` and use their own filter UI above the wrapper
-3. ✅ A visible divider or spacing separates the filter area from the table content on all 7 data table pages
-4. ✅ No page shows duplicate search/filter inputs
-
-**Summary**: [11-01-SUMMARY.md](.planning/phases/11-datatablewrapper-filter-consolidation/11-01-SUMMARY.md)
 
 ### Phase 12: Forms & Dialogs Standardization Audit
 **Goal**: Verify and fix all forms and dialogs to follow consistent shadcn/ui + superforms patterns.
 **Depends on**: Phase 10
 **Requirements**: FORM-01, FORM-02
-**Plans**: 3 plans
-
-Plans:
-- [ ] 12-01-PLAN.md — Migrate 4 CRUD dialogs to Form.* wrappers, spinner, and customer success toast
-- [ ] 12-02-PLAN.md — Migrate payment-step and schedule holiday form to Form.* wrappers + spinner
-- [ ] 12-03-PLAN.md — Migrate login, register, pricelists/new, pricelists/[id] to superforms + Form.* wrappers
+**Status**: ✅ COMPLETED 2026-04-05
 
 **Success criteria:**
-1. All create/edit dialogs use the shadcn Dialog component with consistent header, body, and footer layout
-2. All form inputs use shadcn/ui Input, Select, and Checkbox components — no raw HTML inputs remain
-3. All forms use sveltekit-superforms for validation and submission — no raw onsubmit handlers
-4. Loading and error states are consistent across all dialogs (spinner on submit, toast on error)
+1. ✅ All create/edit dialogs use the shadcn Dialog component with consistent header, body, and footer layout
+2. ✅ All form inputs use shadcn/ui Input, Select, and Checkbox components — no raw HTML inputs remain
+3. ✅ All forms use sveltekit-superforms for validation and submission — no raw onsubmit handlers
+4. ✅ Loading and error states are consistent across all dialogs (spinner on submit, toast on error)
+
+**Summary**: [12-01-SUMMARY.md](.planning/phases/12-forms-dialogs-standardization-audit/12-01-SUMMARY.md), [12-02-SUMMARY.md](.planning/phases/12-forms-dialogs-standardization-audit/12-02-SUMMARY.md), [12-03-SUMMARY.md](.planning/phases/12-forms-dialogs-standardization-audit/12-03-SUMMARY.md)
 
 ---
 
