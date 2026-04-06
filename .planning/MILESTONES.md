@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.2 UI Standardization (Shipped: 2026-04-06)
+
+**Phases completed:** 9 phases, 13 plans, 14 tasks
+
+**Key accomplishments:**
+
+- File:
+- HTTP 409 FK constraint violations now show user-friendly Spanish toast messages on orders detail and operations pages, distinguishing constraint errors from network/server failures
+- shadcn-svelte preset b4akO6QUQs applied with custom semantic tokens preserved, design system updated to v1.2 standards with oklch colors, Tailwind v4 integration, and build verified at code 0
+- All pages and custom components verified working correctly after shadcn preset application—no API breakages, clean build, dev server running.
+- Configurable filter visibility for DataTableWrapper with visual divider — eliminate duplicate filter UIs on Customers and Orders pages
+- Status:
+- Phase:
+- Phase:
+- Objective:
+- Status:
+
+---
+
 ## v1.0 Code Quality and Security (Shipped: 2026-04-03)
 
 **Phases completed:** 7 phases, 21 plans, 22 tasks
