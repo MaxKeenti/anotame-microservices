@@ -111,8 +111,9 @@ None.
 | 260404-giv | Investigate and fix formsnap Label control.labelId undefined error | 2026-04-04 | 8c1be3c | VERIFIED | .planning/quick/260404-giv-investigate-and-fix-formsnap-label-contr/ |
 | 260405-rvw | Commit Milestone v1.2 verification artifacts and roadmap updates | 2026-04-06 | a3df473 | [260405-rvw-commit-milestone-v1-2-verification-artif](./quick/260405-rvw-commit-milestone-v1-2-verification-artif/) |
 | 260405-s7x | Fix svelte-check diagnostics: implicit any types and type mismatch | 2026-04-06 | d64d2a0 | [260405-s7x-fix-svelte-check-diagnostics-implicit-an](./quick/260405-s7x-fix-svelte-check-diagnostics-implicit-an/) |
+| 260405-t8i | Fix TypeScript error: Property 'establishmentTheme' does not exist on type '{}' | 2026-04-06 | f1225af | [260405-t8i-fix-typescript-error-property-establishm](./quick/260405-t8i-fix-typescript-error-property-establishm/) |
 
-Last activity: 2026-04-06 - Completed quick task 260405-s7x: Fix svelte-check diagnostics
+Last activity: 2026-04-06 - Completed quick task 260405-t8i: Fix TypeScript error in +layout.svelte
 
 ## Session Continuity
 
