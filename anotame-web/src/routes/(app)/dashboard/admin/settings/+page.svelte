@@ -252,7 +252,7 @@
                 type="single"
                 value={$form.fontFamily || ''}
                 onValueChange={(v) => {
-                  $form.fontFamily = v || '';
+                  $form.fontFamily = (v || '') as 'Inter' | 'Outfit' | 'Merriweather' | '';
                 }}
               >
                 <Select.Trigger id="font-family" class="h-12">
