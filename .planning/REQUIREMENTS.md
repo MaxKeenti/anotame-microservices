@@ -23,7 +23,7 @@
 
 ## Tenant Theming (THEME)
 
-- [ ] **THEME-01**: Tenant administrator can configure a primary brand color and font family for their organization
+- [x] **THEME-01**: Tenant administrator can configure a primary brand color and font family for their organization
 - [ ] **THEME-02**: User sees the tenant's configured brand color and font applied across the app via CSS variable overrides
 - [ ] **THEME-03**: User sees the default Anotame theme when no tenant-specific customization is set
 

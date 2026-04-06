@@ -39,7 +39,7 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 - [x] Phase 11: DataTableWrapper Filter Consolidation (1/1 plans) — completed 2026-04-04
 - [ ] Phase 12: Forms & Dialogs Standardization Audit (3 plans) — *skipped; form standardization completed in Phase 13*
 - [x] Phase 13: Color Audit & WCAG Compliance — completed 2026-04-05 — [Summary](.planning/phases/13-color-audit-wcag-compliance/13-SUMMARY.md)
-- [ ] Phase 14: Tenant Theming
+- [x] Phase 14: Tenant Theming (completed 2026-04-06)
 
 ## Phase Details
 
@@ -115,9 +115,9 @@ Plans:
 4. When no tenant customization exists, the default Anotame theme (from shadcn preset) applies without visual artifacts
 
 Plans:
-- [ ] 14-01-PLAN.md — Backend: Database schema & Operations-service API
-- [ ] 14-02-PLAN.md — Frontend: Tenant theme store & CSS variable injection
-- [ ] 14-03-PLAN.md — Frontend: Admin UI with color picker & font dropdown
+- [x] 14-01-PLAN.md — Backend: Database schema & Operations-service API
+- [x] 14-02-PLAN.md — Frontend: Tenant theme store & CSS variable injection
+- [x] 14-03-PLAN.md — Frontend: Admin UI with color picker & font dropdown
 
 
 ## Progress
@@ -137,4 +137,4 @@ Plans:
 | 11. DataTableWrapper Filter Consolidation | v1.2 | — | Complete    | 2026-04-04 |
 | 12. Forms & Dialogs Standardization Audit | v1.2 | 0/3 | Pending | — |
 | 13. Color Audit & WCAG Compliance | v1.2 | — | Complete    | 2026-04-05 |
-| 14. Tenant Theming | v1.2 | 0/3 | Ready for Execution | — |
+| 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
