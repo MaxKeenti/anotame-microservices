@@ -140,7 +140,7 @@ Delete MILESTONE-CONTEXT.md if exists (consumed).
 Clear leftover phase directories from the previous milestone:
 
 ```bash
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" phases clear
+node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" phases clear --confirm
 ```
 
 ```bash

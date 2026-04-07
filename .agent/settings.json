@@ -8,6 +8,14 @@
             "command": "node .agent/hooks/gsd-check-update.js"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .agent/hooks/gsd-session-state.sh"
+          }
+        ]
       }
     ],
     "AfterTool": [
@@ -20,6 +28,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .agent/hooks/gsd-phase-boundary.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "BeforeTool": [
@@ -29,6 +47,36 @@
           {
             "type": "command",
             "command": "node .agent/hooks/gsd-prompt-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agent/hooks/gsd-read-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agent/hooks/gsd-workflow-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .agent/hooks/gsd-validate-commit.sh",
             "timeout": 5
           }
         ]

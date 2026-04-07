@@ -60,7 +60,7 @@ Create a new thread:
 
 1. Generate slug from description:
    ```bash
-   SLUG=$(node ".github/get-shit-done/bin/gsd-tools.cjs" generate-slug "$ARGUMENTS")
+   SLUG=$(node ".github/get-shit-done/bin/gsd-tools.cjs" generate-slug "$ARGUMENTS" --raw)
    ```
 
 2. Create the threads directory if needed:

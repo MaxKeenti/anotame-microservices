@@ -467,6 +467,9 @@ Verified patterns from official sources:
 
 <execution_flow>
 
+At research decision points, apply structured reasoning:
+@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/references/thinking-models-research.md
+
 ## Step 1: Receive Scope and Load Context
 
 Orchestrator provides: phase number/name, description/goal, requirements, constraints, output path.

@@ -1,7 +1,7 @@
 ---
 name: gsd-manager
 description: Interactive command center for managing multiple phases from one terminal
-allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion, Task
+allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion, Skill, Task
 ---
 
 <objective>

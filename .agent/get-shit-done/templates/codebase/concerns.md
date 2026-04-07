@@ -302,7 +302,7 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 - Estimating risk of changes
 - Understanding where to be careful
 - Prioritizing improvements
-- Onboarding new agent contexts
+- Onboarding new the agent contexts
 - Planning refactoring work
 
 **How this gets populated:**

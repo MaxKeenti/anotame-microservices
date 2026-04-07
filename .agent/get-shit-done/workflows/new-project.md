@@ -66,6 +66,29 @@ AGENT_SKILLS_ROADMAPPER=$(node ".agent/get-shit-done/bin/gsd-tools.cjs" agent-sk
 
 Parse JSON for: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `project_exists`, `has_codebase_map`, `planning_exists`, `has_existing_code`, `has_package_file`, `is_brownfield`, `needs_codebase_map`, `has_git`, `project_path`.
 
+**Detect runtime and set instruction file name:**
+
+Derive `RUNTIME` from the invoking prompt's `execution_context` path:
+- Path contains `/.codex/` → `RUNTIME=codex`
+- Path contains `/.gemini/` → `RUNTIME=gemini`
+- Path contains `/.config/opencode/` or `/.opencode/` → `RUNTIME=opencode`
+- Otherwise → `RUNTIME=claude`
+
+If `execution_context` path is not available, fall back to env vars:
+```bash
+if [ -n "$CODEX_HOME" ]; then RUNTIME="codex"
+elif [ -n "$GEMINI_CONFIG_DIR" ]; then RUNTIME="gemini"
+elif [ -n "$OPENCODE_CONFIG_DIR" ] || [ -n "$OPENCODE_CONFIG" ]; then RUNTIME="opencode"
+else RUNTIME="claude"; fi
+```
+
+Set the instruction file variable:
+```bash
+if [ "$RUNTIME" = "codex" ]; then INSTRUCTION_FILE="AGENTS.md"; else INSTRUCTION_FILE="GEMINI.md"; fi
+```
+
+All subsequent references to the project instruction file use `$INSTRUCTION_FILE`.
+
 **If `project_exists` is true:** Error — project already initialized. Use `/gsd-progress`.
 
 **If `has_git` is false:** Initialize git:
@@ -1106,18 +1129,18 @@ Use AskUserQuestion:
 
 **If "Review full file":** Display raw `cat .planning/ROADMAP.md`, then re-ask.
 
-**Generate or refresh project GEMINI.md before final commit:**
+**Generate or refresh project instruction file before final commit:**
 
 ```bash
-node ".agent/get-shit-done/bin/gsd-tools.cjs" generate-claude-md
+node ".agent/get-shit-done/bin/gsd-tools.cjs" generate-claude-md --output "$INSTRUCTION_FILE"
 ```
 
-This ensures new projects get the default GSD workflow-enforcement guidance and current project context in `GEMINI.md`.
+This ensures new projects get the default GSD workflow-enforcement guidance and current project context in `$INSTRUCTION_FILE`.
 
 **Commit roadmap (after approval or auto mode):**
 
 ```bash
-node ".agent/get-shit-done/bin/gsd-tools.cjs" commit "docs: create roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md GEMINI.md
+node ".agent/get-shit-done/bin/gsd-tools.cjs" commit "docs: create roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md "$INSTRUCTION_FILE"
 ```
 
 ## 9. Done
@@ -1138,7 +1161,7 @@ Present completion summary:
 | Research       | `.planning/research/`       |
 | Requirements   | `.planning/REQUIREMENTS.md` |
 | Roadmap        | `.planning/ROADMAP.md`      |
-| Project guide  | `GEMINI.md`                 |
+| Project guide  | `$INSTRUCTION_FILE`         |
 
 **[N] phases** | **[X] requirements** | Ready to build ✓
 ```
@@ -1171,9 +1194,9 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 
 **Phase 1: [Phase Name]** — [Goal from ROADMAP.md]
 
-/gsd-discuss-phase 1 — gather context and clarify approach
+/clear then:
 
-<sub>/clear first → fresh context window</sub>
+/gsd-discuss-phase 1 — gather context and clarify approach
 
 ---
 
@@ -1193,9 +1216,9 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 
 **Phase 1: [Phase Name]** — [Goal from ROADMAP.md]
 
-/gsd-discuss-phase 1 — gather context and clarify approach
+/clear then:
 
-<sub>/clear first → fresh context window</sub>
+/gsd-discuss-phase 1 — gather context and clarify approach
 
 ---
 
@@ -1220,7 +1243,7 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 - `.planning/REQUIREMENTS.md`
 - `.planning/ROADMAP.md`
 - `.planning/STATE.md`
-- `GEMINI.md`
+- `$INSTRUCTION_FILE` (`AGENTS.md` for Codex, `GEMINI.md` for all other runtimes)
 
 </output>
 
@@ -1242,7 +1265,7 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 - [ ] ROADMAP.md created with phases, requirement mappings, success criteria
 - [ ] STATE.md initialized
 - [ ] REQUIREMENTS.md traceability updated
-- [ ] GEMINI.md generated with GSD workflow guidance
+- [ ] `$INSTRUCTION_FILE` generated with GSD workflow guidance (AGENTS.md for Codex, GEMINI.md otherwise)
 - [ ] User knows next step is `/gsd-discuss-phase 1`
 
 **Atomic commits:** Each phase commits its artifacts immediately. If context is lost, artifacts persist.

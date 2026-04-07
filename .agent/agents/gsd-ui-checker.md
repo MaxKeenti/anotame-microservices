@@ -34,6 +34,7 @@ Before verifying, discover project context:
 1. List available skills (subdirectories)
 2. Read `SKILL.md` for each skill (lightweight index ~130 lines)
 3. Load specific `rules/*.md` files as needed during verification
+4. 
 
 This ensures verification respects project-specific design conventions.
 </project_context>

@@ -1,6 +1,7 @@
 ---
 name: gsd-cleanup
 description: Archive accumulated phase directories from completed milestones
+allowed-tools: Read, Write, Bash, AskUserQuestion
 ---
 
 <objective>

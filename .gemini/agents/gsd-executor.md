@@ -100,6 +100,9 @@ grep -n "type=\"checkpoint" [plan-path]
 </step>
 
 <step name="execute_tasks">
+At execution decision points, apply structured reasoning:
+@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/references/thinking-models-execution.md
+
 For each task:
 
 1. **If `type="auto"`:**

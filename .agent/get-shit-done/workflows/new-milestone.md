@@ -137,6 +137,12 @@ Keep Accumulated Context section from previous milestone.
 
 Delete MILESTONE-CONTEXT.md if exists (consumed).
 
+Clear leftover phase directories from the previous milestone:
+
+```bash
+node ".agent/get-shit-done/bin/gsd-tools.cjs" phases clear --confirm
+```
+
 ```bash
 node ".agent/get-shit-done/bin/gsd-tools.cjs" commit "docs: start milestone v[X.Y] [Name]" --files .planning/PROJECT.md .planning/STATE.md
 ```
@@ -459,9 +465,9 @@ node ".agent/get-shit-done/bin/gsd-tools.cjs" commit "docs: create milestone v[X
 
 **Phase [N]: [Phase Name]** — [Goal]
 
-`/gsd-discuss-phase [N] ${GSD_WS}` — gather context and clarify approach
+`/clear` then:
 
-<sub>`/clear` first → fresh context window</sub>
+`/gsd-discuss-phase [N] ${GSD_WS}` — gather context and clarify approach
 
 Also: `/gsd-plan-phase [N] ${GSD_WS}` — skip discussion, plan directly
 ```

@@ -163,9 +163,9 @@ node ".github/get-shit-done/bin/gsd-tools.cjs" commit "docs(roadmap): add gap cl
 
 **Plan first gap closure phase**
 
-`/gsd-plan-phase {N}`
+`/clear` then:
 
-<sub>`/clear` first → fresh context window</sub>
+`/gsd-plan-phase {N}`
 
 ---
 

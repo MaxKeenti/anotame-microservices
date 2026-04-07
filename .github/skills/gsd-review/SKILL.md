@@ -1,13 +1,13 @@
 ---
 name: gsd-review
 description: Request cross-AI peer review of phase plans from external AI CLIs
-argument-hint: "--phase N [--gemini] [--claude] [--codex] [--all]"
+argument-hint: "--phase N [--gemini] [--claude] [--codex] [--opencode] [--all]"
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
 
 
 <objective>
-Invoke external AI CLIs (Gemini, the agent, Codex) to independently review phase plans.
+Invoke external AI CLIs (Gemini, the agent, Codex, OpenCode) to independently review phase plans.
 Produces a structured REVIEWS.md with per-reviewer feedback that can be fed back into
 planning via /gsd-plan-phase --reviews.
 
@@ -25,6 +25,7 @@ Phase number: extracted from $ARGUMENTS (required)
 - `--gemini` — Include Gemini CLI review
 - `--claude` — Include the agent CLI review (uses separate session)
 - `--codex` — Include Codex CLI review
+- `--opencode` — Include OpenCode review (uses model from user's OpenCode config)
 - `--all` — Include all available CLIs
 </context>
 
