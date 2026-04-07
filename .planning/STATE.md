@@ -1,70 +1,84 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Production Stability
-status: executing
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-04-04T01:19:00.000Z"
-last_activity: 2026-04-04
+milestone: v1.3
+milestone_name: Advanced Operations
+status: planning
+stopped_at: Completed 14-03-PLAN (Wave 3 Admin UI — Phase 14 Complete)
+last_updated: "2026-04-06T18:10:47.245Z"
+last_activity: 2026-04-06
 progress:
-  total_phases: 2
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 2
-  percent: 50
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-03 after v1.0)
+See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 09 — datatablewrapper-pattern-completion
+**Current focus:** Milestone v1.2 Complete — Finalized Verification
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
-Status: Executing Phase 09
-Last activity: 2026-04-04
+Phase: Complete
+Plan: Milestone v1.2 (5/5 phases) verified
+Status: Milestone v1.2 Complete — Ready for Milestone v1.3 Planning
+Last activity: 2026-04-06
 
-Progress: [░░░░░░░░░░] 0% (0/2 phases)
+Progress: [██████████] 100% (5/5 phases — all verified)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0 (v1.1)
-- Average duration: —
-- Total execution time: —
+- Total plans completed: 3 (v1.2: Phases 12, 13, 14)
+- Average duration: 16 min
+- Total execution time: 48 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 10 (shadcn-preset-init) | 1/1 | 18 min | 18 min |
+| 11 (datatablewrapper-filter-consolidation) | 1/1 | 4 min | 4 min |
+| 12 (forms-dialogs-audit) | 3/3 | 45 min | 15 min |
+| 14 (tenant-theming) | 3/3 | 45 min | 15 min |
 
 **Recent Trend:**
 
-- Last 5 plans: —
-- Trend: —
+- Last 5 plans: 10-01 (18 min)
+- Trend: On track, baseline established
 
 *Updated after each plan completion*
-| Phase 08 P01 | 12 | 2 tasks | 2 files |
-| Phase 08 P02 | 12min | 2 tasks | 2 files |
+| Phase 10 P2 | 12m | 3 tasks | 0 files |
+| Phase 14 P14-03 | 15 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-All v1.0 decisions are logged in PROJECT.md Key Decisions table.
+All v1.0 & v1.1 decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.1 scoped to Production Stability only — Deployment Refactor deferred to v1.3
-- [Phase 8]: Used Svelte 5 untrack() to break reactive dependency cycle in DataTableWrapper pagination effect
-- [Quick 260403-qh0]: Corrected durationMin payload from wizard to enable workload tracking; introduced text-warning-text for high-contrast note visibility.
+- v1.2 scoped to UI Standardization — shadcn preset init is foundation, tenant theming builds on color audit
+- [10-01]: Preserved 'Inter Variable' font baseline instead of preset's 'Outfit Variable' for visual continuity
+- [10-01]: Kept all 14 custom semantic tokens (success/warning/info/destructive variants) unchanged — already WCAG-compliant
+- [10-01]: Accepted all 17 preset components including sonner (toast notifications) for ecosystem standardization
+- [Quick 260403-qh0]: Corrected durationMin payload from wizard to enable workload tracking; introduced text-warning-text for high-contrast note visibility
+- DataTableWrapper filter deduplication is a priority bug fix — some pages duplicate filtering UI
+- [Phase 10]: [10-02]: Verified all component imports correct after preset regeneration—no follow-up API fixes required
+- [11-01]: Added optional `showFilter` prop to DataTableWrapper (defaults to true for backward compatibility)
+- [11-01]: Applied conditional rendering for search filter via {#if showFilter} block
+- [11-01]: Always render horizontal divider using --border design token to separate filter from table
+- [11-01]: Updated Customers page to use wrapper's filter (enabled standardization over custom server-side search)
+- [11-01]: Hide wrapper's filter on Orders page (uses custom multi-filter form with search + garment + date)
+- [11-01]: Keep wrapper's filter on Garments, Services, Price Lists, Users, Schedule pages (client-side filtering)
+- [Phase 14]: Wave 3 design choice: Use native HTML5 color picker with hex text fallback for broad browser compatibility and accessibility
 
 ### Pending Todos
 
@@ -88,11 +102,22 @@ None.
 | 260403-uao | Fix 3 detected validation issues: WorkOrderJpa/Flyway schema mismatch, OperationsService UUID validation, OrdersResource JWT claim parsing | 2026-04-04 | da8251d | Verified | [260403-uao-fix-3-detected-validation-issues-workord](./quick/260403-uao-fix-3-detected-validation-issues-workord/) |
 | 260404-qz1 | Fix production workload display — add missing durationMin assignment in SalesService.updateOrder() | 2026-04-04 | eeba589 | VERIFIED | .planning/quick/260404-qz1-fix-missing-durationmin-in-update-order/ |
 | 260404-sec | Security: Sanitize error messages to prevent information disclosure via exception details | 2026-04-04 | f97e2da | VERIFIED | .planning/quick/260404-sec-error-message-sanitization/ |
+| 260405-tabs | UI Standardization: Refactor Orders and Schedule pages to standardized Tabs components | 2026-04-05 | 364707f | COMPLETED | .planning/quick/260405-refactor-tabs/ |
+| 260403-wks | Price lists page DataTableWrapper verification & touch target optimization | 2026-04-04 | 62a1c53 | - | [260403-wks-migrate-price-lists-page-to-datatablewra](./quick/260403-wks-migrate-price-lists-page-to-datatablewra/) |
+| 260403-wrr | Add editar credenciales dialog to user menu - reuse employee edit functionality | 2026-04-04 | 295bbb2 | - | [260403-wrr-add-editar-credenciales-dialog-to-user-m](./quick/260403-wrr-add-editar-credenciales-dialog-to-user-m/) |
+| 260403-wz8 | Migrate price list overrides table to DataTableWrapper with cell rendering support | 2026-04-04 | d6c888e | COMPLETED | [260403-wz8-migrate-overrides-table-to-datatablewrap](./quick/260403-wz8-migrate-overrides-table-to-datatablewrap/) |
+| 260404-g9x | Fix JavaScript error: this.control.labelId undefined in Form.Label | 2026-04-04 | 433ddcd | COMPLETED | [260404-g9x-fix-javascript-error-this-control-labeli](./quick/260404-g9x-fix-javascript-error-this-control-labeli/) |
+| 260404-ge3 | Fix TypeScript error: asChild prop does not exist on FormPrimitive.Label type | 2026-04-04 | 521cef6 | COMPLETED | [260404-ge3-fix-typescript-error-aschild-prop-does-n](./quick/260404-ge3-fix-typescript-error-aschild-prop-does-n/) |
+| 260404-giv | Investigate and fix formsnap Label control.labelId undefined error | 2026-04-04 | 8c1be3c | VERIFIED | .planning/quick/260404-giv-investigate-and-fix-formsnap-label-contr/ |
+| 260405-rvw | Commit Milestone v1.2 verification artifacts and roadmap updates | 2026-04-06 | a3df473 | [260405-rvw-commit-milestone-v1-2-verification-artif](./quick/260405-rvw-commit-milestone-v1-2-verification-artif/) |
+| 260405-s7x | Fix svelte-check diagnostics: implicit any types and type mismatch | 2026-04-06 | d64d2a0 | [260405-s7x-fix-svelte-check-diagnostics-implicit-an](./quick/260405-s7x-fix-svelte-check-diagnostics-implicit-an/) |
+| 260405-t8i | Fix TypeScript error: Property 'establishmentTheme' does not exist on type '{}' | 2026-04-06 | f1225af | [260405-t8i-fix-typescript-error-property-establishm](./quick/260405-t8i-fix-typescript-error-property-establishm/) |
+| 260405-uke | Fix Svelte 5 effect_update_depth_exceeded error in frontend | 2026-04-06 | a689811 | [.planning/quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/](./quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/) |
 
-Last activity: 2026-04-04 - Fixed error message exposure (prevented information disclosure in 5 services)
+Last activity: 2026-04-06 - Completed quick task 260405-uke: Fix Svelte 5 effect_update_depth_exceeded error in frontend
 
 ## Session Continuity
 
-Last session: 2026-04-03T17:13:15.666Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-04-06T00:42:01.959Z
+Stopped at: Completed 14-03-PLAN (Wave 3 Admin UI — Phase 14 Complete)
 Resume file: None

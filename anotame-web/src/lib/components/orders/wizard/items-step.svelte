@@ -1,5 +1,5 @@
 <script lang="ts">
-   import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
+   import { orderWizardState, type DraftOrderItem, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
    import ItemSubWizard from './item-sub-wizard.svelte';
    import { Button } from '$lib/components/ui/button';
    import { Plus, Trash2, Edit, Copy } from 'lucide-svelte';
@@ -10,15 +10,15 @@
    let isAddingItem = $state(false);
    let editingIndex = $state<number | null>(null);
 
-   let draft = $derived(orderWizardState.activeDraft || {} as any);
-   let items = $derived(draft?.items || []);
+   let draft = $derived(orderWizardState.activeDraft as DraftOrder | null);
+   let items = $derived(draft?.items || ([] as DraftOrderItem[]));
 
-   let total = $derived(items.reduce((acc, item) => {
-       const servicesTotal = (item.services || []).reduce((sAcc, s) => sAcc + s.unitPrice + (s.adjustmentAmount || 0), 0);
+   let total = $derived(items.reduce((acc: number, item: DraftOrderItem) => {
+       const servicesTotal = (item.services || []).reduce((sAcc: number, s) => sAcc + s.unitPrice + (s.adjustmentAmount || 0), 0);
        return acc + servicesTotal;
    }, 0));
 
-   function handleSaveItem(item: any) {
+   function handleSaveItem(item: DraftOrderItem) {
        let newItems = [...items];
        if (editingIndex !== null) {
            newItems[editingIndex] = item;
@@ -47,10 +47,10 @@
 
    function handleDuplicateItem(index: number) {
        const itemToDuplicate = items[index];
-       const newItem = {
+       const newItem: DraftOrderItem = {
            ...itemToDuplicate,
            notes: itemToDuplicate.notes ? `${itemToDuplicate.notes} (Copia)` : '(Copia)',
-           services: itemToDuplicate.services?.map(s => ({ ...s }))
+           services: (itemToDuplicate.services || []).map(s => ({ ...s }))
        };
        let newItems = [...items];
        newItems.splice(index + 1, 0, newItem);
@@ -117,7 +117,7 @@
                        
                        <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-border">
                            <div class="font-mono font-bold text-2xl text-primary sm:mb-4">
-                               ${(item.services || []).reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
+                               ${(item.services || []).reduce((acc: number, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
                            </div>
                            <div class="flex gap-2 bg-secondary/30 p-1.5 rounded-xl">
                                <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title="Duplicar" onclick={() => handleDuplicateItem(idx)}>

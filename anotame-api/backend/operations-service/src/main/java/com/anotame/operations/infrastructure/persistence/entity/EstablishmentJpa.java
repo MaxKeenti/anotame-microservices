@@ -38,6 +38,12 @@ public class EstablishmentJpa {
     @Column(name = "daily_capacity_minutes")
     private Integer dailyCapacityMinutes = 480; // Default 8 hours
 
+    @Column(name = "primary_color", length = 7, nullable = true)
+    private String primaryColor; // Hex format: "#FF6B6B", nullable
+
+    @Column(name = "font_family", length = 32, nullable = true)
+    private String fontFamily; // Enum values: "Inter", "Outfit", "Merriweather", nullable
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

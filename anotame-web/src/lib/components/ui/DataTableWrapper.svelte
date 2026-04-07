@@ -23,7 +23,9 @@
     loading?: boolean;
     emptyMessage?: string;
     filterPlaceholder?: string;
+    showFilter?: boolean;
     actionCell?: import('svelte').Snippet<[Row<TData>]>;
+    cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
   };
 
   let {
@@ -33,7 +35,9 @@
     loading = false,
     emptyMessage = 'No hay datos.',
     filterPlaceholder = 'Buscar...',
+    showFilter = true,
     actionCell,
+    cellRenders = {},
   }: Props = $props();
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
@@ -102,17 +106,22 @@
   );
 </script>
 
-<div class="space-y-3">
+<div class="space-y-6">
   <!-- Search input -->
-  <div>
-    <label for="dt-filter" class="sr-only text-sm font-medium">Buscar</label>
-    <Input
-      id="dt-filter"
-      placeholder={filterPlaceholder}
-      bind:value={globalFilter}
-      class="h-12 touch-manipulation"
-    />
-  </div>
+  {#if showFilter}
+    <div>
+      <label for="dt-filter" class="sr-only text-sm font-medium">Buscar</label>
+      <Input
+        id="dt-filter"
+        placeholder={filterPlaceholder}
+        bind:value={globalFilter}
+        class="h-12 touch-manipulation"
+      />
+    </div>
+  {/if}
+
+  <!-- Divider -->
+  <div class="border-t border-border"></div>
 
   <!-- Table -->
   <div class="overflow-x-auto">
@@ -122,17 +131,30 @@
           <Table.Row class="hover:bg-transparent">
             {#each headerGroup.headers as header (header.id)}
               <Table.Head
-                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.getCanSort() ? 'cursor-pointer select-none' : ''}"
-                onclick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
               >
                 {#if !header.isPlaceholder}
-                  {header.column.columnDef.header as string}{header.column.getCanSort()
-                    ? header.column.getIsSorted() === 'asc'
-                      ? ' ↑'
-                      : header.column.getIsSorted() === 'desc'
-                        ? ' ↓'
-                        : ' ↕'
-                    : ''}
+                  {#if header.column.getCanSort()}
+                    <button
+                      class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
+                      onclick={header.column.getToggleSortingHandler()}
+                      aria-label={`Ordenar por ${header.column.columnDef.header as string}`}
+                    >
+                      {header.column.columnDef.header as string}
+                      {#if header.column.getIsSorted() === 'asc'}
+                        <span aria-hidden="true">↑</span>
+                      {:else if header.column.getIsSorted() === 'desc'}
+                        <span aria-hidden="true">↓</span>
+                      {:else}
+                        <span aria-hidden="true" class="opacity-20 flex flex-col -space-y-1.5 text-[8px] leading-none">
+                          <span>▲</span>
+                          <span>▼</span>
+                        </span>
+                      {/if}
+                    </button>
+                  {:else}
+                    {header.column.columnDef.header as string}
+                  {/if}
                 {/if}
               </Table.Head>
             {/each}
@@ -157,7 +179,9 @@
             <Table.Row class="hover:bg-muted/10 transition-colors">
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell class="px-6 py-4">
-                  {#if cell.column.id === 'actions' && actionCell}
+                  {#if cellRenders && cellRenders[cell.column.id]}
+                    {@render cellRenders[cell.column.id](row)}
+                  {:else if cell.column.id === 'actions' && actionCell}
                     {@render actionCell(row)}
                   {:else}
                     {cell.getValue() as string ?? ''}

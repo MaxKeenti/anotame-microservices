@@ -1,7 +1,9 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
+  import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { Loader2 } from 'lucide-svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
@@ -33,7 +35,7 @@
     garments.map((g: any) => ({ value: g.id, label: g.name }))
   );
 
-  const { form, enhance, errors, reset } = superForm(defaults(zod4(serviceSchema)), {
+  const superform = superForm(defaults(zod4(serviceSchema)), {
     SPA: true,
     validators: zod4(serviceSchema),
     async onUpdate({ form }) {
@@ -70,13 +72,15 @@
           }
           toast.error("Por favor, revisa los campos marcados en rojo.");
         } else {
-          toast.error(e.message || "Error al guardar el servicio.");
+          toast.error(e.message || "Error al guardar the servicio.");
         }
       } finally {
         isSubmitting = false;
       }
     }
   });
+
+  const { form, enhance, reset } = superform;
 
   $effect(() => {
     if (item) {
@@ -107,40 +111,66 @@
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
-      <div class="space-y-2">
-        <label for="s-garment" class="text-sm font-medium">Prenda Asociada</label>
-        <AdaptiveSelect
-          id="s-garment"
-          bind:value={$form.garmentTypeId}
-          placeholder="Seleccionar prenda..."
-          items={garmentItems}
-        />
-        {#if $errors.garmentTypeId}<span class="text-xs text-destructive">{$errors.garmentTypeId}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="garmentTypeId">
+        {#snippet children({ constraints })}
+          <Form.Label>Prenda Asociada</Form.Label>
+          <AdaptiveSelect
+            id="s-garment"
+            bind:value={$form.garmentTypeId}
+            placeholder="Seleccionar prenda..."
+            items={garmentItems}
+          />
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
 
-      <div class="space-y-2">
-        <label for="s-name" class="text-sm font-medium">Nombre del Servicio</label>
-        <Input id="s-name" name="name" placeholder="Ej. Bastilla, Ajuste de Cintura" bind:value={$form.name} class="h-12" />
-        {#if $errors.name}<span class="text-xs text-destructive">{$errors.name}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="name">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Nombre del Servicio</Form.Label>
+              <Input {...props} {...constraints} placeholder="Ej. Bastilla, Ajuste de Cintura" bind:value={$form.name} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
 
-      <div class="space-y-2">
-        <label for="s-desc" class="text-sm font-medium">Descripción</label>
-        <Input id="s-desc" name="description" placeholder="Detalles adicionales (opcional)" bind:value={$form.description} class="h-12" />
-        {#if $errors.description}<span class="text-xs text-destructive">{$errors.description}</span>{/if}
-      </div>
+      <Form.Field form={superform} name="description">
+        {#snippet children({ constraints })}
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Descripción</Form.Label>
+              <Input {...props} {...constraints} placeholder="Detalles adicionales (opcional)" bind:value={$form.description} class="h-12" />
+            {/snippet}
+          </Form.Control>
+          <Form.FieldErrors />
+        {/snippet}
+      </Form.Field>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <label for="s-price" class="text-sm font-medium">Precio Base ($)</label>
-          <Input id="s-price" name="basePrice" type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} class="h-12" />
-          {#if $errors.basePrice}<span class="text-xs text-destructive">{$errors.basePrice}</span>{/if}
-        </div>
-        <div class="space-y-2">
-          <label for="s-duration" class="text-sm font-medium">Duración (min)</label>
-          <Input id="s-duration" name="defaultDurationMin" type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} class="h-12" />
-          {#if $errors.defaultDurationMin}<span class="text-xs text-destructive">{$errors.defaultDurationMin}</span>{/if}
-        </div>
+        <Form.Field form={superform} name="basePrice">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Precio Base ($)</Form.Label>
+                <Input {...props} {...constraints} type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
+        <Form.Field form={superform} name="defaultDurationMin">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Duración (min)</Form.Label>
+                <Input {...props} {...constraints} type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
       </div>
 
       <Dialog.Footer class="pt-4">
@@ -148,9 +178,15 @@
           Cancelar
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
-          {isSubmitting ? 'Guardando...' : 'Guardar'}
+          {#if isSubmitting}
+            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            Guardando...
+          {:else}
+            Guardar
+          {/if}
         </Button>
       </Dialog.Footer>
     </form>
   </Dialog.Content>
 </Dialog.Root>
+

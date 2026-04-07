@@ -8,9 +8,9 @@
 
     function getOccupancyColor(percentage: number) {
         if (percentage >= 100) return 'bg-destructive shadow-[0_0_8px_oklch(from_var(--destructive)_l_c_h_/_40%)]';
-        if (percentage >= 80) return 'bg-orange-500';
-        if (percentage >= 50) return 'bg-yellow-500';
-        if (percentage > 0) return 'bg-emerald-500';
+        if (percentage >= 80) return 'bg-warning text-warning-foreground';
+        if (percentage >= 50) return 'bg-warning/60 text-warning-foreground';
+        if (percentage > 0) return 'bg-success text-success-foreground';
         return 'bg-secondary/40';
     }
 
@@ -32,12 +32,16 @@
                 <span>Libre</span>
             </div>
             <div class="flex items-center gap-1.5">
-                <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                <div class="w-3 h-3 rounded-full bg-success"></div>
                 <span>Ok</span>
             </div>
             <div class="flex items-center gap-1.5">
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-warning/60"></div>
                 <span>Medio</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <div class="w-3 h-3 rounded-full bg-warning"></div>
+                <span>Alto</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="w-3 h-3 rounded-full bg-destructive"></div>
@@ -50,7 +54,12 @@
         {#each dailyWorkload as day}
             {@const occupancy = Math.min(100, Math.round((day.totalMinutesUsed / capacity) * 100))}
             
-            <div class="group relative bg-card border border-border p-3 rounded-xl hover:ring-2 hover:ring-primary/20 transition-all cursor-default overflow-visible h-24 flex flex-col justify-between shadow-sm">
+            <div 
+                class="group relative bg-card border border-border p-3 rounded-xl hover:ring-2 hover:ring-primary/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none transition-all cursor-default overflow-visible h-24 flex flex-col justify-between shadow-sm"
+                tabindex="0"
+                role="button"
+                aria-label={`${formatDate(day.date)}: ${day.totalMinutesUsed} de ${capacity} minutos usados (${occupancy}%)`}
+            >
                 <!-- Custom Tooltip -->
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-popover border border-border rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 animate-in fade-in zoom-in-95 fill-mode-forwards">
                     <div class="text-sm font-bold border-b border-border pb-1 mb-2 capitalize">{formatDate(day.date)}</div>

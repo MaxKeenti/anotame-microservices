@@ -14,7 +14,6 @@
 
   let customers = $state<any[]>([]);
   let loading = $state(true);
-  let searchQuery = $state('');
 
   // Single Dialog Pattern state
   let editingCustomer = $state<any | null>(null);
@@ -26,11 +25,10 @@
     { id: 'actions', header: 'Acciones', enableSorting: false },
   ];
 
-  async function fetchCustomers(query: string = '') {
+  async function fetchCustomers() {
     loading = true;
     try {
-      const q = query ? `?query=${query}` : '';
-      const response = await apiService.request<any[]>(`${API_SALES}/api/customers/search${q}`);
+      const response = await apiService.request<any[]>(`${API_SALES}/api/customers/search`);
       customers = response || [];
     } catch {
       customers = [];
@@ -42,11 +40,6 @@
   onMount(() => {
     fetchCustomers();
   });
-
-  function handleSearch(e: Event) {
-    e.preventDefault();
-    fetchCustomers(searchQuery);
-  }
 
   function handleCreateClick() {
     editingCustomer = { id: null, firstName: '', lastName: '', email: '', phoneNumber: '' };
@@ -65,7 +58,7 @@
       try {
         await apiService.request(`${API_SALES}/api/customers/${id}`, { method: 'DELETE' });
         toast.success('Cliente eliminado exitosamente');
-        fetchCustomers(searchQuery);
+        fetchCustomers();
       } catch (e) {
         toast.error('Error al eliminar cliente');
       }
@@ -74,11 +67,11 @@
 
   function handleFormSuccess() {
     editingCustomer = null;
-    fetchCustomers(searchQuery);
+    fetchCustomers();
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
       <h1 class="text-3xl font-heading font-bold text-foreground">Clientes</h1>
@@ -87,24 +80,14 @@
     <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">+ Nuevo Cliente</Button>
   </div>
 
-  <div class="flex gap-2">
-    <form onsubmit={handleSearch} class="flex-1 flex gap-2">
-      <Input
-        placeholder="Buscar clientes..."
-        bind:value={searchQuery}
-        class="max-w-md h-12"
-      />
-      <Button type="submit" variant="secondary" class="h-12 px-6">Buscar</Button>
-    </form>
-  </div>
-
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
     <DataTableWrapper
       columns={columns}
       data={customers}
       loading={loading}
       emptyMessage="No se encontraron clientes."
       filterPlaceholder="Filtrar clientes..."
+      showFilter={true}
     >
       {#snippet actionCell(row)}
         <div class="flex justify-end gap-2">

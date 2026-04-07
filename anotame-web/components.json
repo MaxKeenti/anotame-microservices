@@ -2,7 +2,7 @@
 	"$schema": "https://shadcn-svelte.com/schema.json",
 	"tailwind": {
 		"css": "src/routes/layout.css",
-		"baseColor": "neutral"
+		"baseColor": "taupe"
 	},
 	"aliases": {
 		"components": "$lib/components",
@@ -15,6 +15,6 @@
 	"registry": "https://shadcn-svelte.com/registry",
 	"style": "vega",
 	"iconLibrary": "lucide",
-	"menuColor": "default",
-	"menuAccent": "subtle"
+	"menuColor": "default-translucent",
+	"menuAccent": "bold"
 }

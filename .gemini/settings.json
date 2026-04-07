@@ -11,6 +11,14 @@
             "command": "node .gemini/hooks/gsd-check-update.js"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .gemini/hooks/gsd-session-state.sh"
+          }
+        ]
       }
     ],
     "AfterTool": [
@@ -23,6 +31,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .gemini/hooks/gsd-phase-boundary.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "BeforeTool": [
@@ -32,6 +50,26 @@
           {
             "type": "command",
             "command": "node .gemini/hooks/gsd-prompt-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .gemini/hooks/gsd-read-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .gemini/hooks/gsd-validate-commit.sh",
             "timeout": 5
           }
         ]

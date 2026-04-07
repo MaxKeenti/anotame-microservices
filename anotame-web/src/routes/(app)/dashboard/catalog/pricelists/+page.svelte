@@ -106,7 +106,7 @@
               <Button
                 variant="outline"
                 size="sm"
-                class="h-10 border-primary/20 hover:bg-primary/5 text-primary"
+                class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
                 onclick={() => handleClone(row.original.id)}
                 title="Clonar Lista"
               >
@@ -116,7 +116,7 @@
               <Button
                 variant="outline"
                 size="sm"
-                class="h-10"
+                class="h-11 touch-manipulation"
                 href={`/dashboard/catalog/pricelists/${row.original.id}`}
               >
                 <Eye class="w-4 h-4 mr-2" />
@@ -125,7 +125,7 @@
               <Button
                 variant="outline"
                 size="sm"
-                class="h-10 text-destructive hover:bg-destructive/10 border-destructive/20"
+                class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
                 onclick={() => handleDelete(row.original.id, row.original.name)}
               >
                 <Trash2 class="w-4 h-4 mr-2" />

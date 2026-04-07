@@ -4,8 +4,9 @@
 
 - ✅ **v1.0 Code Quality & Security** — Phases 1–7 (shipped 2026-04-03) — [archive](.planning/milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Production Stability** — Phases 8–9 (shipped 2026-04-03) — [archive](.planning/milestones/v1.1-ROADMAP.md)
-- 🚧 **v1.2 UI standardization using shadcn presets** — Phases ? (in progress)
-- 📋 **v1.3 Deployment Refactor** — Phases TBD (planned)
+- ✅ **v1.2 UI Standardization** — Phases 10–14 (shipped 2026-04-06) — [archive](.planning/milestones/v1.2-ROADMAP.md)
+- 🚧 **v1.3 Advanced Operations** — Phases 15–17 (in progress)
+- 📋 **v1.4 Deployment Refactor** — Phases TBD (planned)
 
 ## Phases
 
@@ -32,12 +33,33 @@ Full phase details: [.planning/milestones/v1.0-ROADMAP.md](.planning/milestones/
 Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/v1.1-ROADMAP.md)
 
 </details>
+<details>
+<summary>✅ v1.2 UI Standardization (Phases 10–14) — SHIPPED 2026-04-06</summary>
+
+- [x] Phase 10: shadcn Preset Init & Design Token Refresh (2/2 plans) — completed 2026-04-04
+- [x] Phase 11: DataTableWrapper Filter Consolidation (1/1 plans) — completed 2026-04-04
+- [x] Phase 12: Forms & Dialogs Standardization Audit (3/3 plans) — completed 2026-04-05
+- [x] Phase 13: Color Audit & WCAG Compliance (1/1 plans) — completed 2026-04-05
+- [x] Phase 14: Tenant Theming (3/3 waves) — completed 2026-04-06
+
+Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/v1.2-ROADMAP.md)
+
+</details>
+
+### v1.3 Advanced Operations (Phases 15–17)
+
+- [ ] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions)
+- [ ] Phase 16: Multi-branch Dashboard Features
+- [ ] Phase 17: External Print Server Integration
 
 ## Phase Details
 
-### Phase TBD: Next Steps
-**Goal**: Define requirements for v1.2 UI standardization.
-**Depends on**: Phase 9 (v1.1 complete)
+### Phase 15: Order Lifecycle Improvements
+**Goal**: Enable staff to edit existing orders and perform bulk actions on order lists.
+**Depends on**: Phase 14
+**Requirements**: ORDER-01, ORDER-02
+
+---
 
 ## Progress
 
@@ -52,3 +74,9 @@ Full phase details: [.planning/milestones/v1.1-ROADMAP.md](.planning/milestones/
 | 7. Operational Reliability & Housekeeping | v1.0 | 3/3 | Complete | 2026-04-03 |
 | 8. Production Bug Fixes | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 9. DataTableWrapper Pattern Completion | v1.1 | 2/2 | Complete | 2026-04-03 |
+| 10. shadcn Preset Init & Design Token Refresh | v1.2 | 2/2 | Complete    | 2026-04-04 |
+| 11. DataTableWrapper Filter Consolidation | v1.2 | 1/1 | Complete    | 2026-04-04 |
+| 12. Forms & Dialogs Standardization Audit | v1.2 | 3/3 | Complete    | 2026-04-05 |
+| 13. Color Audit & WCAG Compliance | v1.2 | 1/1 | Complete    | 2026-04-05 |
+| 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
+| 15. Order Lifecycle Improvements | v1.3 | 0/3 | Not started | — |

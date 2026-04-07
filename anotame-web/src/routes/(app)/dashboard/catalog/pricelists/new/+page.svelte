@@ -5,10 +5,15 @@
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
   import * as Table from '$lib/components/ui/table';
   import { toast } from 'svelte-sonner';
+  import { Loader2 } from 'lucide-svelte';
+  import { superForm, defaults } from 'sveltekit-superforms';
+  import { zod4 } from 'sveltekit-superforms/adapters';
+  import { z } from 'zod';
 
   // State
   let isLoading = $state(false);
@@ -19,16 +24,58 @@
   // Clone parameter
   let cloneFromId = $derived($page.url.searchParams.get('cloneFrom'));
 
-  // Form State
-  let name = $state('');
-  let priority = $state(0);
-  let validFrom = $state(new Date().toISOString().split('T')[0]);
-  let validTo = $state('');
-  let active = $state(true);
-  let baseListId = $state('');
+  const pricelistSchema = z.object({
+    name: z.string().min(1, 'El nombre es obligatorio'),
+    priority: z.number().default(0),
+    validFrom: z.string().min(1, 'La fecha de inicio es obligatoria'),
+    validTo: z.string().optional().or(z.literal('')),
+    active: z.boolean().default(true),
+    baseListId: z.string().optional().or(z.literal('')),
+  });
   
   // Overrides Map: ServiceID -> String Price
   let overrides = $state<Record<string, string>>({});
+
+  const superform = superForm(defaults(zod4(pricelistSchema)), {
+    SPA: true,
+    validators: zod4(pricelistSchema),
+    async onUpdate({ form: f }) {
+      if (!f.valid) return;
+      
+      isLoading = true;
+      try {
+        const items = Object.entries(overrides)
+          .filter(([_, val]) => val !== null && val !== undefined && String(val).trim() !== '')
+          .map(([serviceId, val]) => ({
+            serviceId,
+            price: parseFloat(String(val))
+          }));
+
+        const payload = {
+          name: f.data.name,
+          priority: f.data.priority,
+          validFrom: new Date(f.data.validFrom).toISOString(),
+          validTo: f.data.validTo ? new Date(f.data.validTo).toISOString() : null,
+          active: f.data.active,
+          items
+        };
+
+        await apiService.request(`${API_CATALOG}/pricelists`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        toast.success('Lista de precios creada exitosamente');
+        goto('/dashboard/catalog/pricelists');
+      } catch (err: any) {
+        toast.error(err.message || 'Error al crear la lista');
+      } finally {
+        isLoading = false;
+      }
+    }
+  });
+
+  const { form, enhance } = superform;
 
   onMount(async () => {
     try {
@@ -41,7 +88,7 @@
 
       // Handle clone functionality if URL param exists
       if (cloneFromId) {
-        baseListId = cloneFromId;
+        $form.baseListId = cloneFromId;
         await handleBaseListChange(cloneFromId, true);
       }
     } catch (err) {
@@ -53,7 +100,7 @@
     availableLists.map(l => ({ value: l.id, label: l.name }))
   );
 
-  async function handleBaseListChange(listId: string, isFromCloneParam = false) {
+  async function handleBaseListChange(listId: string | undefined, isFromCloneParam = false) {
     if (!listId) {
       overrides = {};
       return;
@@ -64,11 +111,11 @@
       if (list) {
         // If cloning, we also pre-fill the name and priority
         if (isFromCloneParam) {
-          name = `${list.name} (Copia)`;
-          priority = list.priority;
-          if (list.validFrom) validFrom = new Date(list.validFrom).toISOString().split('T')[0];
-          if (list.validTo) validTo = new Date(list.validTo).toISOString().split('T')[0];
-          active = list.active;
+          $form.name = `${list.name} (Copia)`;
+          $form.priority = list.priority;
+          if (list.validFrom) $form.validFrom = new Date(list.validFrom).toISOString().split('T')[0];
+          if (list.validTo) $form.validTo = new Date(list.validTo).toISOString().split('T')[0];
+          $form.active = list.active;
         }
 
         const newOverrides: Record<string, string> = {};
@@ -99,49 +146,10 @@
   }
 
   function handleReset() {
-    if (baseListId) {
-      handleBaseListChange(baseListId);
+    if ($form.baseListId) {
+      handleBaseListChange($form.baseListId);
     } else {
       overrides = {};
-    }
-  }
-
-  async function handleSubmit(e: Event) {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast.error('El nombre es obligatorio');
-      return;
-    }
-    
-    isLoading = true;
-    try {
-      const items = Object.entries(overrides)
-        .filter(([_, val]) => val !== null && val !== undefined && String(val).trim() !== '')
-        .map(([serviceId, val]) => ({
-          serviceId,
-          price: parseFloat(String(val))
-        }));
-
-      const payload = {
-        name,
-        priority,
-        validFrom: new Date(validFrom).toISOString(),
-        validTo: validTo ? new Date(validTo).toISOString() : null,
-        active,
-        items
-      };
-
-      await apiService.request(`${API_CATALOG}/pricelists`, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-
-      toast.success('Lista de precios creada exitosamente');
-      goto('/dashboard/catalog/pricelists');
-    } catch (err: any) {
-      toast.error(err.message || 'Error al crear la lista');
-    } finally {
-      isLoading = false;
     }
   }
 </script>
@@ -152,44 +160,70 @@
     <Button variant="outline" class="h-10 touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>
   </div>
 
-  <form onsubmit={handleSubmit} class="space-y-6">
+  <form method="POST" use:enhance class="space-y-6">
     <Card.Root>
       <Card.Header>
         <Card.Title>Detalles de la Estrategia</Card.Title>
       </Card.Header>
       <Card.Content class="space-y-4">
-        <div class="space-y-2">
-          <label for="pl-name" class="text-sm font-medium">Nombre de la Lista <span class="text-destructive">*</span></label>
-          <Input id="pl-name" placeholder="Ej. Promoción de Verano 2026" required bind:value={name} class="h-12" />
-        </div>
+        <Form.Field form={superform} name="name">
+          {#snippet children({ constraints })}
+            <Form.Control>
+              {#snippet children({ props })}
+                <Form.Label>Nombre de la Lista <span class="text-destructive">*</span></Form.Label>
+                <Input {...props} {...constraints} id="pl-name" placeholder="Ej. Promoción de Verano 2026" bind:value={$form.name} class="h-12" />
+              {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <label for="pl-priority" class="text-sm font-medium">Prioridad (Mayor gana)</label>
-            <Input id="pl-priority" type="number" required bind:value={priority} class="h-12 font-mono" />
-            <p class="text-xs text-muted-foreground">Si dos listas chocan en fecha, aplicará la de mayor prioridad.</p>
-          </div>
-          <div class="flex items-center gap-2 pt-8">
-            <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
-              <input
-                type="checkbox"
-                class="w-5 h-5 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors after:content-['✓'] after:text-white after:font-bold after:hidden checked:after:block after:text-xs"
-                bind:checked={active}
-              />
-              Estrategia Activa
-            </label>
-          </div>
+          <Form.Field form={superform} name="priority">
+            {#snippet children({ constraints })}
+              <Form.Control>
+                {#snippet children({ props })}
+                  <Form.Label>Prioridad (Mayor gana)</Form.Label>
+                  <Input {...props} {...constraints} id="pl-priority" type="number" bind:value={$form.priority} class="h-12 font-mono" />
+                {/snippet}
+              </Form.Control>
+              <p class="text-xs text-muted-foreground mt-1">Si dos listas chocan en fecha, aplicará la de mayor prioridad.</p>
+              <Form.FieldErrors />
+            {/snippet}
+          </Form.Field>
+
+          <Form.Field form={superform} name="active">
+            {#snippet children({ constraints })}
+              <div class="flex items-center gap-2 pt-8">
+                <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
+                  <input
+                    type="checkbox"
+                    class="checkbox-custom"
+                    bind:checked={$form.active}
+                  />
+                  Estrategia Activa
+                </label>
+              </div>
+              <Form.FieldErrors />
+            {/snippet}
+          </Form.Field>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <label for="pl-from" class="text-sm font-medium">Válido Desde</label>
-            <AdaptiveDatePicker id="pl-from" bind:value={validFrom} min={new Date().toISOString().slice(0, 10)} />
-          </div>
-          <div class="space-y-2">
-            <label for="pl-to" class="text-sm font-medium">Válido Hasta (Opcional)</label>
-            <AdaptiveDatePicker id="pl-to" bind:value={validTo} min={validFrom || new Date().toISOString().slice(0, 10)} placeholder="Permanente si está vacío" />
-          </div>
+          <Form.Field form={superform} name="validFrom">
+            {#snippet children({ constraints })}
+              <Form.Label>Válido Desde</Form.Label>
+              <AdaptiveDatePicker id="pl-from" bind:value={$form.validFrom} min={new Date().toISOString().slice(0, 10)} />
+              <Form.FieldErrors />
+            {/snippet}
+          </Form.Field>
+          <Form.Field form={superform} name="validTo">
+            {#snippet children({ constraints })}
+              <Form.Label>Válido Hasta (Opcional)</Form.Label>
+              <AdaptiveDatePicker id="pl-to" bind:value={$form.validTo} min={$form.validFrom || new Date().toISOString().slice(0, 10)} placeholder="Permanente si está vacío" />
+              <Form.FieldErrors />
+            {/snippet}
+          </Form.Field>
         </div>
       </Card.Content>
     </Card.Root>
@@ -199,17 +233,20 @@
         <Card.Title>Configuración Base</Card.Title>
       </Card.Header>
       <Card.Content>
-        <div class="space-y-2">
-          <label for="pl-base" class="text-sm font-medium">Copiar desde una lista existente</label>
-          <AdaptiveSelect
-            id="pl-base"
-            bind:value={baseListId}
-            onValueChange={() => handleBaseListChange(baseListId)}
-            placeholder="-- Iniciar desde cero (Precios Base) --"
-            items={availableListItems}
-          />
-          <p class="text-xs text-muted-foreground">Al seleccionar una lista, se cargarán sus precios y sobrescribirán los actuales.</p>
-        </div>
+        <Form.Field form={superform} name="baseListId">
+          {#snippet children({ constraints })}
+            <Form.Label>Copiar desde una lista existente</Form.Label>
+            <AdaptiveSelect
+              id="pl-base"
+              bind:value={$form.baseListId}
+              onValueChange={() => handleBaseListChange($form.baseListId)}
+              placeholder="-- Iniciar desde cero (Precios Base) --"
+              items={availableListItems}
+            />
+            <p class="text-xs text-muted-foreground mt-1">Al seleccionar una lista, se cargarán sus precios y sobrescribirán los actuales.</p>
+            <Form.FieldErrors />
+          {/snippet}
+        </Form.Field>
       </Card.Content>
     </Card.Root>
 
@@ -288,8 +325,14 @@
     <div class="flex justify-end gap-4 pt-4 pb-12">
       <Button type="button" variant="outline" class="h-14 px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>
       <Button type="submit" disabled={isLoading} class="h-14 px-8 text-lg shadow-md touch-manipulation">
-        {isLoading ? "Creando..." : "Guardar Lista de Precios"}
+        {#if isLoading}
+          <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+          Creando...
+        {:else}
+          Guardar Lista de Precios
+        {/if}
       </Button>
     </div>
   </form>
 </div>
+

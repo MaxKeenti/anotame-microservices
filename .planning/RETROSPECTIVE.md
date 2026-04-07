@@ -58,6 +58,56 @@
 
 ---
 
+## Milestone: v1.1 — Production Stability
+
+**Shipped:** 2026-04-03
+**Phases:** 2 | **Plans:** 4 | **Sessions:** ~2
+
+### What Was Built
+- KPI dashboard corrected to use `/orders/kpi/dashboard` path
+- `DataTableWrapper` loop crash fixed using `untrack()` in pagination effect
+- User-friendly Spanish toast messages for HTTP 409 FK constraint violations
+- Full catalog migration: Garments, Services, Price Lists, and Users pages moved to `DataTableWrapper`
+
+---
+
+## Milestone: v1.2 — UI Standardization
+
+**Shipped:** 2026-04-06
+**Phases:** 5 | **Plans:** 10 | **Sessions:** ~4
+
+### What Was Built
+- Visual foundation refresh with shadcn-svelte preset and Tailwind v4 oklch tokens
+- `DataTableWrapper` filter consolidation: eliminated duplicate filter bars on Customers and Orders pages via `showFilter` prop
+- Full form standardization: 10+ forms and all CRUD dialogs migrated to `sveltekit-superforms` + `Form.*` field kit
+- WCAG 2.1 Level AA color compliance: refined semantic tokens and introduced standardized `StatusBadge` component
+- Multi-tenant theming engine: backend persistence for brand color/font and reactive CSS variable injection with FOUC prevention
+
+### What Worked
+- **Component-first standardization** — by focusing on `DataTableWrapper` and the `Form.*` kit first, subsequent page migrations became repetitive and highly predictable
+- **Reactive CSS variable injection** — the Svelte 5 `$effect` + server-side hydration pattern proved reliable for dynamic theming without visual artifacts
+- **Audit-driven quality** — the Phase 12 form audit ensured that no "dark corners" of the UI remained with legacy patterns
+
+### What Was Inefficient
+- **Requirements tracking drift** — `REQUIREMENTS.md` checkboxes and traceability were often forgotten during execution, requiring a manual sync at milestone completion. This needs to be a "must-have" task in phase planning
+- **Manual verification debt** — some UAT items (like "Edit Existing Order") were identified as missing features rather than bugs, causing slight confusion during verification. These should be moved to the next milestone's requirements immediately upon discovery
+
+### Patterns Established
+- **`untrack()` for store writes in effects** — essential for preventing infinite loops when initializing stores from server data during hydration
+- **OKLCH for semantic colors** — provides consistent lightness and chroma across both themes, simplifying WCAG compliance
+- **Native HTML5 color picker + hex text fallback** — robust and accessible pattern for user-facing color configuration
+
+### Key Lessons
+1. **Unify DOM manipulations** — multiple effects modifying `document.documentElement.style` can cause race conditions or loop depth errors. Consolidated theme/palette injection into a single effect
+2. **Standardize the "Spanish Voice"** — consistency in error messages and UI labels was improved by centralizing translations in components like `StatusBadge`
+
+### Cost Observations
+- Model mix: ~90% Sonnet 4.6, ~10% Opus (for complex refactor planning)
+- Sessions: ~4 for v1.2
+- Notable: Form migration speed increased significantly after the first 3 dialogs were standardized
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -65,9 +115,13 @@
 | Milestone | Sessions | Phases | Key Change |
 |-----------|----------|--------|------------|
 | v1.0 | ~6 | 7 | First milestone with GSD workflow; established all core patterns |
+| v1.1 | ~2 | 2 | Focused stability run; rapid execution of targeted fixes |
+| v1.2 | ~4 | 5 | Shift from infrastructure to UI/UX standardization; established design tokens |
 
 ### Cumulative Quality
 
 | Milestone | Test Coverage | Zero-Dep Additions | Migrations |
 |-----------|-------------|-------------------|------------|
 | v1.0 | 0% (deferred) | quarkus-flyway, quarkus-smallrye-health, sveltekit-superforms | 2 (V1 baseline, V2 unit_price) |
+| v1.1 | 0% (deferred) | - | 0 |
+| v1.2 | 0% (deferred) | shadcn-svelte, @fontsource-variable/* | 1 (V2 theme fields) |

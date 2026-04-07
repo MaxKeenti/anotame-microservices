@@ -43,6 +43,8 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         entity.setTaxInfo(establishment.getTaxInfo());
         entity.setActive(establishment.isActive());
         entity.setDailyCapacityMinutes(establishment.getDailyCapacityMinutes());
+        entity.setPrimaryColor(establishment.getPrimaryColor());
+        entity.setFontFamily(establishment.getFontFamily());
 
         repository.persist(entity);
         return toDomain(entity);
@@ -56,6 +58,8 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         domain.setTaxInfo(entity.getTaxInfo());
         domain.setActive(entity.isActive());
         domain.setDailyCapacityMinutes(entity.getDailyCapacityMinutes());
+        domain.setPrimaryColor(entity.getPrimaryColor());
+        domain.setFontFamily(entity.getFontFamily());
         return domain;
     }
 }

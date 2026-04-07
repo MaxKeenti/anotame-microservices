@@ -7,7 +7,8 @@
 	import { ApiError } from '$lib/services/ApiError';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { CreditCard, DollarSign, Wallet, AlertTriangle } from 'lucide-svelte';
+	import * as Form from '$lib/components/ui/form';
+	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
@@ -46,7 +47,7 @@
 		notes: z.string().optional().or(z.literal(''))
 	});
 
-	const { form, enhance, errors } = superForm(defaults(zod4(paymentSchema)), {
+	const superform = superForm(defaults(zod4(paymentSchema)), {
 		SPA: true,
 		validators: zod4(paymentSchema),
 		async onUpdate({ form: f }) {
@@ -152,6 +153,8 @@
 			}
 		}
 	});
+
+	const { form, enhance } = superform;
 
 	let balance = $derived(Math.max(0, total - ($form.amountPaid || 0)));
 
@@ -288,52 +291,47 @@
 
 		<!-- Payment Amounts -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<div class="space-y-2">
-				<label class="text-sm font-medium" for="amount-paid">Monto Recibido</label>
-				<div class="relative">
-					<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
-						>$</span
-					>
-					<Input
-						id="amount-paid"
-						type="number"
-						min="0"
-						step="0.01"
-						class="pl-8 text-2xl font-bold h-14 rounded-xl"
-						bind:value={$form.amountPaid}
-						placeholder="0.00"
-					/>
-				</div>
-				{#if $errors.amountPaid}<span class="text-xs text-destructive">{$errors.amountPaid}</span
-					>{/if}
-				<!-- Quick Buttons -->
-				<div class="flex gap-2 mt-2">
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						onclick={() => {
-							$form.amountPaid = total;
-						}}>Total</Button
-					>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						onclick={() => {
-							$form.amountPaid = total / 2;
-						}}>50%</Button
-					>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						onclick={() => {
-							$form.amountPaid = 0;
-						}}>0</Button
-					>
-				</div>
-			</div>
+			<Form.Field form={superform} name="amountPaid">
+				{#snippet children({ constraints })}
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Monto Recibido</Form.Label>
+							<div class="relative">
+								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl">$</span>
+								<Input {...props} {...constraints} type="number" min="0" step="0.01" class="pl-8 text-2xl font-bold h-14 rounded-xl" bind:value={$form.amountPaid} placeholder="0.00" />
+							</div>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+					<!-- Quick Buttons -->
+					<div class="flex gap-2 mt-2">
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onclick={() => {
+								$form.amountPaid = total;
+							}}>Total</Button
+						>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onclick={() => {
+								$form.amountPaid = total / 2;
+							}}>50%</Button
+						>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onclick={() => {
+								$form.amountPaid = 0;
+							}}>0</Button
+						>
+					</div>
+				{/snippet}
+			</Form.Field>
 
 			<div
 				class="bg-card border border-border p-4 rounded-xl flex flex-col justify-center items-center shadow-sm"
@@ -347,32 +345,34 @@
 
 		<!-- Deadline & Notes -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
-			<div class="space-y-2">
-				<label class="text-sm font-medium" for="delivery-date">Fecha de Entrega</label>
-				<!-- Adaptive: Calendar + Time popover on desktop, native datetime-local on mobile -->
-				<AdaptiveDateTimePicker
-					id="delivery-date"
-					value={$form.committedDeadline}
-					min={minDeadline}
-					onValueChange={(v) => {
-						$form.committedDeadline = v;
-					}}
-					placeholder="Seleccionar fecha y hora..."
-					class="rounded-xl text-lg"
-				/>
-				{#if $errors.committedDeadline}<span class="text-xs text-destructive"
-						>{$errors.committedDeadline}</span
-					>{/if}
-			</div>
-			<div class="space-y-2">
-				<label class="text-sm font-medium" for="order-notes">Notas Generales de Orden</label>
-				<Input
-					id="order-notes"
-					placeholder="Detalles sobre entrega, atención, etc."
-					class="h-12 rounded-xl text-lg"
-					bind:value={$form.notes}
-				/>
-			</div>
+			<Form.Field form={superform} name="committedDeadline">
+				{#snippet children({ constraints })}
+					<Form.Label>Fecha de Entrega</Form.Label>
+					<!-- Adaptive: Calendar + Time popover on desktop, native datetime-local on mobile -->
+					<AdaptiveDateTimePicker
+						id="delivery-date"
+						value={$form.committedDeadline}
+						min={minDeadline}
+						onValueChange={(v) => {
+							$form.committedDeadline = v;
+						}}
+						placeholder="Seleccionar fecha y hora..."
+						class="rounded-xl text-lg"
+					/>
+					<Form.FieldErrors />
+				{/snippet}
+			</Form.Field>
+			<Form.Field form={superform} name="notes">
+				{#snippet children({ constraints })}
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Notas Generales de Orden</Form.Label>
+							<Input {...props} {...constraints} id="order-notes" placeholder="Detalles sobre entrega, atención, etc." class="h-12 rounded-xl text-lg" bind:value={$form.notes} />
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				{/snippet}
+			</Form.Field>
 		</div>
 	</div>
 
@@ -435,7 +435,13 @@
 			disabled={isSubmitting}
 			class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
 		>
-			{isSubmitting ? 'Procesando...' : draft?.isEditing ? 'Actualizar Orden' : 'Confirmar Orden'}
+			{#if isSubmitting}
+				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
+				Procesando...
+			{:else}
+				{draft?.isEditing ? 'Actualizar Orden' : 'Confirmar Orden'}
+			{/if}
 		</Button>
 	</div>
 </form>
+

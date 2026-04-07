@@ -8,24 +8,25 @@ Anotame is the management SaaS platform for *El hilvan*, a garment care / clothi
 
 A *El hilvan* staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
 
-## Current Milestone: v1.2 — UI Standardization
+## Current Milestone: v1.3 — Advanced Operations
 
-**Goal:** Standardize the UI using shadcn presets and improve visual consistency across all adaptive components.
+**Goal:** Deployment refactor and advanced order lifecycle features.
 
 **Target features:**
-- UI: Implement shadcn/ui components for all major forms and dialogs
-- Consistency: Audit and fix color palette drifts across branch/establishment settings
-- Feedback: Standardize toast/loading states across the entire application
+- Deployment refactor — research Railway Dockerfile deploys, migrate from PostGIS to native PostgreSQL
+- Deployment implementation — eliminate GitHub Packages dependency across all services
+- Order Lifecycle Improvements — Edit Order, Bulk Actions, and improved status tracking
+- Multi-branch Dashboard Features — enhanced visibility across locations
 
 ---
 
 ## Current State
 
-**Version:** v1.1 — shipped 2026-04-04
+**Version:** v1.2 — SHIPPED 2026-04-06
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
-**Backend:** All services production-hardened; common exception handling and Flyway migrations active
-**Frontend:** All management pages (7 total) migrated to `DataTableWrapper` pattern with TanStack Table
-**Deployment:** Railway (main branch auto-deploy); v1.1 fixed production bugs and standardized the UI table patterns
+**Backend:** All services production-hardened; common exception handling and Flyway migrations active; Establishment model supports tenant theming (primaryColor, fontFamily)
+**Frontend:** Fully standardized with shadcn-svelte preset; all forms/dialogs use `superforms` + `Form.*` kit; WCAG 2.1 AA contrast compliance achieved; reactive tenant theming engine implemented.
+**Deployment:** Railway (main branch auto-deploy); v1.2 standardized the entire UI and established a multi-tenant theming foundation.
 
 ## Requirements
 
@@ -42,25 +43,28 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - ✓ Touch-first responsive UI with adaptive components (desktop shadcn / mobile native) — existing
 - ✓ Containerized deployment via Docker Compose, targeting Railway — existing
 - ✓ UI color standardization — per-user palette customization, CSS variable overrides — v1.0
-- ✓ Security hardening — no hardcoded credentials, auth guards on all controllers, JWT key via env, cookie secure flag — v1.0
-- ✓ Data integrity fixes — real branch resolution from JWT claims, DB-sequence ticket numbers, real createdBy UUID — v1.0
-- ✓ Consistent exception handling — GlobalExceptionHandler + typed domain exceptions across all 4 services — v1.0
-- ✓ Frontend pattern compliance — DataTableWrapper + sveltekit-superforms across all major pages — v1.0
-- ✓ Database migration framework — Flyway across all 4 services, V1 baseline from live schema, per-service history tables — v1.0
-- ✓ Operational reliability — SmallRye Health on all 4 services, Docker Compose healthchecks — v1.0
-- ✓ Housekeeping — .env.example PUBLIC_* names, legacy artifacts deleted, x-user-name CORS header — v1.0
-- ✓ KPI dashboard fix — corrected metrics API path — v1.1
-- ✓ DataTableWrapper stability — fixed infinite reactive loop with `untrack()` — v1.1
-- ✓ Spanish error toasts — user-friendly messages for FK constraint violations — v1.1
-- ✓ Catalog migration — all remaining management pages (Garments, Services, Price Lists, Users) migrated to DataTableWrapper — v1.1
+- ✓ Security hardening — v1.0
+- ✓ Data integrity fixes — v1.0
+- ✓ Consistent exception handling — v1.0
+- ✓ Frontend pattern compliance — v1.0
+- ✓ Database migration framework — v1.0
+- ✓ Operational reliability — v1.0
+- ✓ Housekeeping — v1.0
+- ✓ KPI dashboard fix — v1.1
+- ✓ DataTableWrapper stability — v1.1
+- ✓ Spanish error toasts — v1.1
+- ✓ Catalog migration — v1.1
+- ✓ shadcn preset init — v1.2
+- ✓ DataTableWrapper filter dedup — v1.2
+- ✓ UI standardization audit — v1.2
+- ✓ Color audit & WCAG compliance — v1.2
+- ✓ Tenant theming — v1.2
 
 ### Active
-
-- [ ] UI standardization — implement shadcn/ui components for all forms and dialogs — v1.2
-- [ ] Color audit — resolve palette drifts and ensure WCAG compliance — v1.2
 - [ ] Deployment refactor — research Railway Dockerfile deploys, migrate from PostGIS to native PostgreSQL — v1.3
 - [ ] Deployment implementation — eliminate GitHub Packages dependency across all services — v1.3
-- [ ] Font and color theming per business identity — each tenant can customize the app's look and feel (needs dedicated design phase)
+- [ ] Order Lifecycle Improvements (Edit Order, Bulk Actions) — v1.3
+- [ ] Multi-branch Dashboard Features — v1.3
 - [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
 - [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
 - [ ] Server-side auth validation in SvelteKit hooks.server.ts before SSR render (deferred from v1.0)
@@ -76,12 +80,12 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ## Context
 
-- **Live client**: One real business is using the platform. Schema changes must be additive or migration-safe. Railway deploys from main branch automatically — all changes must be validated before merging.
-- **v1.0 shipped**: Full audit backlog cleared — security, data integrity, exception handling, frontend patterns, Flyway migrations, operational health all addressed.
+- **Live client**: One real business is using the platform. Schema changes must be additive or migration-safe. Railway deploys from main branch automatically.
+- **v1.2 shipped**: UI is now professional, accessible, and themeable. The foundation for multi-tenant scaling is complete.
 - **Known deferred debt**:
   - `branch_id` fallback in `OrdersResource.java` (sales-service) — remove after all active sessions re-login post-v1.0
   - Staging Flyway validate isolation — re-run `flyway validate` against a true isolated staging container before first Railway deploy introducing a new migration beyond V2
-  - Human verification items from Phases 4 and 5 still require Docker Compose runtime confirmation (invalid-credentials 401, duplicate-username 409, no SQL in prod logs, DataTableWrapper rendering, superforms behavior)
+  - `statusUtils.ts` cleanup — fully migrate all references to CSS-based status badges
 
 ## Constraints
 
@@ -95,32 +99,21 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Security before all other debt | Live client + committed private key risk — unacceptable exposure | ✓ Cleared — v1.0 |
-| Testing deferred to Milestone 2 | Codebase needs structural fixes before tests are worth writing; tests on broken patterns create wrong anchors | — Deferred |
-| Theming + KPI features planned as separate phases | Both need detailed design before execution — scope too fuzzy to build directly | — Active |
+| Testing deferred to Milestone 2 | Codebase needs structural fixes before tests are worth writing | — Deferred |
+| Theming + KPI features planned as separate phases | Both need detailed design before execution | — Active |
 | Parent POM stays as pure aggregator | Spring Boot inheritance removed; each service manages its own Quarkus BOM | ✓ Done |
-| Java 21 across all services | sales-service bumped from 17 → 21 to match others; Dockerfiles already used 21 | ✓ Done |
-| JWT keys delivered via env vars | SMALLRYE_JWT_SIGN_KEY + MP_JWT_VERIFY_PUBLICKEY instead of .location file path — enables Railway builds without committed PEM files | ✓ Done — v1.0 |
-| branch_id omitted from JWT when null | Downstream must handle absent claim with rollout fallback; remove fallback after re-login | — Pending cleanup |
-| Single pg_dump shared across 4 Flyway V1 baselines | Simpler than per-service scoping; safe because baseline-version=1 means Flyway stamps V1 as already applied without executing it | ✓ Done — v1.0 |
-| Per-service Flyway history tables | All 4 services share one PostgreSQL DB; unique table names prevent cross-service collision | ✓ Done — v1.0 |
-| wget --spider for Docker healthchecks | curl absent from eclipse-temurin:21-jre-alpine; wget (busybox) is correct tool | ✓ Done — v1.0 |
+| Java 21 across all services | sales-service bumped from 17 → 21 to match others | ✓ Done |
+| JWT keys delivered via env vars | Enables Railway builds without committed PEM files | ✓ Done — v1.0 |
+| Per-service Flyway history tables | Prevents cross-service collision in shared DB | ✓ Done — v1.0 |
+| wget --spider for Docker healthchecks | Correct tool for eclipse-temurin:21-jre-alpine | ✓ Done — v1.0 |
+| CSS Variable Injection for Theming | Avoids DOM manipulation libraries; works with Tailwind 4 | ✓ Done — v1.2 |
+| Server-side Hydration for Theme | Prevents FOUC; loads theme before page renders | ✓ Done — v1.2 |
+| Native HTML5 Color Picker | Native browser support; accessible; fallback to hex text | ✓ Done — v1.2 |
+| OKLCH for Color System | Precise control over lightness and chroma; better contrast management | ✓ Done — v1.2 |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
-
 ---
-*Last updated: 2026-04-04 — Milestone v1.1 (Production Stability) SHIPPED; v1.2 Active*
+*Last updated: 2026-04-06 — Milestone v1.2 COMPLETE*
