@@ -118,7 +118,7 @@ Use AskUserQuestion:
 - options:
   - "Let's go" -- Proceed to step 3 (session analysis)
   - "Use questionnaire instead" -- Jump to step 4b (questionnaire path)
-  - "Not now" -- Display "No worries. Run /gsd:profile-user when ready." and exit
+  - "Not now" -- Display "No worries. Run /gsd-profile-user when ready." and exit
 
 ---
 
@@ -333,7 +333,7 @@ Use AskUserQuestion with multiSelect:
 - header: "Artifacts"
 - question: "Which artifacts should I generate?"
 - options (ALL pre-selected by default):
-  - "/gsd:dev-preferences command file" -- "Load your preferences in any session"
+  - "/gsd-dev-preferences command file" -- "Load your preferences in any session"
   - "CLAUDE.md profile section" -- "Add profile to this project's CLAUDE.md"
   - "Global CLAUDE.md" -- "Add profile to /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/CLAUDE.md for all projects"
 
@@ -345,13 +345,13 @@ Use AskUserQuestion with multiSelect:
 
 Generate selected artifacts sequentially (file I/O is fast, no benefit from parallel agents):
 
-**For /gsd:dev-preferences (if selected):**
+**For /gsd-dev-preferences (if selected):**
 
 ```bash
 node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs generate-dev-preferences --analysis "$ANALYSIS_PATH" --json 2>/dev/null
 ```
 
-Display: "✓ Generated /gsd:dev-preferences at /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/commands/gsd/dev-preferences.md"
+Display: "✓ Generated /gsd-dev-preferences at /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/commands/gsd/dev-preferences.md"
 
 **For CLAUDE.md profile section (if selected):**
 
@@ -410,7 +410,7 @@ Your profile:    /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~
 Then list paths for each generated artifact:
 ```
 Artifacts:
-  ✓ /gsd:dev-preferences   /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/commands/gsd/dev-preferences.md
+  ✓ /gsd-dev-preferences   /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/commands/gsd/dev-preferences.md
   ✓ CLAUDE.md section       ./CLAUDE.md
   ✓ Global CLAUDE.md        /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/CLAUDE.md
 ```
