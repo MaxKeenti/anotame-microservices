@@ -308,6 +308,14 @@
       </div>
     </div>
 
+    <!-- Pickup Code -->
+    {#if order.pickupCode}
+      <div class="bg-card p-6 rounded-2xl border border-border shadow-sm text-center">
+        <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">Código de retiro</p>
+        <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
+      </div>
+    {/if}
+
     <!-- Actions -->
     <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-border mt-8">
       <Button
@@ -325,6 +333,15 @@
             class="h-14 rounded-xl text-lg touch-manipulation shadow-md w-full sm:w-auto"
           >
             Enviar a Operaciones
+          </Button>
+        {/if}
+        {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
+          <Button
+            href={`/dashboard/orders/${order.id}/edit`}
+            variant="outline"
+            class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
+          >
+            Editar Pedido
           </Button>
         {/if}
         <Button

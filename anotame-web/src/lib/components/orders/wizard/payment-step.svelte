@@ -101,16 +101,11 @@
 
 				if (draft?.isEditing && draft?.id) {
 					await apiService.updateOrder(draft.id, payload);
-					toast.success('Orden actualizada exitosamente');
 					const targetId = draft?.id;
-					
-					// Navigate first, then cleanup to avoid UI "blink" to Step 1
-					if (targetId) {
-						await goto(`/dashboard/orders/${targetId}?action=print`);
-					} else {
-						await goto('/dashboard/orders');
-					}
-					orderWizardState.completeActiveDraft();
+					// Clear draft before navigation to avoid UI "blink" back to Step 1
+					orderWizardState.clearActiveDraft();
+					toast.success('Pedido guardado correctamente.');
+					await goto(`/dashboard/orders/${targetId}`);
 				} else {
 					const res = await apiService.request<any>(`${API_SALES}/orders`, {
 						method: 'POST',
@@ -142,8 +137,12 @@
 						description: errorMessages || 'Hay errores en los campos marcados'
 					});
 				} else if (e instanceof ApiError && e.status === 409) {
-					error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
-					toast.error('Error al procesar la orden', { description: e.message });
+					if (draft?.isEditing) {
+						toast.error('No es posible editar este pedido.');
+					} else {
+						error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
+						toast.error('Error al procesar la orden', { description: e.message });
+					}
 				} else {
 					error = `Error: ${e.message}`;
 					toast.error('Error al procesar la orden', { description: e.message });
