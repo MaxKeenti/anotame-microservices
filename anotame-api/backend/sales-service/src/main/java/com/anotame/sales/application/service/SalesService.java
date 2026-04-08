@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -33,6 +34,10 @@ import com.anotame.sales.application.dto.DashboardMetricsResponse;
 @ApplicationScoped
 @RequiredArgsConstructor
 public class SalesService {
+
+    private static final Set<String> VALID_STATUSES = Set.of(
+        "RECEIVED", "IN_PROGRESS", "READY", "DELIVERED", "CANCELLED"
+    );
 
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
@@ -335,6 +340,13 @@ public class SalesService {
 
     @Transactional
     public void updateOrderStatus(UUID id, String status) {
+        if (status == null || !VALID_STATUSES.contains(status)) {
+            throw new jakarta.ws.rs.WebApplicationException(
+                jakarta.ws.rs.Response.status(400)
+                    .entity(Map.of("error", "Estado inválido: " + status))
+                    .build()
+            );
+        }
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         order.setStatus(status);
