@@ -44,7 +44,7 @@ Declared values (must be multiples of 4). All values are Tailwind CSS v4 utility
 
 Exceptions:
 - Touch targets: minimum `h-12` (48px height) on all interactive elements per AI_RULES.md touch-first mandate. Add `touch-manipulation` class.
-- Floating action bar: `bottom-6` (24px from viewport bottom), `px-4 py-3` internal padding.
+- Floating action bar: `bottom-6` (24px from viewport bottom), `px-4 py-2` internal padding (16px horizontal, 8px vertical — compact bar).
 - Pickup code input: `text-2xl tracking-widest` for 6-digit display readability; no spacing exception but tracking is required.
 
 ---
@@ -82,8 +82,8 @@ All values reference the existing CSS custom properties from `anotame-web/src/ro
 
 **Accent reserved for:**
 1. Primary save/submit button on edit order page ("Guardar cambios")
-2. "Entregar" action button on READY order rows in operations page
-3. "Seleccionar" bulk mode toggle button (active state indicator border)
+2. "Entregar pedido" action button on READY order rows in operations page
+3. "Seleccionar pedidos" bulk mode toggle button (active state indicator border)
 4. Focus ring on pickup code input field
 
 **Not accent:** Floating action bar background uses `--card` with `--border` ring. Status badges use their own semantic tokens (success/warning/info/destructive). Edit/view icon buttons use `--muted` variant, not accent.
@@ -97,6 +97,19 @@ All values reference the existing CSS custom properties from `anotame-web/src/ro
 | READY | `--warning-muted` / `--warning-text` |
 | DELIVERED | `--success-muted` / `--success-text` |
 | CANCELLED | `--destructive-muted` / `--destructive-text` |
+
+---
+
+## Primary Focal Points
+
+Each screen declares one primary focal point — the element that draws the user's eye first and anchors the interaction.
+
+| Screen / State | Primary Focal Point | Rationale |
+|----------------|---------------------|-----------|
+| Edit order page (`/orders/[id]/edit`) | "Guardar cambios" button (accent, bottom of form) | Only enabled after a field changes; accent color signals the ready-to-act state |
+| Edit order page — locked status (DELIVERED / CANCELLED) | Status lock `Alert` banner at top of page (`role="alert"`) | Non-dismissable; must be the first thing staff reads before scanning the read-only form |
+| Operations page — READY filter tab | "Entregar pedido" button on the first READY row | Accent color on action column contrasts against `--card` row; tab itself is the focal entry point |
+| Orders list — bulk mode active | Floating action bar (`FloatingActionBar.svelte`) | Fixed at viewport bottom-center; elevated via `shadow-lg`; contains all bulk actions |
 
 ---
 
@@ -138,12 +151,16 @@ All components below are either existing shadcn-svelte installs or project-custo
 | Icon | Usage |
 |------|-------|
 | `Check` | Confirm delivery action |
-| `Pencil` / `Edit` | Edit order button (already in use) |
-| `Trash2` | Delete action (already in use) |
+| `Pencil` / `Edit` | Edit order button (icon-only row action; requires `aria-label`) |
+| `Trash2` | Delete action (icon-only row action; requires `aria-label`) |
 | `CheckSquare` | Bulk select mode indicator |
 | `X` | Cancel bulk mode, close floating bar |
 | `ChevronDown` | Status change dropdown trigger |
 | `Package` | Empty state for READY orders filter |
+
+**Icon-only button `aria-label` declarations:**
+- Edit icon button: `aria-label="Editar pedido {ticketNumber}"` (interpolated per row)
+- Delete icon button: `aria-label="Eliminar pedido {ticketNumber}"` (interpolated per row)
 
 ---
 
@@ -168,7 +185,7 @@ All components below are either existing shadcn-svelte installs or project-custo
 
 ### Delivery Confirmation Dialog (`pickup-code-dialog.svelte`)
 
-- Triggered by "Entregar" button on each READY row in operations page.
+- Triggered by "Entregar pedido" button on each READY row in operations page.
 - Dialog title: "Confirmar entrega".
 - Body: "Ingrese el código de retiro del cliente para confirmar la entrega."
 - Single `<Input>` field: type="text", inputmode="numeric", maxlength="6", pattern="[0-9]{6}", `text-center text-2xl tracking-widest font-mono`.
@@ -178,11 +195,11 @@ All components below are either existing shadcn-svelte installs or project-custo
 
 ### Bulk Selection (Orders Page)
 
-- Default state: no checkboxes visible. "Seleccionar" button (secondary variant) at top-right of table header row.
-- Active state: checkbox column appears as first column. "Seleccionar" button replaced by "Cancelar selección" (ghost variant). Selecting all rows via header checkbox is supported.
-- Floating action bar: appears from bottom when 1+ rows are checked. `fixed bottom-6 left-1/2 -translate-x-1/2`. Bar shows: "[N] seleccionadas" + "Cambiar estado" button + "Eliminar" button (destructive color) + "×" to deselect all.
+- Default state: no checkboxes visible. "Seleccionar pedidos" button (secondary variant) at top-right of table header row.
+- Active state: checkbox column appears as first column. "Seleccionar pedidos" button replaced by "Cancelar selección" (ghost variant). Selecting all rows via header checkbox is supported.
+- Floating action bar: appears from bottom when 1+ rows are checked. `fixed bottom-6 left-1/2 -translate-x-1/2`. Bar shows: "[N] seleccionadas" + "Cambiar estado" button + "Eliminar pedidos" button (destructive color) + "×" to deselect all.
 - "Cambiar estado": opens an `AdaptiveSelect` inline in the bar (OPERATOR: RECEIVED / IN_PROGRESS / READY only; ADMIN: all statuses). Confirm applies change to each selected order sequentially. Progress toast shown per batch.
-- "Eliminar": only enabled if all selected orders are DRAFT status. Disabled with tooltip "Solo se pueden eliminar pedidos en borrador" otherwise. Confirmation via `adaptiveConfirm()` listing affected order ticket numbers.
+- "Eliminar pedidos": only enabled if all selected orders are DRAFT status. Disabled with tooltip "Solo se pueden eliminar pedidos en borrador" otherwise. Confirmation via `adaptiveConfirm()` listing affected order ticket numbers.
 - After bulk action completes: exit bulk mode, refresh table, show summary toast: "Se actualizaron [N] pedidos."
 
 ### READY Orders Tab (Operations Page)
@@ -190,7 +207,7 @@ All components below are either existing shadcn-svelte installs or project-custo
 - Existing tabs remain unchanged.
 - New tab added: label "Listas para entrega" (appended after existing tabs, not replacing them).
 - Tab content: DataTableWrapper filtered to `status === 'READY'` orders. Columns: Ticket, Cliente, Prendas, Entrega prometida, Acciones.
-- Action column: single "Entregar" button (primary variant, `h-12 touch-manipulation`) per row.
+- Action column: single "Entregar pedido" button (primary variant, `h-12 touch-manipulation`) per row.
 - Empty state for this tab: heading "Sin pedidos listos", body "No hay pedidos marcados como LISTO en este momento."
 
 ---
@@ -198,6 +215,8 @@ All components below are either existing shadcn-svelte installs or project-custo
 ## Copywriting Contract
 
 All copy is in Spanish (es). Paraglide message keys must be added to `messages/es.json` and `messages/en.json`.
+
+**Contextual label pattern:** Three CTAs in this phase use a single verb without an inline noun: the row action button "Entregar pedido", the bulk mode toggle "Seleccionar pedidos", and the floating bar delete button "Eliminar pedidos". Each carries a full noun to eliminate ambiguity. The surrounding table/row context reinforces the target object, but the label itself is self-contained.
 
 | Element | Copy (es) | Paraglide key |
 |---------|-----------|---------------|
@@ -212,11 +231,11 @@ All copy is in Spanish (es). Paraglide message keys must be added to `messages/e
 | Delivery code error | "Código incorrecto. Verifique con el cliente." | `m.delivery_code_error()` |
 | Delivery success toast | "Pedido entregado correctamente." | `m.order_delivered()` |
 | Pickup code section label | "Código de retiro" | `m.pickup_code_label()` |
-| Bulk activate button | "Seleccionar" | `m.bulk_select_activate()` |
+| Bulk activate button | "Seleccionar pedidos" | `m.bulk_select_activate()` |
 | Bulk cancel button | "Cancelar selección" | `m.bulk_select_cancel()` |
 | Bulk count label | "{N} seleccionadas" | `m.bulk_count()` |
 | Bulk change status button | "Cambiar estado" | `m.bulk_change_status()` |
-| Bulk delete button | "Eliminar" | `m.bulk_delete()` |
+| Bulk delete button | "Eliminar pedidos" | `m.bulk_delete()` |
 | Bulk delete disabled tooltip | "Solo se pueden eliminar pedidos en borrador" | `m.bulk_delete_disabled()` |
 | Bulk delete confirm title | "Eliminar pedidos" | `m.bulk_delete_confirm_title()` |
 | Bulk delete confirm body | "Se eliminarán {N} pedidos en borrador: {ticketList}. Esta acción no se puede deshacer." | `m.bulk_delete_confirm_body()` |
@@ -224,13 +243,14 @@ All copy is in Spanish (es). Paraglide message keys must be added to `messages/e
 | READY tab label | "Listas para entrega" | `m.operations_ready_tab()` |
 | READY empty state heading | "Sin pedidos listos" | `m.ready_empty_heading()` |
 | READY empty state body | "No hay pedidos marcados como LISTO en este momento." | `m.ready_empty_body()` |
+| Row action — deliver | "Entregar pedido" | `m.order_deliver_action()` |
 | Generic error toast | "Ocurrió un error. Por favor, intente nuevamente." | `m.generic_error()` |
 
 ### Destructive Actions
 
 | Action | Trigger | Confirmation Method | Confirmation Copy |
 |--------|---------|---------------------|-------------------|
-| Bulk delete DRAFT orders | "Eliminar" in floating bar | `adaptiveConfirm()` | Title: "Eliminar pedidos" / Body: "Se eliminarán {N} pedidos en borrador: {list}. Esta acción no se puede deshacer." |
+| Bulk delete DRAFT orders | "Eliminar pedidos" in floating bar | `adaptiveConfirm()` | Title: "Eliminar pedidos" / Body: "Se eliminarán {N} pedidos en borrador: {list}. Esta acción no se puede deshacer." |
 
 Note: Delivery confirmation is NOT destructive — it is a status transition requiring code validation. It uses a `Dialog` (not `AlertDialog`) with an input field, not `adaptiveConfirm()`.
 
@@ -262,6 +282,7 @@ No third-party registries are declared for Phase 15. All components are either e
 - Status lock banner: `role="alert"` so screen readers announce it immediately on page load.
 - All `<label>` elements chained to inputs via `for=` / `id=` pair (AI_RULES.md A11y strictness).
 - Touch targets: minimum `h-12 touch-manipulation` on all interactive elements (AI_RULES.md touch-first mandate).
+- Icon-only row buttons: Edit icon button carries `aria-label="Editar pedido {ticketNumber}"`. Delete icon button carries `aria-label="Eliminar pedido {ticketNumber}"`. Both values are interpolated per row at render time. No icon-only button may be rendered without an `aria-label`.
 
 ---
 
