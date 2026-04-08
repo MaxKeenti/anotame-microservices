@@ -2,6 +2,7 @@ package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
+import com.anotame.sales.application.dto.DeliverOrderRequest;
 import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.application.service.SalesService;
 import jakarta.inject.Inject;
@@ -80,7 +81,20 @@ public class OrdersResource {
     @PUT
     @Path("/{id}")
     public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid CreateOrderRequest request) {
-        return salesService.updateOrder(id, request);
+        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+        String role = jwt.getGroups().stream().findFirst().orElse("EMPLOYEE");
+        return salesService.updateOrder(id, request, userId, role);
+    }
+
+    @PATCH
+    @Path("/{id}/deliver")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public jakarta.ws.rs.core.Response deliverOrder(@PathParam("id") UUID id,
+                                                     @jakarta.validation.Valid DeliverOrderRequest body) {
+        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+        salesService.deliverOrder(id, body.getPickupCode(), userId);
+        return jakarta.ws.rs.core.Response.ok().build();
     }
 
     @DELETE
