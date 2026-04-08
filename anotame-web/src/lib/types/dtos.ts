@@ -72,6 +72,8 @@ export interface OrderResponse {
   notes: string;
   items: OrderItemResponse[];
   createdAt: string;
+  pickupCode?: string;
+  deliveredAt?: string;  // ISO string (OffsetDateTime serialized)
 }
 
 export interface GarmentTypeRequest {

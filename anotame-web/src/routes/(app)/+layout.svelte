@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Snippet, untrack } from 'svelte';
+  import { type Snippet, untrack } from 'svelte';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
