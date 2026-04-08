@@ -8,8 +8,8 @@ import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
+import com.anotame.sales.application.port.output.AuditLogEntry;
 import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
-import com.anotame.sales.infrastructure.persistence.entity.OrderAuditLogEntity;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -326,16 +326,9 @@ public class SalesService {
         return mapToResponse(saved);
     }
 
-    private OrderAuditLogEntity buildAuditEntry(UUID orderId, UUID userId, String fieldName,
+    private AuditLogEntry buildAuditEntry(UUID orderId, UUID userId, String fieldName,
             String oldValue, String newValue, OffsetDateTime changedAt) {
-        OrderAuditLogEntity entry = new OrderAuditLogEntity();
-        entry.setOrderId(orderId);
-        entry.setUserId(userId);
-        entry.setFieldName(fieldName);
-        entry.setOldValue(oldValue);
-        entry.setNewValue(newValue);
-        entry.setChangedAt(changedAt);
-        return entry;
+        return new AuditLogEntry(orderId, userId, fieldName, oldValue, newValue, changedAt);
     }
 
     @Transactional
