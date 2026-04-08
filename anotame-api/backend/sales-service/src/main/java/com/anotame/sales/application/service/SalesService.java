@@ -359,6 +359,13 @@ public class SalesService {
                             .build());
         }
 
+        if (order.getPickupCode() == null || order.getPickupCode().isEmpty()) {
+            throw new WebApplicationException(
+                    Response.status(400)
+                            .entity(Map.of("error", "Código de recogida no está disponible para este pedido"))
+                            .build());
+        }
+
         boolean valid = MessageDigest.isEqual(
                 order.getPickupCode().getBytes(java.nio.charset.StandardCharsets.UTF_8),
                 pickupCode.getBytes(java.nio.charset.StandardCharsets.UTF_8));
