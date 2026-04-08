@@ -381,10 +381,17 @@ public class SalesService {
             );
         }
 
+        OffsetDateTime deliveredAt = OffsetDateTime.now();
         order.setStatus("DELIVERED");
-        order.setDeliveredAt(OffsetDateTime.now());
+        order.setDeliveredAt(deliveredAt);
         order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         orderRepository.save(order);
+
+        auditLogRepositoryPort.save(buildAuditEntry(
+            orderId, userId, "status",
+            "READY", "DELIVERED",
+            deliveredAt
+        ));
     }
 
     private Customer resolveCustomer(CustomerDto dto) {
