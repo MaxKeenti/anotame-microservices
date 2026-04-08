@@ -1,7 +1,8 @@
 ---
 phase: 15
 slug: order-lifecycle-improvements
-status: draft
+status: approved
+reviewed_at: 2026-04-07
 shadcn_initialized: true
 preset: shadcn-svelte vega / taupe / lucide
 created: 2026-04-07
