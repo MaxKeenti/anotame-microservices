@@ -48,7 +48,7 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 
 ### v1.3 Advanced Operations (Phases 15–17)
 
-- [ ] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions)
+- [x] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions) (completed 2026-04-08)
 - [ ] Phase 16: Multi-branch Dashboard Features
 - [ ] Phase 17: External Print Server Integration
 
@@ -79,4 +79,4 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 | 12. Forms & Dialogs Standardization Audit | v1.2 | 3/3 | Complete    | 2026-04-05 |
 | 13. Color Audit & WCAG Compliance | v1.2 | 1/1 | Complete    | 2026-04-05 |
 | 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
-| 15. Order Lifecycle Improvements | v1.3 | 0/3 | Not started | — |
+| 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
