@@ -22,4 +22,6 @@ public class OrderResponse {
     private List<OrderItemResponse> items;
     private OffsetDateTime createdAt;
     private Integer totalDurationMin;
+    private String pickupCode;
+    private OffsetDateTime deliveredAt;
 }
