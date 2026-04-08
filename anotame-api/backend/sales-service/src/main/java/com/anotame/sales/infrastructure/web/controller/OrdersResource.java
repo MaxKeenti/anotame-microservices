@@ -81,7 +81,18 @@ public class OrdersResource {
     @PUT
     @Path("/{id}")
     public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid CreateOrderRequest request) {
-        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+        String userIdClaim = (String) jwt.getClaim("user_id");
+        if (userIdClaim == null || userIdClaim.isEmpty()) {
+            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
+        }
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdClaim);
+        } catch (IllegalArgumentException e) {
+            org.slf4j.LoggerFactory.getLogger(OrdersResource.class).error("Invalid user_id format in JWT token: {}",
+                    e.getMessage(), e);
+            throw new jakarta.ws.rs.BadRequestException("Invalid request format");
+        }
         String role = jwt.getGroups().stream().findFirst().orElse("EMPLOYEE");
         return salesService.updateOrder(id, request, userId, role);
     }
@@ -92,7 +103,18 @@ public class OrdersResource {
     @Produces(MediaType.APPLICATION_JSON)
     public jakarta.ws.rs.core.Response deliverOrder(@PathParam("id") UUID id,
                                                      @jakarta.validation.Valid DeliverOrderRequest body) {
-        UUID userId = UUID.fromString((String) jwt.getClaim("user_id"));
+        String userIdClaim = (String) jwt.getClaim("user_id");
+        if (userIdClaim == null || userIdClaim.isEmpty()) {
+            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
+        }
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdClaim);
+        } catch (IllegalArgumentException e) {
+            org.slf4j.LoggerFactory.getLogger(OrdersResource.class).error("Invalid user_id format in JWT token: {}",
+                    e.getMessage(), e);
+            throw new jakarta.ws.rs.BadRequestException("Invalid request format");
+        }
         salesService.deliverOrder(id, body.getPickupCode(), userId);
         return jakarta.ws.rs.core.Response.ok().build();
     }
