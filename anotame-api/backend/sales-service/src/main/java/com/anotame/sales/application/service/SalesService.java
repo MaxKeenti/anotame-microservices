@@ -13,6 +13,8 @@ import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -36,8 +38,7 @@ import com.anotame.sales.application.dto.DashboardMetricsResponse;
 public class SalesService {
 
     private static final Set<String> VALID_STATUSES = Set.of(
-        "RECEIVED", "IN_PROGRESS", "READY", "DELIVERED", "CANCELLED"
-    );
+            "RECEIVED", "IN_PROGRESS", "READY", "DELIVERED", "CANCELLED");
 
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
@@ -199,19 +200,18 @@ public class SalesService {
     }
 
     @Transactional
-    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, CreateOrderRequest request, UUID userId, String role) {
+    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, CreateOrderRequest request, UUID userId,
+            String role) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new jakarta.ws.rs.WebApplicationException(
-                    jakarta.ws.rs.Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()
-                ));
+                .orElseThrow(() -> new WebApplicationException(
+                        Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()));
 
         // Status lock: DELIVERED and CANCELLED orders cannot be edited
         if ("DELIVERED".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            throw new jakarta.ws.rs.WebApplicationException(
-                jakarta.ws.rs.Response.status(409)
-                    .entity(Map.of("error", "No se puede editar un pedido entregado o cancelado"))
-                    .build()
-            );
+            throw new WebApplicationException(
+                    Response.status(409)
+                            .entity(Map.of("error", "No se puede editar un pedido entregado o cancelado"))
+                            .build());
         }
 
         // Audit log: record per-field changes before applying updates
@@ -334,11 +334,10 @@ public class SalesService {
     @Transactional
     public void updateOrderStatus(UUID id, String status) {
         if (status == null || !VALID_STATUSES.contains(status)) {
-            throw new jakarta.ws.rs.WebApplicationException(
-                jakarta.ws.rs.Response.status(400)
-                    .entity(Map.of("error", "Estado inválido: " + status))
-                    .build()
-            );
+            throw new WebApplicationException(
+                    Response.status(400)
+                            .entity(Map.of("error", "Estado inválido: " + status))
+                            .build());
         }
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -350,28 +349,24 @@ public class SalesService {
     @Transactional
     public void deliverOrder(UUID orderId, String pickupCode, UUID userId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new jakarta.ws.rs.WebApplicationException(
-                    jakarta.ws.rs.Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()
-                ));
+                .orElseThrow(() -> new WebApplicationException(
+                        Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()));
 
         if (!"READY".equals(order.getStatus())) {
-            throw new jakarta.ws.rs.WebApplicationException(
-                jakarta.ws.rs.Response.status(409)
-                    .entity(Map.of("error", "Solo se pueden entregar pedidos en estado LISTO"))
-                    .build()
-            );
+            throw new WebApplicationException(
+                    Response.status(409)
+                            .entity(Map.of("error", "Solo se pueden entregar pedidos en estado LISTO"))
+                            .build());
         }
 
         boolean valid = MessageDigest.isEqual(
-            order.getPickupCode().getBytes(java.nio.charset.StandardCharsets.UTF_8),
-            pickupCode.getBytes(java.nio.charset.StandardCharsets.UTF_8)
-        );
+                order.getPickupCode().getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                pickupCode.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         if (!valid) {
-            throw new jakarta.ws.rs.WebApplicationException(
-                jakarta.ws.rs.Response.status(400)
-                    .entity(Map.of("error", "Código de recogida incorrecto"))
-                    .build()
-            );
+            throw new WebApplicationException(
+                    Response.status(400)
+                            .entity(Map.of("error", "Código de recogida incorrecto"))
+                            .build());
         }
 
         OffsetDateTime deliveredAt = OffsetDateTime.now();
@@ -381,10 +376,9 @@ public class SalesService {
         orderRepository.save(order);
 
         auditLogRepositoryPort.save(buildAuditEntry(
-            orderId, userId, "status",
-            "READY", "DELIVERED",
-            deliveredAt
-        ));
+                orderId, userId, "status",
+                "READY", "DELIVERED",
+                deliveredAt));
     }
 
     private Customer resolveCustomer(CustomerDto dto) {
