@@ -62,7 +62,7 @@
 				const orderItems = (draft?.items || []).map((item: any) => ({
 					garmentTypeId: item.garmentTypeId || item.garmentId || '',
 					garmentName: item.garmentName || '',
-					quantity: 1,
+					quantity: item.quantity ?? 1,
 					notes: item.notes || '',
 					services:
 						item.services?.map((s: any) => ({
