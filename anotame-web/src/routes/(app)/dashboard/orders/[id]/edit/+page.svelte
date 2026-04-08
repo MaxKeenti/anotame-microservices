@@ -11,6 +11,7 @@
     import ItemsStep from '$lib/components/orders/wizard/items-step.svelte';
     import PaymentStep from '$lib/components/orders/wizard/payment-step.svelte';
     import { Button } from '$lib/components/ui/button';
+    import { toast } from 'svelte-sonner';
 
     let id = $derived($page.params.id);
     let isLoading = $state(true);
@@ -56,8 +57,11 @@
         } catch (e) {
             if (e instanceof ApiError && e.status === 404) {
                 notFound = true;
+            } else if (e instanceof ApiError && e.status === 401) {
+                await goto('/login');
             } else {
-                notFound = true;
+                toast.error('Error al cargar el pedido', { description: (e as any)?.message });
+                await goto('/dashboard/orders');
             }
         } finally {
             isLoading = false;
