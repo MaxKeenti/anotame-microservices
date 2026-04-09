@@ -113,8 +113,9 @@ None.
 | 260405-s7x | Fix svelte-check diagnostics: implicit any types and type mismatch | 2026-04-06 | d64d2a0 | [260405-s7x-fix-svelte-check-diagnostics-implicit-an](./quick/260405-s7x-fix-svelte-check-diagnostics-implicit-an/) |
 | 260405-t8i | Fix TypeScript error: Property 'establishmentTheme' does not exist on type '{}' | 2026-04-06 | f1225af | [260405-t8i-fix-typescript-error-property-establishm](./quick/260405-t8i-fix-typescript-error-property-establishm/) |
 | 260405-uke | Fix Svelte 5 effect_update_depth_exceeded error in frontend | 2026-04-06 | a689811 | [.planning/quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/](./quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/) |
+| 260409-e3n | Fix dashboard role filtering - employees can see KPI and unauthorized content | 2026-04-09 | 5b82469 | - | [260409-e3n-fix-dashboard-role-filtering-employees-c](./quick/260409-e3n-fix-dashboard-role-filtering-employees-c/) |
 
-Last activity: 2026-04-06 - Completed quick task 260405-uke: Fix Svelte 5 effect_update_depth_exceeded error in frontend
+Last activity: 2026-04-09 - Completed quick task 260409-e3n: Fix dashboard role filtering - employees can see KPI and unauthorized content
 
 ## Session Continuity
 
