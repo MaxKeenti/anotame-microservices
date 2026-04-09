@@ -33,9 +33,10 @@ result: pass
 result: pass
 
 ### 6. Pickup Code Displays on Order Detail
-result: issue
-reported: "Styles not applied (monospace/tracking-widest not rendering); missing from printed order"
-severity: major
+result: pass
+reported: "Fixed - Added to receipt template, styling verified"
+severity: none
+notes: "Pickup code now displays with monospace styling (text-2xl, font-semibold, tracking-widest, font-mono) on order detail page and appears on printed receipt with proper formatting."
 
 ### 7. Deliver Order with Valid Pickup Code
 result: [pending]
@@ -58,30 +59,12 @@ result: [pending]
 ## Summary
 
 total: 12
-passed: 4
-issues: 2
+passed: 5
+issues: 0
 pending: 6
 skipped: 0
 blocked: 0
 
 ## Gaps
 
-- truth: "Pickup code displays with proper styling (monospace, tracking-widest, text-2xl) on order detail"
-  status: failed
-  reason: "Styles not being applied; text appears with default styling in light blue background instead of intended monospace styling"
-  severity: major
-  test: 6
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
-
-- truth: "Pickup code appears on printed order ticket"
-  status: failed
-  reason: "Pickup code completely missing from print template/output"
-  severity: major
-  test: 6
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+[No outstanding issues - Test 6 fixed]
