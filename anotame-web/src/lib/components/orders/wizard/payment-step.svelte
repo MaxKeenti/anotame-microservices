@@ -59,22 +59,6 @@
 			error = null;
 			isSubmitting = true;
 			try {
-				const orderItems = (draft?.items || []).map((item: any) => ({
-					garmentTypeId: item.garmentTypeId || item.garmentId || '',
-					garmentName: item.garmentName || '',
-					quantity: item.quantity ?? 1,
-					notes: item.notes || '',
-					services:
-						item.services?.map((s: any) => ({
-							serviceId: s.serviceId,
-							serviceName: s.serviceName,
-							unitPrice: s.unitPrice,
-							adjustmentAmount: s.adjustmentAmount,
-							adjustmentReason: s.adjustmentReason,
-							durationMin: s.durationMin
-						})) || []
-				}));
-
 				let deadlineStr = f.data.committedDeadline;
 				if (deadlineStr.length === 10) {
 					deadlineStr = `${deadlineStr}T18:00:00`;
@@ -91,13 +75,32 @@
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
 				const payload: any = {
-					customer: draft?.customer,
-					items: orderItems,
 					committedDeadline: deadlineStr,
 					notes: f.data.notes || '',
 					amountPaid: f.data.amountPaid,
 					paymentMethod: f.data.paymentMethod
 				};
+
+				// For creation (not edit), include customer and items
+				if (!draft?.isEditing) {
+					const orderItems = (draft?.items || []).map((item: any) => ({
+						garmentTypeId: item.garmentTypeId || item.garmentId || '',
+						garmentName: item.garmentName || '',
+						quantity: item.quantity ?? 1,
+						notes: item.notes || '',
+						services:
+							item.services?.map((s: any) => ({
+								serviceId: s.serviceId,
+								serviceName: s.serviceName,
+								unitPrice: s.unitPrice,
+								adjustmentAmount: s.adjustmentAmount,
+								adjustmentReason: s.adjustmentReason,
+								durationMin: s.durationMin
+							})) || []
+					}));
+					payload.customer = draft?.customer;
+					payload.items = orderItems;
+				}
 
 				if (draft?.isEditing && draft?.id) {
 					await apiService.updateOrder(draft.id, payload);
