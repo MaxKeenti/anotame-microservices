@@ -1,6 +1,7 @@
 ---
 id: SEED-010
-status: dormant
+status: promoted
+promoted_to: Phase 16 (v1.3)
 planted: 2026-04-09
 planted_during: v1.3 Phase 15 (Order Lifecycle Improvements)
 trigger_when: When order creation is refactored
