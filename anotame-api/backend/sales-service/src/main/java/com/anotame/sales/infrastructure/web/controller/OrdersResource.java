@@ -3,6 +3,7 @@ package com.anotame.sales.infrastructure.web.controller;
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.DeliverOrderRequest;
+import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.application.service.SalesService;
 import jakarta.inject.Inject;
@@ -80,7 +81,7 @@ public class OrdersResource {
 
     @PUT
     @Path("/{id}")
-    public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid CreateOrderRequest request) {
+    public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid UpdateOrderRequest request) {
         String userIdClaim = (String) jwt.getClaim("user_id");
         if (userIdClaim == null || userIdClaim.isEmpty()) {
             throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");

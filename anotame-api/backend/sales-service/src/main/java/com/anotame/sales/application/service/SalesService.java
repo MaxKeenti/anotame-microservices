@@ -3,6 +3,7 @@ package com.anotame.sales.application.service;
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.CustomerDto;
 import com.anotame.sales.application.dto.OrderItemDto;
+import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
@@ -200,7 +201,7 @@ public class SalesService {
     }
 
     @Transactional
-    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, CreateOrderRequest request, UUID userId,
+    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, UpdateOrderRequest request, UUID userId,
             String role) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new WebApplicationException(
