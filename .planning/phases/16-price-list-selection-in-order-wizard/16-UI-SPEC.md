@@ -57,9 +57,10 @@ Source: layout.css and existing wizard component patterns (customer-step.svelte,
 | Step heading | 20px (text-xl) | 600 (semibold) | 1.2 | `text-xl font-semibold` | "Paso 2: Lista de Precios" heading inside PriceListStep — matches CustomerStep h2 pattern |
 | Body / description | 16px (text-base) | 400 (normal) | 1.5 | `text-base` | Subtitle under step heading, read-only label text in edit mode |
 | Label / supporting | 14px (text-sm) | 400 (normal) | 1.5 | `text-sm text-muted-foreground` | "Sin lista de precios" placeholder, selector hint, active badge text |
-| Page heading | 24px (text-2xl) | 700 (bold) | 1.2 | `text-2xl font-bold font-heading` | "Nueva Orden" / "Editar Orden" — wizard shell, not this step; listed for completeness |
 
-Font family: body uses `font-sans` (Inter Variable); headings within the step use default sans — the `font-heading` (Merriweather) is reserved for the page-level h1 in the shell only.
+Font family: body uses `font-sans` (Inter Variable); headings within the step use default sans — the `font-heading` (Merriweather) is reserved for the page-level h1 in the wizard shell and is outside this phase's contract.
+
+Declared weights: 400 (normal) + 600 (semibold) only.
 
 ---
 
@@ -123,7 +124,7 @@ All components are from the existing project inventory. No new installations req
 │  ┌────────────────────────────────────────────────────┐  │
 │  │  bg-primary/5 border-primary/20 rounded-xl p-6    │  │
 │  │  Tag icon (w-10 h-10, primary)                     │  │
-│  │  Price list name — text-2xl font-bold              │  │
+│  │  Price list name — text-2xl font-semibold          │  │
 │  │  "Lista activa para este pedido"                   │  │
 │  └────────────────────────────────────────────────────┘  │
 │                                                          │
