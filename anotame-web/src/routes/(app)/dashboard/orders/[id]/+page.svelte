@@ -120,7 +120,8 @@
         rfc: taxInfoParsed?.rfc,
         taxRegime: taxInfoParsed?.regime,
         contactPhone: taxInfoParsed?.contactPhone,
-      }
+      },
+      pickupCode: order.pickupCode
     });
 
     const newWindow = window.open('', '_blank', 'width=400,height=600');
