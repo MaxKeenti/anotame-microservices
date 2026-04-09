@@ -159,10 +159,11 @@
 
 	onMount(() => {
 		// Initialize form from existing draft when component mounts (for edit mode where draft already has values)
-		if (draft?.paymentMethod || draft?.amountPaid || draft?.committedDeadline || draft?.notes) {
+		if (draft?.paymentMethod || draft?.amountPaid !== undefined || draft?.committedDeadline || draft?.notes) {
 			$form.paymentMethod = draft?.paymentMethod || 'CASH';
-			$form.amountPaid = draft?.amountPaid || 0;
-			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : '';
+			$form.amountPaid = draft?.amountPaid ?? 0;
+			// For edit mode, always set committedDeadline from draft (required field)
+			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : new Date().toISOString().slice(0, 16);
 			$form.notes = draft?.notes || '';
 		}
 	});
