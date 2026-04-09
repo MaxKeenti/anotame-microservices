@@ -1,7 +1,8 @@
 ---
 phase: 16
 slug: price-list-selection-in-order-wizard
-status: draft
+status: approved
+reviewed_at: 2026-04-09T00:00:00Z
 shadcn_initialized: true
 preset: "vega / taupe / lucide / style: vega"
 created: 2026-04-09
