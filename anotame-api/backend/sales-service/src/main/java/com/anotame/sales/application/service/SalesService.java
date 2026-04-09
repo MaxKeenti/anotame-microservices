@@ -256,10 +256,11 @@ public class SalesService {
             }
 
             // Replace items (full content update for ADMIN)
-            order.getItems().clear();
-            BigDecimal total = BigDecimal.ZERO;
+            if (request.getItems() != null) {
+                order.getItems().clear();
+                BigDecimal total = BigDecimal.ZERO;
 
-            for (OrderItemDto itemDto : request.getItems()) {
+                for (OrderItemDto itemDto : request.getItems()) {
                 OrderItem item = new OrderItem();
                 item.setGarmentTypeId(itemDto.getGarmentTypeId());
                 item.setGarmentName(itemDto.getGarmentName());
@@ -304,6 +305,7 @@ public class SalesService {
                             .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
                     .sum();
             order.setTotalDurationMin(totalDuration);
+            }
         } else {
             // EMPLOYEE (OPERATOR): only notes, committedDeadline, amountPaid, paymentMethod
             // Garment/service/customer fields are silently ignored
