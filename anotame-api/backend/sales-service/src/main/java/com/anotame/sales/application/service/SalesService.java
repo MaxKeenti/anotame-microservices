@@ -61,6 +61,8 @@ public class SalesService {
         order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         order.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());
+        order.setPriceListId(request.getPriceListId());
+        order.setPriceListName(request.getPriceListName());
 
         // 3. Add Items & Calculate Total
         BigDecimal total = BigDecimal.ZERO;
@@ -166,6 +168,8 @@ public class SalesService {
                 .items(items)
                 .createdAt(order.getCreatedAt())
                 .totalDurationMin(order.getTotalDurationMin())
+                .priceListId(order.getPriceListId())
+                .priceListName(order.getPriceListName())
                 .build();
     }
 

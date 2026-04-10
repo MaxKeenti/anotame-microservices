@@ -54,6 +54,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setCreatedAt(order.getCreatedAt());
         entity.setUpdatedAt(order.getUpdatedAt());
         entity.setTotalDurationMin(order.getTotalDurationMin());
+        entity.setPriceListId(order.getPriceListId());
+        entity.setPriceListName(order.getPriceListName());
 
         // Map items
         // Simplified: Clear and re-add for now
@@ -182,6 +184,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         o.setDeletedAt(entity.getDeletedAt());
         o.setDeleted(entity.isDeleted());
         o.setTotalDurationMin(entity.getTotalDurationMin());
+        o.setPriceListId(entity.getPriceListId());
+        o.setPriceListName(entity.getPriceListName());
 
         // Map Customer
         if (entity.getCustomer() != null) {
