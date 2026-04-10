@@ -8,6 +8,7 @@
     import { ApiError } from '$lib/services/ApiError';
     import type { OrderResponse } from '$lib/types/dtos';
     import CustomerStep from '$lib/components/orders/wizard/customer-step.svelte';
+    import PriceListStep from '$lib/components/orders/wizard/price-list-step.svelte';
     import ItemsStep from '$lib/components/orders/wizard/items-step.svelte';
     import PaymentStep from '$lib/components/orders/wizard/payment-step.svelte';
     import { Button } from '$lib/components/ui/button';
@@ -34,6 +35,8 @@
                 currentStep: 0,
                 lastModified: Date.now(),
                 customer: res.customer,
+                priceListId: res.priceListId || null,
+                priceListName: res.priceListName || null,
                 items: res.items.map((item) => ({
                     garmentTypeId: item.garmentName, // garmentTypeId not returned by API; use garmentName as fallback label
                     garmentId: undefined,
@@ -70,6 +73,7 @@
 
     const steps = [
         { title: "Cliente", component: CustomerStep },
+        { title: "Lista de Precios", component: PriceListStep },
         { title: "Prendas", component: ItemsStep },
         { title: "Pago", component: PaymentStep },
     ];
@@ -172,14 +176,22 @@
             <div class="flex-1 overflow-y-auto flex flex-col pt-4 pointer-events-none opacity-60 select-none">
                 {#if steps[currentStepIndex]}
                     {@const ActiveComponent = steps[currentStepIndex].component}
-                    <ActiveComponent onNext={handleNext} onBack={handleBack} />
+                    {#if currentStepIndex === 1}
+                        <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
+                    {:else}
+                        <ActiveComponent onNext={handleNext} onBack={handleBack} />
+                    {/if}
                 {/if}
             </div>
         {:else}
             <div class="flex-1 overflow-y-auto flex flex-col pt-4">
                 {#if steps[currentStepIndex]}
                     {@const ActiveComponent = steps[currentStepIndex].component}
-                    <ActiveComponent onNext={handleNext} onBack={handleBack} />
+                    {#if currentStepIndex === 1}
+                        <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
+                    {:else}
+                        <ActiveComponent onNext={handleNext} onBack={handleBack} />
+                    {/if}
                 {/if}
             </div>
         {/if}
