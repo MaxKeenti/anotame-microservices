@@ -59,22 +59,6 @@
 			error = null;
 			isSubmitting = true;
 			try {
-				const orderItems = (draft?.items || []).map((item: any) => ({
-					garmentTypeId: item.garmentTypeId || item.garmentId || '',
-					garmentName: item.garmentName || '',
-					quantity: 1,
-					notes: item.notes || '',
-					services:
-						item.services?.map((s: any) => ({
-							serviceId: s.serviceId,
-							serviceName: s.serviceName,
-							unitPrice: s.unitPrice,
-							adjustmentAmount: s.adjustmentAmount,
-							adjustmentReason: s.adjustmentReason,
-							durationMin: s.durationMin
-						})) || []
-				}));
-
 				let deadlineStr = f.data.committedDeadline;
 				if (deadlineStr.length === 10) {
 					deadlineStr = `${deadlineStr}T18:00:00`;
@@ -91,26 +75,40 @@
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
 				const payload: any = {
-					customer: draft?.customer,
-					items: orderItems,
 					committedDeadline: deadlineStr,
 					notes: f.data.notes || '',
 					amountPaid: f.data.amountPaid,
 					paymentMethod: f.data.paymentMethod
 				};
 
+				// For creation (not edit), include customer and items
+				if (!draft?.isEditing) {
+					const orderItems = (draft?.items || []).map((item: any) => ({
+						garmentTypeId: item.garmentTypeId || item.garmentId || '',
+						garmentName: item.garmentName || '',
+						quantity: item.quantity ?? 1,
+						notes: item.notes || '',
+						services:
+							item.services?.map((s: any) => ({
+								serviceId: s.serviceId,
+								serviceName: s.serviceName,
+								unitPrice: s.unitPrice,
+								adjustmentAmount: s.adjustmentAmount,
+								adjustmentReason: s.adjustmentReason,
+								durationMin: s.durationMin
+							})) || []
+					}));
+					payload.customer = draft?.customer;
+					payload.items = orderItems;
+				}
+
 				if (draft?.isEditing && draft?.id) {
 					await apiService.updateOrder(draft.id, payload);
-					toast.success('Orden actualizada exitosamente');
 					const targetId = draft?.id;
-					
-					// Navigate first, then cleanup to avoid UI "blink" to Step 1
-					if (targetId) {
-						await goto(`/dashboard/orders/${targetId}?action=print`);
-					} else {
-						await goto('/dashboard/orders');
-					}
-					orderWizardState.completeActiveDraft();
+					// Clear draft before navigation to avoid UI "blink" back to Step 1
+					orderWizardState.clearActiveDraft();
+					toast.success('Pedido guardado correctamente.');
+					await goto(`/dashboard/orders/${targetId}`);
 				} else {
 					const res = await apiService.request<any>(`${API_SALES}/orders`, {
 						method: 'POST',
@@ -142,8 +140,12 @@
 						description: errorMessages || 'Hay errores en los campos marcados'
 					});
 				} else if (e instanceof ApiError && e.status === 409) {
-					error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
-					toast.error('Error al procesar la orden', { description: e.message });
+					if (draft?.isEditing) {
+						toast.error('No es posible editar este pedido.');
+					} else {
+						error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
+						toast.error('Error al procesar la orden', { description: e.message });
+					}
 				} else {
 					error = `Error: ${e.message}`;
 					toast.error('Error al procesar la orden', { description: e.message });
@@ -160,10 +162,11 @@
 
 	onMount(() => {
 		// Initialize form from existing draft when component mounts (for edit mode where draft already has values)
-		if (draft?.paymentMethod || draft?.amountPaid || draft?.committedDeadline || draft?.notes) {
+		if (draft?.paymentMethod || draft?.amountPaid !== undefined || draft?.committedDeadline || draft?.notes) {
 			$form.paymentMethod = draft?.paymentMethod || 'CASH';
-			$form.amountPaid = draft?.amountPaid || 0;
-			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : '';
+			$form.amountPaid = draft?.amountPaid ?? 0;
+			// For edit mode, always set committedDeadline from draft (required field)
+			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : new Date().toISOString().slice(0, 16);
 			$form.notes = draft?.notes || '';
 		}
 	});

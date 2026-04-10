@@ -2,7 +2,6 @@ package com.anotame.identity.application.service;
 
 import com.anotame.identity.application.dto.AuthResponse;
 import com.anotame.identity.application.dto.LoginRequest;
-import com.anotame.identity.application.dto.RegisterRequest;
 import com.anotame.identity.domain.exception.InvalidCredentialsException;
 import com.anotame.identity.domain.exception.ResourceNotFoundException;
 import com.anotame.identity.domain.exception.UserAlreadyExistsException;
@@ -25,35 +24,6 @@ public class AuthService {
         private final RoleRepository roleRepository;
         private final UserRepository userRepository;
         private final JwtUtils jwtUtils;
-
-        @Transactional
-        public AuthResponse register(RegisterRequest request) {
-                if (userRepository.existsByUsername(request.getUsername())) {
-                        throw new UserAlreadyExistsException(request.getUsername());
-                }
-
-                var user = new User();
-                user.setFirstName(request.getFirstName());
-                user.setLastName(request.getLastName());
-                user.setUsername(request.getUsername());
-                user.setEmail(request.getEmail());
-                user.setPassword(io.quarkus.elytron.security.common.BcryptUtil.bcryptHash(request.getPassword()));
-
-                com.anotame.identity.domain.model.Role role = roleRepository.findByCode("EMPLOYEE")
-                                .orElseGet(() -> {
-                                        var newRole = new com.anotame.identity.domain.model.Role();
-                                        newRole.setCode("EMPLOYEE");
-                                        newRole.setName("Staff");
-                                        newRole.setDescription("Auto-created Staff Role");
-                                        roleRepository.persist(newRole);
-                                        return newRole;
-                                });
-                user.setRole(role);
-
-                userRepository.persist(user);
-
-                return login(new LoginRequest(request.getUsername(), request.getPassword()));
-        }
 
         public AuthResponse login(LoginRequest request) {
                 var user = userRepository.findByUsername(request.getUsername())

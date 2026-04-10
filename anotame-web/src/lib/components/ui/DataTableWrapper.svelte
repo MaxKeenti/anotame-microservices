@@ -10,6 +10,7 @@
     type SortingState,
     type PaginationState,
     type ColumnPinningState,
+    type RowSelectionState,
     type Row,
   } from '@tanstack/table-core';
   import * as Table from '$lib/components/ui/table';
@@ -26,6 +27,9 @@
     showFilter?: boolean;
     actionCell?: import('svelte').Snippet<[Row<TData>]>;
     cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
+    bulkActions?: boolean;
+    bulkMode?: boolean;
+    onSelectionChange?: (selectedRows: TData[]) => void;
   };
 
   let {
@@ -38,6 +42,9 @@
     showFilter = true,
     actionCell,
     cellRenders = {},
+    bulkActions = false,
+    bulkMode = $bindable(false),
+    onSelectionChange,
   }: Props = $props();
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
@@ -48,6 +55,7 @@
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
   // Initialize columnPinning to prevent undefined state errors
   let columnPinning = $state<ColumnPinningState>({ left: [], right: [] });
+  let rowSelection = $state<RowSelectionState>({});
 
   // Reset pagination on filter change
   $effect(() => {
@@ -57,16 +65,39 @@
     });
   });
 
+  // Reset rowSelection when bulkMode is toggled off
+  $effect(() => {
+    if (!bulkMode) {
+      rowSelection = {};
+    }
+  });
+
+  // Selection column definition — only used when bulkActions && bulkMode
+  const selectionColumn: ColumnDef<TData> = {
+    id: '__select__',
+    size: 48,
+    enableSorting: false,
+    header: '__select__' as any,
+    cell: '__select__' as any,
+  };
+
+  let effectiveColumns = $derived(
+    bulkActions && bulkMode
+      ? [selectionColumn as ColumnDef<TData>, ...columns]
+      : columns
+  );
+
   // Recreate full table on every state change via $derived
   let table = $derived(
     createTable<TData>({
       data,
-      columns,
+      columns: effectiveColumns,
       state: {
         sorting,
         globalFilter,
         pagination,
         columnPinning,
+        ...(bulkActions ? { rowSelection } : {}),
       },
       onStateChange: () => {},
       onSortingChange: (updater) => {
@@ -97,6 +128,12 @@
           columnPinning = updater;
         }
       },
+      ...(bulkActions ? {
+        enableRowSelection: true,
+        onRowSelectionChange: (updater: any) => {
+          rowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+        },
+      } : {}),
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
@@ -104,6 +141,13 @@
       renderFallbackValue: null,
     })
   );
+
+  // Fire onSelectionChange when rowSelection changes
+  $effect(() => {
+    if (!bulkActions || !onSelectionChange) return;
+    const selected = table.getSelectedRowModel().rows.map((r: any) => r.original as TData);
+    untrack(() => onSelectionChange(selected));
+  });
 </script>
 
 <div class="space-y-6">
@@ -131,10 +175,18 @@
           <Table.Row class="hover:bg-transparent">
             {#each headerGroup.headers as header (header.id)}
               <Table.Head
-                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
+                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? 'w-12' : ''} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
               >
                 {#if !header.isPlaceholder}
-                  {#if header.column.getCanSort()}
+                  {#if header.column.id === '__select__'}
+                    <input
+                      type="checkbox"
+                      class="h-4 w-4 cursor-pointer"
+                      aria-label="Seleccionar todos"
+                      checked={table.getIsAllRowsSelected()}
+                      onchange={table.getToggleAllRowsSelectedHandler()}
+                    />
+                  {:else if header.column.getCanSort()}
                     <button
                       class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
                       onclick={header.column.getToggleSortingHandler()}
@@ -164,13 +216,13 @@
       <Table.Body class="divide-y divide-border">
         {#if loading}
           <Table.Row>
-            <Table.Cell colspan={columns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
+            <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
               Cargando...
             </Table.Cell>
           </Table.Row>
         {:else if table.getRowModel().rows.length === 0}
           <Table.Row>
-            <Table.Cell colspan={columns.length} class="h-32 text-center text-muted-foreground font-medium text-base">
+            <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground font-medium text-base">
               {emptyMessage}
             </Table.Cell>
           </Table.Row>
@@ -179,7 +231,15 @@
             <Table.Row class="hover:bg-muted/10 transition-colors">
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell class="px-6 py-4">
-                  {#if cellRenders && cellRenders[cell.column.id]}
+                  {#if cell.column.id === '__select__'}
+                    <input
+                      type="checkbox"
+                      class="h-4 w-4 cursor-pointer"
+                      aria-label="Seleccionar fila"
+                      checked={cell.row.getIsSelected()}
+                      onchange={cell.row.getToggleSelectedHandler()}
+                    />
+                  {:else if cellRenders && cellRenders[cell.column.id]}
                     {@render cellRenders[cell.column.id](row)}
                   {:else if cell.column.id === 'actions' && actionCell}
                     {@render actionCell(row)}
