@@ -62,6 +62,12 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items = new ArrayList<>();
 
+    @Column(name = "pickup_code")
+    private String pickupCode;
+
+    @Column(name = "delivered_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime deliveredAt;
+
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 

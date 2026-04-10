@@ -22,6 +22,8 @@ public class Order {
     private String paymentMethod;
     private Integer totalDurationMin = 0;
     private List<OrderItem> items = new ArrayList<>();
+    private String pickupCode;
+    private OffsetDateTime deliveredAt;
     private java.util.UUID priceListId;
     private String priceListName;
     private OffsetDateTime createdAt;

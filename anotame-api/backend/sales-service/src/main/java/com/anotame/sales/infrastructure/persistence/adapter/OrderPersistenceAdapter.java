@@ -54,6 +54,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setCreatedAt(order.getCreatedAt());
         entity.setUpdatedAt(order.getUpdatedAt());
         entity.setTotalDurationMin(order.getTotalDurationMin());
+        entity.setPickupCode(order.getPickupCode());
+        entity.setDeliveredAt(order.getDeliveredAt());
         entity.setPriceListId(order.getPriceListId());
         entity.setPriceListName(order.getPriceListName());
 
@@ -184,6 +186,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         o.setDeletedAt(entity.getDeletedAt());
         o.setDeleted(entity.isDeleted());
         o.setTotalDurationMin(entity.getTotalDurationMin());
+        o.setPickupCode(entity.getPickupCode());
+        o.setDeliveredAt(entity.getDeliveredAt());
         o.setPriceListId(entity.getPriceListId());
         o.setPriceListName(entity.getPriceListName());
 
