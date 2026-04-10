@@ -4,31 +4,24 @@
   import { ApiError } from '$lib/services/ApiError';
   import { Button } from '$lib/components/ui/button';
   import * as Table from '$lib/components/ui/table';
-  import * as Tabs from '$lib/components/ui/tabs';
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
-  import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
   import { formatDate } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import { CheckCircle2, Eye, XCircle } from 'lucide-svelte';
 
   let workOrders = $state<any[]>([]);
-  let readyOrders = $state<any[]>([]);
   let loading = $state(true);
-  let deliverDialogOpen = $state(false);
-  let deliverTarget = $state<{ id: string; ticketNumber: string } | null>(null);
 
   async function fetchWorkOrders() {
     loading = true;
     try {
       const allOrders = await apiService.request<any[]>(`${API_SALES}/orders`);
-      workOrders = (allOrders || []).filter((o: any) => o.status === 'IN_PROGRESS');
-      readyOrders = (allOrders || []).filter((o: any) => o.status === 'READY');
+      workOrders = (allOrders || []).filter(o => o.status === 'IN_PROGRESS');
     } catch (e: any) {
       console.error(e);
       toast.error("Error al cargar las órdenes de trabajo");
       workOrders = [];
-      readyOrders = [];
     } finally {
       loading = false;
     }
@@ -80,25 +73,6 @@
       }
     }
   }
-
-  function openDeliverDialog(order: any) {
-    deliverTarget = { id: order.id, ticketNumber: order.ticketNumber };
-    deliverDialogOpen = true;
-  }
-
-  function handleDelivered() {
-    deliverDialogOpen = false;
-    deliverTarget = null;
-    fetchWorkOrders();
-  }
-
-  function getServicesSummary(items: any[]): string {
-    return items?.map((i: any) => i.services?.map((s: any) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-';
-  }
-
-  function getGarmentsSummary(items: any[]): string {
-    return items?.map((i: any) => i.garmentName).filter(Boolean).join(', ') || '-';
-  }
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
@@ -112,149 +86,77 @@
     </div>
   </div>
 
-  <Tabs.Root value="in-progress" class="space-y-4">
-    <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="in-progress" class="px-6 font-bold">En progreso</Tabs.Trigger>
-      <Tabs.Trigger value="ready" class="px-6 font-bold">Listas para entrega</Tabs.Trigger>
-    </Tabs.List>
-
-    <Tabs.Content value="in-progress">
-      <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-        <Table.Root class="w-full min-w-[800px]">
-          <Table.Header>
-            <Table.Row>
-              <Table.Head class="px-6 py-4">Ticket</Table.Head>
-              <Table.Head class="px-6 py-4">Cliente</Table.Head>
-              <Table.Head class="px-6 py-4">Estado</Table.Head>
-              <Table.Head class="px-6 py-4">Servicios</Table.Head>
-              <Table.Head class="px-6 py-4">Fecha Límite</Table.Head>
-              <Table.Head class="px-6 py-4 text-right">Acciones</Table.Head>
+  <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
+    <Table.Root class="w-full min-w-[800px]">
+      <Table.Header>
+        <Table.Row>
+          <Table.Head class="px-6 py-4">Ticket</Table.Head>
+          <Table.Head class="px-6 py-4">Cliente</Table.Head>
+          <Table.Head class="px-6 py-4">Estado</Table.Head>
+          <Table.Head class="px-6 py-4">Servicios</Table.Head>
+          <Table.Head class="px-6 py-4">Fecha Límite</Table.Head>
+          <Table.Head class="px-6 py-4 text-right">Acciones</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {#if loading}
+          <Table.Row>
+            <Table.Cell colspan={6} class="h-24 text-center">
+              Cargando...
+            </Table.Cell>
+          </Table.Row>
+        {:else if workOrders.length === 0}
+          <Table.Row>
+            <Table.Cell colspan={6} class="h-24 text-center text-muted-foreground">
+              No hay órdenes en progreso.
+            </Table.Cell>
+          </Table.Row>
+        {:else}
+          {#each workOrders as wo (wo.id)}
+            <Table.Row class="hover:bg-muted/30 transition-colors">
+              <Table.Cell class="px-6 py-4 font-medium font-mono text-sm">{wo.ticketNumber}</Table.Cell>
+              <Table.Cell class="px-6 py-4">{wo.customer?.firstName} {wo.customer?.lastName}</Table.Cell>
+              <Table.Cell class="px-6 py-4">
+                <StatusBadge status={wo.status} />
+              </Table.Cell>
+              <Table.Cell class="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
+                {wo.items?.map((i: any) => i.services?.map((s: any) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-'}
+              </Table.Cell>
+              <Table.Cell class="px-6 py-4 text-muted-foreground text-sm">
+                {formatDate(wo.committedDeadline)}
+              </Table.Cell>
+              <Table.Cell class="px-6 py-4 text-right space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="h-10 px-4 touch-manipulation font-medium"
+                  href={`/dashboard/orders/${wo.id}`}
+                >
+                  <Eye class="w-4 h-4 mr-2" />
+                  Ver
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="h-10 px-4 touch-manipulation font-medium text-destructive hover:text-destructive/90"
+                  onclick={() => handleCancelWorkOrder(wo)}
+                >
+                  <XCircle class="w-4 h-4 mr-2" />
+                  Cancelar
+                </Button>
+                <Button
+                  size="sm"
+                  class="h-10 px-4 touch-manipulation font-medium bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onclick={() => handleComplete(wo)}
+                >
+                  <CheckCircle2 class="w-4 h-4 mr-2" />
+                  Marcar Listo
+                </Button>
+              </Table.Cell>
             </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {#if loading}
-              <Table.Row>
-                <Table.Cell colspan={6} class="h-24 text-center">
-                  Cargando...
-                </Table.Cell>
-              </Table.Row>
-            {:else if workOrders.length === 0}
-              <Table.Row>
-                <Table.Cell colspan={6} class="h-24 text-center text-muted-foreground">
-                  No hay órdenes en progreso.
-                </Table.Cell>
-              </Table.Row>
-            {:else}
-              {#each workOrders as wo (wo.id)}
-                <Table.Row class="hover:bg-muted/30 transition-colors">
-                  <Table.Cell class="px-6 py-4 font-medium font-mono text-sm">{wo.ticketNumber}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">{wo.customer?.firstName} {wo.customer?.lastName}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">
-                    <StatusBadge status={wo.status} />
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
-                    {getServicesSummary(wo.items)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground text-sm">
-                    {formatDate(wo.committedDeadline)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-right space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      class="h-10 px-4 touch-manipulation font-medium"
-                      href={`/dashboard/orders/${wo.id}`}
-                    >
-                      <Eye class="w-4 h-4 mr-2" />
-                      Ver
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      class="h-10 px-4 touch-manipulation font-medium text-destructive hover:text-destructive/90"
-                      onclick={() => handleCancelWorkOrder(wo)}
-                    >
-                      <XCircle class="w-4 h-4 mr-2" />
-                      Cancelar
-                    </Button>
-                    <Button
-                      size="sm"
-                      class="h-10 px-4 touch-manipulation font-medium bg-emerald-600 hover:bg-emerald-700 text-white"
-                      onclick={() => handleComplete(wo)}
-                    >
-                      <CheckCircle2 class="w-4 h-4 mr-2" />
-                      Marcar Listo
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
-      </div>
-    </Tabs.Content>
-
-    <Tabs.Content value="ready">
-      <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-        <Table.Root class="w-full min-w-[700px]">
-          <Table.Header>
-            <Table.Row>
-              <Table.Head class="px-6 py-4">Ticket</Table.Head>
-              <Table.Head class="px-6 py-4">Cliente</Table.Head>
-              <Table.Head class="px-6 py-4">Prendas</Table.Head>
-              <Table.Head class="px-6 py-4">Entrega prometida</Table.Head>
-              <Table.Head class="px-6 py-4 text-right">Acciones</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {#if loading}
-              <Table.Row>
-                <Table.Cell colspan={5} class="h-24 text-center">Cargando...</Table.Cell>
-              </Table.Row>
-            {:else if readyOrders.length === 0}
-              <Table.Row>
-                <Table.Cell colspan={5} class="h-32 text-center">
-                  <div class="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p class="text-base font-semibold">Sin pedidos listos</p>
-                    <p class="text-sm">No hay pedidos marcados como LISTO en este momento.</p>
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            {:else}
-              {#each readyOrders as ro (ro.id)}
-                <Table.Row class="hover:bg-muted/30 transition-colors">
-                  <Table.Cell class="px-6 py-4 font-medium font-mono text-sm">{ro.ticketNumber}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">{ro.customer?.firstName} {ro.customer?.lastName}</Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
-                    {getGarmentsSummary(ro.items)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground text-sm">
-                    {formatDate(ro.committedDeadline)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-right">
-                    <Button
-                      class="h-12 px-4 touch-manipulation font-medium"
-                      onclick={() => openDeliverDialog(ro)}
-                    >
-                      Entregar pedido
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
-      </div>
-    </Tabs.Content>
-  </Tabs.Root>
+          {/each}
+        {/if}
+      </Table.Body>
+    </Table.Root>
+  </div>
 </div>
-
-{#if deliverTarget}
-  <PickupCodeDialog
-    bind:open={deliverDialogOpen}
-    orderId={deliverTarget.id}
-    ticketNumber={deliverTarget.ticketNumber}
-    onDelivered={handleDelivered}
-    onClose={() => { deliverDialogOpen = false; deliverTarget = null; }}
-  />
-{/if}

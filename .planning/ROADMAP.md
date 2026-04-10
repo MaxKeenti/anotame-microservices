@@ -48,9 +48,9 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 
 ### v1.3 Advanced Operations (Phases 15–17)
 
-- [x] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions) (completed 2026-04-08)
-- [ ] Phase 16: Price List Selection in Order Wizard
-- [ ] Phase 17: Configurable DataTable Row Count
+- [ ] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions)
+- [ ] Phase 16: Multi-branch Dashboard Features
+- [ ] Phase 17: External Print Server Integration
 
 ## Phase Details
 
@@ -58,18 +58,6 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 **Goal**: Enable staff to edit existing orders and perform bulk actions on order lists.
 **Depends on**: Phase 14
 **Requirements**: ORDER-01, ORDER-02
-
-### Phase 16: Price List Selection in Order Wizard
-**Goal**: Allow staff to select a price list at order creation time so client-specific pricing is locked in upfront, eliminating post-order adjustments and billing disputes.
-**Depends on**: Phase 15
-**Seed**: SEED-010
-**Requirements**: Add price list selector to the order wizard; pass `priceListId` through `CreateOrderRequest`; apply selected list to line-item pricing at creation time.
-
-### Phase 17: Configurable DataTable Row Count
-**Goal**: Let users set and persist a preferred row count for all DataTableWrapper instances, improving usability on the live client's 1024×768 displays.
-**Depends on**: Phase 15
-**Seed**: SEED-004
-**Requirements**: Global row-count preference stored in localStorage; DataTableWrapper reads from preference; UI control (settings page or per-table dropdown) to change the value.
 
 ---
 
@@ -91,6 +79,4 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 | 12. Forms & Dialogs Standardization Audit | v1.2 | 3/3 | Complete    | 2026-04-05 |
 | 13. Color Audit & WCAG Compliance | v1.2 | 1/1 | Complete    | 2026-04-05 |
 | 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
-| 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
-| 16. Price List Selection in Order Wizard | v1.3 | 0/0 | Not started | - |
-| 17. Configurable DataTable Row Count | v1.3 | 0/0 | Not started | - |
+| 15. Order Lifecycle Improvements | v1.3 | 0/3 | Not started | — |

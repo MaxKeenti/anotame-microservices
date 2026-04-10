@@ -74,11 +74,11 @@ public class OrderEntity {
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime deletedAt;
 
-    @Column(name = "pickup_code", length = 6)
-    private String pickupCode;
+    @Column(name = "price_list_id")
+    private java.util.UUID priceListId;
 
-    @Column(name = "delivered_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private OffsetDateTime deliveredAt;
+    @Column(name = "price_list_name", length = 255)
+    private String priceListName;
 
     @Column(name = "is_deleted")
     private boolean deleted = false;

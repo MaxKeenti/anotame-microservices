@@ -20,6 +20,9 @@
             Ir al Tablero
           </Button>
         {:else}
+          <Button href="/register" class="w-full sm:w-auto h-14 px-8 text-lg rounded-xl touch-manipulation">
+            Crear Cuenta
+          </Button>
           <Button href="/login" variant="secondary" class="w-full sm:w-auto h-14 px-8 text-lg rounded-xl touch-manipulation border mt-3 sm:mt-0">
             Iniciar Sesión
           </Button>

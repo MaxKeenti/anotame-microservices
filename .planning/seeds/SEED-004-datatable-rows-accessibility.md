@@ -1,7 +1,6 @@
 ---
 id: SEED-004
-status: promoted
-promoted_to: Phase 17 (v1.3)
+status: dormant
 planted: 2026-04-04
 planted_during: v1.2 / Phase 11
 trigger_when: v1.3 UX Refinements

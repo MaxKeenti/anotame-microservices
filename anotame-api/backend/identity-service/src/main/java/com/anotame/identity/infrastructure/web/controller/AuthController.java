@@ -2,6 +2,7 @@ package com.anotame.identity.infrastructure.web.controller;
 
 import com.anotame.identity.application.dto.AuthResponse;
 import com.anotame.identity.application.dto.LoginRequest;
+import com.anotame.identity.application.dto.RegisterRequest;
 import com.anotame.identity.application.service.AuthService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -22,6 +23,13 @@ public class AuthController {
 
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "anotame.auth.cookie.same-site", defaultValue = "None")
     String cookieSameSite;
+
+    @POST
+    @Path("/register")
+    public Response register(RegisterRequest request) {
+        AuthResponse authResponse = service.register(request);
+        return createCookieResponse(authResponse);
+    }
 
     @POST
     @Path("/login")

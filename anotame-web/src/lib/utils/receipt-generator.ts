@@ -3,7 +3,6 @@ export const generateReceiptHtml = (data: {
   customerName: string;
   phone: string;
   deadline: string;
-  pickupCode?: string;
   items: Array<{
     garment: string;
     services: Array<{
@@ -116,14 +115,6 @@ export const generateReceiptHtml = (data: {
       <span>$${data.balance.toFixed(2)}</span>
     </div>
   </div>
-
-   ${data.pickupCode ? `
-   <div class="section" style="text-align: center;">
-     <div style="font-size: 10px; font-weight: normal; margin-bottom: 5px;">CÓDIGO DE RETIRO</div>
-     <div style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; letter-spacing: 2px; text-align: center;">${data.pickupCode}</div>
-   </div>
-   ` : ""}
-
 
   <div class="footer">
     <p>¡Gracias por su preferencia!</p>

@@ -56,7 +56,7 @@ Run the NextJS application.
 
 ```bash
 cd anotame-web
-bun run dev
+npm run dev
 ```
 *   **URL**: [http://localhost:3000](http://localhost:3000)
 

@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { menuItems, adminOnlyItems } from '$lib/config/menu';
+  import { menuItems } from '$lib/config/menu';
   import { authService } from '$lib/services/auth.svelte';
 
   const userRole = $derived(authService.user?.role);
   const isAdmin = $derived(userRole === 'ADMIN');
 
+  const adminOnlyItems = ['Configuración', 'Reportes', 'Usuarios'];
 
   const visibleItems = $derived(menuItems.filter((item) => {
     if (adminOnlyItems.includes(item.name)) return isAdmin;
