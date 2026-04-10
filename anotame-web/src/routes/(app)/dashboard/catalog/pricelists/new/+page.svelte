@@ -86,10 +86,22 @@
       services = svcRes || [];
       availableLists = listsRes || [];
 
+      // Initialize overrides with empty strings for all services
+      const initialOverrides: Record<string, string> = {};
+      services.forEach(s => {
+        initialOverrides[s.id] = "";
+      });
+      overrides = initialOverrides;
+
       // Handle clone functionality if URL param exists
+      // Wait a tick to ensure availableListItems $derived is updated before setting the value
       if (cloneFromId) {
-        $form.baseListId = cloneFromId;
-        await handleBaseListChange(cloneFromId, true);
+        // Only set baseListId if the list is actually available
+        const listExists = availableLists.some(l => l.id === cloneFromId);
+        if (listExists) {
+          $form.baseListId = cloneFromId;
+          await handleBaseListChange(cloneFromId, true);
+        }
       }
     } catch (err) {
       toast.error('Error al cargar datos necesarios');
@@ -102,7 +114,12 @@
 
   async function handleBaseListChange(listId: string | undefined, isFromCloneParam = false) {
     if (!listId) {
-      overrides = {};
+      // Reset overrides but keep keys
+      const resetOverrides: Record<string, string> = {};
+      services.forEach(s => {
+        resetOverrides[s.id] = "";
+      });
+      overrides = resetOverrides;
       return;
     }
     isFetchingBase = true;
@@ -111,14 +128,31 @@
         if (list) {
         // If cloning, we also pre-fill the name and priority
         if (isFromCloneParam) {
-          $form.name = `${list.name} (Copia)`;
-          $form.priority = list.priority ?? 0;
-          if (list.validFrom) $form.validFrom = new Date(list.validFrom).toISOString().split('T')[0];
-          if (list.validTo) $form.validTo = new Date(list.validTo).toISOString().split('T')[0];
-          $form.active = list.active ?? true;
+          $form.name = String(list.name || '') + ' (Copia)';
+          $form.priority = Number(list.priority ?? 0);
+          if (list.validFrom) {
+            try {
+              $form.validFrom = new Date(list.validFrom).toISOString().split('T')[0];
+            } catch (e) {
+              $form.validFrom = '';
+            }
+          }
+          if (list.validTo) {
+            try {
+              $form.validTo = new Date(list.validTo).toISOString().split('T')[0];
+            } catch (e) {
+              $form.validTo = '';
+            }
+          }
+          $form.active = Boolean(list.active ?? true);
         }
 
         const newOverrides: Record<string, string> = {};
+        // Initialize all services first
+        services.forEach(s => {
+          newOverrides[s.id] = "";
+        });
+        
         if (list.items) {
           list.items.forEach((item: any) => {
             newOverrides[item.serviceId] = String(item.price);
@@ -149,7 +183,11 @@
     if ($form.baseListId) {
       handleBaseListChange($form.baseListId);
     } else {
-      overrides = {};
+      const resetOverrides: Record<string, string> = {};
+      services.forEach(s => {
+        resetOverrides[s.id] = "";
+      });
+      overrides = resetOverrides;
     }
   }
 </script>
@@ -169,9 +207,9 @@
         <Form.Field form={superform} name="name">
           {#snippet children({ constraints })}
             <Form.Control>
-              {#snippet children({ props: controlProps })}
+              {#snippet children({ props })}
                 <Form.Label>Nombre de la Lista <span class="text-destructive">*</span></Form.Label>
-                <Input {...controlProps} {...constraints} id="pl-name" placeholder="Ej. Promoción de Verano 2026" bind:value={$form.name} class="h-12" />
+                <Input {...props} {...constraints} id="pl-name" placeholder="Ej. Promoción de Verano 2026" bind:value={$form.name} class="h-12" />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -182,9 +220,9 @@
           <Form.Field form={superform} name="priority">
             {#snippet children({ constraints })}
               <Form.Control>
-                {#snippet children({ props: controlProps })}
+                {#snippet children({ props })}
                   <Form.Label>Prioridad (Mayor gana)</Form.Label>
-                  <Input {...controlProps} {...constraints} id="pl-priority" type="number" bind:value={$form.priority} class="h-12 font-mono" />
+                  <Input {...props} {...constraints} id="pl-priority" type="number" bind:value={$form.priority} class="h-12 font-mono" />
                 {/snippet}
               </Form.Control>
               <p class="text-xs text-muted-foreground mt-1">Si dos listas chocan en fecha, aplicará la de mayor prioridad.</p>
@@ -195,11 +233,11 @@
           <Form.Field form={superform} name="active">
             {#snippet children({ constraints })}
               <Form.Control>
-                {#snippet children({ props: controlProps })}
+                {#snippet children({ props })}
                   <div class="flex items-center gap-2 pt-8">
                     <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
                       <input
-                        {...controlProps}
+                        {...props}
                         {...constraints}
                         type="checkbox"
                         class="checkbox-custom"
@@ -219,11 +257,9 @@
           <Form.Field form={superform} name="validFrom">
             {#snippet children({ constraints })}
               <Form.Control>
-                {#snippet children({ props: controlProps })}
+                {#snippet children({ props: _props })}
                   <Form.Label>Válido Desde</Form.Label>
                   <AdaptiveDatePicker 
-                    {...controlProps}
-                    {...constraints}
                     id="pl-from" 
                     bind:value={$form.validFrom} 
                     min={new Date().toISOString().slice(0, 10)} 
@@ -236,11 +272,9 @@
           <Form.Field form={superform} name="validTo">
             {#snippet children({ constraints })}
               <Form.Control>
-                {#snippet children({ props: controlProps })}
+                {#snippet children({ props: _props })}
                   <Form.Label>Válido Hasta (Opcional)</Form.Label>
                   <AdaptiveDatePicker 
-                    {...controlProps}
-                    {...constraints}
                     id="pl-to" 
                     bind:value={$form.validTo} 
                     min={$form.validFrom || new Date().toISOString().slice(0, 10)} 
@@ -263,11 +297,9 @@
         <Form.Field form={superform} name="baseListId">
           {#snippet children({ constraints })}
             <Form.Control>
-              {#snippet children({ props: controlProps })}
+              {#snippet children({ props: _props })}
                 <Form.Label>Copiar desde una lista existente</Form.Label>
                 <AdaptiveSelect
-                  {...controlProps}
-                  {...constraints}
                   id="pl-base"
                   bind:value={$form.baseListId}
                   onValueChange={() => handleBaseListChange($form.baseListId)}
@@ -324,7 +356,7 @@
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {#each services as service}
+              {#each services as service (service.id)}
                 <Table.Row class="hover:bg-muted/10">
                   <Table.Cell class="p-4 font-medium align-middle">{service.name}</Table.Cell>
                   <Table.Cell class="p-4 text-muted-foreground font-mono text-right align-middle text-base">
@@ -354,6 +386,7 @@
         </div>
       </Card.Content>
     </Card.Root>
+
 
     <div class="flex justify-end gap-4 pt-4 pb-12">
       <Button type="button" variant="outline" class="h-14 px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>
