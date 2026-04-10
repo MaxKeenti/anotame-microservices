@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
-	import { AdaptiveSelect } from '$lib/components/ui/responsive/adaptive-select.svelte';
+	import { AdaptiveSelect } from '$lib/components/ui/responsive';
 	import { Button } from '$lib/components/ui/button';
 	import { Tag, Loader2, AlertTriangle } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
@@ -10,8 +11,8 @@
 	let priceListOptions = $state<PriceListResponse[]>([]);
 	let isLoading = $state(true);
 	let hasError = $state(false);
-	let selectedPriceListId = $state<string | null>(null);
-	let selectedPriceListName = $state<string | null>(null);
+	let selectedPriceListId = $state<string>('');
+	let selectedPriceListName = $state<string>('');
 
 	let { onNext, onBack, isEditMode = false } = $props<{
 		onNext: () => void;
@@ -23,7 +24,7 @@
 	let currentPriceList = $derived(orderWizardState.getPriceList());
 
 	// Load price lists on mount
-	$effect.pre(async () => {
+	onMount(async () => {
 		try {
 			isLoading = true;
 			hasError = false;
@@ -44,14 +45,14 @@
 	$effect(() => {
 		if (draft && draft.priceListId) {
 			selectedPriceListId = draft.priceListId;
-			selectedPriceListName = draft.priceListName || null;
+			selectedPriceListName = draft.priceListName || '';
 		}
 	});
 
 	async function selectPriceList(priceListId: string | null) {
 		if (!priceListId) {
-			selectedPriceListId = null;
-			selectedPriceListName = null;
+			selectedPriceListId = '';
+			selectedPriceListName = '';
 			orderWizardState.clearPriceList();
 			return;
 		}
@@ -107,7 +108,7 @@
 		{#if isEditMode}
 			<!-- Read-only mode: show current price list -->
 			<div class="w-full space-y-4">
-				<label class="block text-sm font-medium">Lista de precios</label>
+				<p class="block text-sm font-medium">Lista de precios</p>
 				{#if currentPriceList}
 					<div class="w-full bg-muted rounded-lg p-4 border border-border">
 						<p class="text-base font-medium">{currentPriceList.name}</p>
@@ -134,12 +135,11 @@
 					</div>
 				{:else}
 					<AdaptiveSelect
-						label="Lista de precios"
 						placeholder="Sin lista de precios"
-						value={selectedPriceListId}
-						onchange={(value) => selectPriceList(value)}
-						options={[
-							{ value: null, label: 'Sin lista de precios' },
+						bind:value={selectedPriceListId}
+						onValueChange={(value) => selectPriceList(value || null)}
+						items={[
+							{ value: '', label: 'Sin lista de precios' },
 							...priceListOptions.map((pl) => ({
 								value: pl.id,
 								label: pl.name

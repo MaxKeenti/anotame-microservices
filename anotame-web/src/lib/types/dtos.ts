@@ -73,6 +73,8 @@ export interface OrderResponse {
   createdAt: string;
   pickupCode?: string;
   deliveredAt?: string;  // ISO string (OffsetDateTime serialized)
+  priceListId?: string | null;
+  priceListName?: string | null;
 }
 
 export interface GarmentTypeRequest {
