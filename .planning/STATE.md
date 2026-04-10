@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Advanced Operations
 status: executing
-stopped_at: Phase 16 UI-SPEC approved
-last_updated: "2026-04-09T18:25:40.330Z"
-last_activity: 2026-04-08 -- Phase 15 execution started
+stopped_at: Phase 16 Plan 01 complete
+last_updated: "2026-04-09T19:30:00.000Z"
+last_activity: 2026-04-09 -- Phase 16 Plan 01 executed (backend priceListId stack)
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
   percent: 100
 ---
 
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 15 — Order Lifecycle Improvements
+**Current focus:** Phase 16 complete — Phase 17 next
 
 ## Current Position
 

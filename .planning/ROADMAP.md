@@ -49,7 +49,7 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 ### v1.3 Advanced Operations (Phases 15–17)
 
 - [x] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions) (completed 2026-04-08)
-- [ ] Phase 16: Price List Selection in Order Wizard
+- [x] Phase 16: Price List Selection in Order Wizard (completed 2026-04-09)
 - [ ] Phase 17: Configurable DataTable Row Count
 
 ## Phase Details
@@ -92,5 +92,5 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 | 13. Color Audit & WCAG Compliance | v1.2 | 1/1 | Complete    | 2026-04-05 |
 | 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
 | 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
-| 16. Price List Selection in Order Wizard | v1.3 | 0/0 | Not started | - |
+| 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
 | 17. Configurable DataTable Row Count | v1.3 | 0/0 | Not started | - |
