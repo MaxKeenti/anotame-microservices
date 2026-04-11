@@ -241,7 +241,7 @@
             <Form.Field form={superform} name="validTo">
               {#snippet children({ constraints })}
                 <Form.Label>Válido Hasta (Opcional)</Form.Label>
-                <AdaptiveDatePicker id="pl-to" bind:value={$form.validTo} placeholder="Permanente si está vacío" />
+                <AdaptiveDatePicker id="pl-to" value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} placeholder="Permanente si está vacío" />
                 <Form.FieldErrors />
               {/snippet}
             </Form.Field>

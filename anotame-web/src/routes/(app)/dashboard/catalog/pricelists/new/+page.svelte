@@ -270,7 +270,7 @@
                   <Form.Label>Válido Hasta (Opcional)</Form.Label>
                   <AdaptiveDatePicker 
                     id="pl-to" 
-                    bind:value={$form.validTo} 
+                    value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} 
                     min={$form.validFrom || new Date().toISOString().slice(0, 10)} 
                     placeholder="Permanente si está vacío" 
                   />
