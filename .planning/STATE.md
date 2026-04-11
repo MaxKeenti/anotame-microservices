@@ -116,8 +116,9 @@ None.
 | 260410-svc5 | Fix price list clone error - resolve props_invalid_value and standardize FormSnap wiring | 2026-04-10 | 6d17802 | COMPLETED | [.planning/quick/260410-svc5-fix-price-list-clone-error/](./quick/260410-svc5-fix-price-list-clone-error/) |
 | 260409-e3n | Fix dashboard role filtering - employees can see KPI and unauthorized content | 2026-04-09 | 5b82469 | - | [260409-e3n-fix-dashboard-role-filtering-employees-c](./quick/260409-e3n-fix-dashboard-role-filtering-employees-c/) |
 | 260411-fix | Fix admin 403 proxy error and Svelte 5 props_invalid_value on pricelist cloning | 2026-04-11 | b083141 | COMPLETED | - |
+| 260411-qz2 | Fix pricelists 404 error when creating orders | 2026-04-11 | 3d649a7 | COMPLETED | [.planning/quick/260411-qz2-fix-pricelists-404-error/](./quick/260411-qz2-fix-pricelists-404-error/) |
 
-Last activity: 2026-04-11 - Fixed admin layout 403 proxy error by requesting correct Auth endpoint, and resolved Svelte 5 props_invalid_value on pricelist clone page by unwrapping FormSnap controls for custom Adaptive inputs.
+Last activity: 2026-04-11 - Completed quick task 260411-qz2: Fix pricelists 404 error when creating orders
 
 ## Session Continuity
 

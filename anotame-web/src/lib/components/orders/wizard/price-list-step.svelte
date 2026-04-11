@@ -28,7 +28,7 @@
 		try {
 			isLoading = true;
 			hasError = false;
-			const res = await apiService.request<PriceListResponse[]>(`${API_CATALOG}/api/pricelists`);
+			const res = await apiService.request<PriceListResponse[]>(`${API_CATALOG}/pricelists`);
 			priceListOptions = (res || []).filter((pl) => pl.active);
 		} catch (e) {
 			console.error('Failed to load price lists:', e);
@@ -60,7 +60,7 @@
 		try {
 			// Fetch the price list details to get items for auto-fill
 			const priceList = await apiService.request<PriceListResponse>(
-				`${API_CATALOG}/api/pricelists/${priceListId}`
+				`${API_CATALOG}/pricelists/${priceListId}`
 			);
 
 			if (priceList) {
