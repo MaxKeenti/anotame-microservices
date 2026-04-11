@@ -108,9 +108,14 @@
     }
   });
 
-  const availableListItems = $derived(
-    availableLists.map(l => ({ value: l.id, label: l.name }))
-  );
+  const availableListItems = $derived.by(() => {
+    const items = availableLists.map(l => ({ value: l.id, label: l.name }));
+    // If baseListId is set but not in the items, add a temporary placeholder
+    if ($form.baseListId && !items.find(i => i.value === $form.baseListId)) {
+      items.unshift({ value: $form.baseListId, label: 'Cargando...' });
+    }
+    return items;
+  });
 
   async function handleBaseListChange(listId: string | undefined, isFromCloneParam = false) {
     if (!listId) {
