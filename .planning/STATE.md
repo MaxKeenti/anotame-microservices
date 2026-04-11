@@ -115,8 +115,9 @@ None.
 | 260405-uke | Fix Svelte 5 effect_update_depth_exceeded error in frontend | 2026-04-06 | a689811 | [.planning/quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/](./quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/) |
 | 260410-svc5 | Fix price list clone error - resolve props_invalid_value and standardize FormSnap wiring | 2026-04-10 | 6d17802 | COMPLETED | [.planning/quick/260410-svc5-fix-price-list-clone-error/](./quick/260410-svc5-fix-price-list-clone-error/) |
 | 260409-e3n | Fix dashboard role filtering - employees can see KPI and unauthorized content | 2026-04-09 | 5b82469 | - | [260409-e3n-fix-dashboard-role-filtering-employees-c](./quick/260409-e3n-fix-dashboard-role-filtering-employees-c/) |
+| 260411-fix | Fix admin 403 proxy error and Svelte 5 props_invalid_value on pricelist cloning | 2026-04-11 | b083141 | COMPLETED | - |
 
-Last activity: 2026-04-10 - Fixed price list clone error: resolved Svelte 5 props_invalid_value by standardizing FormSnap wiring and adding state protection.
+Last activity: 2026-04-11 - Fixed admin layout 403 proxy error by requesting correct Auth endpoint, and resolved Svelte 5 props_invalid_value on pricelist clone page by unwrapping FormSnap controls for custom Adaptive inputs.
 
 ## Session Continuity
 
