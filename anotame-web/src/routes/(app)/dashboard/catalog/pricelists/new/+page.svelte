@@ -237,22 +237,17 @@
 
           <Form.Field form={superform} name="active">
             {#snippet children({ constraints })}
-              <Form.Control>
-                {#snippet children({ props })}
-                  <div class="flex items-center gap-2 pt-8">
-                    <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
-                      <input
-                        {...props}
-                        {...constraints}
-                        type="checkbox"
-                        class="checkbox-custom"
-                        bind:checked={$form.active}
-                      />
-                      Estrategia Activa
-                    </label>
-                  </div>
-                {/snippet}
-              </Form.Control>
+              <div class="flex items-center gap-2 pt-8">
+                <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
+                  <input
+                    {...constraints}
+                    type="checkbox"
+                    class="checkbox-custom"
+                    bind:checked={$form.active}
+                  />
+                  Estrategia Activa
+                </label>
+              </div>
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
@@ -261,23 +256,17 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Field form={superform} name="validFrom">
             {#snippet children({ constraints })}
-              <Form.Control>
-                {#snippet children({ props: _props })}
                   <Form.Label>Válido Desde</Form.Label>
                   <AdaptiveDatePicker 
                     id="pl-from" 
                     bind:value={$form.validFrom} 
                     min={new Date().toISOString().slice(0, 10)} 
                   />
-                {/snippet}
-              </Form.Control>
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
           <Form.Field form={superform} name="validTo">
             {#snippet children({ constraints })}
-              <Form.Control>
-                {#snippet children({ props: _props })}
                   <Form.Label>Válido Hasta (Opcional)</Form.Label>
                   <AdaptiveDatePicker 
                     id="pl-to" 
@@ -285,8 +274,6 @@
                     min={$form.validFrom || new Date().toISOString().slice(0, 10)} 
                     placeholder="Permanente si está vacío" 
                   />
-                {/snippet}
-              </Form.Control>
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
@@ -301,12 +288,10 @@
       <Card.Content>
         <Form.Field form={superform} name="baseListId">
           {#snippet children({ constraints })}
-            <Form.Control>
-              {#snippet children({ props: _props })}
                 <Form.Label>Copiar desde una lista existente</Form.Label>
                 <AdaptiveSelect
                   id="pl-base"
-                  value={$form.baseListId || ''}
+                  value={$form.baseListId as string}
                   onValueChange={(newValue) => {
                     $form.baseListId = newValue;
                     handleBaseListChange(newValue);
@@ -314,8 +299,6 @@
                   placeholder="-- Iniciar desde cero (Precios Base) --"
                   items={availableListItems}
                 />
-              {/snippet}
-            </Form.Control>
             <p class="text-xs text-muted-foreground mt-1">Al seleccionar una lista, se cargarán sus precios y sobrescribirán los actuales.</p>
             <Form.FieldErrors />
           {/snippet}

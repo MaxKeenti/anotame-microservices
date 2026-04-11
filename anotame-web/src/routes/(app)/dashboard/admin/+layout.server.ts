@@ -5,7 +5,7 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 	// Verify user is authenticated and has ADMIN role at server level
 	// This provides defense-in-depth against direct URL access
 	try {
-		const response = await fetch('/api/identity/me', {
+		const response = await fetch('/api/identity/auth/me', {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
 		});
