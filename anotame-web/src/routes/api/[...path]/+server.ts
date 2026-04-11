@@ -29,6 +29,7 @@ async function handleProxy({ request, url }: any) {
     const init: RequestInit = {
         method: request.method,
         headers,
+        credentials: 'include',
     };
 
     if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -39,11 +40,25 @@ async function handleProxy({ request, url }: any) {
 
     try {
         const response = await fetch(targetUrl + url.search, init);
-        return new Response(response.body, {
+        
+        // Forward Set-Cookie headers from backend to client
+        const setCookieHeaders = response.headers.getSetCookie?.() || [];
+        const newHeaders = new Headers(response.headers);
+        
+        const finalResponse = new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
-            headers: response.headers
+            headers: newHeaders
         });
+        
+        // Add Set-Cookie headers to response
+        if (setCookieHeaders.length > 0) {
+            setCookieHeaders.forEach(cookie => {
+                finalResponse.headers.append('Set-Cookie', cookie);
+            });
+        }
+        
+        return finalResponse;
     } catch (e: any) {
         return new Response(JSON.stringify({ error: e.message || 'Verification Proxy Error' }), { status: 500, headers: { 'Content-Type': 'application/json' }});
     }
