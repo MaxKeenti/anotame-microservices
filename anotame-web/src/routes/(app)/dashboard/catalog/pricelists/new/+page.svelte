@@ -109,7 +109,7 @@
   });
 
   const availableListItems = $derived.by(() => {
-    const items = availableLists.map(l => ({ value: l.id, label: l.name }));
+    const items = [{ value: '', label: 'Iniciar desde cero (Precios Base)' }, ...availableLists.map(l => ({ value: l.id, label: l.name }))];
     // If baseListId is set but not in the items, add a temporary placeholder
     if ($form.baseListId && !items.find(i => i.value === $form.baseListId)) {
       items.unshift({ value: $form.baseListId, label: 'Cargando...' });
@@ -306,8 +306,11 @@
                 <Form.Label>Copiar desde una lista existente</Form.Label>
                 <AdaptiveSelect
                   id="pl-base"
-                  bind:value={$form.baseListId}
-                  onValueChange={() => handleBaseListChange($form.baseListId)}
+                  value={$form.baseListId || ''}
+                  onValueChange={(newValue) => {
+                    $form.baseListId = newValue;
+                    handleBaseListChange(newValue);
+                  }}
                   placeholder="-- Iniciar desde cero (Precios Base) --"
                   items={availableListItems}
                 />
