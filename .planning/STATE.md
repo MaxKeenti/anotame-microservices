@@ -117,8 +117,9 @@ None.
 | 260409-e3n | Fix dashboard role filtering - employees can see KPI and unauthorized content | 2026-04-09 | 5b82469 | - | [260409-e3n-fix-dashboard-role-filtering-employees-c](./quick/260409-e3n-fix-dashboard-role-filtering-employees-c/) |
 | 260411-fix | Fix admin 403 proxy error and Svelte 5 props_invalid_value on pricelist cloning | 2026-04-11 | b083141 | COMPLETED | - |
 | 260411-qz2 | Fix pricelists 404 error when creating orders | 2026-04-11 | 3d649a7 | COMPLETED | [.planning/quick/260411-qz2-fix-pricelists-404-error/](./quick/260411-qz2-fix-pricelists-404-error/) |
+| 260413-btn | Standardize button styling in price-list-step wizard | 2026-04-13 | 788caf0 | COMPLETED | - |
 
-Last activity: 2026-04-11 - Completed quick task 260411-qz2: Fix pricelists 404 error when creating orders
+Last activity: 2026-04-13 - Completed quick task 260413-btn: Standardize button styling in price-list-step wizard
 
 ## Session Continuity
 
