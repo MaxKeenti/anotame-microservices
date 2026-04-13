@@ -172,11 +172,21 @@
 	</div>
 
 	<!-- Footer with navigation buttons -->
-	<div class="border-t border-border pt-6 flex justify-between gap-4">
-		<Button variant="ghost" class="h-14 px-8 text-lg rounded-xl touch-manipulation" onclick={onBack}>
+	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
+		<Button
+			variant="outline"
+			size="lg"
+			onclick={onBack}
+			class="flex-1 rounded-xl h-14 text-lg touch-manipulation"
+		>
 			Atrás
 		</Button>
-		<Button class="h-14 px-12 text-lg rounded-xl touch-manipulation" onclick={handleContinue}>
+		<Button
+			type="submit"
+			size="lg"
+			class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation"
+			onclick={handleContinue}
+		>
 			Continuar
 		</Button>
 	</div>
