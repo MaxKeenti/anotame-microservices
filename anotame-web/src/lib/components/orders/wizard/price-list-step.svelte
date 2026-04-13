@@ -173,7 +173,7 @@
 
 	<!-- Footer with navigation buttons -->
 	<div class="border-t border-border pt-6 flex justify-between gap-4">
-		<Button variant="ghost" class="h-12 px-6 touch-manipulation" onclick={onBack}>
+		<Button variant="ghost" class="h-14 px-8 text-lg rounded-xl touch-manipulation" onclick={onBack}>
 			Atrás
 		</Button>
 		<Button class="h-14 px-12 text-lg rounded-xl touch-manipulation" onclick={handleContinue}>
