@@ -37,11 +37,12 @@
   let overrides = $state<Record<string, string>>({});
 
   const superform = superForm(defaults(zod4(pricelistSchema)), {
+    id: 'pricelist-new-form',
     SPA: true,
     validators: zod4(pricelistSchema),
     async onUpdate({ form: f }) {
       if (!f.valid) return;
-      
+
       isLoading = true;
       try {
         const items = Object.entries(overrides)

@@ -48,6 +48,7 @@
 	});
 
 	const superform = superForm(defaults(zod4(paymentSchema)), {
+		id: 'payment-step',
 		SPA: true,
 		validators: zod4(paymentSchema),
 		async onUpdate({ form: f }) {

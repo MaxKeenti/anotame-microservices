@@ -27,6 +27,7 @@
   let isSubmitting = $state(false);
 
   const superform = superForm(defaults(zod4(garmentSchema)), {
+    id: 'garment-dialog',
     SPA: true,
     validators: zod4(garmentSchema),
     async onUpdate({ form }) {

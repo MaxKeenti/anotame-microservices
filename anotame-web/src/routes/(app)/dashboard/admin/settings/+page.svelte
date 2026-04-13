@@ -36,6 +36,7 @@
   let isSaving = $state(false);
 
   const { form, enhance, errors, reset } = superForm(defaults(zod4(settingsSchema)), {
+    id: 'settings-form',
     SPA: true,
     validators: zod4(settingsSchema),
     async onUpdate({ form: f }) {

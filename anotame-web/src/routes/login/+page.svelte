@@ -22,6 +22,7 @@
   let errorMsg = $state('');
 
   const superform = superForm(defaults(zod4(loginSchema)), {
+    id: 'login-form',
     SPA: true,
     validators: zod4(loginSchema),
     async onUpdate({ form }) {

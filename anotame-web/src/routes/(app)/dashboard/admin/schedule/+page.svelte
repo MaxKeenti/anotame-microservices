@@ -32,6 +32,7 @@ import * as Tabs from '$lib/components/ui/tabs';
   });
 
   const holidaySuperform = superForm(defaults(zod4(holidaySchema)), {
+    id: 'holiday-form',
     SPA: true,
     validators: zod4(holidaySchema),
     async onUpdate({ form: f }) {

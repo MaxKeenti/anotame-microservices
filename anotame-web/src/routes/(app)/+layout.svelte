@@ -85,6 +85,7 @@
 
       <UserDialog
         item={currentUserForEdit}
+        id="profile-edit"
         onClose={() => { isProfileOpen = false; currentUserForEdit = null; }}
         onSuccess={() => { /* User data will be refetched via authService */ }}
       />

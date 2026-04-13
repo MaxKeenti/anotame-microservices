@@ -36,6 +36,7 @@
   );
 
   const superform = superForm(defaults(zod4(serviceSchema)), {
+    id: 'service-dialog',
     SPA: true,
     validators: zod4(serviceSchema),
     async onUpdate({ form }) {
