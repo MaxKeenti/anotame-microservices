@@ -119,8 +119,9 @@ None.
 | 260411-qz2 | Fix pricelists 404 error when creating orders | 2026-04-11 | 3d649a7 | COMPLETED | [.planning/quick/260411-qz2-fix-pricelists-404-error/](./quick/260411-qz2-fix-pricelists-404-error/) |
 | 260413-btn | Standardize button styling in price-list-step wizard | 2026-04-13 | 4f395e5 | COMPLETED | - |
 | 260413-usr | Fix user dialog form submission syntax error | 2026-04-13 | 2efce95 | COMPLETED | - |
+| 260413-fid | Fix duplicate superForm id warning — add explicit ids to all superForm() calls, pass distinct props to dual UserDialog instances | 2026-04-13 | 327e011 | COMPLETED | - |
 
-Last activity: 2026-04-13 - Completed quick task 260413-usr: Fix user creation failure
+Last activity: 2026-04-13 - Completed quick task 260413-fid: Fix duplicate superForm id warning
 
 ## Session Continuity
 
