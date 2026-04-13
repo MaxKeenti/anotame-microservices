@@ -227,7 +227,7 @@
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
             Guardando...
           {:else}
-            { $form.id ? 'Guardar Cambios' : 'Guardar' }
+            {$form.id ? 'Guardar Cambios' : 'Guardar'}
           {/if}
         </Button>
       </Dialog.Footer>
