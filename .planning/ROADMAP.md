@@ -69,6 +69,10 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 **Goal**: Add configurable per-session row count to DataTableWrapper with localStorage persistence, addressing the 1024×768px display constraint at El Hilvan.
 **Source**: SEED-004
 **Scope**: Frontend only — no backend changes
+**Plans:** 1 plan
+
+Plans:
+- [ ] 17-01-PLAN.md — Row count store + DataTableWrapper intercept + Settings UI card
 
 ### Backlog: Print Server Integration
 **Goal**: Enable staff to print both a customer ticket (comprobante) and an internal work order tag (hoja de trabajo) — from the order detail page and via bulk print from the orders list.
@@ -96,4 +100,4 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 | 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
 | 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
 | 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
-| 17. DataTable Row Count Configurability | v1.3 | 0/? | Not started | - |
+| 17. DataTable Row Count Configurability | v1.3 | 0/1 | Not started | - |
