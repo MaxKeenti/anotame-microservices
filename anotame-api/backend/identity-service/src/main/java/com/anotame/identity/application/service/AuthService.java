@@ -5,8 +5,6 @@ import com.anotame.identity.application.dto.LoginRequest;
 import com.anotame.identity.domain.exception.InvalidCredentialsException;
 import com.anotame.identity.domain.exception.ResourceNotFoundException;
 import com.anotame.identity.domain.exception.UserAlreadyExistsException;
-import com.anotame.identity.domain.model.User;
-import com.anotame.identity.infrastructure.persistence.repository.RoleRepository;
 import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
 import com.anotame.identity.infrastructure.security.JwtUtils;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +19,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
 
-        private final RoleRepository roleRepository;
         private final UserRepository userRepository;
         private final JwtUtils jwtUtils;
 
