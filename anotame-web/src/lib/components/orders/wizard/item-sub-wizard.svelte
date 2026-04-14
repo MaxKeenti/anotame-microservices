@@ -37,6 +37,13 @@
 	// Get the currently selected price list
 	let priceList = $derived(orderWizardState.getPriceList());
 
+	// O(1) lookup map: serviceId → price list price
+	let priceListMap = $derived(
+		priceList?.items
+			? new Map(priceList.items.map((item: { serviceId: string; price: number }) => [item.serviceId, item.price]))
+			: new Map<string, number>()
+	);
+
 	onMount(async () => {
 		try {
 			const [gRes, sRes] = await Promise.all([
@@ -267,12 +274,22 @@
                                 >
                                     <span class="font-bold text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
                                     <div class="flex flex-col items-end shrink-0">
-                                        {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
-                                            <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                        {#if priceListMap.size > 0}
+                                            {@const plPrice = priceListMap.get(s.id)}
+                                            {#if plPrice !== undefined}
+                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">${plPrice}</span>
+                                            {:else}
+                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-muted-foreground">${s.basePrice}</span>
+                                            {/if}
+                                        {:else}
+                                            {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
+                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                            {/if}
+                                            <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">
+                                                ${s.effectivePrice ?? s.basePrice}
+                                            </span>
                                         {/if}
-                                        <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">
-                                            ${s.effectivePrice ?? s.basePrice}
-                                        </span>
                                     </div>
                                 </Button>
                             {/each}
