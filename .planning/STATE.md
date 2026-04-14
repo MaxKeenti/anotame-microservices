@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Advanced Operations
 status: executing
-stopped_at: Phase 16 Plan 01 complete
-last_updated: "2026-04-09T19:30:00.000Z"
-last_activity: 2026-04-09 -- Phase 16 Plan 01 executed (backend priceListId stack)
+stopped_at: Phase 17 Plan 01 complete
+last_updated: "2026-04-13T09:24:00.000Z"
+last_activity: 2026-04-13 -- Phase 17 Plan 01 executed (DataTable row count configurability)
 progress:
   total_phases: 3
   completed_phases: 2
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 16 complete — Phase 17 next
+**Current focus:** Phase 17 complete
 
 ## Current Position
 
-Phase: 15 (Order Lifecycle Improvements) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 15
-Last activity: 2026-04-08 -- Phase 15 execution started
+Phase: 17 (DataTable Row Count Configurability) — COMPLETE
+Plan: 1 of 1
+Status: Phase 17 complete
+Last activity: 2026-04-13 -- Phase 17 Plan 01 executed (per-device table page size preference)
 
 Progress: [██████████] 100% (5/5 phases — all verified)
 
@@ -79,6 +79,7 @@ Recent decisions affecting current work:
 - [11-01]: Hide wrapper's filter on Orders page (uses custom multi-filter form with search + garment + date)
 - [11-01]: Keep wrapper's filter on Garments, Services, Price Lists, Users, Schedule pages (client-side filtering)
 - [Phase 14]: Wave 3 design choice: Use native HTML5 color picker with hex text fallback for broad browser compatibility and accessibility
+- [17-01]: Per-device PersistedState (no userId scoping) for table row count; PAGE_SIZE_OPTIONS whitelist [5,10,20,50] guards both getter and setter; init-time only (no live sync)
 
 ### Pending Todos
 
@@ -127,6 +128,6 @@ Last activity: 2026-04-13 - Completed quick task 260413-ann: Fix Collector annot
 
 ## Session Continuity
 
-Last session: 2026-04-09T18:25:40.326Z
-Stopped at: Phase 16 UI-SPEC approved
-Resume file: .planning/phases/16-price-list-selection-in-order-wizard/16-UI-SPEC.md
+Last session: 2026-04-13T09:24:00.000Z
+Stopped at: Completed 17-01-PLAN.md
+Resume file: .planning/phases/17-datatable-row-count-configurability/17-01-SUMMARY.md
