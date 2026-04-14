@@ -50,7 +50,7 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 
 - [x] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions) (completed 2026-04-08)
 - [x] Phase 16: Price List Selection in Order Wizard (completed 2026-04-09)
-- [ ] Phase 17: Configurable DataTable Row Count
+- [ ] Phase 17: DataTable Row Count Configurability (from SEED-004)
 
 ## Phase Details
 
@@ -65,11 +65,14 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 **Seed**: SEED-010
 **Requirements**: Add price list selector to the order wizard; pass `priceListId` through `CreateOrderRequest`; apply selected list to line-item pricing at creation time.
 
-### Phase 17: Configurable DataTable Row Count
-**Goal**: Let users set and persist a preferred row count for all DataTableWrapper instances, improving usability on the live client's 1024×768 displays.
-**Depends on**: Phase 15
-**Seed**: SEED-004
-**Requirements**: Global row-count preference stored in localStorage; DataTableWrapper reads from preference; UI control (settings page or per-table dropdown) to change the value.
+### Phase 17: DataTable Row Count Configurability
+**Goal**: Add configurable per-session row count to DataTableWrapper with localStorage persistence, addressing the 1024×768px display constraint at El Hilvan.
+**Source**: SEED-004
+**Scope**: Frontend only — no backend changes
+
+### Backlog: Print Server Integration
+**Goal**: Enable staff to print both a customer ticket (comprobante) and an internal work order tag (hoja de trabajo) — from the order detail page and via bulk print from the orders list.
+**Status**: Parked for v1.5+ — plans exist in `.planning/phases/backlog-print-server-integration/`
 
 ---
 
@@ -93,4 +96,4 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 | 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
 | 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
 | 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
-| 17. Configurable DataTable Row Count | v1.3 | 0/0 | Not started | - |
+| 17. DataTable Row Count Configurability | v1.3 | 0/? | Not started | - |
