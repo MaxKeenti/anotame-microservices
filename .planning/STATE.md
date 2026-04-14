@@ -121,8 +121,9 @@ None.
 | 260413-usr | Fix user dialog form submission syntax error | 2026-04-13 | 2efce95 | COMPLETED | - |
 | 260413-fid | Fix duplicate superForm id warning — add explicit ids to all superForm() calls, pass distinct props to dual UserDialog instances | 2026-04-13 | 327e011 | COMPLETED | - |
 | 260413-unc | Fix unsafe null type conversion warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | 979dd41 | COMPLETED | [.planning/quick/260413-unc-fix-unsafe-null-conversions/](./quick/260413-unc-fix-unsafe-null-conversions/) |
+| 260413-ann | Fix Collector annotation warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | edf950f | COMPLETED | [.planning/quick/260413-ann-fix-annotation-warnings/](./quick/260413-ann-fix-annotation-warnings/) |
 
-Last activity: 2026-04-13 - Completed quick task 260413-unc: Fix unsafe null type conversion warnings
+Last activity: 2026-04-13 - Completed quick task 260413-ann: Fix Collector annotation warnings
 
 ## Session Continuity
 
