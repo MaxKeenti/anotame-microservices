@@ -1,5 +1,6 @@
 <script lang="ts" generics="TData">
   import { untrack } from 'svelte';
+  import { tablePreferences } from '$lib/stores/table-preferences.svelte';
   import {
     createTable,
     getCoreRowModel,
@@ -48,7 +49,7 @@
   }: Props = $props();
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
-  let initialPageSize = untrack(() => pageSizeProp);
+  let initialPageSize = untrack(() => tablePreferences.pageSize);
 
   let sorting = $state<SortingState>([]);
   let globalFilter = $state('');
