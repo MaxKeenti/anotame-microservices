@@ -33,6 +33,6 @@ public class OrderAuditLogPersistenceAdapter implements OrderAuditLogRepositoryP
         return auditLogRepository.findByOrderId(orderId).stream()
                 .map(e -> new AuditLogEntry(e.getOrderId(), e.getUserId(), e.getFieldName(),
                         e.getOldValue(), e.getNewValue(), e.getChangedAt()))
-                .collect(java.util.stream.Collectors.toList());
+                .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
     }
 }

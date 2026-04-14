@@ -211,7 +211,7 @@ public class SalesService {
     public List<AuditLogResponse> getAuditLog(UUID orderId) {
         return auditLogRepositoryPort.findByOrderId(orderId).stream()
                 .map(e -> new AuditLogResponse(e.userId(), e.fieldName(), e.oldValue(), e.newValue(), e.changedAt()))
-                .collect(java.util.stream.Collectors.toList());
+                .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
     }
 
     @Transactional
