@@ -82,7 +82,7 @@
 					paymentMethod: f.data.paymentMethod
 				};
 
-				// For creation (not edit), include customer and items
+				// For creation (not edit), include customer, items, and price list
 				if (!draft?.isEditing) {
 					const orderItems = (draft?.items || []).map((item: any) => ({
 						garmentTypeId: item.garmentTypeId || item.garmentId || '',
@@ -101,6 +101,10 @@
 					}));
 					payload.customer = draft?.customer;
 					payload.items = orderItems;
+					if (draft?.priceListId) {
+						payload.priceListId = draft.priceListId;
+						payload.priceListName = draft.priceListName ?? null;
+					}
 				}
 
 				if (draft?.isEditing && draft?.id) {
