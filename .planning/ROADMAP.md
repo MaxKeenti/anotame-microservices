@@ -50,7 +50,7 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 
 - [x] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions) (completed 2026-04-08)
 - [x] Phase 16: Price List Selection in Order Wizard (completed 2026-04-09)
-- [ ] Phase 17: DataTable Row Count Configurability (from SEED-004)
+- [x] Phase 17: DataTable Row Count Configurability (from SEED-004) — completed 2026-04-14
 
 ## Phase Details
 
@@ -72,7 +72,7 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 **Plans:** 1 plan
 
 Plans:
-- [ ] 17-01-PLAN.md — Row count store + DataTableWrapper intercept + Settings UI card
+- [x] 17-01-PLAN.md — Row count store + DataTableWrapper intercept + Settings UI card
 
 ### Backlog: Print Server Integration
 **Goal**: Enable staff to print both a customer ticket (comprobante) and an internal work order tag (hoja de trabajo) — from the order detail page and via bulk print from the orders list.
@@ -100,4 +100,4 @@ Plans:
 | 14. Tenant Theming | v1.2 | 3/3 | Complete   | 2026-04-06 |
 | 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
 | 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
-| 17. DataTable Row Count Configurability | v1.3 | 0/1 | Not started | - |
+| 17. DataTable Row Count Configurability | v1.3 | 1/1 | Complete | 2026-04-14 |
