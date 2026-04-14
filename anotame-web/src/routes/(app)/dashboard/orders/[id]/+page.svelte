@@ -228,6 +228,13 @@
             <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>
           </div>
 
+          {#if order.priceListName}
+            <div class="flex justify-between items-center">
+              <span class="text-muted-foreground font-medium">Lista de Precios:</span>
+              <span class="font-medium">{order.priceListName}</span>
+            </div>
+          {/if}
+
           <div class="h-px bg-border my-4"></div>
 
           <div class="flex justify-between items-center">
