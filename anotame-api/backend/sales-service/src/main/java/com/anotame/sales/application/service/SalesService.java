@@ -1,5 +1,6 @@
 package com.anotame.sales.application.service;
 
+import com.anotame.sales.application.dto.AuditLogResponse;
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.CustomerDto;
 import com.anotame.sales.application.dto.OrderItemDto;
@@ -205,6 +206,12 @@ public class SalesService {
     @Transactional
     public void deleteOrder(UUID id) {
         orderRepository.delete(id);
+    }
+
+    public List<AuditLogResponse> getAuditLog(UUID orderId) {
+        return auditLogRepositoryPort.findByOrderId(orderId).stream()
+                .map(e -> new AuditLogResponse(e.userId(), e.fieldName(), e.oldValue(), e.newValue(), e.changedAt()))
+                .toList();
     }
 
     @Transactional

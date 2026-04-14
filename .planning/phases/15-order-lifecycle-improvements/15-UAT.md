@@ -39,32 +39,51 @@ severity: none
 notes: "Pickup code now displays with monospace styling (text-2xl, font-semibold, tracking-widest, font-mono) on order detail page and appears on printed receipt with proper formatting."
 
 ### 7. Deliver Order with Valid Pickup Code
-result: [pending]
+result: pass
 
 ### 8. Deliver Order with Invalid Pickup Code
-result: [pending]
+result: pass
 
 ### 9. Bulk Status Change (ADMIN)
-result: [pending]
+result: pass
 
 ### 10. Bulk Status Change (EMPLOYEE)
-result: [pending]
+result: pass
 
 ### 11. Bulk Delete Guard
-result: [pending]
+result: issue
+severity: medium
+reported: "Bulk delete button is permanently disabled — DRAFT status does not exist in backend"
+notes: |
+  VALID_STATUSES in SalesService.java is: RECEIVED, IN_PROGRESS, READY, DELIVERED, CANCELLED.
+  DRAFT is absent from the backend enum. Orders are created with RECEIVED status.
+  FloatingActionBar guard checks allSelectedAreDraft (status === 'DRAFT') which can never be true.
+  Fix: change guard to status === 'RECEIVED' (earliest deletable state) and update FloatingActionBar
+  adminStatuses/employeeStatuses to include 'RECEIVED' as the deletable threshold — or introduce
+  a real DRAFT backend status.
 
 ### 12. Audit Log Records Field Changes
-result: [pending]
+result: issue
+severity: medium
+reported: "Audit log data is written to DB but is unreadable — no GET endpoint and no frontend UI"
+notes: |
+  SalesService.updateOrder() writes to tco_order_audit_log for changes to notes, committedDeadline,
+  amountPaid, and paymentMethod. The DB table exists (Flyway V3). However:
+  - No GET /orders/{id}/audit endpoint exists in OrdersResource.java
+  - No frontend audit log view exists on the order detail page
+  Audit data accumulates invisibly in the DB with no way to surface it. Fix requires adding the
+  GET endpoint in the backend and an audit log section on the order detail page.
 
 ## Summary
 
 total: 12
-passed: 5
-issues: 0
-pending: 6
+passed: 9
+issues: 2
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
 
-[No outstanding issues - Test 6 fixed]
+- **Test 11 — Bulk Delete Guard**: `DRAFT` status does not exist in backend. `allSelectedAreDraft` is always false. Bulk delete is permanently disabled. Fix: change guard to `status === 'RECEIVED'` and update FloatingActionBar status lists accordingly.
+- **Test 12 — Audit Log**: Backend writes audit entries to DB but no GET endpoint exists and no frontend UI displays them. Fix requires `GET /orders/{id}/audit` endpoint + order detail audit section.

@@ -61,7 +61,7 @@
     size="sm"
     class="h-9 touch-manipulation"
     disabled={!allDraft}
-    title={!allDraft ? 'Solo se pueden eliminar pedidos en borrador' : undefined}
+    title={!allDraft ? 'Solo se pueden eliminar pedidos recibidos (sin procesar)' : undefined}
     onclick={onDelete}
   >
     Eliminar pedidos

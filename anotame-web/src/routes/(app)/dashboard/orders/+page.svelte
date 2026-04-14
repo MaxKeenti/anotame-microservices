@@ -35,7 +35,7 @@
   let drafts = $derived(orderWizardState.drafts.current);
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
-  const allSelectedAreDraft = $derived(selectedOrders.every(o => o.status === 'DRAFT'));
+  const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
 
   const activeColumns: ColumnDef<any>[] = [
     { accessorKey: 'ticketNumber', header: 'Ticket', enableSorting: true },
@@ -113,7 +113,7 @@
   }
 
   async function handleBulkDelete() {
-    if (!allSelectedAreDraft) return;
+    if (!allSelectedDeletable) return;
 
     const ticketList = selectedOrders.map(o => o.ticketNumber).join(', ');
     const ok = await adaptiveConfirm({
@@ -291,7 +291,7 @@
       <FloatingActionBar
         count={selectedOrders.length}
         isAdmin={isAdmin}
-        allDraft={allSelectedAreDraft}
+        allDraft={allSelectedDeletable}
         onChangeStatus={handleBulkStatusChange}
         onDelete={handleBulkDelete}
         onCancel={handleBulkCancel}

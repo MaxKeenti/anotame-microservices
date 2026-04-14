@@ -1,5 +1,6 @@
 package com.anotame.sales.infrastructure.web.controller;
 
+import com.anotame.sales.application.dto.AuditLogResponse;
 import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.DeliverOrderRequest;
@@ -118,6 +119,12 @@ public class OrdersResource {
         }
         salesService.deliverOrder(id, body.getPickupCode(), userId);
         return jakarta.ws.rs.core.Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}/audit")
+    public List<AuditLogResponse> getAuditLog(@PathParam("id") UUID id) {
+        return salesService.getAuditLog(id);
     }
 
     @DELETE

@@ -18,6 +18,7 @@
   let order = $state<any | null>(null);
   let loading = $state(true);
   let establishment = $state<any | null>(null);
+  let auditLog = $state<any[]>([]);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -34,8 +35,14 @@
     const fetchOrder = async () => {
       try {
         loading = true;
-        const res = await apiService.request<any>(`${API_SALES}/orders/${id}`);
-        if (!isCancelled) order = res;
+        const [res, log] = await Promise.all([
+          apiService.request<any>(`${API_SALES}/orders/${id}`),
+          apiService.request<any[]>(`${API_SALES}/orders/${id}/audit`).catch(() => [])
+        ]);
+        if (!isCancelled) {
+          order = res;
+          auditLog = log ?? [];
+        }
       } catch (e) {
         console.error(e);
       } finally {
@@ -314,6 +321,26 @@
       <div class="bg-card p-6 rounded-2xl border border-border shadow-sm text-center">
         <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">Código de retiro</p>
         <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
+      </div>
+    {/if}
+
+    <!-- Audit Log -->
+    {#if auditLog.length > 0}
+      <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">Historial de Cambios</div>
+        <div class="divide-y divide-border">
+          {#each auditLog as entry}
+            <div class="px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm">
+              <span class="text-muted-foreground font-mono text-xs whitespace-nowrap">{formatDateTime(entry.changedAt)}</span>
+              <span class="font-semibold capitalize">{entry.fieldName}</span>
+              <span class="text-muted-foreground flex-1">
+                <span class="line-through opacity-60">{entry.oldValue ?? '—'}</span>
+                <span class="mx-2">→</span>
+                <span class="text-foreground font-medium">{entry.newValue ?? '—'}</span>
+              </span>
+            </div>
+          {/each}
+        </div>
       </div>
     {/if}
 

@@ -7,6 +7,9 @@ import com.anotame.sales.infrastructure.persistence.repository.OrderAuditLogRepo
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.UUID;
+
 @ApplicationScoped
 @RequiredArgsConstructor
 public class OrderAuditLogPersistenceAdapter implements OrderAuditLogRepositoryPort {
@@ -23,5 +26,13 @@ public class OrderAuditLogPersistenceAdapter implements OrderAuditLogRepositoryP
         entity.setNewValue(entry.newValue());
         entity.setChangedAt(entry.changedAt());
         auditLogRepository.save(entity);
+    }
+
+    @Override
+    public List<AuditLogEntry> findByOrderId(UUID orderId) {
+        return auditLogRepository.findByOrderId(orderId).stream()
+                .map(e -> new AuditLogEntry(e.getOrderId(), e.getUserId(), e.getFieldName(),
+                        e.getOldValue(), e.getNewValue(), e.getChangedAt()))
+                .toList();
     }
 }
