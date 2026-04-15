@@ -1,10 +1,13 @@
 ---
 id: SEED-001
-status: dormant
+status: partial
 planted: 2026-04-03
 planted_during: v1.1
 trigger_when: once v1.2 is complete
 scope: medium
+partially_covered_by: Phase 15 (v1.3)
+covered_on: 2026-04-07
+remaining: partial-payment ledger (multiple incremental payments per order)
 ---
 
 # SEED-001: Ability to edit existing orders (partial payments, mark as paid, record when/who edited)
@@ -46,3 +49,13 @@ Related code and decisions found in the current codebase:
 
 - Consider if we should just update the `OrderEntity` or create a separate `PaymentTransaction` table to track history of multiple payments.
 - Audit logging (who/when) is a key requirement from the user.
+
+## Coverage History
+
+**Phase 15 (v1.3 — 2026-04-07)** covered the order editing and audit logging portions:
+- `PUT /orders/{id}` endpoint with role-restricted field updates (EMPLOYEE cannot change garment/service items)
+- Field-level audit log (`tco_order_audit_log`) recording who changed what and when
+- Edit order wizard at `/orders/[id]/edit` pre-populated from API; status lock for DELIVERED/CANCELLED
+- `amountPaid` and `paymentMethod` are editable via the wizard
+
+**Remaining open:** Partial payment tracking — a ledger of incremental payments per order (e.g., deposit + balance). This requires either a `PaymentTransaction` table or `tco_order_payment_history` to track multiple payment events over the order lifecycle. Surface this when implementing financial reporting or advanced accounting features.
