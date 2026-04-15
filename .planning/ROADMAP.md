@@ -137,7 +137,7 @@ Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/
 | 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
 | 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
 | 17. DataTable Row Count Configurability | v1.3 | 1/1 | Complete | 2026-04-14 |
-| 18. DB Ownership + Fresh V1 Baselines | v1.4 | 0/? | Not started | - |
+| 18. DB Ownership + Fresh V1 Baselines | v1.4 | 0/3 | Planned | - |
 | 19. Application Configuration | v1.4 | 0/? | Not started | - |
 | 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/? | Not started | - |
 | 21. Local Dev Docker Compose | v1.4 | 0/? | Not started | - |
