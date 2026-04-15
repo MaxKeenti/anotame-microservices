@@ -5,8 +5,8 @@
 - ✅ **v1.0 Code Quality & Security** — Phases 1–7 (shipped 2026-04-03) — [archive](.planning/milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Production Stability** — Phases 8–9 (shipped 2026-04-03) — [archive](.planning/milestones/v1.1-ROADMAP.md)
 - ✅ **v1.2 UI Standardization** — Phases 10–14 (shipped 2026-04-06) — [archive](.planning/milestones/v1.2-ROADMAP.md)
-- 🚧 **v1.3 Advanced Operations** — Phases 15–17 (in progress)
-- 📋 **v1.4 Deployment Refactor** — Phases TBD (planned)
+- ✅ **v1.3 Advanced Operations** — Phases 15–17 (shipped 2026-04-14) — [archive](.planning/milestones/v1.3-ROADMAP.md)
+- 🚧 **v1.4 Deployment Refactor** — Phases TBD (in progress)
 
 ## Phases
 
@@ -46,33 +46,21 @@ Full phase details: [.planning/milestones/v1.2-ROADMAP.md](.planning/milestones/
 
 </details>
 
-### v1.3 Advanced Operations (Phases 15–17)
+<details>
+<summary>✅ v1.3 Advanced Operations (Phases 15–17) — SHIPPED 2026-04-14</summary>
 
 - [x] Phase 15: Order Lifecycle Improvements (Edit Order, Bulk Actions) (completed 2026-04-08)
 - [x] Phase 16: Price List Selection in Order Wizard (completed 2026-04-09)
 - [x] Phase 17: DataTable Row Count Configurability (from SEED-004) — completed 2026-04-14
 
-## Phase Details
+Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/v1.3-ROADMAP.md)
 
-### Phase 15: Order Lifecycle Improvements
-**Goal**: Enable staff to edit existing orders and perform bulk actions on order lists.
-**Depends on**: Phase 14
-**Requirements**: ORDER-01, ORDER-02
+</details>
 
-### Phase 16: Price List Selection in Order Wizard
-**Goal**: Allow staff to select a price list at order creation time so client-specific pricing is locked in upfront, eliminating post-order adjustments and billing disputes.
-**Depends on**: Phase 15
-**Seed**: SEED-010
-**Requirements**: Add price list selector to the order wizard; pass `priceListId` through `CreateOrderRequest`; apply selected list to line-item pricing at creation time.
+### v1.4 Deployment Refactor
 
-### Phase 17: DataTable Row Count Configurability
-**Goal**: Add configurable per-session row count to DataTableWrapper with localStorage persistence, addressing the 1024×768px display constraint at El Hilvan.
-**Source**: SEED-004
-**Scope**: Frontend only — no backend changes
-**Plans:** 1 plan
-
-Plans:
-- [x] 17-01-PLAN.md — Row count store + DataTableWrapper intercept + Settings UI card
+- [ ] Phase 18: TBD (Railway Dockerfile deploys, PostGIS → PostgreSQL migration)
+- [ ] Phase 19: TBD (eliminate GitHub Packages dependency across all services)
 
 ### Backlog: Print Server Integration
 **Goal**: Enable staff to print both a customer ticket (comprobante) and an internal work order tag (hoja de trabajo) — from the order detail page and via bulk print from the orders list.

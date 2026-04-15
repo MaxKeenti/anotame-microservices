@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: Advanced Operations
-status: executing
-stopped_at: Phase 17 Plan 01 complete
-last_updated: "2026-04-13T09:24:00.000Z"
-last_activity: 2026-04-13 -- Phase 17 Plan 01 executed (DataTable row count configurability)
+milestone: v1.4
+milestone_name: Deployment Refactor
+status: planning
+stopped_at: v1.3 milestone complete
+last_updated: "2026-04-14T00:00:00.000Z"
+last_activity: 2026-04-14 -- v1.3 milestone archived and tagged
 progress:
-  total_phases: 3
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
+See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 17 complete
+**Current focus:** v1.4 planning — Deployment Refactor
 
 ## Current Position
 
-Phase: 17 (DataTable Row Count Configurability) — COMPLETE
-Plan: 1 of 1
-Status: Phase 17 complete
-Last activity: 2026-04-13 -- Phase 17 Plan 01 executed (per-device table page size preference)
+Milestone: v1.3 Advanced Operations — COMPLETE (shipped 2026-04-14)
+Next milestone: v1.4 Deployment Refactor — planning
+Status: Between milestones
+Last activity: 2026-04-14 -- v1.3 milestone archived, tagged v1.3
 
-Progress: [██████████] 100% (5/5 phases — all verified)
+Progress: [----------] 0% (v1.4 not yet started)
 
 ## Performance Metrics
 
@@ -123,8 +123,9 @@ None.
 | 260413-fid | Fix duplicate superForm id warning — add explicit ids to all superForm() calls, pass distinct props to dual UserDialog instances | 2026-04-13 | 327e011 | COMPLETED | - |
 | 260413-unc | Fix unsafe null type conversion warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | 979dd41 | COMPLETED | [.planning/quick/260413-unc-fix-unsafe-null-conversions/](./quick/260413-unc-fix-unsafe-null-conversions/) |
 | 260413-ann | Fix Collector annotation warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | edf950f | COMPLETED | [.planning/quick/260413-ann-fix-annotation-warnings/](./quick/260413-ann-fix-annotation-warnings/) |
+| 260414-s1 | Mark SEED-001 partially covered by Phase 15 (order editing + audit log done; partial payments open) | 2026-04-14 | b7a12b4 | COMPLETED | - |
 
-Last activity: 2026-04-13 - Completed quick task 260413-ann: Fix Collector annotation warnings
+Last activity: 2026-04-14 - Completed quick task 260414-s1: SEED-001 status updated to partial
 
 ## Session Continuity
 

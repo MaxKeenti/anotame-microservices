@@ -108,6 +108,54 @@
 
 ---
 
+## Milestone: v1.3 — Advanced Operations
+
+**Shipped:** 2026-04-14
+**Phases:** 3 (15–17) | **Plans:** 5 | **Timeline:** 8 days (2026-04-07 → 2026-04-14)
+
+### What Was Built
+
+- Full order lifecycle: edit wizard with role-based field restrictions, field-level audit trail (who/when/old/new per field), status lock for DELIVERED/CANCELLED
+- Bulk operations: FloatingActionBar with role-aware status picker and guarded delete (DRAFT-only), sequential PATCH/DELETE with per-order error toasts
+- Pickup code deliver flow: 6-digit code on creation, constant-time PATCH /deliver validation, Operations "Listas para entrega" tab with pickup-code-dialog
+- Price list selection as wizard Step 2: skippable, auto-fills unit prices in ItemSubWizard, locked at creation (immutable priceListId), Flyway V4 migration
+- Per-device DataTable row count preference (5/10/20/50): PersistedState store, init-time intercept in DataTableWrapper, Settings "Tabla" card
+
+### What Worked
+
+- **Layered backend → frontend plan structure** — Phase 15's 3-plan split (backend, edit frontend, bulk frontend) cleanly separated concerns; each plan depended on exactly the prior plan's outputs with no ambiguity
+- **UAT-driven gap discovery** — Phase 16 UAT found 3 real gaps (price list not in POST payload, service card prices misleading, no display row on order detail) that verification alone would have missed. Having a human-in-the-loop UAT step before milestone close is valuable even when verification passes
+- **PersistedState pattern reuse** — Phase 17 directly replicated the `palette.svelte.ts` store pattern, reducing planning and execution time to 12 minutes for the entire phase
+- **No-backend scope discipline** — Phase 17 was explicitly front-end only; scope stayed clean with no temptation to add server-side persistence
+
+### What Was Inefficient
+
+- **Plan checker rate limit** — the plan checker agent hit a usage limit mid-run during Phase 17 planning. Manual verification of the 6 key concerns from already-read files was effective but broke the automated gate. No structural fix identified; rate limit is an external constraint
+- **SEED-001 status gap** — SEED-001 remained "dormant" after Phase 15 addressed the order editing portion. The status should be updated to "partial" during or immediately after the phase that covers it, not discovered at audit time
+- **Phase 16 required 3 UAT fixes** — all 3 were integration points between the backend (priceListId in payload) and frontend (display). Better pre-UAT integration testing of the full POST→GET round-trip would have caught these earlier
+
+### Patterns Established
+
+- **Bulk sequential API calls with per-item error handling** — `for` loop with `try/catch` per order; per-order `toast.error()` on failure; summary `toast.success()` on completion. This pattern is reusable for any future bulk operation
+- **`$bindable()` for parent-controlled toggle state** — `bulkMode = $bindable(false)` in DataTableWrapper lets the orders page own the toggle without prop drilling or stores. Use this pattern for any modal/toggle that a parent needs to control
+- **TanStack row selection without `getRowSelectionRowModel`** — native via `enableRowSelection: true`; the named export doesn't exist. Document this to avoid repeating the same false import
+- **PersistedState singleton without userId scoping** — for device-level preferences (not user-level), skip the `authService.user?.id` scoping. Simpler and correct for shared-device kiosk scenarios
+
+### Key Lessons
+
+1. **UAT before milestone close is mandatory for wizard flows** — wizard state management has many data-flow integration points that unit-level verification misses. The 3 Phase 16 UAT fixes were all at wizard→API integration points
+2. **Seed status should be updated at phase completion** — not at audit time. Add "update seed status" as a standard task in any plan that closes a seed requirement
+3. **CSS pointer-events-none for locked UI is effective** — avoids per-field readonly logic; backend enforces the restriction; the wrapper approach is sufficient and simpler. Pattern validated for read-heavy locked views
+4. **priceListName denormalization is the right call** — avoids a cross-service catalog fetch at display time; the value is locked at creation so staleness is not a concern. Apply this pattern to any "display-only label from a related entity" scenario
+
+### Cost Observations
+
+- Model mix: ~100% Sonnet 4.6
+- Sessions: ~3 across 8 days
+- Notable: Phase 17 executed in 12 minutes (1 plan, 3 tasks) — the fastest phase in the project. Pre-existing PersistedState pattern made the store trivial to write; the bottleneck was the settings page UI layout decision (grid-cols-4 vs other options)
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -117,6 +165,7 @@
 | v1.0 | ~6 | 7 | First milestone with GSD workflow; established all core patterns |
 | v1.1 | ~2 | 2 | Focused stability run; rapid execution of targeted fixes |
 | v1.2 | ~4 | 5 | Shift from infrastructure to UI/UX standardization; established design tokens |
+| v1.3 | ~3 | 3 | First milestone with live-client feature work; UAT-driven gap discovery proved essential |
 
 ### Cumulative Quality
 
@@ -125,3 +174,4 @@
 | v1.0 | 0% (deferred) | quarkus-flyway, quarkus-smallrye-health, sveltekit-superforms | 2 (V1 baseline, V2 unit_price) |
 | v1.1 | 0% (deferred) | - | 0 |
 | v1.2 | 0% (deferred) | shadcn-svelte, @fontsource-variable/* | 1 (V2 theme fields) |
+| v1.3 | 0% (deferred) | runed (PersistedState) already present | 2 (V3 order lifecycle, V4 price list) |

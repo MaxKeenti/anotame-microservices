@@ -1,5 +1,23 @@
 # Milestones
 
+## v1.3 Advanced Operations (Shipped: 2026-04-14)
+
+**Phases completed:** 3 phases (15–17), 5 plans, ~13 tasks
+**Timeline:** 2026-04-07 → 2026-04-14 (8 days)
+
+**Key accomplishments:**
+
+- Full order lifecycle: edit wizard with role-based restrictions, field-level audit trail, status lock for DELIVERED/CANCELLED orders
+- Bulk order operations: FloatingActionBar with role-aware status picker (ADMIN/EMPLOYEE), guarded bulk delete (DRAFT-only)
+- Pickup code deliver flow: 6-digit code generation, constant-time validation, Operations "Listas para entrega" tab
+- Price list selection in order wizard as Step 2: auto-fill unit prices, locked at creation, Flyway V4 migration
+- Per-device DataTable row count preference (5/10/20/50) via PersistedState, persisted across hard reloads
+
+**Archive:** [.planning/milestones/v1.3-ROADMAP.md](milestones/v1.3-ROADMAP.md)
+**Audit:** [.planning/milestones/v1.3-MILESTONE-AUDIT.md](milestones/v1.3-MILESTONE-AUDIT.md) — PASSED
+
+---
+
 ## v1.2 UI Standardization (Shipped: 2026-04-06)
 
 **Phases completed:** 9 phases, 13 plans, 14 tasks
