@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Deployment Refactor
 status: planning
-stopped_at: Roadmap created — ready for Phase 18 planning
-last_updated: "2026-04-14T00:00:00.000Z"
-last_activity: 2026-04-14 -- v1.4 roadmap created; 4 phases (18–21) defined; 23/23 requirements mapped
+stopped_at: Phase 20 context gathered — ready for /gsd-plan-phase 20
+last_updated: "2026-04-15T00:00:00.000Z"
+last_activity: 2026-04-15 -- Phase 20 (Dockerfile Fixes + Railway Deployment) context gathered; 9 decisions locked (D-01–D-09)
 progress:
   total_phases: 4
   completed_phases: 0
