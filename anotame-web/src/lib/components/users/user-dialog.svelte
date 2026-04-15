@@ -23,16 +23,18 @@
     email: z.string().email('Correo electrónico inválido'),
   });
 
-  let { item, onClose, onSuccess } = $props<{
+  let { item, onClose, onSuccess, id: formId = 'user-dialog' } = $props<{
     item: any | null;
     onClose: () => void;
     onSuccess?: () => void;
+    id?: string;
   }>();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
 
   const superform = superForm(defaults(zod4(userSchema)), {
+    id: formId,
     SPA: true,
     validators: zod4(userSchema),
     async onUpdate({ form }) {
@@ -227,7 +229,7 @@
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
             Guardando...
           {:else}
-            { $form.id ? 'Guardar Cambios' : 'Guardar' }
+            {$form.id ? 'Guardar Cambios' : 'Guardar'}
           {/if}
         </Button>
       </Dialog.Footer>

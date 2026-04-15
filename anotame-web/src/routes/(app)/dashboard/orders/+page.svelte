@@ -2,15 +2,19 @@
   import { onMount } from 'svelte';
   import { apiService, API_SALES, API_CATALOG } from '$lib/services/api.svelte';
   import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
+  import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+  import FloatingActionBar from '$lib/components/ui/FloatingActionBar.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Edit, Trash2, Eye } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import { ApiError } from '$lib/services/ApiError';
+  import { toast } from 'svelte-sonner';
   import type { ColumnDef } from '@tanstack/table-core';
   import * as Tabs from '$lib/components/ui/tabs';
 
@@ -19,12 +23,19 @@
   let garments = $state<any[]>([]);
   let loading = $state(true);
 
+  // Bulk selection state
+  let bulkMode = $state(false);
+  let selectedOrders = $state<any[]>([]);
+
   // Filters
   let searchQuery = $state("");
   let garmentFilter = $state("");
   let dateFilter = $state("");
 
   let drafts = $derived(orderWizardState.drafts.current);
+
+  const isAdmin = $derived(authService.user?.role === 'ADMIN');
+  const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
 
   const activeColumns: ColumnDef<any>[] = [
     { accessorKey: 'ticketNumber', header: 'Ticket', enableSorting: true },
@@ -77,6 +88,66 @@
 
   function setView(target: 'active' | 'drafts') {
     view = target;
+  }
+
+  // Bulk handler functions
+  async function handleBulkStatusChange(targetStatus: string) {
+    let successCount = 0;
+    for (const order of selectedOrders) {
+      try {
+        await apiService.request(`${API_SALES}/orders/${order.id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: targetStatus })
+        });
+        successCount++;
+      } catch (e: any) {
+        toast.error(`Error al actualizar ${order.ticketNumber}`, { description: e?.message });
+      }
+    }
+    if (successCount > 0) {
+      toast.success(`Se actualizaron ${successCount} pedidos.`);
+    }
+    bulkMode = false;
+    selectedOrders = [];
+    fetchData();
+  }
+
+  async function handleBulkDelete() {
+    if (!allSelectedDeletable) return;
+
+    const ticketList = selectedOrders.map(o => o.ticketNumber).join(', ');
+    const ok = await adaptiveConfirm({
+      title: 'Eliminar pedidos',
+      description: `Se eliminarán ${selectedOrders.length} pedidos en borrador: ${ticketList}. Esta acción no se puede deshacer.`
+    });
+    if (!ok) return;
+
+    let successCount = 0;
+    for (const order of selectedOrders) {
+      try {
+        await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
+        successCount++;
+      } catch (e: any) {
+        if (e instanceof ApiError && e.status === 409) {
+          toast.error(`No se puede eliminar ${order.ticketNumber}`, {
+            description: 'Tiene registros de trabajo vinculados.'
+          });
+        } else {
+          toast.error(`Error al eliminar ${order.ticketNumber}`, { description: e?.message });
+        }
+      }
+    }
+    if (successCount > 0) {
+      toast.success(`Se actualizaron ${successCount} pedidos.`);
+    }
+    bulkMode = false;
+    selectedOrders = [];
+    fetchData();
+  }
+
+  function handleBulkCancel() {
+    bulkMode = false;
+    selectedOrders = [];
   }
 
   // Derived filter logic
@@ -161,6 +232,27 @@
         </div>
       </div>
 
+      <!-- Bulk mode toggle -->
+      <div class="flex justify-end">
+        {#if !bulkMode}
+          <Button
+            variant="secondary"
+            class="h-12 px-4 touch-manipulation"
+            onclick={() => { bulkMode = true; selectedOrders = []; }}
+          >
+            Seleccionar pedidos
+          </Button>
+        {:else}
+          <Button
+            variant="ghost"
+            class="h-12 px-4 touch-manipulation"
+            onclick={handleBulkCancel}
+          >
+            Cancelar selección
+          </Button>
+        {/if}
+      </div>
+
       <!-- Active Orders Table -->
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
         {#snippet statusCell(row: any)}
@@ -177,6 +269,9 @@
           cellRenders={{
             status: statusCell
           }}
+          bulkActions={true}
+          bind:bulkMode={bulkMode}
+          onSelectionChange={(rows) => { selectedOrders = rows; }}
         >
           {#snippet actionCell(row)}
             <div class="flex justify-end gap-2">
@@ -192,6 +287,15 @@
           {/snippet}
         </DataTableWrapper>
       </div>
+
+      <FloatingActionBar
+        count={selectedOrders.length}
+        isAdmin={isAdmin}
+        allDraft={allSelectedDeletable}
+        onChangeStatus={handleBulkStatusChange}
+        onDelete={handleBulkDelete}
+        onCancel={handleBulkCancel}
+      />
     </Tabs.Content>
 
     <Tabs.Content value="drafts" class="space-y-6">

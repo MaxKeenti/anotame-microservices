@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { useAuthGuard } from '$lib/guards/index.svelte';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -15,6 +16,7 @@
 import * as Tabs from '$lib/components/ui/tabs';
 
   let activeTab = $state<'weekly' | 'holidays'>('weekly');
+  const guard = useAuthGuard(true, '/dashboard');
   let isLoading = $state(true);
   let isHolidaySubmitting = $state(false);
 
@@ -30,6 +32,7 @@ import * as Tabs from '$lib/components/ui/tabs';
   });
 
   const holidaySuperform = superForm(defaults(zod4(holidaySchema)), {
+    id: 'holiday-form',
     SPA: true,
     validators: zod4(holidaySchema),
     async onUpdate({ form: f }) {
@@ -112,6 +115,11 @@ import * as Tabs from '$lib/components/ui/tabs';
   }
 </script>
 
+{#if guard.checking}
+  <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
+    Validando acceso...
+  </div>
+{:else if guard.allowed}
 <div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
   <div class="flex justify-between items-center">
     <h1 class="text-3xl font-heading font-bold text-foreground">Horarios de Trabajo</h1>
@@ -298,3 +306,4 @@ import * as Tabs from '$lib/components/ui/tabs';
     {/if}
   </Tabs.Root>
 </div>
+{/if}

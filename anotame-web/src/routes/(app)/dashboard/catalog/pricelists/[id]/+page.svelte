@@ -41,6 +41,7 @@
   let originalOverrides = $state<Record<string, string>>({});
 
   const superform = superForm(defaults(zod4(pricelistSchema)), {
+    id: 'pricelist-edit-form',
     SPA: true,
     validators: zod4(pricelistSchema),
     async onUpdate({ form: f }) {
@@ -241,7 +242,7 @@
             <Form.Field form={superform} name="validTo">
               {#snippet children({ constraints })}
                 <Form.Label>Válido Hasta (Opcional)</Form.Label>
-                <AdaptiveDatePicker id="pl-to" bind:value={$form.validTo} placeholder="Permanente si está vacío" />
+                <AdaptiveDatePicker id="pl-to" value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} placeholder="Permanente si está vacío" />
                 <Form.FieldErrors />
               {/snippet}
             </Form.Field>

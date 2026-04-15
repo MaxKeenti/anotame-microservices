@@ -18,6 +18,7 @@
   let order = $state<any | null>(null);
   let loading = $state(true);
   let establishment = $state<any | null>(null);
+  let auditLog = $state<any[]>([]);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -34,8 +35,14 @@
     const fetchOrder = async () => {
       try {
         loading = true;
-        const res = await apiService.request<any>(`${API_SALES}/orders/${id}`);
-        if (!isCancelled) order = res;
+        const [res, log] = await Promise.all([
+          apiService.request<any>(`${API_SALES}/orders/${id}`),
+          apiService.request<any[]>(`${API_SALES}/orders/${id}/audit`).catch(() => [])
+        ]);
+        if (!isCancelled) {
+          order = res;
+          auditLog = log ?? [];
+        }
       } catch (e) {
         console.error(e);
       } finally {
@@ -120,7 +127,8 @@
         rfc: taxInfoParsed?.rfc,
         taxRegime: taxInfoParsed?.regime,
         contactPhone: taxInfoParsed?.contactPhone,
-      }
+      },
+      pickupCode: order.pickupCode
     });
 
     const newWindow = window.open('', '_blank', 'width=400,height=600');
@@ -220,6 +228,13 @@
             <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>
           </div>
 
+          {#if order.priceListName}
+            <div class="flex justify-between items-center">
+              <span class="text-muted-foreground font-medium">Lista de Precios:</span>
+              <span class="font-medium">{order.priceListName}</span>
+            </div>
+          {/if}
+
           <div class="h-px bg-border my-4"></div>
 
           <div class="flex justify-between items-center">
@@ -308,6 +323,34 @@
       </div>
     </div>
 
+    <!-- Pickup Code -->
+    {#if order.pickupCode}
+      <div class="bg-card p-6 rounded-2xl border border-border shadow-sm text-center">
+        <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">Código de retiro</p>
+        <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
+      </div>
+    {/if}
+
+    <!-- Audit Log -->
+    {#if auditLog.length > 0}
+      <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">Historial de Cambios</div>
+        <div class="divide-y divide-border">
+          {#each auditLog as entry}
+            <div class="px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm">
+              <span class="text-muted-foreground font-mono text-xs whitespace-nowrap">{formatDateTime(entry.changedAt)}</span>
+              <span class="font-semibold capitalize">{entry.fieldName}</span>
+              <span class="text-muted-foreground flex-1">
+                <span class="line-through opacity-60">{entry.oldValue ?? '—'}</span>
+                <span class="mx-2">→</span>
+                <span class="text-foreground font-medium">{entry.newValue ?? '—'}</span>
+              </span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
+
     <!-- Actions -->
     <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-border mt-8">
       <Button
@@ -325,6 +368,15 @@
             class="h-14 rounded-xl text-lg touch-manipulation shadow-md w-full sm:w-auto"
           >
             Enviar a Operaciones
+          </Button>
+        {/if}
+        {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
+          <Button
+            href={`/dashboard/orders/${order.id}/edit`}
+            variant="outline"
+            class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
+          >
+            Editar Pedido
           </Button>
         {/if}
         <Button

@@ -22,6 +22,7 @@
   let errorMsg = $state('');
 
   const superform = superForm(defaults(zod4(loginSchema)), {
+    id: 'login-form',
     SPA: true,
     validators: zod4(loginSchema),
     async onUpdate({ form }) {
@@ -103,14 +104,7 @@
           {/if}
         </Button>
 
-        <div class="text-center text-sm pt-2">
-          <span class="text-muted-foreground">¿No tienes cuenta? </span>
-          <a href="/register" class="text-primary font-medium hover:underline transition-colors">
-            Crea una aquí
-          </a>
-        </div>
-
-        <div class="text-center text-sm">
+        <div class="text-center text-sm pt-4">
           <a href="/" class="text-muted-foreground hover:text-primary transition-colors">
             &larr; Volver al Inicio
           </a>

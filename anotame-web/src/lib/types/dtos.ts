@@ -67,11 +67,14 @@ export interface OrderResponse {
   status: string;
   totalAmount: number;
   amountPaid: number;
-  balance: number;
   paymentMethod: string;
   notes: string;
   items: OrderItemResponse[];
   createdAt: string;
+  pickupCode?: string;
+  deliveredAt?: string;  // ISO string (OffsetDateTime serialized)
+  priceListId?: string | null;
+  priceListName?: string | null;
 }
 
 export interface GarmentTypeRequest {

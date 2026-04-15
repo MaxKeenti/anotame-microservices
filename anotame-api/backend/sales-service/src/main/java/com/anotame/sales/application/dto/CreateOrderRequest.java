@@ -15,4 +15,6 @@ public class CreateOrderRequest {
     private String notes;
     private java.math.BigDecimal amountPaid;
     private String paymentMethod;
+    private java.util.UUID priceListId;
+    private String priceListName;
 }

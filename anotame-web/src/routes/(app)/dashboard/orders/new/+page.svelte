@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
     import CustomerStep from '$lib/components/orders/wizard/customer-step.svelte';
+    import PriceListStep from '$lib/components/orders/wizard/price-list-step.svelte';
     import ItemsStep from '$lib/components/orders/wizard/items-step.svelte';
     import PaymentStep from '$lib/components/orders/wizard/payment-step.svelte';
     import { Button } from '$lib/components/ui/button';
@@ -33,6 +34,7 @@
 
     const steps = [
         { title: "Cliente", component: CustomerStep },
+        { title: "Lista de Precios", component: PriceListStep },
         { title: "Prendas", component: ItemsStep },
         { title: "Pago", component: PaymentStep },
     ];

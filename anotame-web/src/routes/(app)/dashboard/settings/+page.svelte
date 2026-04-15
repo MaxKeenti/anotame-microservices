@@ -6,6 +6,7 @@
   import MoonIcon from 'lucide-svelte/icons/moon';
   import MonitorIcon from 'lucide-svelte/icons/monitor';
   import { paletteStore, type UserPalette } from '$lib/stores/palette.svelte';
+  import { tablePreferences, PAGE_SIZE_OPTIONS } from '$lib/stores/table-preferences.svelte';
 
   type ColorKey = keyof UserPalette;
 
@@ -114,6 +115,28 @@
           </Button>
         </div>
       {/if}
+    </Card.Content>
+  </Card.Root>
+
+  <Card.Root>
+    <Card.Header>
+      <Card.Title>Tabla</Card.Title>
+      <Card.Description>Ajusta cuántas filas se muestran por página en todas las tablas.</Card.Description>
+    </Card.Header>
+    <Card.Content class="space-y-3">
+      <div class="grid grid-cols-4 gap-3">
+        {#each PAGE_SIZE_OPTIONS as size (size)}
+          <Button
+            variant={tablePreferences.pageSize === size ? 'default' : 'outline'}
+            class="h-24 flex flex-col gap-2 touch-manipulation"
+            onclick={() => tablePreferences.setPageSize(size)}
+          >
+            <span class="text-2xl font-bold">{size}</span>
+            <span class="text-sm">filas</span>
+          </Button>
+        {/each}
+      </div>
+      <p class="text-xs text-muted-foreground">Los cambios aplican al recargar la tabla.</p>
     </Card.Content>
   </Card.Root>
 

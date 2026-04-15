@@ -15,6 +15,15 @@ export interface DraftOrderItem extends Partial<OrderItemDto> {
     notes?: string;
 }
 
+export interface PriceListInfo {
+    id: string;
+    name: string;
+    items: Array<{
+        serviceId: string;
+        price: number;
+    }>;
+}
+
 export interface DraftOrder extends Partial<Omit<CreateOrderRequest, 'items'>> {
     id: string;
     lastModified: number;
@@ -23,6 +32,9 @@ export interface DraftOrder extends Partial<Omit<CreateOrderRequest, 'items'>> {
     amountPaid?: number;
     paymentMethod?: string;
     isEditing?: boolean; // Set to true if loaded from existing order ID
+    priceListId?: string | null; // Price list selected at order creation
+    priceListName?: string | null; // Denormalized name for display
+    priceListItems?: Array<{ serviceId: string; price: number }>; // Cache for auto-fill
 }
 
 class OrderWizardState {
@@ -104,6 +116,52 @@ class OrderWizardState {
             this.deleteDraft(this.activeDraft.id);
         }
         this.activeDraft = null;
+    }
+
+    /**
+     * Sets the price list selection in the active draft.
+     * @param id - Price list UUID (or null to clear)
+     * @param name - Denormalized price list name for display
+     * @param items - Array of {serviceId, price} for auto-fill lookups
+     */
+    setPriceList(id: string | null, name: string | null, items: Array<{ serviceId: string; price: number }> = []) {
+        if (!this.activeDraft) return;
+        this.activeDraft = {
+            ...this.activeDraft,
+            priceListId: id,
+            priceListName: name,
+            priceListItems: items
+        };
+        this.saveCurrentDraft();
+    }
+
+    /**
+     * Clears the price list selection from the active draft.
+     * Call this when the customer changes to reset price list.
+     */
+    clearPriceList() {
+        if (!this.activeDraft) return;
+        this.activeDraft = {
+            ...this.activeDraft,
+            priceListId: null,
+            priceListName: null,
+            priceListItems: []
+        };
+        this.saveCurrentDraft();
+    }
+
+    /**
+     * Returns the currently selected price list info, or null if none selected.
+     */
+    getPriceList(): PriceListInfo | null {
+        if (!this.activeDraft || !this.activeDraft.priceListId) {
+            return null;
+        }
+        return {
+            id: this.activeDraft.priceListId,
+            name: this.activeDraft.priceListName || 'Sin nombre',
+            items: this.activeDraft.priceListItems || []
+        };
     }
 }
 

@@ -118,6 +118,7 @@
 
   <UserDialog
     item={editingUser}
+    id="user-admin"
     onClose={() => editingUser = null}
     onSuccess={handleFormSuccess}
   />

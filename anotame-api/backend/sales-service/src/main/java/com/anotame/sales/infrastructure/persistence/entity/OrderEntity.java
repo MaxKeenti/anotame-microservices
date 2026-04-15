@@ -62,6 +62,12 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items = new ArrayList<>();
 
+    @Column(name = "pickup_code")
+    private String pickupCode;
+
+    @Column(name = "delivered_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime deliveredAt;
+
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
 
@@ -73,6 +79,12 @@ public class OrderEntity {
 
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime deletedAt;
+
+    @Column(name = "price_list_id")
+    private java.util.UUID priceListId;
+
+    @Column(name = "price_list_name", length = 255)
+    private String priceListName;
 
     @Column(name = "is_deleted")
     private boolean deleted = false;

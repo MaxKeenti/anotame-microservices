@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: Advanced Operations
+milestone: v1.4
+milestone_name: Deployment Refactor
 status: planning
-stopped_at: Completed 14-03-PLAN (Wave 3 Admin UI — Phase 14 Complete)
-last_updated: "2026-04-06T18:10:47.245Z"
-last_activity: 2026-04-06
+stopped_at: v1.3 milestone complete
+last_updated: "2026-04-14T00:00:00.000Z"
+last_activity: 2026-04-14 -- v1.3 milestone archived and tagged
 progress:
-  total_phases: 1
+  total_phases: 0
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 100
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04 for v1.2)
+See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Milestone v1.2 Complete — Finalized Verification
+**Current focus:** v1.4 planning — Deployment Refactor
 
 ## Current Position
 
-Phase: Complete
-Plan: Milestone v1.2 (5/5 phases) verified
-Status: Milestone v1.2 Complete — Ready for Milestone v1.3 Planning
-Last activity: 2026-04-06
+Milestone: v1.3 Advanced Operations — COMPLETE (shipped 2026-04-14)
+Next milestone: v1.4 Deployment Refactor — planning
+Status: Between milestones
+Last activity: 2026-04-14 -- v1.3 milestone archived, tagged v1.3
 
-Progress: [██████████] 100% (5/5 phases — all verified)
+Progress: [----------] 0% (v1.4 not yet started)
 
 ## Performance Metrics
 
@@ -79,6 +79,7 @@ Recent decisions affecting current work:
 - [11-01]: Hide wrapper's filter on Orders page (uses custom multi-filter form with search + garment + date)
 - [11-01]: Keep wrapper's filter on Garments, Services, Price Lists, Users, Schedule pages (client-side filtering)
 - [Phase 14]: Wave 3 design choice: Use native HTML5 color picker with hex text fallback for broad browser compatibility and accessibility
+- [17-01]: Per-device PersistedState (no userId scoping) for table row count; PAGE_SIZE_OPTIONS whitelist [5,10,20,50] guards both getter and setter; init-time only (no live sync)
 
 ### Pending Todos
 
@@ -113,11 +114,21 @@ None.
 | 260405-s7x | Fix svelte-check diagnostics: implicit any types and type mismatch | 2026-04-06 | d64d2a0 | [260405-s7x-fix-svelte-check-diagnostics-implicit-an](./quick/260405-s7x-fix-svelte-check-diagnostics-implicit-an/) |
 | 260405-t8i | Fix TypeScript error: Property 'establishmentTheme' does not exist on type '{}' | 2026-04-06 | f1225af | [260405-t8i-fix-typescript-error-property-establishm](./quick/260405-t8i-fix-typescript-error-property-establishm/) |
 | 260405-uke | Fix Svelte 5 effect_update_depth_exceeded error in frontend | 2026-04-06 | a689811 | [.planning/quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/](./quick/260405-uke-fix-svelte-5-effect-update-depth-exceede/) |
+| 260410-svc5 | Fix price list clone error - resolve props_invalid_value and standardize FormSnap wiring | 2026-04-10 | 6d17802 | COMPLETED | [.planning/quick/260410-svc5-fix-price-list-clone-error/](./quick/260410-svc5-fix-price-list-clone-error/) |
+| 260409-e3n | Fix dashboard role filtering - employees can see KPI and unauthorized content | 2026-04-09 | 5b82469 | - | [260409-e3n-fix-dashboard-role-filtering-employees-c](./quick/260409-e3n-fix-dashboard-role-filtering-employees-c/) |
+| 260411-fix | Fix admin 403 proxy error and Svelte 5 props_invalid_value on pricelist cloning | 2026-04-11 | b083141 | COMPLETED | - |
+| 260411-qz2 | Fix pricelists 404 error when creating orders | 2026-04-11 | 3d649a7 | COMPLETED | [.planning/quick/260411-qz2-fix-pricelists-404-error/](./quick/260411-qz2-fix-pricelists-404-error/) |
+| 260413-btn | Standardize button styling in price-list-step wizard | 2026-04-13 | 4f395e5 | COMPLETED | - |
+| 260413-usr | Fix user dialog form submission syntax error | 2026-04-13 | 2efce95 | COMPLETED | - |
+| 260413-fid | Fix duplicate superForm id warning — add explicit ids to all superForm() calls, pass distinct props to dual UserDialog instances | 2026-04-13 | 327e011 | COMPLETED | - |
+| 260413-unc | Fix unsafe null type conversion warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | 979dd41 | COMPLETED | [.planning/quick/260413-unc-fix-unsafe-null-conversions/](./quick/260413-unc-fix-unsafe-null-conversions/) |
+| 260413-ann | Fix Collector annotation warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | edf950f | COMPLETED | [.planning/quick/260413-ann-fix-annotation-warnings/](./quick/260413-ann-fix-annotation-warnings/) |
+| 260414-s1 | Mark SEED-001 partially covered by Phase 15 (order editing + audit log done; partial payments open) | 2026-04-14 | b7a12b4 | COMPLETED | - |
 
-Last activity: 2026-04-06 - Completed quick task 260405-uke: Fix Svelte 5 effect_update_depth_exceeded error in frontend
+Last activity: 2026-04-14 - Completed quick task 260414-s1: SEED-001 status updated to partial
 
 ## Session Continuity
 
-Last session: 2026-04-06T00:42:01.959Z
-Stopped at: Completed 14-03-PLAN (Wave 3 Admin UI — Phase 14 Complete)
-Resume file: None
+Last session: 2026-04-13T09:24:00.000Z
+Stopped at: Completed 17-01-PLAN.md
+Resume file: .planning/phases/17-datatable-row-count-configurability/17-01-SUMMARY.md

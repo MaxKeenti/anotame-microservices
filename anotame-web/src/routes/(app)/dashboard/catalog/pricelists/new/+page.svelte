@@ -37,11 +37,12 @@
   let overrides = $state<Record<string, string>>({});
 
   const superform = superForm(defaults(zod4(pricelistSchema)), {
+    id: 'pricelist-new-form',
     SPA: true,
     validators: zod4(pricelistSchema),
     async onUpdate({ form: f }) {
       if (!f.valid) return;
-      
+
       isLoading = true;
       try {
         const items = Object.entries(overrides)
@@ -86,39 +87,78 @@
       services = svcRes || [];
       availableLists = listsRes || [];
 
+      // Initialize overrides with empty strings for all services
+      const initialOverrides: Record<string, string> = {};
+      services.forEach(s => {
+        initialOverrides[s.id] = "";
+      });
+      overrides = initialOverrides;
+
       // Handle clone functionality if URL param exists
+      // Wait a tick to ensure availableListItems $derived is updated before setting the value
       if (cloneFromId) {
-        $form.baseListId = cloneFromId;
-        await handleBaseListChange(cloneFromId, true);
+        // Only set baseListId if the list is actually available
+        const listExists = availableLists.some(l => l.id === cloneFromId);
+        if (listExists) {
+          $form.baseListId = cloneFromId;
+          await handleBaseListChange(cloneFromId, true);
+        }
       }
     } catch (err) {
       toast.error('Error al cargar datos necesarios');
     }
   });
 
-  const availableListItems = $derived(
-    availableLists.map(l => ({ value: l.id, label: l.name }))
-  );
+  const availableListItems = $derived.by(() => {
+    const items = [{ value: '', label: 'Iniciar desde cero (Precios Base)' }, ...availableLists.map(l => ({ value: l.id, label: l.name }))];
+    // If baseListId is set but not in the items, add a temporary placeholder
+    if ($form.baseListId && !items.find(i => i.value === $form.baseListId)) {
+      items.unshift({ value: $form.baseListId, label: 'Cargando...' });
+    }
+    return items;
+  });
 
   async function handleBaseListChange(listId: string | undefined, isFromCloneParam = false) {
     if (!listId) {
-      overrides = {};
+      // Reset overrides but keep keys
+      const resetOverrides: Record<string, string> = {};
+      services.forEach(s => {
+        resetOverrides[s.id] = "";
+      });
+      overrides = resetOverrides;
       return;
     }
     isFetchingBase = true;
     try {
       const list = await apiService.request<any>(`${API_CATALOG}/pricelists/${listId}`);
-      if (list) {
+        if (list) {
         // If cloning, we also pre-fill the name and priority
         if (isFromCloneParam) {
-          $form.name = `${list.name} (Copia)`;
-          $form.priority = list.priority;
-          if (list.validFrom) $form.validFrom = new Date(list.validFrom).toISOString().split('T')[0];
-          if (list.validTo) $form.validTo = new Date(list.validTo).toISOString().split('T')[0];
-          $form.active = list.active;
+          $form.name = String(list.name || '') + ' (Copia)';
+          $form.priority = Number(list.priority ?? 0);
+          if (list.validFrom) {
+            try {
+              $form.validFrom = new Date(list.validFrom).toISOString().split('T')[0];
+            } catch (e) {
+              $form.validFrom = '';
+            }
+          }
+          if (list.validTo) {
+            try {
+              $form.validTo = new Date(list.validTo).toISOString().split('T')[0];
+            } catch (e) {
+              $form.validTo = '';
+            }
+          }
+          $form.active = Boolean(list.active ?? true);
         }
 
         const newOverrides: Record<string, string> = {};
+        // Initialize all services first
+        services.forEach(s => {
+          newOverrides[s.id] = "";
+        });
+        
         if (list.items) {
           list.items.forEach((item: any) => {
             newOverrides[item.serviceId] = String(item.price);
@@ -149,7 +189,11 @@
     if ($form.baseListId) {
       handleBaseListChange($form.baseListId);
     } else {
-      overrides = {};
+      const resetOverrides: Record<string, string> = {};
+      services.forEach(s => {
+        resetOverrides[s.id] = "";
+      });
+      overrides = resetOverrides;
     }
   }
 </script>
@@ -197,6 +241,7 @@
               <div class="flex items-center gap-2 pt-8">
                 <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
                   <input
+                    {...constraints}
                     type="checkbox"
                     class="checkbox-custom"
                     bind:checked={$form.active}
@@ -212,15 +257,24 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Field form={superform} name="validFrom">
             {#snippet children({ constraints })}
-              <Form.Label>Válido Desde</Form.Label>
-              <AdaptiveDatePicker id="pl-from" bind:value={$form.validFrom} min={new Date().toISOString().slice(0, 10)} />
+                  <Form.Label>Válido Desde</Form.Label>
+                  <AdaptiveDatePicker 
+                    id="pl-from" 
+                    bind:value={$form.validFrom} 
+                    min={new Date().toISOString().slice(0, 10)} 
+                  />
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
           <Form.Field form={superform} name="validTo">
             {#snippet children({ constraints })}
-              <Form.Label>Válido Hasta (Opcional)</Form.Label>
-              <AdaptiveDatePicker id="pl-to" bind:value={$form.validTo} min={$form.validFrom || new Date().toISOString().slice(0, 10)} placeholder="Permanente si está vacío" />
+                  <Form.Label>Válido Hasta (Opcional)</Form.Label>
+                  <AdaptiveDatePicker 
+                    id="pl-to" 
+                    value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} 
+                    min={$form.validFrom || new Date().toISOString().slice(0, 10)} 
+                    placeholder="Permanente si está vacío" 
+                  />
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
@@ -235,14 +289,17 @@
       <Card.Content>
         <Form.Field form={superform} name="baseListId">
           {#snippet children({ constraints })}
-            <Form.Label>Copiar desde una lista existente</Form.Label>
-            <AdaptiveSelect
-              id="pl-base"
-              bind:value={$form.baseListId}
-              onValueChange={() => handleBaseListChange($form.baseListId)}
-              placeholder="-- Iniciar desde cero (Precios Base) --"
-              items={availableListItems}
-            />
+                <Form.Label>Copiar desde una lista existente</Form.Label>
+                <AdaptiveSelect
+                  id="pl-base"
+                  value={$form.baseListId as string}
+                  onValueChange={(newValue) => {
+                    $form.baseListId = newValue;
+                    handleBaseListChange(newValue);
+                  }}
+                  placeholder="-- Iniciar desde cero (Precios Base) --"
+                  items={availableListItems}
+                />
             <p class="text-xs text-muted-foreground mt-1">Al seleccionar una lista, se cargarán sus precios y sobrescribirán los actuales.</p>
             <Form.FieldErrors />
           {/snippet}
@@ -291,7 +348,7 @@
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {#each services as service}
+              {#each services as service (service.id)}
                 <Table.Row class="hover:bg-muted/10">
                   <Table.Cell class="p-4 font-medium align-middle">{service.name}</Table.Cell>
                   <Table.Cell class="p-4 text-muted-foreground font-mono text-right align-middle text-base">
@@ -321,6 +378,7 @@
         </div>
       </Card.Content>
     </Card.Root>
+
 
     <div class="flex justify-end gap-4 pt-4 pb-12">
       <Button type="button" variant="outline" class="h-14 px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>

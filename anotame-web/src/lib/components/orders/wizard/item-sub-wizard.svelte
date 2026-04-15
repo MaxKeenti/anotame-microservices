@@ -1,151 +1,179 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { apiService, API_CATALOG } from '$lib/services/api.svelte';
-    import { Button } from '$lib/components/ui/button';
-    import { Input } from '$lib/components/ui/input';
-    import { Textarea } from '$lib/components/ui/textarea';
-    import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from 'lucide-svelte';
-    import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
+	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
+	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 
-    let props = $props<{
-        initialItem?: any,
-        onSave: (item: any) => void,
-        onCancel: () => void
-    }>();
+	let props = $props<{
+		initialItem?: any,
+		onSave: (item: any) => void,
+		onCancel: () => void
+	}>();
 
-    function getInitialStep() {
-        return props.initialItem ? 1 : 0;
-    }
-    let step = $state(getInitialStep());
-    let garmentTypes = $state<any[]>([]);
-    let services = $state<any[]>([]);
-    let loading = $state(true);
+	function getInitialStep() {
+		return props.initialItem ? 1 : 0;
+	}
+	let step = $state(getInitialStep());
+	let garmentTypes = $state<any[]>([]);
+	let services = $state<any[]>([]);
+	let loading = $state(true);
 
-    let selectedGarment = $state<any | null>(null);
-    let addedServices = $state<any[]>([]);
+	let selectedGarment = $state<any | null>(null);
+	let addedServices = $state<any[]>([]);
 
-    let tempService = $state<any | null>(null);
-    let price = $state<string>("");
-    let adj = $state<string>("");
-    let adjReason = $state("");
-    let duration = $state<number>(30);
+	let tempService = $state<any | null>(null);
+	let price = $state<string>("");
+	let adj = $state<string>("");
+	let adjReason = $state("");
+	let duration = $state<number>(30);
 
-    let notes = $state("");
-    let showAllServices = $state(false);
+	let notes = $state("");
+	let showAllServices = $state(false);
 
-    onMount(async () => {
-        try {
-            const [gRes, sRes] = await Promise.all([
-                apiService.request<any[]>(`${API_CATALOG}/catalog/garments`),
-                apiService.request<any[]>(`${API_CATALOG}/catalog/services`)
-            ]);
-            garmentTypes = gRes || [];
-            services = sRes || [];
+	// Get the currently selected price list
+	let priceList = $derived(orderWizardState.getPriceList());
 
-            if (props.initialItem) {
-                let g = garmentTypes.find(x => x.id === props.initialItem.garmentId || x.id === props.initialItem.garmentTypeId);
-                if (!g && props.initialItem.garmentName) {
-                    g = garmentTypes.find(x => x.name.toLowerCase() === props.initialItem.garmentName.toLowerCase());
-                }
-                if (g) selectedGarment = g;
+	// O(1) lookup map: serviceId → price list price
+	let priceListMap = $derived(
+		priceList?.items
+			? new Map(priceList.items.map((item: { serviceId: string; price: number }) => [item.serviceId, item.price]))
+			: new Map<string, number>()
+	);
 
-                if (props.initialItem.services) addedServices = [...props.initialItem.services];
-                notes = props.initialItem.notes || "";
-            }
-        } catch (e) {
-            console.error(e);
-        } finally {
-            loading = false;
-        }
-    });
+	onMount(async () => {
+		try {
+			const [gRes, sRes] = await Promise.all([
+				apiService.request<any[]>(`${API_CATALOG}/catalog/garments`),
+				apiService.request<any[]>(`${API_CATALOG}/catalog/services`)
+			]);
+			garmentTypes = gRes || [];
+			services = sRes || [];
 
-    let filteredServices = $derived.by(() => {
-        if (!selectedGarment) return [];
-        let candidates = services;
+			if (props.initialItem) {
+				let g = garmentTypes.find(x => x.id === props.initialItem.garmentId || x.id === props.initialItem.garmentTypeId);
+				if (!g && props.initialItem.garmentName) {
+					g = garmentTypes.find(x => x.name.toLowerCase() === props.initialItem.garmentName.toLowerCase());
+				}
+				if (g) selectedGarment = g;
 
-        if (!showAllServices) {
-            const byId = services.filter(s => s.garmentTypeId === selectedGarment!.id);
-            if (byId.length > 0) candidates = byId;
-            else {
-                const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const garmentName = normalize(selectedGarment!.name);
-                const searchTerms = [garmentName];
-                if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
-                else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
+				if (props.initialItem.services) addedServices = [...props.initialItem.services];
+				notes = props.initialItem.notes || "";
+			}
+		} catch (e) {
+			console.error(e);
+		} finally {
+			loading = false;
+		}
+	});
 
-                candidates = services.filter(s => {
-                    const sName = normalize(s.name);
-                    return searchTerms.some(term => sName.includes(term));
-                });
-            }
-        }
+	let filteredServices = $derived.by(() => {
+		if (!selectedGarment) return [];
+		let candidates = services;
 
-        const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const garmentName = normalize(selectedGarment!.name);
-        const searchTerms = [garmentName];
-        if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
-        else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
+		if (!showAllServices) {
+			const byId = services.filter(s => s.garmentTypeId === selectedGarment!.id);
+			if (byId.length > 0) candidates = byId;
+			else {
+				const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+				const garmentName = normalize(selectedGarment!.name);
+				const searchTerms = [garmentName];
+				if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
+				else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
 
-        return candidates.sort((a, b) => {
-            const aName = normalize(a.name);
-            const bName = normalize(b.name);
-            const aMatch = searchTerms.some(term => aName.includes(term));
-            const bMatch = searchTerms.some(term => bName.includes(term));
-            if (aMatch && !bMatch) return -1;
-            if (!aMatch && bMatch) return 1;
-            return a.name.localeCompare(b.name);
-        });
-    });
+				candidates = services.filter(s => {
+					const sName = normalize(s.name);
+					return searchTerms.some(term => sName.includes(term));
+				});
+			}
+		}
 
-    function handleGarmentSelect(g: any) {
-        selectedGarment = g;
-        addedServices = [];
-        step = 1;
-        showAllServices = false;
-    }
+		const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+		const garmentName = normalize(selectedGarment!.name);
+		const searchTerms = [garmentName];
+		if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
+		else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
 
-    function handleServiceSelect(s: any) {
-        tempService = s;
-        price = String(s.effectivePrice ?? s.basePrice);
-        adj = "";
-        adjReason = "";
-        duration = s.defaultDurationMin || 30;
-        step = 2;
-    }
+		return candidates.sort((a, b) => {
+			const aName = normalize(a.name);
+			const bName = normalize(b.name);
+			const aMatch = searchTerms.some(term => aName.includes(term));
+			const bMatch = searchTerms.some(term => bName.includes(term));
+			if (aMatch && !bMatch) return -1;
+			if (!aMatch && bMatch) return 1;
+			return a.name.localeCompare(b.name);
+		});
+	});
 
-    function handleAddService() {
-        if (!tempService) return;
-        addedServices = [...addedServices, {
-            serviceId: tempService.id,
-            serviceName: tempService.name,
-            unitPrice: parseFloat(price) || 0,
-            adjustmentAmount: parseFloat(adj) || 0,
-            adjustmentReason: adjReason,
-            durationMin: duration
-        }];
-        toast.success("Servicio agregado", { description: tempService.name });
-        tempService = null;
-        step = 3;
-    }
+	function handleGarmentSelect(g: any) {
+		selectedGarment = g;
+		addedServices = [];
+		step = 1;
+		showAllServices = false;
+	}
 
-    function handleRemoveService(index: number) {
-        const removed = addedServices[index].serviceName;
-        addedServices.splice(index, 1);
-        addedServices = [...addedServices];
-        toast.info("Servicio removido", { description: removed });
-    }
+	function handleServiceSelect(s: any) {
+		tempService = s;
+		
+		// Auto-fill from price list if selected, otherwise use service default price
+		if (priceList?.items && priceList.items.length > 0) {
+			const priceListItem = priceList.items.find(item => item.serviceId === s.id);
+			if (priceListItem) {
+				price = String(priceListItem.price);
+				// Show that price came from price list
+				toast.info("Precio desde lista", { description: `${priceListItem.price}` });
+			} else {
+				// Service not in price list - leave price blank per D-06
+				price = "";
+				toast.info("Servicio no en lista de precios", { description: `Ingresa el precio manualmente` });
+			}
+		} else {
+			// No price list selected - use service default
+			price = String(s.effectivePrice ?? s.basePrice);
+		}
+		
+		adj = "";
+		adjReason = "";
+		duration = s.defaultDurationMin || 30;
+		step = 2;
+	}
 
-    function handleConfirmItem() {
-        if (!selectedGarment) return;
-        props.onSave({
-            garmentId: selectedGarment.id,
-            garmentTypeId: selectedGarment.id,
-            garmentName: selectedGarment.name,
-            services: addedServices,
-            quantity: 1, // Legacy wizard hardcoded quantity mapping usually happens here or outside
-            notes: notes
-        });
-    }
+	function handleAddService() {
+		if (!tempService) return;
+		addedServices = [...addedServices, {
+			serviceId: tempService.id,
+			serviceName: tempService.name,
+			unitPrice: parseFloat(price) || 0,
+			adjustmentAmount: parseFloat(adj) || 0,
+			adjustmentReason: adjReason,
+			durationMin: duration
+		}];
+		toast.success("Servicio agregado", { description: tempService.name });
+		tempService = null;
+		step = 3;
+	}
+
+	function handleRemoveService(index: number) {
+		const removed = addedServices[index].serviceName;
+		addedServices.splice(index, 1);
+		addedServices = [...addedServices];
+		toast.info("Servicio removido", { description: removed });
+	}
+
+	function handleConfirmItem() {
+		if (!selectedGarment) return;
+		props.onSave({
+			garmentId: selectedGarment.id,
+			garmentTypeId: selectedGarment.id,
+			garmentName: selectedGarment.name,
+			services: addedServices,
+			quantity: 1, // Legacy wizard hardcoded quantity mapping usually happens here or outside
+			notes: notes
+		});
+	}
 </script>
 
 {#if loading}
@@ -246,12 +274,22 @@
                                 >
                                     <span class="font-bold text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
                                     <div class="flex flex-col items-end shrink-0">
-                                        {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
-                                            <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                        {#if priceListMap.size > 0}
+                                            {@const plPrice = priceListMap.get(s.id)}
+                                            {#if plPrice !== undefined}
+                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">${plPrice}</span>
+                                            {:else}
+                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-muted-foreground">${s.basePrice}</span>
+                                            {/if}
+                                        {:else}
+                                            {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
+                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                            {/if}
+                                            <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">
+                                                ${s.effectivePrice ?? s.basePrice}
+                                            </span>
                                         {/if}
-                                        <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">
-                                            ${s.effectivePrice ?? s.basePrice}
-                                        </span>
                                     </div>
                                 </Button>
                             {/each}

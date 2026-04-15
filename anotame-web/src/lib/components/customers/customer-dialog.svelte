@@ -28,6 +28,7 @@
   let isSubmitting = $state(false);
 
   const superform = superForm(defaults(zod4(customerSchema)), {
+    id: 'customer-dialog',
     SPA: true,
     validators: zod4(customerSchema),
     async onUpdate({ form }) {
