@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Deployment Refactor
 status: planning
-stopped_at: v1.3 milestone complete
+stopped_at: Requirements definition
 last_updated: "2026-04-14T00:00:00.000Z"
-last_activity: 2026-04-14 -- v1.3 milestone archived and tagged
+last_activity: 2026-04-14 -- v1.4 milestone started; DB-per-service + Railway Dockerfile deploys scoped
 progress:
   total_phases: 0
   completed_phases: 0
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 ## Current Position
 
-Milestone: v1.3 Advanced Operations — COMPLETE (shipped 2026-04-14)
-Next milestone: v1.4 Deployment Refactor — planning
-Status: Between milestones
-Last activity: 2026-04-14 -- v1.3 milestone archived, tagged v1.3
+Milestone: v1.4 Deployment Refactor — in progress
+Phase: Not started (defining requirements)
+Status: Defining requirements
+Last activity: 2026-04-14 -- v1.4 milestone started; scope confirmed
 
 Progress: [----------] 0% (v1.4 not yet started)
 

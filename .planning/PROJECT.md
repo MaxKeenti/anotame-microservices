@@ -10,11 +10,18 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ## Current Milestone: v1.4 — Deployment Refactor
 
-**Goal:** Harden Railway deployment — migrate from PostGIS to native PostgreSQL, eliminate GitHub Packages dependency, and enable per-service Dockerfile deploys.
+**Goal:** Move from a shared monolithic PostgreSQL instance to 4 isolated per-service PostgreSQL databases, eliminate external build dependencies, and rebuild Railway deployment with per-service Dockerfiles.
 
 **Target features:**
-- Deployment refactor — research Railway Dockerfile deploys, migrate from PostGIS to native PostgreSQL
-- Deployment implementation — eliminate GitHub Packages dependency across all services
+- DB-per-service architecture (SEED-009) — 4 independent Railway PostgreSQL instances; separate credentials per service; fresh Flyway baselines per service
+- init.sql refresh — Flyway migrations become single source of truth; local Docker Compose updated to 4 PostgreSQL containers
+- PostGIS removal — drop PostGIS dependency from catalog-service POM (no geometry columns in use)
+- Eliminate GitHub Packages dependency — all Quarkus BOMs/artifacts move to Maven Central only; no PAT token at build time
+- Per-service Railway Dockerfile deploys — individual Dockerfiles per service replacing docker-compose deploy approach
+
+**Key decisions:**
+- Clean-slate deployment — planned downtime for cutover is acceptable
+- 4 separate Railway PostgreSQL instances chosen over 4 schemas for credential blast-radius containment and lateral-movement prevention
 
 ---
 
