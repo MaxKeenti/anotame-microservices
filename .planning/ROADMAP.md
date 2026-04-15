@@ -105,7 +105,11 @@ Plans:
   2. Each deployed service's `/q/health/ready` endpoint returns HTTP 200 within 300 seconds of startup
   3. Each service connects to its own dedicated Railway PostgreSQL instance (`identity-db`, `catalog-db`, `sales-db`, `operations-db`) — no service shares a database
   4. `build_and_push.sh` and the `anotame-db/` shared container directory no longer exist in the repository
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 20-01-PLAN.md — Fix all 4 Dockerfiles (go-offline, MAVEN_OPTS, ENTRYPOINT logging manager, path consistency)
+- [ ] 20-02-PLAN.md — Create 4 railway.toml files; delete build_and_push.sh and anotame-db/
+- [ ] 20-03-PLAN.md — Railway dashboard provisioning: 4 services, 4 PostgreSQL instances, env vars, deploys [MANUAL]
 
 ### Phase 21: Local Dev Docker Compose
 **Goal**: A developer can run `docker compose up` from the repo root and have 4 independent PostgreSQL containers start, after which each Quarkus service connects to its own container and Flyway initializes the schema automatically — no manual SQL execution required
@@ -142,5 +146,5 @@ Plans:
 | 17. DataTable Row Count Configurability | v1.3 | 1/1 | Complete | 2026-04-14 |
 | 18. DB Ownership + Fresh V1 Baselines | v1.4 | 0/3 | Planned | - |
 | 19. Application Configuration | v1.4 | 0/2 | Planned | - |
-| 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/? | Not started | - |
+| 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/3 | Planned | - |
 | 21. Local Dev Docker Compose | v1.4 | 0/? | Not started | - |
