@@ -91,7 +91,10 @@ Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/
   1. Starting any service with `QUARKUS_DATASOURCE_JDBC_URL`, `QUARKUS_DATASOURCE_USERNAME`, and `QUARKUS_DATASOURCE_PASSWORD` env vars set connects to the target database without modifying any config file
   2. Starting any service without those env vars (local dev) falls back to its `%dev` profile pointing to `localhost:543{1-4}/{service}` — the app starts and passes health checks
   3. Each service's HTTP port resolves from Railway's injected `PORT` env var; if `PORT` is absent it falls back to the service-specific default (8081–8084)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 19-01-PLAN.md — Externalize identity-service and catalog-service datasource URL and HTTP port
+- [ ] 19-02-PLAN.md — Externalize sales-service and operations-service datasource URL and HTTP port
 
 ### Phase 20: Dockerfile Fixes + Railway Deployment
 **Goal**: All 4 services build and run successfully as Railway native Dockerfile deployments — each backed by its own Railway PostgreSQL instance, reachable via `/q/health/ready`, with the legacy GHCR build pipeline removed
@@ -138,6 +141,6 @@ Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/
 | 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
 | 17. DataTable Row Count Configurability | v1.3 | 1/1 | Complete | 2026-04-14 |
 | 18. DB Ownership + Fresh V1 Baselines | v1.4 | 0/3 | Planned | - |
-| 19. Application Configuration | v1.4 | 0/? | Not started | - |
+| 19. Application Configuration | v1.4 | 0/2 | Planned | - |
 | 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/? | Not started | - |
 | 21. Local Dev Docker Compose | v1.4 | 0/? | Not started | - |
