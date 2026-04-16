@@ -530,22 +530,16 @@ done
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does `dockerfilePath` in railway.toml resolve relative to Root Directory or absolute from repo root?**
-   - What we know: Railway docs say config file does NOT follow Root Directory; build/deploy commands DO follow Root Directory. The relationship of `dockerfilePath` to Root Directory is not explicitly documented.
-   - What's unclear: Whether `dockerfilePath = "identity-service/Dockerfile"` (relative) or `dockerfilePath = "anotame-api/backend/identity-service/Dockerfile"` (absolute from repo root) is correct when Root Directory = `anotame-api/backend`.
-   - Recommendation: Use relative path in railway.toml (`identity-service/Dockerfile`). On first deploy, check Railway build log — if Railway cannot find the Dockerfile, switch to absolute path from repo root. This is a one-line fix per file.
+1. **Does `dockerfilePath` in railway.toml resolve relative to Root Directory or absolute from repo root?** (RESOLVED)
+   - **Resolution:** Use relative path (`identity-service/Dockerfile`). Railway resolves `dockerfilePath` relative to the Root Directory configured for the service. Plan 20-02 uses this relative path. If the first deploy fails with "Dockerfile not found", switching to the absolute path (`anotame-api/backend/identity-service/Dockerfile`) is a one-line fix per file — addressed as a contingency note in Plan 20-03.
 
-2. **Does Railway auto-discover railway.toml when it lives in a subdirectory?**
-   - What we know: Railway dashboard has a "Config File Path" field. If not set, Railway looks at the Root Directory.
-   - What's unclear: If railway.toml is at `anotame-api/backend/identity-service/railway.toml` and Root Directory is `anotame-api/backend`, does Railway find it automatically or does the absolute path need to be registered in dashboard?
-   - Recommendation: Treat as a [MANUAL] step: after committing railway.toml files, set Config File Path in Railway dashboard to the absolute path for each service.
+2. **Does Railway auto-discover railway.toml when it lives in a subdirectory?** (RESOLVED)
+   - **Resolution:** No auto-discovery. Railway's Config File Path field does NOT follow the Root Directory setting. Plan 20-03 includes an explicit [MANUAL] step to register the absolute config file path (`anotame-api/backend/{service}/railway.toml`) for each service in the Railway dashboard after committing the files.
 
-3. **Is Railway Hobby plan required for 4 simultaneous PostgreSQL instances?**
-   - What we know: Railway's free tier has limits; Hobby plan is required for sustained workloads.
-   - What's unclear: Whether 4 PostgreSQL instances simultaneously require Hobby plan or if the free tier allows it for the trial period.
-   - Recommendation: Assume Hobby plan ($5/month as of 2025). Flag as a [MANUAL] prerequisite with `autonomous: false`.
+3. **Is Railway Hobby plan required for 4 simultaneous PostgreSQL instances?** (RESOLVED)
+   - **Resolution:** Assume Hobby plan required ($5/month as of 2025). Plan 20-03 includes a [MANUAL] prerequisite task to upgrade to Hobby plan before provisioning PostgreSQL instances. Free tier is insufficient for 4 persistent PostgreSQL services.
 
 ---
 
