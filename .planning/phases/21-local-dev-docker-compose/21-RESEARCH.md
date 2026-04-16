@@ -434,16 +434,18 @@ No missing dependencies.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `.env` be cleaned up in this phase or left for a separate housekeeping task?**
    - What we know: `.env` has vars that are only relevant to the old app containers in compose (POSTGRES_DB, PUBLIC_*_URL, QUARKUS_DATASOURCE_JDBC_URL at compose level)
    - What's unclear: Whether any other tooling (scripts, CI, documentation) references these `.env` vars
    - Recommendation: Include `.env` cleanup as an optional task in the plan. Mark it "good housekeeping" rather than required for DEV-01/02/03 compliance.
+   - **RESOLVED:** `.env` cleanup included as Plan 01 Task 2 — remove 8 obsolete vars, retain JWT keys, pgadmin password, cookie config, CORS origins.
 
 2. **Should pgadmin depend on one specific DB container or have no `depends_on`?**
    - What we know: PgAdmin can retry connections to databases; it does not need a DB to start
    - Recommendation: Keep `depends_on: identity-db: condition: service_healthy` as a convention (identity-db is the first service, first in the file) but note it is arbitrary — any of the 4 containers would work.
+   - **RESOLVED:** Plan 01 Task 1 sets `anotame-pgadmin depends_on: identity-db: condition: service_healthy` as the chosen convention.
 
 ---
 
