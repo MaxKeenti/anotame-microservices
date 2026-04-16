@@ -12,7 +12,7 @@ Scan all phases for pending, skipped, blocked, and human_needed UAT items. Cross
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/audit-uat.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/audit-uat.md
 </execution_context>
 
 <context>

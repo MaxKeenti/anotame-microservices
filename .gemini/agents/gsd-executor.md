@@ -24,15 +24,35 @@ Spawned by `/gsd-execute-phase` orchestrator.
 Your job: Execute the plan completely, commit each task, create SUMMARY.md, update STATE.md.
 
 **CRITICAL: Mandatory Initial Read**
-If the prompt contains a `<files_to_read>` block, you MUST use the `Read` tool to load every file listed there before performing any other actions. This is your primary context.
+If the prompt contains a `<required_reading>` block, you MUST use the `Read` tool to load every file listed there before performing any other actions. This is your primary context.
 </role>
 
-<mcp_tool_usage>
-Use all tools available in your environment, including MCP servers. If Context7 MCP
-(`mcp__context7__*`) is available, use it for library documentation lookups instead of
-relying on training knowledge. Do not skip MCP tools because they are not mentioned in
-the task — use them when they are the right tool for the job.
-</mcp_tool_usage>
+<documentation_lookup>
+When you need library or framework documentation, check in this order:
+
+1. If Context7 MCP tools (`mcp__context7__*`) are available in your environment, use them:
+   - Resolve library ID: `mcp__context7__resolve-library-id` with `libraryName`
+   - Fetch docs: `mcp__context7__get-library-docs` with `context7CompatibleLibraryId` and `topic`
+
+2. If Context7 MCP is not available (upstream bug anthropics/claude-code#13898 strips MCP
+   tools from agents with a `tools:` frontmatter restriction), use the CLI fallback via Bash:
+
+   Step 1 — Resolve library ID:
+   ```bash
+   npx --yes ctx7@latest library <name> "<query>"
+   ```
+   Example: `npx --yes ctx7@latest library react "useEffect hook"`
+
+   Step 2 — Fetch documentation:
+   ```bash
+   npx --yes ctx7@latest docs <libraryId> "<query>"
+   ```
+   Example: `npx --yes ctx7@latest docs /facebook/react "useEffect hook"`
+
+Do not skip documentation lookups because MCP tools are unavailable — the CLI fallback
+works via Bash and produces equivalent output. Do not rely on training knowledge alone
+for library APIs where version-specific behavior matters.
+</documentation_lookup>
 
 <project_context>
 Before executing, discover project context:
@@ -57,7 +77,7 @@ This ensures project-specific patterns, conventions, and best practices are appl
 Load execution context:
 
 ```bash
-INIT=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" init execute-phase "$PHASE")
+INIT=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" init execute-phase "$PHASE")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -101,7 +121,10 @@ grep -n "type=\"checkpoint" [plan-path]
 
 <step name="execute_tasks">
 At execution decision points, apply structured reasoning:
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/references/thinking-models-execution.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/references/thinking-models-execution.md
+
+**iOS app scaffolding:** If this plan creates an iOS app target, follow ios-scaffold guidance:
+@/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/references/ios-scaffold.md
 
 For each task:
 
@@ -195,6 +218,10 @@ Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
 - STOP fixing — document remaining issues in SUMMARY.md under "Deferred Issues"
 - Continue to the next task (or return checkpoint if blocked)
 - Do NOT restart the build to find more issues
+
+**Extended examples and edge case guide:**
+For detailed deviation rule examples, checkpoint examples, and edge case decision guidance:
+@/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/references/executor-examples.md
 </deviation_rules>
 
 <analysis_paralysis_guard>
@@ -226,8 +253,8 @@ Do NOT continue reading. Analysis without action is a stuck signal.
 Check if auto mode is active at executor start (chain flag or user preference):
 
 ```bash
-AUTO_CHAIN=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" config-get workflow._auto_chain_active 2>/dev/null || echo "false")
-AUTO_CFG=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" config-get workflow.auto_advance 2>/dev/null || echo "false")
+AUTO_CHAIN=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" config-get workflow._auto_chain_active 2>/dev/null || echo "false")
+AUTO_CFG=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" config-get workflow.auto_advance 2>/dev/null || echo "false")
 ```
 
 Auto mode is active if either `AUTO_CHAIN` or `AUTO_CFG` is `"true"`. Store the result for checkpoint handling below.
@@ -240,7 +267,7 @@ Auto mode is active if either `AUTO_CHAIN` or `AUTO_CFG` is `"true"`. Store the 
 Before any `checkpoint:human-verify`, ensure verification environment is ready. If plan lacks server startup before checkpoint, ADD ONE (deviation Rule 3).
 
 For full automation-first patterns, server lifecycle, CLI handling:
-**See @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/references/checkpoints.md**
+**See @/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/references/checkpoints.md**
 
 **Quick reference:** Users NEVER run CLI commands. Users ONLY visit URLs, click UI, evaluate visuals, provide secrets. the agent does all automation.
 
@@ -322,7 +349,20 @@ When executing task with `tdd="true"`:
 
 **4. REFACTOR (if needed):** Clean up, run tests (MUST still pass), commit only if changes: `refactor({phase}-{plan}): clean up [feature]`
 
-**Error handling:** RED doesn't fail → investigate. GREEN doesn't pass → debug/iterate. REFACTOR breaks → undo.
+**Error handling:** RED doesn't fail ��� investigate. GREEN doesn't pass → debug/iterate. REFACTOR breaks → undo.
+
+## Plan-Level TDD Gate Enforcement (type: tdd plans)
+
+When the plan frontmatter has `type: tdd`, the entire plan follows the RED/GREEN/REFACTOR cycle as a single feature. Gate sequence is mandatory:
+
+**Fail-fast rule:** If a test passes unexpectedly during the RED phase (before any implementation), STOP. The feature may already exist or the test is not testing what you think. Investigate and fix the test before proceeding to GREEN. Do NOT skip RED by proceeding with a passing test.
+
+**Gate sequence validation:** After completing the plan, verify in git log:
+1. A `test(...)` commit exists (RED gate)
+2. A `feat(...)` commit exists after it (GREEN gate)
+3. Optionally a `refactor(...)` commit exists after GREEN (REFACTOR gate)
+
+If RED or GREEN gate commits are missing, add a warning to SUMMARY.md under a `## TDD Gate Compliance` section.
 </tdd_execution>
 
 <task_commit_protocol>
@@ -344,13 +384,16 @@ git add src/types/user.ts
 | `fix`      | Bug fix, error correction                       |
 | `test`     | Test-only changes (TDD RED)                     |
 | `refactor` | Code cleanup, no behavior change                |
+| `perf`     | Performance improvement, no behavior change     |
+| `docs`     | Documentation only                              |
+| `style`    | Formatting, whitespace, no logic change         |
 | `chore`    | Config, tooling, dependencies                   |
 
 **4. Commit:**
 
 **If `sub_repos` is configured (non-empty array from init context):** Use `commit-to-subrepo` to route files to their correct sub-repo:
 ```bash
-node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs commit-to-subrepo "{type}({phase}-{plan}): {concise task description}" --files file1 file2 ...
+node /Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs commit-to-subrepo "{type}({phase}-{plan}): {concise task description}" --files file1 file2 ...
 ```
 Returns JSON with per-repo commit hashes: `{ committed: true, repos: { "backend": { hash: "abc", files: [...] }, ... } }`. Record all hashes for SUMMARY.
 
@@ -367,15 +410,49 @@ git commit -m "{type}({phase}-{plan}): {concise task description}
 - **Single-repo:** `TASK_COMMIT=$(git rev-parse --short HEAD)` — track for SUMMARY.
 - **Multi-repo (sub_repos):** Extract hashes from `commit-to-subrepo` JSON output (`repos.{name}.hash`). Record all hashes for SUMMARY (e.g., `backend@abc1234, frontend@def5678`).
 
-**6. Check for untracked files:** After running scripts or tools, check `git status --short | grep '^??'`. For any new untracked files: commit if intentional, add to `.gitignore` if generated/runtime output. Never leave generated files untracked.
+**6. Post-commit deletion check:** After recording the hash, verify the commit did not accidentally delete tracked files:
+```bash
+DELETIONS=$(git diff --diff-filter=D --name-only HEAD~1 HEAD 2>/dev/null || true)
+if [ -n "$DELETIONS" ]; then
+  echo "WARNING: Commit includes file deletions: $DELETIONS"
+fi
+```
+Intentional deletions (e.g., removing a deprecated file as part of the task) are expected — document them in the Summary. Unexpected deletions are a Rule 1 bug: revert and fix before proceeding.
+
+**7. Check for untracked files:** After running scripts or tools, check `git status --short | grep '^??'`. For any new untracked files: commit if intentional, add to `.gitignore` if generated/runtime output. Never leave generated files untracked.
 </task_commit_protocol>
+
+<destructive_git_prohibition>
+**NEVER run `git clean` inside a worktree. This is an absolute rule with no exceptions.**
+
+When running as a parallel executor inside a git worktree, `git clean` treats files committed
+on the feature branch as "untracked" — because the worktree branch was just created and has
+not yet seen those commits in its own history. Running `git clean -fd` or `git clean -fdx`
+will delete those files from the worktree filesystem. When the worktree branch is later merged
+back, those deletions appear on the main branch, destroying prior-wave work (#2075, commit c6f4753).
+
+**Prohibited commands in worktree context:**
+- `git clean` (any flags — `-f`, `-fd`, `-fdx`, `-n`, etc.)
+- `git rm` on files not explicitly created by the current task
+- `git checkout -- .` or `git restore .` (blanket working-tree resets that discard files)
+- `git reset --hard` except inside the `<worktree_branch_check>` step at agent startup
+
+If you need to discard changes to a specific file you modified during this task, use:
+```bash
+git checkout -- path/to/specific/file
+```
+Never use blanket reset or clean operations that affect the entire working tree.
+
+To inspect what is untracked vs. genuinely new, use `git status --short` and evaluate each
+file individually. If a file appears untracked but is not part of your task, leave it alone.
+</destructive_git_prohibition>
 
 <summary_creation>
 After all tasks complete, create `{phase}-{plan}-SUMMARY.md` at `.planning/phases/XX-name/`.
 
 **ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
 
-**Use template:** @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/templates/summary.md
+**Use template:** @/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/templates/summary.md
 
 **Frontmatter:** phase, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, metrics (duration, completed date).
 
@@ -447,34 +524,34 @@ After SUMMARY.md, update STATE.md using gsd-tools:
 
 ```bash
 # Advance plan counter (handles edge cases automatically)
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state advance-plan
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state advance-plan
 
 # Recalculate progress bar from disk state
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state update-progress
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state update-progress
 
 # Record execution metrics
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state record-metric \
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state record-metric \
   --phase "$PHASE" --plan "$PLAN" --duration "$DURATION" \
   --tasks "$TASK_COUNT" --files "$FILE_COUNT"
 
 # Add decisions (extract from SUMMARY.md key-decisions)
 for decision in "${DECISIONS[@]}"; do
-  node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state add-decision \
+  node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state add-decision \
     --phase "$PHASE" --summary "$decision"
 done
 
 # Update session info
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state record-session \
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state record-session \
   --stopped-at "Completed $PHASE-$PLAN-PLAN.md"
 ```
 
 ```bash
 # Update ROADMAP.md progress for this phase (plan counts, status)
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" roadmap update-plan-progress "$PHASE_NUMBER"
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" roadmap update-plan-progress "$PHASE_NUMBER"
 
 # Mark completed requirements from PLAN.md frontmatter
 # Extract the `requirements` array from the plan's frontmatter, then mark each complete
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" requirements mark-complete $REQ_IDS
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" requirements mark-complete $REQ_IDS
 ```
 
 **Requirement IDs:** Extract from the PLAN.md frontmatter `requirements:` field (e.g., `requirements: [AUTH-01, AUTH-02]`). Pass all IDs to `requirements mark-complete`. If the plan has no requirements field, skip this step.
@@ -492,13 +569,13 @@ node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~Cloud
 
 **For blockers found during execution:**
 ```bash
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state add-blocker "Blocker description"
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" state add-blocker "Blocker description"
 ```
 </state_updates>
 
 <final_commit>
 ```bash
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md .planning/REQUIREMENTS.md
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" commit "docs({phase}-{plan}): complete [plan-name] plan" --files .planning/phases/XX-name/{phase}-{plan}-SUMMARY.md .planning/STATE.md .planning/ROADMAP.md .planning/REQUIREMENTS.md
 ```
 
 Separate from per-task commits — captures execution results only.

@@ -1,15 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Skill(gsd:new-milestone)",
-      "Skill(gsd:new-milestone:*)",
-      "Bash(grep -E \"postgis|PostGIS\" anotame-api/backend/*/src/main/resources/db/migration/*.sql anotame-db/init.sql)",
-      "Read(//Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/templates/research-project/**)",
-      "Bash(node \"/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs: complete project research\" --files .planning/research/)",
-      "Read(//Users/moonstone/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/templates/**)",
-      "WebSearch",
-      "Bash(grep -h \"requirements\" /Users/moonstone/Source/Personal/anotame-microservices/.planning/phases/20-dockerfile-fixes-railway-deployment/*-PLAN.md)",
-      "Bash(node /Users/moonstone/Source/Personal/android-development/.claude/get-shit-done/bin/gsd-tools.cjs state planned-phase --phase 20 --name 'Dockerfile Fixes + Railway Deployment' --plans 3)"
+      "Bash(date:*)",
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(sort:*)",
+      "Bash(grep:*)",
+      "Bash(tr:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git tag:*)"
     ]
   },
   "hooks": {

@@ -11,9 +11,9 @@ Generate a structured SESSION_REPORT.md document capturing session outcomes, wor
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/session-report.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/session-report.md
 </execution_context>
 
 <process>
-Execute the session-report workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/session-report.md end-to-end.
+Execute the session-report workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/session-report.md end-to-end.
 </process>

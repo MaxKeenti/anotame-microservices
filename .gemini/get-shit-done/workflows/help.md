@@ -281,7 +281,7 @@ Usage: `/gsd-debug` (resume active session)
 **`/gsd-note <text>`**
 Zero-friction idea capture — one command, instant save, no questions.
 
-- Saves timestamped note to `.planning/notes/` (or `/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/notes/` globally)
+- Saves timestamped note to `.planning/notes/` (or `/Users/moonstone/Source/Personal/anotame-microservices/.gemini/notes/` globally)
 - Three subcommands: append (default), list, promote
 - Promote converts a note into a structured todo
 - Works without a project (falls back to global scope)
@@ -345,7 +345,7 @@ Usage: `/gsd-ship 4` or `/gsd-ship 4 --draft`
 
 ---
 
-**`/gsd-review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--all]`**
+**`/gsd-review --phase N [--gemini] [--claude] [--codex] [--coderabbit] [--opencode] [--qwen] [--cursor] [--all]`**
 Cross-AI peer review — invoke external AI CLIs to independently review phase plans.
 
 - Detects available CLIs (gemini, claude, codex, coderabbit)

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.34.2
+// gsd-hook-version: 1.36.0
 // Check for GSD updates in background, write result to cache
 // Called by SessionStart hook - runs once per session
 
@@ -80,15 +80,18 @@ const child = spawn(process.execPath, ['-e', `
   } catch (e) {}
 
   // Check for stale hooks — compare hook version headers against installed VERSION
-  // Hooks are installed at configDir/hooks/ (e.g. ~/.claude/hooks/) (#1421)
+  // Hooks are installed at configDir/hooks/ (e.g. ~/.agent/hooks/) (#1421)
   // Only check hooks that GSD currently ships — orphaned files from removed features
   // (e.g., gsd-intel-*.js) must be ignored to avoid permanent stale warnings (#1750)
   const MANAGED_HOOKS = [
     'gsd-check-update.js',
     'gsd-context-monitor.js',
+    'gsd-phase-boundary.sh',
     'gsd-prompt-guard.js',
     'gsd-read-guard.js',
+    'gsd-session-state.sh',
     'gsd-statusline.js',
+    'gsd-validate-commit.sh',
     'gsd-workflow-guard.js',
   ];
   let staleHooks = [];

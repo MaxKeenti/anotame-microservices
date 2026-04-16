@@ -95,7 +95,7 @@ if [ -z "$PATCHES_DIR" ]; then
   elif [ -d "$HOME/.codex/gsd-local-patches" ]; then
     PATCHES_DIR="$HOME/.codex/gsd-local-patches"
   else
-    PATCHES_DIR="/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/gsd-local-patches"
+    PATCHES_DIR="/Users/moonstone/Source/Personal/anotame-microservices/.claude/gsd-local-patches"
   fi
 fi
 # Local install fallback — check all runtime directories
@@ -201,7 +201,7 @@ When no pristine baseline is available, use these **strengthened heuristics**:
 For each file:
 a. Read both versions completely
 b. Identify ALL differences, then classify each as:
-   - **Mechanical drift** — path substitutions (e.g. `/Users/xxx/.claude/` → `/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/`), variable additions (`${GSD_WS}`, `${AGENT_SKILLS_*}`), error handling additions (`|| true`)
+   - **Mechanical drift** — path substitutions (e.g. `/Users/xxx/.claude/` → `/Users/moonstone/Source/Personal/anotame-microservices/.claude/`), variable additions (`${GSD_WS}`, `${AGENT_SKILLS_*}`), error handling additions (`|| true`)
    - **User customization** — added steps/sections, removed sections, reordered content, changed behavior, added frontmatter fields, modified instructions
 
 c. **If ANY differences remain after filtering out mechanical drift → those are user customizations. Merge them.**
@@ -230,22 +230,61 @@ After writing each merged file, verify that user modifications survived the merg
      - Missing hunk near line {N}: "{first_line_preview}..." ({line_count} lines)
      - Backup available: {patches_dir}/{file_path}
    ```
-4. **Track verification status** — add to per-file report: `Merged (verified)` vs `Merged (⚠ {N} hunks may be missing)`
+4. **Produce a Hunk Verification Table** — one row per hunk per file. This table is **mandatory output** and must be produced before Step 5 can proceed. Format:
 
-5. **Report status per file:**
+   | file | hunk_id | signature_line | line_count | verified |
+   |------|---------|----------------|------------|----------|
+   | {file_path} | {N} | {first_significant_line} | {count} | yes |
+   | {file_path} | {N} | {first_significant_line} | {count} | no |
+
+   - `hunk_id` — sequential integer per file (1, 2, 3…)
+   - `signature_line` — first non-blank, non-comment line of the user-added section
+   - `line_count` — total lines in the hunk
+   - `verified` — `yes` if the signature_line is present in the merged output, `no` otherwise
+
+5. **Track verification status** — add to per-file report: `Merged (verified)` vs `Merged (⚠ {N} hunks may be missing)`
+
+6. **Report status per file:**
    - `Merged` — user modifications applied cleanly (show summary of what was preserved)
    - `Conflict` — user reviewed and chose resolution
    - `Incorporated` — user's modification was already adopted upstream (only valid when pristine baseline confirms this)
 
 **Never report `Skipped — no custom content`.** If a file is in the backup, it has custom content.
 
-## Step 5: Cleanup option
+## Step 5: Hunk Verification Gate
+
+Before proceeding to cleanup, evaluate the Hunk Verification Table produced in Step 4.
+
+**If the Hunk Verification Table is absent** (Step 4 did not produce it), STOP immediately and report to the user:
+```
+ERROR: Hunk Verification Table is missing. Post-merge verification was not completed.
+Rerun /gsd-reapply-patches to retry with full verification.
+```
+
+**If any row in the Hunk Verification Table shows `verified: no`**, STOP and report to the user:
+```
+ERROR: {N} hunk(s) failed verification — content may have been dropped during merge.
+
+Unverified hunks:
+  {file} hunk {hunk_id}: signature line "{signature_line}" not found in merged output
+
+The backup is preserved at: {patches_dir}/{file}
+Review the merged file manually, then either:
+  (a) Re-merge the missing content by hand, or
+  (b) Restore from backup: cp {patches_dir}/{file} {installed_path}
+```
+
+Do not proceed to cleanup until the user confirms they have resolved all unverified hunks.
+
+**Only when all rows show `verified: yes`** (or when all files had zero user-added hunks) may execution continue to Step 6.
+
+## Step 6: Cleanup option
 
 Ask user:
 - "Keep patch backups for reference?" → preserve `gsd-local-patches/`
 - "Clean up patch backups?" → remove `gsd-local-patches/` directory
 
-## Step 6: Report
+## Step 7: Report
 
 ```
 ## Patches Reapplied
