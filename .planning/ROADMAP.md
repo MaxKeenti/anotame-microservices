@@ -119,7 +119,10 @@ Plans:
   1. `docker compose up` starts exactly 4 PostgreSQL containers on ports 5431–5434; no shared `anotame-db` container or `init.sql` volume mount exists
   2. Starting any service in dev mode against its dedicated container results in Flyway creating the schema on first boot — the developer does not run any SQL manually
   3. No two services point to the same local database in their `%dev` datasource configuration
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 21-01-PLAN.md — Rewrite docker-compose.yml (4 DB containers, remove app/web containers, remove init.sql) and prune .env
+- [ ] 21-02-PLAN.md — Rewrite README.md with accurate local dev bring-up instructions
 
 ---
 
@@ -147,4 +150,4 @@ Plans:
 | 18. DB Ownership + Fresh V1 Baselines | v1.4 | 0/3 | Planned | - |
 | 19. Application Configuration | v1.4 | 0/2 | Planned | - |
 | 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/3 | Planned | - |
-| 21. Local Dev Docker Compose | v1.4 | 0/? | Not started | - |
+| 21. Local Dev Docker Compose | v1.4 | 0/2 | Planned | - |
