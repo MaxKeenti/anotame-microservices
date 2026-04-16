@@ -4,14 +4,14 @@ milestone: v1.4
 milestone_name: Deployment Refactor
 status: executing
 stopped_at: Roadmap created for v1.4
-last_updated: "2026-04-15T00:00:00.000Z"
-last_activity: 2026-04-15 -- Phase 21 planning complete (2 plans)
+last_updated: "2026-04-16T16:39:18.088Z"
+last_activity: 2026-04-16
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 10
-  completed_plans: 0
-  percent: 0
+  completed_plans: 3
+  percent: 30
 ---
 
 # Project State
@@ -21,14 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** v1.4 — Deployment Refactor (Phase 18 next)
+**Current focus:** Phase 18 — db-ownership-fresh-v1-baselines
 
 ## Current Position
 
 Milestone: v1.4 Deployment Refactor — in progress
-Phase: Phase 18 — DB Ownership + Fresh V1 Baselines (not started)
-Status: Ready to execute
-Last activity: 2026-04-16 -- Phase 20 planning complete
+Phase: 19
+Plan: Not started
+Status: Executing Phase 18
+Last activity: 2026-04-16
 
 Progress: [----------] 0% (0/4 phases complete)
 
@@ -45,7 +46,7 @@ Progress: [----------] 0% (0/4 phases complete)
 
 **Velocity:**
 
-- Total plans completed: 3 (v1.2: Phases 12, 13, 14)
+- Total plans completed: 6 (v1.2: Phases 12, 13, 14)
 - Average duration: 16 min
 - Total execution time: 48 min
 
@@ -57,6 +58,7 @@ Progress: [----------] 0% (0/4 phases complete)
 | 11 (datatablewrapper-filter-consolidation) | 1/1 | 4 min | 4 min |
 | 12 (forms-dialogs-audit) | 3/3 | 45 min | 15 min |
 | 14 (tenant-theming) | 3/3 | 45 min | 15 min |
+| 18 | 3 | - | - |
 
 **Recent Trend:**
 

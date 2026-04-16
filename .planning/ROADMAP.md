@@ -59,7 +59,7 @@ Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/
 
 ### v1.4 Deployment Refactor
 
-- [ ] **Phase 18: DB Ownership + Fresh V1 Baselines** — Rewrite all 4 Flyway V1 SQL files as clean, self-contained baselines; fold incremental migrations in; drop cross-service FKs; remove baseline-on-migrate; consolidate dual status columns
+- [x] **Phase 18: DB Ownership + Fresh V1 Baselines** — Rewrite all 4 Flyway V1 SQL files as clean, self-contained baselines; fold incremental migrations in; drop cross-service FKs; remove baseline-on-migrate; consolidate dual status columns (completed 2026-04-16)
 - [ ] **Phase 19: Application Configuration** — Externalize all datasource URLs, port wiring, and credentials to environment variables; establish %dev profile fallbacks
 - [ ] **Phase 20: Dockerfile Fixes + Railway Deployment** — Fix all 4 Dockerfiles, provision per-service Railway PostgreSQL instances, wire env vars, delete legacy build pipeline
 - [ ] **Phase 21: Local Dev Docker Compose** — Replace shared anotame-db with 4 independent PostgreSQL containers on distinct ports; align %dev profiles; eliminate init.sql
@@ -147,7 +147,7 @@ Plans:
 | 15. Order Lifecycle Improvements | v1.3 | 3/3 | Complete   | 2026-04-08 |
 | 16. Price List Selection in Order Wizard | v1.3 | 1/1 | Complete | 2026-04-09 |
 | 17. DataTable Row Count Configurability | v1.3 | 1/1 | Complete | 2026-04-14 |
-| 18. DB Ownership + Fresh V1 Baselines | v1.4 | 0/3 | Planned | - |
+| 18. DB Ownership + Fresh V1 Baselines | v1.4 | 3/3 | Complete    | 2026-04-16 |
 | 19. Application Configuration | v1.4 | 0/2 | Planned | - |
 | 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/3 | Planned | - |
 | 21. Local Dev Docker Compose | v1.4 | 0/2 | Planned | - |
