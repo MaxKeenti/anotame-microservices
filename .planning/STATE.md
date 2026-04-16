@@ -4,8 +4,8 @@ milestone: v1.4
 milestone_name: Deployment Refactor
 status: executing
 stopped_at: Roadmap created for v1.4
-last_updated: "2026-04-16T16:39:18.088Z"
-last_activity: 2026-04-16
+last_updated: "2026-04-16T17:03:33.287Z"
+last_activity: 2026-04-16 -- Phase 19 execution started
 progress:
   total_phases: 4
   completed_phases: 1
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 18 — db-ownership-fresh-v1-baselines
+**Current focus:** Phase 19 — application-configuration
 
 ## Current Position
 
 Milestone: v1.4 Deployment Refactor — in progress
-Phase: 19
-Plan: Not started
-Status: Executing Phase 18
-Last activity: 2026-04-16
+Phase: 19 (application-configuration) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 19
+Last activity: 2026-04-16 -- Phase 19 execution started
 
 Progress: [----------] 0% (0/4 phases complete)
 
@@ -138,8 +138,9 @@ None.
 | 260413-unc | Fix unsafe null type conversion warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | 979dd41 | COMPLETED | [.planning/quick/260413-unc-fix-unsafe-null-conversions/](./quick/260413-unc-fix-unsafe-null-conversions/) |
 | 260413-ann | Fix Collector annotation warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | edf950f | COMPLETED | [.planning/quick/260413-ann-fix-annotation-warnings/](./quick/260413-ann-fix-annotation-warnings/) |
 | 260414-s1 | Mark SEED-001 partially covered by Phase 15 (order editing + audit log done; partial payments open) | 2026-04-14 | b7a12b4 | COMPLETED | - |
+| 260416-iu2 | Replace /Orders page selecting with shadcn-svelte data-table row actions pattern | 2026-04-16 | fa637c5 | Verified | [260416-iu2-replace-orders-page-selecting-with-shadc](./quick/260416-iu2-replace-orders-page-selecting-with-shadc/) |
 
-Last activity: 2026-04-14 - v1.4 roadmap created; Phases 18–21 defined; 23/23 requirements mapped
+Last activity: 2026-04-16 - Completed quick task 260416-iu2: Replace /Orders page selecting with shadcn-svelte data-table row actions pattern
 
 ## Session Continuity
 
