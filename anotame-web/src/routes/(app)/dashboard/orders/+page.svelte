@@ -24,7 +24,6 @@
   let loading = $state(true);
 
   // Bulk selection state
-  let bulkMode = $state(false);
   let selectedOrders = $state<any[]>([]);
 
   // Filters
@@ -107,7 +106,6 @@
     if (successCount > 0) {
       toast.success(`Se actualizaron ${successCount} pedidos.`);
     }
-    bulkMode = false;
     selectedOrders = [];
     fetchData();
   }
@@ -140,13 +138,11 @@
     if (successCount > 0) {
       toast.success(`Se actualizaron ${successCount} pedidos.`);
     }
-    bulkMode = false;
     selectedOrders = [];
     fetchData();
   }
 
   function handleBulkCancel() {
-    bulkMode = false;
     selectedOrders = [];
   }
 
@@ -232,26 +228,18 @@
         </div>
       </div>
 
-      <!-- Bulk mode toggle -->
-      <div class="flex justify-end">
-        {#if !bulkMode}
-          <Button
-            variant="secondary"
-            class="h-12 px-4 touch-manipulation"
-            onclick={() => { bulkMode = true; selectedOrders = []; }}
-          >
-            Seleccionar pedidos
-          </Button>
-        {:else}
+      <!-- Clear selection button -->
+      {#if selectedOrders.length > 0}
+        <div class="flex justify-end">
           <Button
             variant="ghost"
-            class="h-12 px-4 touch-manipulation"
-            onclick={handleBulkCancel}
+            class="h-12 px-4 touch-manipulation text-muted-foreground hover:text-foreground"
+            onclick={() => { selectedOrders = []; }}
           >
-            Cancelar selección
+            Limpiar selección ({selectedOrders.length})
           </Button>
-        {/if}
-      </div>
+        </div>
+      {/if}
 
       <!-- Active Orders Table -->
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
@@ -270,7 +258,7 @@
             status: statusCell
           }}
           bulkActions={true}
-          bind:bulkMode={bulkMode}
+          bulkMode={true}
           onSelectionChange={(rows) => { selectedOrders = rows; }}
         >
           {#snippet actionCell(row)}
