@@ -17,7 +17,9 @@
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git diff:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Skill(gsd:code-review)",
+      "Skill(gsd:code-review:*)"
     ]
   },
   "hooks": {
