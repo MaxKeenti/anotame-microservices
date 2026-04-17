@@ -23,7 +23,7 @@ Output: {padded_phase}-REVIEW-FIX.md in phase directory + inline summary of fixe
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/code-review-fix.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/code-review-fix.md
 </execution_context>
 
 <context>
@@ -39,7 +39,7 @@ Context files (CLAUDE.md, REVIEW.md, phase state) are resolved inside the workfl
 <process>
 This command is a thin dispatch layer. It parses arguments and delegates to the workflow.
 
-Execute the code-review-fix workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/code-review-fix.md end-to-end.
+Execute the code-review-fix workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/code-review-fix.md end-to-end.
 
 The workflow (not this command) enforces these gates:
 - Phase validation (before config gate)

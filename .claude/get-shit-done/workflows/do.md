@@ -11,6 +11,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 <step name="validate">
 **Check for input.**
 
+
+**Text mode (`workflow.text_mode: true` in config or `--text` flag):** Set `TEXT_MODE=true` if `--text` is present in `$ARGUMENTS` OR `text_mode` from init JSON is `true`. When TEXT_MODE is active, replace every `AskUserQuestion` call with a plain-text numbered list and ask the user to type their choice number. This is required for non-Claude runtimes (OpenAI Codex, Gemini CLI, etc.) where `AskUserQuestion` is not available.
 If `$ARGUMENTS` is empty, ask via AskUserQuestion:
 
 ```
@@ -24,7 +26,7 @@ Wait for response before continuing.
 **Check if project exists.**
 
 ```bash
-INIT=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs" state load 2>/dev/null)
+INIT=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs" state load 2>/dev/null)
 ```
 
 Track whether `.planning/` exists — some routes require it, others don't.

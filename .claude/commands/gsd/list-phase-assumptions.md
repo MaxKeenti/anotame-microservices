@@ -17,7 +17,7 @@ Output: Conversational output only (no file creation) - ends with "What do you t
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/list-phase-assumptions.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/list-phase-assumptions.md
 </execution_context>
 
 <context>

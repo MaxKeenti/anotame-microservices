@@ -19,8 +19,8 @@ Routes to the profile-user workflow which orchestrates the full flow: consent ga
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/profile-user.md
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/references/ui-brand.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/profile-user.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

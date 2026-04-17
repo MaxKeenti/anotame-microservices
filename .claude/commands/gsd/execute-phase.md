@@ -1,7 +1,7 @@
 ---
 name: gsd:execute-phase
 description: Execute all plans in a phase with wave-based parallelization
-argument-hint: "<phase-number> [--wave N] [--gaps-only] [--interactive]"
+argument-hint: "<phase-number> [--wave N] [--gaps-only] [--interactive] [--tdd]"
 allowed-tools:
   - Read
   - Write
@@ -31,8 +31,8 @@ Context budget: ~15% orchestrator, 100% fresh per subagent.
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/execute-phase.md
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/references/ui-brand.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/execute-phase.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <runtime_note>
@@ -58,6 +58,6 @@ Context files are resolved inside the workflow via `gsd-tools init execute-phase
 </context>
 
 <process>
-Execute the execute-phase workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/execute-phase.md end-to-end.
+Execute the execute-phase workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/execute-phase.md end-to-end.
 Preserve all workflow gates (wave execution, checkpoint handling, verification, state updates, routing).
 </process>

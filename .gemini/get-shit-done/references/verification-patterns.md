@@ -600,7 +600,7 @@ Some things can't be verified programmatically. Flag these for human testing:
 
 For automation-first checkpoint patterns, server lifecycle management, CLI installation handling, and error recovery protocols, see:
 
-**@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/references/checkpoints.md** → `<automation_reference>` section
+**@/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/references/checkpoints.md** → `<automation_reference>` section
 
 Key principles:
 - Claude sets up verification environment BEFORE presenting checkpoints

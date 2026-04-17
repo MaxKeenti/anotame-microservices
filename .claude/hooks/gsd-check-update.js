@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.34.2
+// gsd-hook-version: 1.36.0
 // Check for GSD updates in background, write result to cache
 // Called by SessionStart hook - runs once per session
 
@@ -86,9 +86,12 @@ const child = spawn(process.execPath, ['-e', `
   const MANAGED_HOOKS = [
     'gsd-check-update.js',
     'gsd-context-monitor.js',
+    'gsd-phase-boundary.sh',
     'gsd-prompt-guard.js',
     'gsd-read-guard.js',
+    'gsd-session-state.sh',
     'gsd-statusline.js',
+    'gsd-validate-commit.sh',
     'gsd-workflow-guard.js',
   ];
   let staleHooks = [];
@@ -100,7 +103,7 @@ const child = spawn(process.execPath, ['-e', `
         for (const hookFile of hookFiles) {
           try {
             const content = fs.readFileSync(path.join(hooksDir, hookFile), 'utf8');
-            const versionMatch = content.match(/\\/\\/ gsd-hook-version:\\s*(.+)/);
+            const versionMatch = content.match(/(?:\\/\\/|#) gsd-hook-version:\\s*(.+)/);
             if (versionMatch) {
               const hookVersion = versionMatch[1].trim();
               if (isNewer(installed, hookVersion) && !hookVersion.includes('{{')) {

@@ -3,8 +3,8 @@ Safe git revert workflow. Rolls back GSD phase or plan commits using the phase m
 </purpose>
 
 <required_reading>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/references/ui-brand.md
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/references/gate-prompts.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/references/ui-brand.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/references/gate-prompts.md
 </required_reading>
 
 <process>
@@ -63,6 +63,8 @@ Recent GSD commits:
   3. ghi9012 fix(02-03): correct validation logic
 ```
 
+
+**Text mode (`workflow.text_mode: true` in config or `--text` flag):** Set `TEXT_MODE=true` if `--text` is present in `$ARGUMENTS` OR `text_mode` from init JSON is `true`. When TEXT_MODE is active, replace every `AskUserQuestion` call with a plain-text numbered list and ask the user to type their choice number. This is required for non-Claude runtimes (OpenAI Codex, Gemini CLI, etc.) where `AskUserQuestion` is not available.
 Use AskUserQuestion to ask:
 - question: "Which commits to revert? Enter numbers (e.g., 1,3) or 'all'"
 - header: "Select"

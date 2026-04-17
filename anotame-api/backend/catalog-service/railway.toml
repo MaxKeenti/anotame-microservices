@@ -1,0 +1,7 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "catalog-service/Dockerfile"
+
+[deploy]
+healthcheckPath = "/q/health/ready"
+healthcheckTimeout = 300

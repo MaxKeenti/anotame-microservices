@@ -3,7 +3,7 @@ Audit Nyquist validation gaps for a completed phase. Generate missing tests. Upd
 </purpose>
 
 <required_reading>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/references/ui-brand.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/references/ui-brand.md
 </required_reading>
 
 <available_agent_types>
@@ -16,16 +16,16 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 ## 0. Initialize
 
 ```bash
-INIT=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE_ARG}")
+INIT=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE_ARG}")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
-AGENT_SKILLS_AUDITOR=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" agent-skills gsd-nyquist-auditor 2>/dev/null)
+AGENT_SKILLS_AUDITOR=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" agent-skills gsd-nyquist-auditor 2>/dev/null)
 ```
 
 Parse: `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`.
 
 ```bash
-AUDITOR_MODEL=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" resolve-model gsd-nyquist-auditor --raw)
-NYQUIST_CFG=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" config-get workflow.nyquist_validation --raw)
+AUDITOR_MODEL=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" resolve-model gsd-nyquist-auditor --raw)
+NYQUIST_CFG=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" config-get workflow.nyquist_validation --raw)
 ```
 
 If `NYQUIST_CFG` is `false`: exit with "Nyquist validation is disabled. Enable via /gsd-settings."
@@ -83,6 +83,8 @@ No gaps → skip to Step 6, set `nyquist_compliant: true`.
 
 ## 4. Present Gap Plan
 
+
+**Text mode (`workflow.text_mode: true` in config or `--text` flag):** Set `TEXT_MODE=true` if `--text` is present in `$ARGUMENTS` OR `text_mode` from init JSON is `true`. When TEXT_MODE is active, replace every `AskUserQuestion` call with a plain-text numbered list and ask the user to type their choice number. This is required for non-Claude runtimes (OpenAI Codex, Gemini CLI, etc.) where `AskUserQuestion` is not available.
 Call AskUserQuestion with gap table and options:
 1. "Fix all gaps" → Step 5
 2. "Skip — mark manual-only" → add to Manual-Only, Step 6
@@ -92,7 +94,7 @@ Call AskUserQuestion with gap table and options:
 
 ```
 Task(
-  prompt="Read /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/agents/gsd-nyquist-auditor.md for instructions.\n\n" +
+  prompt="Read /Users/moonstone/Source/Personal/anotame-microservices/.gemini/agents/gsd-nyquist-auditor.md for instructions.\n\n" +
     "<files_to_read>{PLAN, SUMMARY, impl files, VALIDATION.md}</files_to_read>" +
     "<gaps>{gap list}</gaps>" +
     "<test_infrastructure>{framework, config, commands}</test_infrastructure>" +
@@ -112,7 +114,7 @@ Handle return:
 ## 6. Generate/Update VALIDATION.md
 
 **State B (create):**
-1. Read template from `/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/templates/VALIDATION.md`
+1. Read template from `/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/templates/VALIDATION.md`
 2. Fill: frontmatter, Test Infrastructure, Per-Task Map, Manual-Only, Sign-Off
 3. Write to `${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md`
 
@@ -135,7 +137,7 @@ Handle return:
 git add {test_files}
 git commit -m "test(phase-${PHASE}): add Nyquist validation tests"
 
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PHASE}): add/update validation strategy"
+node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" commit "docs(phase-${PHASE}): add/update validation strategy"
 ```
 
 ## 8. Results + Routing

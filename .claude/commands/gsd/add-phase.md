@@ -19,7 +19,7 @@ Routes to the add-phase workflow which handles:
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/add-phase.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/add-phase.md
 </execution_context>
 
 <context>
@@ -29,7 +29,7 @@ Roadmap and state are resolved in-workflow via `init phase-op` and targeted tool
 </context>
 
 <process>
-**Follow the add-phase workflow** from `@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/add-phase.md`.
+**Follow the add-phase workflow** from `@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/add-phase.md`.
 
 The workflow handles all logic including:
 1. Argument parsing and validation

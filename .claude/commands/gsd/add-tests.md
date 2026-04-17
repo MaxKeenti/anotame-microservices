@@ -25,7 +25,7 @@ Output: Test files committed with message `test(phase-{N}): add unit and E2E tes
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/add-tests.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/add-tests.md
 </execution_context>
 
 <context>
@@ -36,6 +36,6 @@ Phase: $ARGUMENTS
 </context>
 
 <process>
-Execute the add-tests workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/add-tests.md end-to-end.
+Execute the add-tests workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/add-tests.md end-to-end.
 Preserve all workflow gates (classification approval, test plan approval, RED-GREEN verification, gap reporting).
 </process>

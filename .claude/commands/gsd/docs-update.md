@@ -25,7 +25,7 @@ Flag handling rule:
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/docs-update.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/docs-update.md
 </execution_context>
 
 <context>
@@ -43,6 +43,6 @@ Arguments: $ARGUMENTS
 </context>
 
 <process>
-Execute the docs-update workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/docs-update.md end-to-end.
+Execute the docs-update workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/docs-update.md end-to-end.
 Preserve all workflow gates (preservation_check, flag handling, wave execution, monorepo dispatch, commit, reporting).
 </process>

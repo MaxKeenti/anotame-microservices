@@ -14,7 +14,7 @@ From `$ARGUMENTS`:
 The `find-phase` command handles normalization and validation in one step:
 
 ```bash
-PHASE_INFO=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" find-phase "${PHASE}")
+PHASE_INFO=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" find-phase "${PHASE}")
 ```
 
 Returns JSON with:
@@ -45,7 +45,7 @@ fi
 Use `roadmap get-phase` to validate phase exists:
 
 ```bash
-PHASE_CHECK=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" roadmap get-phase "${PHASE}" --pick found)
+PHASE_CHECK=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" roadmap get-phase "${PHASE}" --pick found)
 if [ "$PHASE_CHECK" = "false" ]; then
   echo "ERROR: Phase ${PHASE} not found in roadmap"
   exit 1
@@ -57,5 +57,5 @@ fi
 Use `find-phase` for directory lookup:
 
 ```bash
-PHASE_DIR=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" find-phase "${PHASE}" --raw)
+PHASE_DIR=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" find-phase "${PHASE}" --raw)
 ```

@@ -39,7 +39,7 @@ GSD > INTEL
 
 Intel system is disabled. To activate:
 
-  node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs config-set intel.enabled true
+  node /Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs config-set intel.enabled true
 
 Then run /gsd-intel refresh to build the initial index.
 ```
@@ -77,7 +77,7 @@ Modes:
 Run:
 
 ```bash
-node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel query <term>
+node /Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel query <term>
 ```
 
 Parse the JSON output and display results:
@@ -92,7 +92,7 @@ Parse the JSON output and display results:
 Run:
 
 ```bash
-node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel status
+node /Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel status
 ```
 
 Parse the JSON output and display each intel file with:
@@ -107,7 +107,7 @@ Parse the JSON output and display each intel file with:
 Run:
 
 ```bash
-node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel diff
+node /Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel diff
 ```
 
 Parse the JSON output and display:
@@ -137,7 +137,7 @@ Task(
   prompt="You are the gsd-intel-updater agent. Your job is to analyze this codebase and write/update intelligence files in .planning/intel/.
 
 Project root: ${CWD}
-gsd-tools path: /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs
+gsd-tools path: /Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs
 
 Instructions:
 1. Analyze the codebase structure, dependencies, APIs, and architecture
@@ -161,7 +161,7 @@ Wait for the agent to complete.
 After the agent completes, run:
 
 ```bash
-node /Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel status
+node /Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs intel status
 ```
 
 Display a summary showing:

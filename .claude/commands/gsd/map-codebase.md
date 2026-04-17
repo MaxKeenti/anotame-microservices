@@ -20,7 +20,7 @@ Output: .planning/codebase/ folder with 7 structured documents about the codebas
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/map-codebase.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/map-codebase.md
 </execution_context>
 
 <context>

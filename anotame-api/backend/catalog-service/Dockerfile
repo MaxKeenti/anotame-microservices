@@ -1,6 +1,7 @@
 # Build Stage
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+ENV MAVEN_OPTS="-Xmx512m"
 
 # Copy Parent POM
 COPY pom.xml .
@@ -12,7 +13,7 @@ COPY sales-service/pom.xml sales-service/pom.xml
 COPY operations-service/pom.xml operations-service/pom.xml
 
 # Download dependencies
-RUN mvn -B -e -C org.apache.maven.plugins:maven-dependency-plugin:3.6.1:go-offline -DexcludeArtifactIds=anotame-parent
+RUN mvn -B dependency:resolve dependency:resolve-plugins -DexcludeArtifactIds=anotame-parent
 
 # Copy Source Code
 COPY catalog-service/src catalog-service/src
@@ -25,4 +26,4 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/catalog-service/target/quarkus-app/ /app/
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "/app/quarkus-run.jar"]
+ENTRYPOINT ["java", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]

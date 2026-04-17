@@ -19,8 +19,8 @@ Output: Milestone archived (roadmap + requirements), PROJECT.md evolved, git tag
 <execution_context>
 **Load these files NOW (before proceeding):**
 
-- @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/complete-milestone.md (main workflow)
-- @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/templates/milestone-archive.md (archive template)
+- @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/complete-milestone.md (main workflow)
+- @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/templates/milestone-archive.md (archive template)
   </execution_context>
 
 <context>

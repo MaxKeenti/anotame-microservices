@@ -176,17 +176,19 @@
           <Table.Row class="hover:bg-transparent">
             {#each headerGroup.headers as header (header.id)}
               <Table.Head
-                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? 'w-12' : ''} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
+                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? 'w-16' : ''} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
               >
                 {#if !header.isPlaceholder}
                   {#if header.column.id === '__select__'}
-                    <input
-                      type="checkbox"
-                      class="h-4 w-4 cursor-pointer"
-                      aria-label="Seleccionar todos"
-                      checked={table.getIsAllRowsSelected()}
-                      onchange={table.getToggleAllRowsSelectedHandler()}
-                    />
+                    <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                      <input
+                        type="checkbox"
+                        class="h-8 w-8 cursor-pointer"
+                        aria-label="Seleccionar todos"
+                        checked={table.getIsAllRowsSelected()}
+                        onchange={table.getToggleAllRowsSelectedHandler()}
+                      />
+                    </div>
                   {:else if header.column.getCanSort()}
                     <button
                       class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
@@ -231,15 +233,17 @@
           {#each table.getRowModel().rows as row (row.id)}
             <Table.Row class="hover:bg-muted/10 transition-colors">
               {#each row.getVisibleCells() as cell (cell.id)}
-                <Table.Cell class="px-6 py-4">
+                <Table.Cell class="px-6 py-4 {cell.column.id === '__select__' ? 'px-0' : ''}">
                   {#if cell.column.id === '__select__'}
-                    <input
-                      type="checkbox"
-                      class="h-4 w-4 cursor-pointer"
-                      aria-label="Seleccionar fila"
-                      checked={cell.row.getIsSelected()}
-                      onchange={cell.row.getToggleSelectedHandler()}
-                    />
+                    <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                      <input
+                        type="checkbox"
+                        class="h-8 w-8 cursor-pointer"
+                        aria-label="Seleccionar fila"
+                        checked={cell.row.getIsSelected()}
+                        onchange={cell.row.getToggleSelectedHandler()}
+                      />
+                    </div>
                   {:else if cellRenders && cellRenders[cell.column.id]}
                     {@render cellRenders[cell.column.id](row)}
                   {:else if cell.column.id === 'actions' && actionCell}

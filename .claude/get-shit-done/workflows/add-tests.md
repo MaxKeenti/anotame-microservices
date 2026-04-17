@@ -33,7 +33,7 @@ Exit.
 Load phase operation context:
 
 ```bash
-INIT=$(node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE_ARG}")
+INIT=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE_ARG}")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -107,6 +107,9 @@ Read each file to verify classification. Don't classify based on filename alone.
 
 <step name="present_classification">
 Present the classification to the user for confirmation before proceeding:
+
+
+**Text mode (`workflow.text_mode: true` in config or `--text` flag):** Set `TEXT_MODE=true` if `--text` is present in `$ARGUMENTS` OR `text_mode` from init JSON is `true`. When TEXT_MODE is active, replace every `AskUserQuestion` call with a plain-text numbered list and ask the user to type their choice number. This is required for non-Claude runtimes (OpenAI Codex, Gemini CLI, etc.) where `AskUserQuestion` is not available.
 
 ```
 AskUserQuestion(
@@ -297,7 +300,7 @@ Create a test coverage report and present to user:
 
 Record test generation in project state:
 ```bash
-node "/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs" state-snapshot
+node "/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/bin/gsd-tools.cjs" state-snapshot
 ```
 
 If there are passing tests to commit:

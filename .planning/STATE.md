@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Deployment Refactor
-status: planning
-stopped_at: Requirements definition
-last_updated: "2026-04-14T00:00:00.000Z"
-last_activity: 2026-04-14 -- v1.4 milestone started; DB-per-service + Railway Dockerfile deploys scoped
+status: executing
+stopped_at: Roadmap created for v1.4
+last_updated: "2026-04-16T17:03:33.287Z"
+last_activity: 2026-04-16 -- Phase 19 execution started
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 4
+  completed_phases: 1
+  total_plans: 10
+  completed_plans: 3
+  percent: 30
 ---
 
 # Project State
@@ -21,22 +21,32 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** v1.4 planning — Deployment Refactor
+**Current focus:** Phase 19 — application-configuration
 
 ## Current Position
 
 Milestone: v1.4 Deployment Refactor — in progress
-Phase: Not started (defining requirements)
-Status: Defining requirements
-Last activity: 2026-04-14 -- v1.4 milestone started; scope confirmed
+Phase: 19 (application-configuration) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 19
+Last activity: 2026-04-16 -- Phase 19 execution started
 
-Progress: [----------] 0% (v1.4 not yet started)
+Progress: [----------] 0% (0/4 phases complete)
+
+## Phase Structure (v1.4)
+
+| Phase | Name | Requirements | Status |
+|-------|------|--------------|--------|
+| 18 | DB Ownership + Fresh V1 Baselines | DB-01–08 | Not started |
+| 19 | Application Configuration | CFG-01–03 | Not started |
+| 20 | Dockerfile Fixes + Railway Deployment | DOCKER-01–04, DEPLOY-01–05 | Not started |
+| 21 | Local Dev Docker Compose | DEV-01–03 | Not started |
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3 (v1.2: Phases 12, 13, 14)
+- Total plans completed: 6 (v1.2: Phases 12, 13, 14)
 - Average duration: 16 min
 - Total execution time: 48 min
 
@@ -48,6 +58,7 @@ Progress: [----------] 0% (v1.4 not yet started)
 | 11 (datatablewrapper-filter-consolidation) | 1/1 | 4 min | 4 min |
 | 12 (forms-dialogs-audit) | 3/3 | 45 min | 15 min |
 | 14 (tenant-theming) | 3/3 | 45 min | 15 min |
+| 18 | 3 | - | - |
 
 **Recent Trend:**
 
@@ -80,6 +91,9 @@ Recent decisions affecting current work:
 - [11-01]: Keep wrapper's filter on Garments, Services, Price Lists, Users, Schedule pages (client-side filtering)
 - [Phase 14]: Wave 3 design choice: Use native HTML5 color picker with hex text fallback for broad browser compatibility and accessibility
 - [17-01]: Per-device PersistedState (no userId scoping) for table row count; PAGE_SIZE_OPTIONS whitelist [5,10,20,50] guards both getter and setter; init-time only (no live sync)
+- [v1.4 Roadmap]: Clean-slate approach — planned downtime for cutover is acceptable; no live data migration needed
+- [v1.4 Roadmap]: 4 separate Railway PostgreSQL instances (not 4 schemas) for credential blast-radius containment
+- [v1.4 Roadmap]: Phase 18 must complete before Phase 19 (baselines stable before env var wiring); Phase 19 before Phase 20 (env vars must exist before Railway injects them); Phase 19 before Phase 21 (%dev profiles depend on per-service port assignments)
 
 ### Pending Todos
 
@@ -124,11 +138,12 @@ None.
 | 260413-unc | Fix unsafe null type conversion warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | 979dd41 | COMPLETED | [.planning/quick/260413-unc-fix-unsafe-null-conversions/](./quick/260413-unc-fix-unsafe-null-conversions/) |
 | 260413-ann | Fix Collector annotation warnings in SalesService and OrderAuditLogPersistenceAdapter | 2026-04-13 | edf950f | COMPLETED | [.planning/quick/260413-ann-fix-annotation-warnings/](./quick/260413-ann-fix-annotation-warnings/) |
 | 260414-s1 | Mark SEED-001 partially covered by Phase 15 (order editing + audit log done; partial payments open) | 2026-04-14 | b7a12b4 | COMPLETED | - |
+| 260416-iu2 | Replace /Orders page selecting with shadcn-svelte data-table row actions pattern | 2026-04-16 | fa637c5 | Verified | [260416-iu2-replace-orders-page-selecting-with-shadc](./quick/260416-iu2-replace-orders-page-selecting-with-shadc/) |
 
-Last activity: 2026-04-14 - Completed quick task 260414-s1: SEED-001 status updated to partial
+Last activity: 2026-04-16 - Completed quick task 260416-iu2: Replace /Orders page selecting with shadcn-svelte data-table row actions pattern
 
 ## Session Continuity
 
-Last session: 2026-04-13T09:24:00.000Z
-Stopped at: Completed 17-01-PLAN.md
-Resume file: .planning/phases/17-datatable-row-count-configurability/17-01-SUMMARY.md
+Last session: 2026-04-14T00:00:00.000Z
+Stopped at: Roadmap created for v1.4
+Resume file: .planning/ROADMAP.md

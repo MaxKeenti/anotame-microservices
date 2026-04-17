@@ -25,9 +25,9 @@ Flags:
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/audit-fix.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/audit-fix.md
 </execution_context>
 
 <process>
-Execute the audit-fix workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/audit-fix.md end-to-end.
+Execute the audit-fix workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/audit-fix.md end-to-end.
 </process>

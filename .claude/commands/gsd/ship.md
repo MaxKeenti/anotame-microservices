@@ -17,7 +17,7 @@ Closes the plan → execute → verify → ship loop.
 </objective>
 
 <execution_context>
-@/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/ship.md
+@/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/ship.md
 </execution_context>
 
-Execute the ship workflow from @/Users/maximilianogonzalezcalzada/Library/Mobile Documents/com~apple~CloudDocs/source/personal/anotame-microservices/.claude/get-shit-done/workflows/ship.md end-to-end.
+Execute the ship workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/ship.md end-to-end.

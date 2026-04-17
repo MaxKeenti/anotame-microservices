@@ -1,6 +1,7 @@
 # Build Stage
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+ENV MAVEN_OPTS="-Xmx512m"
 
 # Copy Parent POM
 COPY pom.xml .
@@ -13,7 +14,7 @@ COPY operations-service/pom.xml operations-service/pom.xml
 
 # Download dependencies (to cache them)
 # We run install on parent to ensure it's available
-RUN mvn -B -e -C org.apache.maven.plugins:maven-dependency-plugin:3.6.1:go-offline -DexcludeArtifactIds=anotame-parent
+RUN mvn -B dependency:resolve dependency:resolve-plugins -DexcludeArtifactIds=anotame-parent
 
 # Copy Source Code
 COPY identity-service/src identity-service/src
@@ -26,4 +27,4 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/identity-service/target/quarkus-app/ /app/
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "quarkus-run.jar"]
+ENTRYPOINT ["java", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]

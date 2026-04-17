@@ -27,11 +27,11 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ## Current State
 
-**Version:** v1.3 — SHIPPED 2026-04-14
+**Version:** v1.4-in-progress — Deployment Refactor milestone active
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
-**Backend:** Full order lifecycle: edit with role restrictions, field-level audit log, pickup code deliver flow, price list stored on order (V3+V4 Flyway migrations active)
+**Backend:** Full order lifecycle: edit with role restrictions, field-level audit log, pickup code deliver flow, price list stored on order. Phase 18 complete — all 4 services now own clean, self-contained Flyway V1 baselines; cross-service FKs dropped, incremental migrations folded in, shared-DB vestiges removed.
 **Frontend:** Order edit wizard, bulk actions with FloatingActionBar, PriceListStep in order wizard with auto-fill pricing, per-device configurable DataTable row count (5/10/20/50)
-**Deployment:** Railway (main branch auto-deploy); v1.3 completed Advanced Operations — order lifecycle features and UX improvements for constrained displays.
+**Deployment:** Railway (main branch auto-deploy); v1.3 shipped Advanced Operations. v1.4 Deployment Refactor in progress — Phase 18 (DB Ownership) complete.
 
 ## Requirements
 
@@ -129,4 +129,4 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 This document evolves at phase transitions and milestone boundaries.
 
 ---
-*Last updated: 2026-04-14 — Milestone v1.3 COMPLETE*
+*Last updated: 2026-04-16 — Phase 18 complete (DB Ownership + Fresh V1 Baselines)*
