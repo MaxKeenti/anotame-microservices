@@ -144,8 +144,9 @@ None.
 | 260416-iu2 | Replace /Orders page selecting with shadcn-svelte data-table row actions pattern | 2026-04-16 | fa637c5 | Verified | [260416-iu2-replace-orders-page-selecting-with-shadc](./quick/260416-iu2-replace-orders-page-selecting-with-shadc/) |
 
 | 260418-god | Let's make a robust ./test_integration.sh for checking services actually are healthy | 2026-04-18 | fea189d | - | [260418-god-let-s-make-a-robust-test-integration-sh-](./quick/260418-god-let-s-make-a-robust-test-integration-sh-/) |
+| 260418-zv | Commit uncommitted changes and add a dev startup script to launch all 4 Quarkus services and the SvelteKit frontend for local development | 2026-04-18 | 140ac60 | - | [260418-zv-dev-startup-script](./quick/260418-zv-dev-startup-script/) |
 
-Last activity: 2026-04-18 - Completed quick task 260418-god: Let's make a robust ./test_integration.sh for checking services actually are healthy
+Last activity: 2026-04-18 - Completed quick task 260418-zv: Commit uncommitted changes and add dev.sh launcher for all services
 
 ## Session Continuity
 
