@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Deployment Refactor
 status: executing
-stopped_at: Roadmap created for v1.4
-last_updated: "2026-04-18T17:57:20.540Z"
+stopped_at: Completed quick-260418-god-PLAN.md
+last_updated: "2026-04-18T18:03:29.790Z"
 last_activity: 2026-04-18
 progress:
   total_phases: 4
@@ -95,6 +95,7 @@ Recent decisions affecting current work:
 - [v1.4 Roadmap]: Clean-slate approach — planned downtime for cutover is acceptable; no live data migration needed
 - [v1.4 Roadmap]: 4 separate Railway PostgreSQL instances (not 4 schemas) for credential blast-radius containment
 - [v1.4 Roadmap]: Phase 18 must complete before Phase 19 (baselines stable before env var wiring); Phase 19 before Phase 20 (env vars must exist before Railway injects them); Phase 19 before Phase 21 (%dev profiles depend on per-service port assignments)
+- [Phase quick-260418-god]: curl -w %{http_code} pattern for HTTP status capture; || true on curl inside retry loop to prevent set -e interference; plain text output for CI compatibility
 
 ### Pending Todos
 
@@ -141,10 +142,12 @@ None.
 | 260414-s1 | Mark SEED-001 partially covered by Phase 15 (order editing + audit log done; partial payments open) | 2026-04-14 | b7a12b4 | COMPLETED | - |
 | 260416-iu2 | Replace /Orders page selecting with shadcn-svelte data-table row actions pattern | 2026-04-16 | fa637c5 | Verified | [260416-iu2-replace-orders-page-selecting-with-shadc](./quick/260416-iu2-replace-orders-page-selecting-with-shadc/) |
 
-Last activity: 2026-04-16 - Completed quick task 260416-iu2: Replace /Orders page selecting with shadcn-svelte data-table row actions pattern
+| 260418-god | Let's make a robust ./test_integration.sh for checking services actually are healthy | 2026-04-18 | fea189d | - | [260418-god-let-s-make-a-robust-test-integration-sh-](./quick/260418-god-let-s-make-a-robust-test-integration-sh-/) |
+
+Last activity: 2026-04-18 - Completed quick task 260418-god: Let's make a robust ./test_integration.sh for checking services actually are healthy
 
 ## Session Continuity
 
-Last session: 2026-04-14T00:00:00.000Z
-Stopped at: Roadmap created for v1.4
-Resume file: .planning/ROADMAP.md
+Last session: 2026-04-18T18:03:26.787Z
+Stopped at: Completed quick-260418-god-PLAN.md
+Resume file: None
