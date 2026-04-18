@@ -31,7 +31,7 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
 **Backend:** Full order lifecycle: edit with role restrictions, field-level audit log, pickup code deliver flow, price list stored on order. Phase 18 complete — all 4 services now own clean, self-contained Flyway V1 baselines; cross-service FKs dropped, incremental migrations folded in, shared-DB vestiges removed.
 **Frontend:** Order edit wizard, bulk actions with FloatingActionBar, PriceListStep in order wizard with auto-fill pricing, per-device configurable DataTable row count (5/10/20/50)
-**Deployment:** Railway (main branch auto-deploy); v1.3 shipped Advanced Operations. v1.4 Deployment Refactor in progress — Phase 18 (DB Ownership) complete.
+**Deployment:** Railway (main branch auto-deploy); v1.3 shipped Advanced Operations. v1.4 Deployment Refactor in progress — Phase 20 (Dockerfile Fixes + Railway Deploy) complete. All 4 Quarkus services live on Railway with dedicated PostgreSQL instances. Dockerfiles use dependency:resolve (no go-offline), -Xmx512m heap ceiling, and Quarkus logging manager ENTRYPOINT. Legacy GHCR pipeline (build_and_push.sh, anotame-db/) removed.
 
 ## Requirements
 
@@ -129,4 +129,4 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 This document evolves at phase transitions and milestone boundaries.
 
 ---
-*Last updated: 2026-04-16 — Phase 18 complete (DB Ownership + Fresh V1 Baselines)*
+*Last updated: 2026-04-18 — Phase 20 complete (Dockerfile Fixes + Railway Deployment)*
