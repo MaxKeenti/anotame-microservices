@@ -1,121 +1,175 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Configuration
-IDENTITY_URL="http://localhost:8081"
-CATALOG_URL="http://localhost:8082"
-SALES_URL="http://localhost:8083"
+# ---------------------------------------------------------------------------
+# Anotame Integration Health Check
+# Checks all four Quarkus microservices via /q/health/ready
+#
+# Usage:
+#   ./test_integration.sh [--local] [--retries N] [--delay S] [--timeout S]
+#
+# Options:
+#   --local       Hit localhost ports instead of Railway production URLs
+#   --retries N   Attempts per service before marking FAIL (default: 5)
+#   --delay S     Seconds between retries (default: 6)
+#   --timeout S   Per-request curl timeout in seconds (default: 10)
+# ---------------------------------------------------------------------------
 
-# Colors
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m'
+# --- Defaults ---------------------------------------------------------------
+LOCAL=false
+RETRIES=5
+DELAY=6
+TIMEOUT=10
 
-echo "=================================================="
-echo "   ANOTAME COMPLETE INTEGRATION TEST"
-echo "=================================================="
+# --- Argument parsing -------------------------------------------------------
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --local)
+      LOCAL=true
+      shift
+      ;;
+    --retries)
+      RETRIES="${2:?--retries requires a value}"
+      shift 2
+      ;;
+    --delay)
+      DELAY="${2:?--delay requires a value}"
+      shift 2
+      ;;
+    --timeout)
+      TIMEOUT="${2:?--timeout requires a value}"
+      shift 2
+      ;;
+    --help|-h)
+      sed -n '3,12p' "$0" | sed 's/^# *//'
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+done
 
-# 1. Register User
-USERNAME="testuser_$(date +%s)"
-EMAIL="$USERNAME@example.com"
-PASSWORD="GlobalPassword123!"
-
-echo -e "\n[1] Registering User: $USERNAME"
-REGISTER_RESPONSE=$(curl -s -X POST "$IDENTITY_URL/auth/register" \
-  -H "Content-Type: application/json" \
-  -d "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\", \"email\": \"$EMAIL\", \"firstName\": \"Test\", \"lastName\": \"User\"}")
-
-# Check if registration was successful (conceptually, by trying to login next)
-echo "    Response: $REGISTER_RESPONSE"
-
-# 2. Login & Get Token
-echo -e "\n[2] Logging In..."
-LOGIN_RESPONSE=$(curl -s -X POST "$IDENTITY_URL/auth/token" \
-  -H "Content-Type: application/json" \
-  -d "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\"}")
-
-TOKEN=$(echo $LOGIN_RESPONSE)
-
-if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
-  echo -e "${RED}FAILED: Could not get token.${NC}"
-  echo "Login Response: $LOGIN_RESPONSE"
-  exit 1
-fi
-
-echo -e "${GREEN}SUCCESS: Got Token!${NC}"
-# echo "Token: $TOKEN" # Uncomment for debug
-
-# 3. Fetch Catalog (Garments)
-echo -e "\n[3] Fetching Garments from Catalog..."
-GARMENTS_RESPONSE=$(curl -s "$CATALOG_URL/catalog/garments")
-GARMENT_ID=$(echo $GARMENTS_RESPONSE | jq -r '.[0].id')
-
-if [ -z "$GARMENT_ID" ] || [ "$GARMENT_ID" == "null" ]; then
-  echo -e "${RED}FAILED: Could not get Garment ID.${NC}"
-  echo "Response: $GARMENTS_RESPONSE"
-  exit 1
-fi
-
-echo -e "${GREEN}SUCCESS: Found Garment ID: $GARMENT_ID${NC}"
-
-# 4. Fetch Catalog (Services)
-echo -e "\n[4] Fetching Services from Catalog..."
-SERVICES_RESPONSE=$(curl -s "$CATALOG_URL/catalog/services")
-SERVICE_ID=$(echo $SERVICES_RESPONSE | jq -r '.[0].id')
-SERVICE_PRICE=$(echo $SERVICES_RESPONSE | jq -r '.[0].basePrice')
-
-if [ -z "$SERVICE_ID" ] || [ "$SERVICE_ID" == "null" ]; then
-  echo -e "${RED}FAILED: Could not get Service ID.${NC}"
-  echo "Response: $SERVICES_RESPONSE"
-  exit 1
-fi
-
-echo -e "${GREEN}SUCCESS: Found Service ID: $SERVICE_ID ($SERVICE_PRICE)${NC}"
-
-# 5. Create Order
-echo -e "\n[5] Creating Order in Sales Service..."
-
-ORDER_PAYLOAD=$(cat <<EOF
-{
-  "customer": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@client.com",
-    "phone": "555-0199"
-  },
-  "items": [
-    {
-      "garmentTypeId": "$GARMENT_ID",
-      "garmentName": "Test Garment",
-      "serviceId": "$SERVICE_ID",
-      "serviceName": "Test Service",
-      "quantity": 1,
-      "unitPrice": $SERVICE_PRICE,
-      "notes": " Urgent fix"
-    }
-  ],
-  "committedDeadline": "$(date -v+3d +%Y-%m-%dT%H:%M:%S)",
-  "notes": "Integration Test Order"
-}
-EOF
+# --- Service definitions ----------------------------------------------------
+# Format: "name:local_port:prod_base_url"
+SERVICES=(
+  "identity:8081:https://anotame-identity-service-production.up.railway.app"
+  "catalog:8082:https://anotame-catalog-service-production.up.railway.app"
+  "sales:8083:https://anotame-sales-service-production.up.railway.app"
+  "operations:8084:https://anotame-operations-service-production.up.railway.app"
 )
 
-ORDER_RESPONSE=$(curl -s -X POST "$SALES_URL/orders" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "X-User-Name: $USERNAME" \
-  -d "$ORDER_PAYLOAD")
+HEALTH_PATH="/q/health/ready"
 
-TICKET_NUMBER=$(echo $ORDER_RESPONSE | jq -r '.ticketNumber')
+# --- Header -----------------------------------------------------------------
+echo "Anotame Integration Health Check"
+if [[ "$LOCAL" == "true" ]]; then
+  echo "Mode: local"
+else
+  echo "Mode: production"
+fi
+echo "Services: identity catalog sales operations"
+echo ""
 
-if [ -z "$TICKET_NUMBER" ] || [ "$TICKET_NUMBER" == "null" ]; then
-  echo -e "${RED}FAILED: Order creation failed.${NC}"
-  echo "Response: $ORDER_RESPONSE"
+# --- Per-service check -------------------------------------------------------
+TOTAL=${#SERVICES[@]}
+PASS_COUNT=0
+FAIL_COUNT=0
+
+# Arrays to hold summary results
+declare -a RESULT_NAMES
+declare -a RESULT_STATUSES
+declare -a RESULT_ATTEMPTS
+declare -a RESULT_LAST_HTTP
+
+for i in "${!SERVICES[@]}"; do
+  entry="${SERVICES[$i]}"
+  NAME="${entry%%:*}"
+  REST="${entry#*:}"
+  PORT="${REST%%:*}"
+  PROD_BASE="${REST#*:}"
+
+  IDX=$((i + 1))
+
+  if [[ "$LOCAL" == "true" ]]; then
+    URL="http://localhost:${PORT}${HEALTH_PATH}"
+  else
+    URL="${PROD_BASE}${HEALTH_PATH}"
+  fi
+
+  printf "[%d/%d] %-12s ... checking %s\n" "$IDX" "$TOTAL" "$NAME" "$URL"
+
+  STATUS="FAIL"
+  LAST_HTTP="000"
+  ATTEMPT=0
+
+  for ((attempt = 1; attempt <= RETRIES; attempt++)); do
+    ATTEMPT=$attempt
+    TMP_BODY="/tmp/health_body_${NAME}"
+
+    # Capture HTTP status; do NOT let curl's exit code stop the script
+    HTTP_CODE=$(curl -s -o "$TMP_BODY" -w "%{http_code}" --max-time "$TIMEOUT" "$URL" 2>/dev/null || true)
+    LAST_HTTP="$HTTP_CODE"
+
+    if [[ "$HTTP_CODE" == "200" ]]; then
+      printf "  attempt %d/%d: HTTP %s - OK\n" "$attempt" "$RETRIES" "$HTTP_CODE"
+      STATUS="PASS"
+      break
+    else
+      if [[ $attempt -lt $RETRIES ]]; then
+        printf "  attempt %d/%d: HTTP %s - retrying in %ds...\n" \
+          "$attempt" "$RETRIES" "$HTTP_CODE" "$DELAY"
+        sleep "$DELAY"
+      else
+        printf "  attempt %d/%d: HTTP %s - failed\n" "$attempt" "$RETRIES" "$HTTP_CODE"
+      fi
+    fi
+  done
+
+  RESULT_NAMES+=("$NAME")
+  RESULT_STATUSES+=("$STATUS")
+  RESULT_ATTEMPTS+=("$ATTEMPT")
+  RESULT_LAST_HTTP+=("$LAST_HTTP")
+
+  if [[ "$STATUS" == "PASS" ]]; then
+    PASS_COUNT=$((PASS_COUNT + 1))
+  else
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+  fi
+done
+
+# --- Summary table -----------------------------------------------------------
+echo ""
+echo "--------------------------------------------------"
+echo " SUMMARY"
+echo "--------------------------------------------------"
+
+for i in "${!RESULT_NAMES[@]}"; do
+  SVC_NAME="${RESULT_NAMES[$i]}"
+  SVC_STATUS="${RESULT_STATUSES[$i]}"
+  SVC_ATTEMPTS="${RESULT_ATTEMPTS[$i]}"
+  SVC_LAST_HTTP="${RESULT_LAST_HTTP[$i]}"
+
+  if [[ "$SVC_ATTEMPTS" == "1" ]]; then
+    ATTEMPT_LABEL="1 attempt"
+  else
+    ATTEMPT_LABEL="${SVC_ATTEMPTS} attempts"
+  fi
+
+  if [[ "$SVC_STATUS" == "PASS" ]]; then
+    printf " %-12s PASS   (%s)\n" "$SVC_NAME" "$ATTEMPT_LABEL"
+  else
+    printf " %-12s FAIL   (%s, last HTTP: %s)\n" "$SVC_NAME" "$ATTEMPT_LABEL" "$SVC_LAST_HTTP"
+  fi
+done
+
+echo "--------------------------------------------------"
+printf " Result: %d/%d passed\n" "$PASS_COUNT" "$TOTAL"
+echo "--------------------------------------------------"
+
+# --- Exit code ---------------------------------------------------------------
+if [[ $FAIL_COUNT -gt 0 ]]; then
   exit 1
 fi
-
-echo -e "${GREEN}SUCCESS: Order Created! Ticket Number: $TICKET_NUMBER${NC}"
-echo "    Full Order: $ORDER_RESPONSE"
-
-echo -e "\n=================================================="
-echo -e "${GREEN}INTEGRATION TEST PASSED!${NC}"
-echo "=================================================="
+exit 0
