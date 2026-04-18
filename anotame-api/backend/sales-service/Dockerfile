@@ -24,6 +24,6 @@ RUN mvn clean package -pl sales-service -am -DskipTests
 # Run Stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/sales-service/target/quarkus-app /app/
+COPY --from=build /app/sales-service/target/quarkus-app/ /app/
 EXPOSE 8083
 ENTRYPOINT ["java", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
