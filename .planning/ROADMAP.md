@@ -62,7 +62,7 @@ Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/
 - [x] **Phase 18: DB Ownership + Fresh V1 Baselines** — Rewrite all 4 Flyway V1 SQL files as clean, self-contained baselines; fold incremental migrations in; drop cross-service FKs; remove baseline-on-migrate; consolidate dual status columns (completed 2026-04-16)
 - [x] **Phase 19: Application Configuration** — Externalize all datasource URLs, port wiring, and credentials to environment variables; establish %dev profile fallbacks (completed 2026-04-16)
 - [x] **Phase 20: Dockerfile Fixes + Railway Deployment** — Fix all 4 Dockerfiles, provision per-service Railway PostgreSQL instances, wire env vars, delete legacy build pipeline (completed 2026-04-18)
-- [ ] **Phase 21: Local Dev Docker Compose** — Replace shared anotame-db with 4 independent PostgreSQL containers on distinct ports; align %dev profiles; eliminate init.sql
+- [x] **Phase 21: Local Dev Docker Compose** — Replace shared anotame-db with 4 independent PostgreSQL containers on distinct ports; align %dev profiles; eliminate init.sql (completed 2026-04-18)
 
 ### Backlog: Print Server Integration
 **Goal**: Enable staff to print both a customer ticket (comprobante) and an internal work order tag (hoja de trabajo) — from the order detail page and via bulk print from the orders list.
@@ -121,8 +121,8 @@ Plans:
   3. No two services point to the same local database in their `%dev` datasource configuration
 **Plans**: 2 plans
 Plans:
-- [ ] 21-01-PLAN.md — Rewrite docker-compose.yml (4 DB containers, remove app/web containers, remove init.sql) and prune .env
-- [ ] 21-02-PLAN.md — Rewrite README.md with accurate local dev bring-up instructions
+- [x] 21-01-PLAN.md — Rewrite docker-compose.yml (4 DB containers, remove app/web containers, remove init.sql) and prune .env
+- [x] 21-02-PLAN.md — Rewrite README.md with accurate local dev bring-up instructions
 
 ---
 
@@ -150,4 +150,4 @@ Plans:
 | 18. DB Ownership + Fresh V1 Baselines | v1.4 | 3/3 | Complete    | 2026-04-16 |
 | 19. Application Configuration | v1.4 | 2/2 | Complete   | 2026-04-16 |
 | 20. Dockerfile Fixes + Railway Deployment | v1.4 | 3/3 | Complete    | 2026-04-18 |
-| 21. Local Dev Docker Compose | v1.4 | 0/2 | Planned | - |
+| 21. Local Dev Docker Compose | v1.4 | 2/2 | Complete   | 2026-04-18 |
