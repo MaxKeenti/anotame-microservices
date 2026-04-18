@@ -98,7 +98,7 @@ Task(
 
 Resolve the debugger model before spawning:
 ```bash
-debugger_model=$(node "/Users/moonstone/Source/Personal/anotame-microservices/.gemini/get-shit-done/bin/gsd-tools.cjs" resolve-model gsd-debugger --raw)
+debugger_model=$(gsd-sdk query resolve-model gsd-debugger 2>/dev/null | jq -r '.model' 2>/dev/null || true)
 ```
 
 ## Step 3: Handle Agent Return
