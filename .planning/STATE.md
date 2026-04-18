@@ -4,14 +4,14 @@ milestone: v1.4
 milestone_name: Deployment Refactor
 status: executing
 stopped_at: Roadmap created for v1.4
-last_updated: "2026-04-16T17:03:33.287Z"
-last_activity: 2026-04-16 -- Phase 19 execution started
+last_updated: "2026-04-18T17:57:20.540Z"
+last_activity: 2026-04-18
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 3
   total_plans: 10
-  completed_plans: 3
-  percent: 30
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 19 — application-configuration
+**Current focus:** Phase 20 — dockerfile-fixes-railway-deployment
 
 ## Current Position
 
 Milestone: v1.4 Deployment Refactor — in progress
-Phase: 19 (application-configuration) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 19
-Last activity: 2026-04-16 -- Phase 19 execution started
+Phase: 21
+Plan: Not started
+Status: Executing Phase 20
+Last activity: 2026-04-18
 
 Progress: [----------] 0% (0/4 phases complete)
 
@@ -46,7 +46,7 @@ Progress: [----------] 0% (0/4 phases complete)
 
 **Velocity:**
 
-- Total plans completed: 6 (v1.2: Phases 12, 13, 14)
+- Total plans completed: 9 (v1.2: Phases 12, 13, 14)
 - Average duration: 16 min
 - Total execution time: 48 min
 
@@ -59,6 +59,7 @@ Progress: [----------] 0% (0/4 phases complete)
 | 12 (forms-dialogs-audit) | 3/3 | 45 min | 15 min |
 | 14 (tenant-theming) | 3/3 | 45 min | 15 min |
 | 18 | 3 | - | - |
+| 20 | 3 | - | - |
 
 **Recent Trend:**
 

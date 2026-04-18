@@ -61,7 +61,7 @@ Full phase details: [.planning/milestones/v1.3-ROADMAP.md](.planning/milestones/
 
 - [x] **Phase 18: DB Ownership + Fresh V1 Baselines** — Rewrite all 4 Flyway V1 SQL files as clean, self-contained baselines; fold incremental migrations in; drop cross-service FKs; remove baseline-on-migrate; consolidate dual status columns (completed 2026-04-16)
 - [x] **Phase 19: Application Configuration** — Externalize all datasource URLs, port wiring, and credentials to environment variables; establish %dev profile fallbacks (completed 2026-04-16)
-- [ ] **Phase 20: Dockerfile Fixes + Railway Deployment** — Fix all 4 Dockerfiles, provision per-service Railway PostgreSQL instances, wire env vars, delete legacy build pipeline
+- [x] **Phase 20: Dockerfile Fixes + Railway Deployment** — Fix all 4 Dockerfiles, provision per-service Railway PostgreSQL instances, wire env vars, delete legacy build pipeline (completed 2026-04-18)
 - [ ] **Phase 21: Local Dev Docker Compose** — Replace shared anotame-db with 4 independent PostgreSQL containers on distinct ports; align %dev profiles; eliminate init.sql
 
 ### Backlog: Print Server Integration
@@ -107,9 +107,9 @@ Plans:
   4. `build_and_push.sh` and the `anotame-db/` shared container directory no longer exist in the repository
 **Plans**: 3 plans
 Plans:
-- [ ] 20-01-PLAN.md — Fix all 4 Dockerfiles (go-offline, MAVEN_OPTS, ENTRYPOINT logging manager, path consistency)
-- [ ] 20-02-PLAN.md — Create 4 railway.toml files; delete build_and_push.sh and anotame-db/
-- [ ] 20-03-PLAN.md — Railway dashboard provisioning: 4 services, 4 PostgreSQL instances, env vars, deploys [MANUAL]
+- [x] 20-01-PLAN.md — Fix all 4 Dockerfiles (go-offline, MAVEN_OPTS, ENTRYPOINT logging manager, path consistency)
+- [x] 20-02-PLAN.md — Create 4 railway.toml files; delete build_and_push.sh and anotame-db/
+- [x] 20-03-PLAN.md — Railway dashboard provisioning: 4 services, 4 PostgreSQL instances, env vars, deploys [MANUAL]
 
 ### Phase 21: Local Dev Docker Compose
 **Goal**: A developer can run `docker compose up` from the repo root and have 4 independent PostgreSQL containers start, after which each Quarkus service connects to its own container and Flyway initializes the schema automatically — no manual SQL execution required
@@ -149,5 +149,5 @@ Plans:
 | 17. DataTable Row Count Configurability | v1.3 | 1/1 | Complete | 2026-04-14 |
 | 18. DB Ownership + Fresh V1 Baselines | v1.4 | 3/3 | Complete    | 2026-04-16 |
 | 19. Application Configuration | v1.4 | 2/2 | Complete   | 2026-04-16 |
-| 20. Dockerfile Fixes + Railway Deployment | v1.4 | 0/3 | Planned | - |
+| 20. Dockerfile Fixes + Railway Deployment | v1.4 | 3/3 | Complete    | 2026-04-18 |
 | 21. Local Dev Docker Compose | v1.4 | 0/2 | Planned | - |
