@@ -27,11 +27,12 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 
 ## Current State
 
-**Version:** v1.4-in-progress — Deployment Refactor milestone active
+**Version:** v1.4-complete — Deployment Refactor milestone finished
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
 **Backend:** Full order lifecycle: edit with role restrictions, field-level audit log, pickup code deliver flow, price list stored on order. Phase 18 complete — all 4 services now own clean, self-contained Flyway V1 baselines; cross-service FKs dropped, incremental migrations folded in, shared-DB vestiges removed.
 **Frontend:** Order edit wizard, bulk actions with FloatingActionBar, PriceListStep in order wizard with auto-fill pricing, per-device configurable DataTable row count (5/10/20/50)
-**Deployment:** Railway (main branch auto-deploy); v1.3 shipped Advanced Operations. v1.4 Deployment Refactor in progress — Phase 20 (Dockerfile Fixes + Railway Deploy) complete. All 4 Quarkus services live on Railway with dedicated PostgreSQL instances. Dockerfiles use dependency:resolve (no go-offline), -Xmx512m heap ceiling, and Quarkus logging manager ENTRYPOINT. Legacy GHCR pipeline (build_and_push.sh, anotame-db/) removed.
+**Local Dev:** Phase 21 complete — `docker compose up -d` starts 4 isolated PostgreSQL containers (identity-db/5431, catalog-db/5432, sales-db/5433, operations-db/5434); each Quarkus service connects to its own container via `%dev` profile; Flyway auto-creates schema on first `quarkus:dev` start.
+**Deployment:** Railway (main branch auto-deploy); v1.4 Deployment Refactor complete — all 4 Quarkus services live on Railway with dedicated PostgreSQL instances. Dockerfiles use dependency:resolve (no go-offline), -Xmx512m heap ceiling, Quarkus logging manager ENTRYPOINT. Legacy GHCR pipeline removed.
 
 ## Requirements
 
@@ -129,4 +130,4 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 This document evolves at phase transitions and milestone boundaries.
 
 ---
-*Last updated: 2026-04-18 — Phase 20 complete (Dockerfile Fixes + Railway Deployment)*
+*Last updated: 2026-04-18 — Phase 21 complete (Local Dev Docker Compose — 4 isolated DB containers)*
