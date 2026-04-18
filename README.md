@@ -1,65 +1,112 @@
 # Anotame Microservices
 
-A microservices-based backend for the Anotame application, built with Spring Boot and Hexagonal Architecture.
+A microservices-based backend for the Anotame platform, built with Java Quarkus and Hexagonal Architecture.
 
 ## Architecture
 
-The system consists of the following services:
+The system consists of 4 backend services and 1 SvelteKit frontend:
 
-*   **Identity Service**: Handles user registration and authentication (JWT).
-*   **Catalog Service**: Manages garment types and services.
-*   **Sales Service**: Handles order creation and management.
-*   **Database**: PostgreSQL with PostGIS support (`anotame-db`).
+- **identity-service** (port 8081): User registration, authentication, JWT issuance
+- **catalog-service** (port 8082): Garment types, services, price lists
+- **sales-service** (port 8083): Order creation and management
+- **operations-service** (port 8084): Shifts, employee assignments, work orders
+- **anotame-web**: SvelteKit frontend (port 3000 in dev)
 
-All services follow the **Hexagonal Architecture** pattern:
-*   `domain`: Core business logic and models.
-*   `application`: Service layer and ports (interfaces).
-*   `infrastructure`: Adapters for Persistence, Web (Controllers), and Security.
+All backend services follow Hexagonal Architecture (domain / application / infrastructure layers).
+
+Each service owns its own PostgreSQL database — no shared database, no cross-service foreign keys.
 
 ## Prerequisites
 
-*   Docker Desktop
-*   Java 21 (for local development/debugging)
-*   Maven
+- Docker Desktop (for local database containers)
+- Java 21
+- Maven (or use the `./mvnw` wrapper in each service directory)
 
-## Running the System
+## Local Development
 
-The entire system is containerized. To start everything:
+### 1. Start the database containers
 
-```bash
-docker-compose up --build -d
-```
-
-This will start:
-*   PostgreSQL (Port 5433)
-*   pgAdmin (Port 5050)
-*   Identity Service (Port 8081)
-*   Catalog Service (Port 8082)
-*   Sales Service (Port 8083)
-
-## Testing
-
-An automated integration test script is provided to verify the end-to-end flow:
+From the repo root:
 
 ```bash
-./test_integration.sh
+docker compose up -d
 ```
 
-This script will:
-1.  Register a new user in Identity Service.
-2.  Login and retrieve a JWT.
-3.  Fetch catalog data (Garments/Services) from Catalog Service.
-4.  Create a new Order in Sales Service using the JWT and Catalog data.
+This starts 4 independent PostgreSQL containers:
+
+| Container | Host Port | DB Name |
+|-----------|-----------|---------|
+| identity-db | 5431 | identity |
+| catalog-db | 5432 | catalog |
+| sales-db | 5433 | sales |
+| operations-db | 5434 | operations |
+
+> **Note:** catalog-db binds to host port 5432, which is the PostgreSQL default. If you have a local PostgreSQL server installed, stop it before running `docker compose up` to avoid a port conflict.
+
+PgAdmin is also available at http://localhost:5050 (login: admin@anotame.com / admin).
+
+### 2. Start a service in dev mode
+
+Navigate to the service directory and run:
+
+```bash
+cd anotame-api/backend/identity-service
+./mvnw quarkus:dev
+```
+
+On first start, Flyway automatically creates the schema in the service's database container. No manual SQL execution is needed.
+
+Repeat for each service you need running:
+
+```bash
+cd anotame-api/backend/catalog-service && ./mvnw quarkus:dev
+cd anotame-api/backend/sales-service && ./mvnw quarkus:dev
+cd anotame-api/backend/operations-service && ./mvnw quarkus:dev
+```
+
+### 3. Start the frontend
+
+```bash
+cd anotame-web
+bun install
+bun run dev
+```
+
+The frontend is available at http://localhost:3000.
+
+### One-time migration from the old setup
+
+If you previously ran `docker compose up` with the old shared `anotame-db` container, a `postgres_data` volume may still exist. Remove it with:
+
+```bash
+docker volume rm anotame-microservices_postgres_data
+```
+
+This volume is no longer used and safe to delete.
 
 ## Project Structure
 
-*   `anotame-api/backend`: Source code for microservices.
-    *   `identity-service`
-    *   `catalog-service`
-    *   `sales-service`
-*   `docker-compose.yml`: Orchestration configuration.
-*   `test_integration.sh`: End-to-end verification script.
+```
+anotame-api/backend/
+  identity-service/     Java Quarkus — auth and users
+  catalog-service/      Java Quarkus — garments, services, price lists
+  sales-service/        Java Quarkus — orders
+  operations-service/   Java Quarkus — shifts and work orders
+anotame-web/            SvelteKit frontend
+docker-compose.yml      Local dev database containers (4 PostgreSQL)
+.env                    Local dev env vars (JWT keys, cookie config)
+```
 
-## Known Issues
+## Environment Variables
 
-*   **Data Loss on Navigation**: When creating a new customer from the Order Creation page, the application redirects to a new page, causing any unsaved order details to be lost.
+Copy `.env` to a local `.env` file and populate the JWT key pair. The JWT keys are already populated in `.env` for local development.
+
+When running `quarkus:dev`, each service reads its datasource URL from its `%dev` profile in `application.properties` — no `QUARKUS_DATASOURCE_JDBC_URL` env var is needed locally.
+
+In production (Railway), the following env vars must be set per service:
+- `QUARKUS_DATASOURCE_JDBC_URL`
+- `QUARKUS_DATASOURCE_USERNAME`
+- `QUARKUS_DATASOURCE_PASSWORD`
+- `PORT`
+- `SMALLRYE_JWT_SIGN_KEY` (identity-service only)
+- `MP_JWT_VERIFY_PUBLICKEY` (all services)
