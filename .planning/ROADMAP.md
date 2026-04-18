@@ -150,4 +150,4 @@ Plans:
 | 18. DB Ownership + Fresh V1 Baselines | v1.4 | 3/3 | Complete    | 2026-04-16 |
 | 19. Application Configuration | v1.4 | 2/2 | Complete   | 2026-04-16 |
 | 20. Dockerfile Fixes + Railway Deployment | v1.4 | 3/3 | Complete    | 2026-04-18 |
-| 21. Local Dev Docker Compose | v1.4 | 2/2 | Complete   | 2026-04-18 |
+| 21. Local Dev Docker Compose | v1.4 | 2/2 | Complete    | 2026-04-18 |
