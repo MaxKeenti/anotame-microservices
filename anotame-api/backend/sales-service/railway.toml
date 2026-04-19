@@ -3,5 +3,5 @@ builder = "dockerfile"
 dockerfilePath = "sales-service/Dockerfile"
 
 [deploy]
-healthcheckPath = "/q/health/ready"
+healthcheckPath = "/q/health/live"
 healthcheckTimeout = 300
