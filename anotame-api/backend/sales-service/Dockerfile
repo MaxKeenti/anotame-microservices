@@ -26,4 +26,4 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/sales-service/target/quarkus-app/ /app/
 
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=40.0", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
+ENTRYPOINT ["java", "-Xmx100m", "-Xms100m", "-XX:MaxMetaspaceSize=128m", "-Xss512k", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
