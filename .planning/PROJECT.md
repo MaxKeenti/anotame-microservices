@@ -8,9 +8,27 @@ Anotame is the management SaaS platform for *El hilvan*, a garment care / clothi
 
 A *El hilvan* staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
 
-## Current Milestone: v1.5 — Planning
+## Current Milestone: v1.5 — Bilingual Launch + KPI Intelligence
 
-**Goal:** TBD — run `/gsd:new-milestone` to define v1.5 scope.
+**Goal:** Ship full ES/EN bilingual UX (Paraglide across frontend and backend error messages) and KPI intelligence that gives the owner visibility into revenue, workload forecasting, and customer retention.
+
+**Target features:**
+
+- Full Paraglide integration — every hardcoded Spanish string extracted across SvelteKit UI + Quarkus exception/error messages; ES (es-MX) + EN both live end-to-end
+- Per-user language preference — `user.locale` column, profile UI to switch, default es-MX for existing users
+- SEED-002 key naming convention — one clean pattern (e.g. `page.section.action`) adopted during extraction
+- EN translation pipeline — AI-generated, ships unreviewed (rough-but-fine quality bar)
+- Partial payment ledger (SEED-001 remainder) — new `tco_order_payment` ledger table, recompute `amountPaid` from entries, foundation for accurate revenue-by-date
+- Financial KPIs — revenue trend (day/week/month), service-type profitability, top customers + retention
+- Workload forecasting (SEED-007) — full calendar page with color-coded days + daily earnings+workload summary; compact 7-day dashboard widget
+
+**Key context:**
+
+- Shop is in **Mexico**: authoritative Spanish variant is **es-MX**, currency **MXN**, date format DD/MM/YYYY.
+- **Strings-only** localization — dates/numbers/currency stay es-MX format regardless of active UI language. No `Intl.*` audit in v1.5.
+- EN translations are AI-generated, unreviewed.
+- Phase numbering continues from v1.4 → starts at **Phase 22**.
+- Seeds absorbed into v1.5: SEED-001 remainder (partial payments), SEED-002 (naming conventions), SEED-007 (workload calendar).
 
 ---
 
@@ -63,12 +81,24 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - ✓ Local dev Docker Compose — 4 independent PostgreSQL containers (5431–5434), init.sql eliminated, README updated — v1.4
 
 ### Active
-- [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
+
+**v1.5 scope (current milestone):**
+
+- [ ] Paraglide full integration — extract all hardcoded ES strings from SvelteKit UI + Quarkus exception/error messages; ES (es-MX) + EN both live end-to-end
+- [ ] Per-user language preference — `user.locale` column, profile UI, default es-MX for existing users
+- [ ] i18n message naming convention (SEED-002) — single clean pattern adopted during extraction
+- [ ] EN translation pipeline — AI-generated, unreviewed
+- [ ] Partial payment ledger (SEED-001 remainder) — `tco_order_payment` table, recompute `amountPaid` from entries
+- [ ] Financial KPIs — revenue trend (day/week/month), service-type profitability, top customers + retention
+- [ ] Workload forecasting (SEED-007) — calendar page with color-coded days + daily earnings/workload summary; 7-day dashboard widget
+
+**Deferred (not in v1.5, still on the backlog):**
+
 - [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
 - [ ] Server-side auth validation in SvelteKit hooks.server.ts before SSR render (deferred from v1.0)
 - [ ] +error.svelte pages at (app) layout level with retry/graceful degradation (deferred from v1.0)
-- [ ] Partial payment ledger tracking (multiple incremental payments per order) — SEED-001 remainder
 - [ ] Multi-branch Dashboard Features — enhanced visibility across locations
+- [ ] Budget/revenue target goal-setting KPIs — deferred from v1.5 scoping
 
 ### Out of Scope
 
@@ -76,7 +106,10 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - API gateway (Nginx/Traefik) — SvelteKit BFF proxy is acceptable for current scale; gateway is future work
 - IBM requirements documentation best practices — identified as technical debt, not a current priority
 - Inter-service event bus — catalog name denormalization in sales-service is an acceptable trade-off for now
-- i18n / Paraglide rollout — all strings hardcoded Spanish; large effort deferred to dedicated phase
+- URL-based i18n routing (`/en/…`, `/es/…`) — per-user profile locale chosen instead (v1.5)
+- Professional translation review — AI translations ship unreviewed (v1.5 quality bar)
+- Locale-aware date/number/currency formatting — strings-only i18n; dates/numbers/currency stay es-MX regardless of UI language (v1.5)
+- Additional Spanish dialect variants beyond es-MX
 
 ## Context
 
@@ -128,4 +161,4 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 This document evolves at phase transitions and milestone boundaries.
 
 ---
-*Last updated: 2026-04-19 — v1.4 milestone complete (Deployment Refactor — 4 isolated DBs, per-service Railway Dockerfiles, local dev compose)*
+*Last updated: 2026-04-19 — v1.5 milestone started (Bilingual Launch + KPI Intelligence)*

@@ -1,46 +1,41 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Deployment Refactor
-status: completed
-stopped_at: milestone close 2026-04-19
-last_updated: "2026-04-19T17:09:39.994Z"
+milestone: v1.5
+milestone_name: Bilingual Launch + KPI Intelligence
+status: planning
+stopped_at: milestone start 2026-04-19
+last_updated: "2026-04-19T00:00:00.000Z"
 last_activity: 2026-04-19
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 10
-  completed_plans: 10
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-18 after Phase 21 — v1.4 complete)
+See: .planning/PROJECT.md (updated 2026-04-19 — v1.5 milestone started)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** v1.4 milestone complete — ready for v1.5 planning
+**Current focus:** v1.5 Bilingual Launch + KPI Intelligence — defining requirements
 
 ## Current Position
 
-Milestone: v1.4 Deployment Refactor — COMPLETE
-Phase: 21 (complete)
-Plan: 2/2 complete
-Status: Milestone complete — ready for v1.5
-Last activity: 2026-04-19
+Milestone: v1.5 Bilingual Launch + KPI Intelligence
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-19 — Milestone v1.5 started
 
-Progress: [██████████] 100% (4/4 phases complete)
+Progress: [░░░░░░░░░░] 0% (requirements pending)
 
-## Phase Structure (v1.4)
+## Phase Structure (v1.5)
 
-| Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 18 | DB Ownership + Fresh V1 Baselines | DB-01–08 | Complete (2026-04-16) |
-| 19 | Application Configuration | CFG-01–03 | Complete (2026-04-16) |
-| 20 | Dockerfile Fixes + Railway Deployment | DOCKER-01–04, DEPLOY-01–05 | Complete (2026-04-18) |
-| 21 | Local Dev Docker Compose | DEV-01–03 | Complete (2026-04-18) |
+_Phases defined after roadmap creation — continues numbering from v1.4 (Phase 22+)._
 
 ## Performance Metrics
 
