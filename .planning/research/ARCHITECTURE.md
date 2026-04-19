@@ -1,236 +1,414 @@
-# Architecture: Flyway Migration Strategy
+# Architecture Research — v1.5 Bilingual Launch + KPI Intelligence
 
-**Domain:** Quarkus 3.27.2 microservices — schema management migration
-**Researched:** 2026-03-31
-**Confidence:** HIGH (Quarkus 3.x + Flyway 9/10 is stable, well-documented)
+**Domain:** Garment-repair / alteration shop SaaS (Anotame — adding bilingual UX, payment ledger, KPIs, workload calendar to existing 4-service architecture)
+**Researched:** 2026-04-19
+**Confidence:** HIGH on Paraglide integration and ledger patterns; MEDIUM on calendar aggregation endpoint ownership
 
----
-
-## Context
-
-- 4 services: identity-service (8081), catalog-service (8082), sales-service (8083), operations-service (8084)
-- Single PostgreSQL 16 database (`anotame`), all 4 services share it
-- Table prefix separation: `tca_`/`cca_` (identity), `tcc_`/`cci_` (catalog), `tco_` (sales), `tco_`/`top_`/`tce_` (operations)
-- Currently `quarkus.hibernate-orm.database.generation=update` on all 4 services
-- One live client with production data — schema already exists
-- Existing `migration.sql` at repo root (adds `unit_price` column to `tco_order_item`)
+**Scope boundaries:**
+- Existing architecture (NOT re-designed): Hexagonal/DDD per service, SvelteKit BFF proxy, JWT+RBAC, 4 isolated PostgreSQL databases.
+- NEW integration points: Paraglide i18n layer, error-code resolution, `tco_order_payment` ledger, KPI aggregation endpoints, calendar aggregation endpoint, chart components.
 
 ---
 
-## 1. Extension Setup
+## System Overview — v1.5 Additions
 
-Add `quarkus-flyway` to each service's `pom.xml`. No version needed — managed by the Quarkus BOM at `3.27.2`.
-
-```xml
-<dependency>
-    <groupId>io.quarkus</groupId>
-    <artifactId>quarkus-flyway</artifactId>
-</dependency>
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                      SvelteKit Frontend                          │
+├──────────────────────────────────────────────────────────────────┤
+│  ┌───────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐    │
+│  │ Paraglide │  │ Chart.js │  │ Calendar │  │ Payment     │    │
+│  │ Messages  │  │ Widgets  │  │ Grid     │  │ Modal       │    │
+│  │ (compile) │  │ (canvas) │  │ (custom) │  │ (dialog)    │    │
+│  └─────┬─────┘  └────┬─────┘  └────┬─────┘  └──────┬──────┘    │
+│        │              │             │               │            │
+│  ┌─────┴─────────────┴─────────────┴───────────────┴──────┐    │
+│  │               SvelteKit BFF Proxy Layer                 │    │
+│  │  (hooks.server.ts → locale from session → SSR)          │    │
+│  └─────────────────────────────────────────────────────────┘    │
+├──────────────────────────────────────────────────────────────────┤
+│                  Backend REST APIs (Quarkus)                     │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐    │
+│  │ identity │  │ catalog  │  │ sales    │  │ operations   │    │
+│  │ service  │  │ service  │  │ service  │  │ service      │    │
+│  │          │  │          │  │          │  │              │    │
+│  │ +locale  │  │ (no chg) │  │ +payment │  │ +capacity    │    │
+│  │  column  │  │          │  │  ledger  │  │  endpoint    │    │
+│  │ +error   │  │ +error   │  │ +KPI     │  │ +error       │    │
+│  │  codes   │  │  codes   │  │  endpts  │  │  codes       │    │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────┬───────┘    │
+│       │              │             │               │            │
+│  ┌────┴────┐  ┌─────┴────┐  ┌────┴─────┐  ┌─────┴──────┐     │
+│  │identity │  │catalog   │  │sales     │  │operations  │     │
+│  │   db    │  │   db     │  │   db     │  │   db       │     │
+│  └─────────┘  └──────────┘  └──────────┘  └────────────┘     │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-Flyway runs automatically at startup before Hibernate initializes, so schema is always current before ORM touches it.
+## New Component Responsibilities
+
+| Component | Responsibility | Service Owner | Notes |
+|-----------|----------------|---------------|-------|
+| Paraglide message catalog | All UI strings (ES + EN) compiled to JS functions | Frontend (SvelteKit) | Single source of truth for all user-facing text, including error messages resolved from backend codes |
+| `user.locale` column | Persisted language preference per user | identity-service | `es-MX` default for existing users; returned in JWT or login payload |
+| Error code constants | Machine-readable error identifiers (`ERR.ORDER.LOCKED`) | All 4 backend services | Frontend Paraglide resolves code → localized text; backend returns JSON `{ "error": "ERR.ORDER.LOCKED" }` |
+| `tco_order_payment` table | Append-only payment ledger per order | sales-service (sales-db) | `id`, `order_id`, `amount`, `method`, `note`, `recorded_at`, `recorded_by_user_id` |
+| KPI aggregation endpoints | Revenue trend, service profitability, customer retention | sales-service | All financial KPIs derived from `tco_order` + `tco_order_payment` + `tco_order_item` in sales-db |
+| Capacity aggregation endpoint | Daily work-minutes capacity from schedule | operations-service | Derives from existing schedule tables; returns `{ date, capacityMinutes, scheduledMinutes }` |
+| Calendar data aggregation | Combines workload + revenue per day range | Frontend joins | SvelteKit `+page.server.ts` calls both sales-service (revenue/workload) and operations-service (capacity), merges server-side before passing to component |
+| Chart.js KPI widgets | Line/bar charts for revenue, profitability table | Frontend (SvelteKit) | 4-5 KPI widgets on admin dashboard; canvas-based |
+| Custom calendar grid | Month-view with color-coded cells + popover | Frontend (SvelteKit) | ~200 lines custom Svelte; uses shadcn Popover; 7-day strip variant for dashboard |
 
 ---
 
-## 2. Migration File Location
+## Architectural Patterns
 
-By default, Quarkus Flyway looks for migration scripts at:
+### Pattern 1: Error Codes Over Localized Backend Strings
 
-```
-src/main/resources/db/migration/
+**What:** Backend returns machine-readable error codes; frontend resolves them to localized user-facing text via Paraglide.
+
+**When to use:** Any REST API + SPA architecture where the translation catalog should live in one place.
+
+**Trade-offs:**
+- ✓ Single translation catalog (frontend Paraglide)
+- ✓ Backend deploys decoupled from translation updates
+- ✓ Error messages automatically follow user's locale preference
+- ✗ Backend cannot return human-readable messages without the frontend
+- ✗ API consumers (future mobile, third-party) would need their own resolution layer
+
+**Implementation:**
+
+```java
+// Backend — ExceptionMapper returns error code
+@Provider
+public class OrderExceptionMapper implements ExceptionMapper<OrderLockedException> {
+    @Override
+    public Response toResponse(OrderLockedException e) {
+        return Response.status(409)
+            .entity(Map.of("error", "ERR.ORDER.LOCKED", "orderId", e.getOrderId()))
+            .build();
+    }
+}
 ```
 
-Files must follow the naming convention:
+```svelte
+<!-- Frontend — Paraglide resolves error code to localized text -->
+<script>
+  import * as m from '$lib/paraglide/messages';
 
-```
-V{version}__{description}.sql
-  ^                ^
-  integer or       double underscore
-  dotted version
+  const errorMap = {
+    'ERR.ORDER.LOCKED': m.error.order.locked,
+    'ERR.PAYMENT.EXCEEDS_BALANCE': m.error.orderPayment.exceedsBalance,
+    // ... all error codes mapped to Paraglide message functions
+  };
+
+  function resolveError(code: string): string {
+    return errorMap[code]?.() ?? m.error.generic.unknown();
+  }
+</script>
 ```
 
-Examples:
-```
-V1__initial_schema.sql
-V2__add_unit_price_to_order_item.sql
-V3__add_index_customer_email.sql
-```
-
-The double underscore (`__`) is mandatory. The description becomes the `description` field in `flyway_schema_history`.
+**Decision:** Use error codes. The decoupling benefit (one catalog, one deploy) far outweighs the minor inconvenience for future API consumers (who can request raw codes and resolve locally).
 
 ---
 
-## 3. Recommended Properties Per Service
+### Pattern 2: Append-Only Payment Ledger with Derived Balance
 
-Replace `quarkus.hibernate-orm.database.generation=update` with `none` and add Flyway config.
+**What:** `amountPaid` on the order becomes a derived value (recomputed from the ledger on every write), not a directly-editable field. The ledger is append-only — no UPDATE or DELETE on payment rows.
 
-### identity-service
+**When to use:** When you need payment audit history AND accurate financial aggregation.
 
-```properties
-# Disable Hibernate DDL management
-quarkus.hibernate-orm.database.generation=none
+**Trade-offs:**
+- ✓ Full audit trail — every payment event is immutable
+- ✓ Revenue-by-date KPIs are date-accurate (anchored to `recorded_at`)
+- ✓ Refunds are honest negative entries, not silent edits
+- ✗ Extra table + extra query on payment write (recompute sum)
+- ✗ `amountPaid` is now denormalized (stored on order for read-performance but truth lives in ledger)
 
-# Flyway — enabled, baseline for existing DB
-quarkus.flyway.migrate-at-start=true
-quarkus.flyway.baseline-on-migrate=true
-quarkus.flyway.baseline-version=1
-quarkus.flyway.locations=classpath:db/migration
-```
-
-Apply the same four properties to catalog-service, sales-service, and operations-service identically. Each service discovers only its own `src/main/resources/db/migration/` classpath, so there is no cross-contamination.
-
----
-
-## 4. Multi-Service Strategy: Separate Histories, One DB
-
-### The core problem
-
-Flyway stores its migration history in a `flyway_schema_history` table. With a single DB and 4 services, all 4 services would try to write to and read from the same table by default. This causes:
-
-- Version conflicts (all services try to apply "V1")
-- Incorrect out-of-order detection (service A's V2 appears to precede service B's V2)
-- Locking contention at startup when all 4 services boot simultaneously
-
-### Recommended solution: per-service history table
-
-Configure each service to use a distinct `flyway_schema_history` table name:
-
-```properties
-# identity-service
-quarkus.flyway.table=flyway_schema_history_identity
-
-# catalog-service
-quarkus.flyway.table=flyway_schema_history_catalog
-
-# sales-service
-quarkus.flyway.table=flyway_schema_history_sales
-
-# operations-service
-quarkus.flyway.table=flyway_schema_history_operations
-```
-
-This means each service has an independent migration version sequence starting at V1. Service versioning is isolated — sales-service can be at V5 while identity-service is at V2 with no conflict.
-
-Do NOT use PostgreSQL schemas (search_path isolation) as the separation mechanism. The project already uses table-prefix separation within the default `public` schema, and adding schema routing would require datasource reconfiguration with no benefit.
-
----
-
-## 5. Baseline Migration for Existing Production DB
-
-`baseline-on-migrate=true` tells Flyway: "if the `flyway_schema_history` table does not exist, create it and mark the current DB state as version `baseline-version` (1) without running V1."
-
-This is the correct approach for an existing database with live data. It means:
-
-- V1 is treated as "already applied" — Flyway skips it on first run
-- V2 and later are applied normally going forward
-- No data is touched; Flyway only inserts a row into its history table
-
-### V1 file must still exist
-
-Even though V1 is skipped on the first run (due to baseline), the file **must be present** in `db/migration/`. Flyway validates checksums of all migrations. If V1 is absent, future fresh installs (dev environments, staging resets) will fail because Flyway cannot verify the baseline.
-
-V1 should contain the complete `CREATE TABLE` DDL for the service's tables, matching the schema already in production. Use `CREATE TABLE IF NOT EXISTS` to make it safe.
-
----
-
-## 6. Migration File Layout Per Service
+**Data flow:**
 
 ```
-identity-service/src/main/resources/
-  db/migration/
-    V1__initial_schema.sql        ← CREATE TABLE tca_user, cca_role (full DDL)
-    V2__add_...sql                ← future changes only
-
-catalog-service/src/main/resources/
-  db/migration/
-    V1__initial_schema.sql        ← CREATE TABLE cci_service, cci_garment_type,
-                                     tcc_price_list, tcc_price_list_item
-
-sales-service/src/main/resources/
-  db/migration/
-    V1__initial_schema.sql        ← CREATE TABLE tco_customer, tco_order,
-                                     tco_order_item, tco_order_item_service
-    V2__add_unit_price_to_order_item.sql  ← contents of existing migration.sql
-
-operations-service/src/main/resources/
-  db/migration/
-    V1__initial_schema.sql        ← CREATE TABLE tco_work_order, tco_work_order_item,
-                                     top_work_day, top_shift, top_holiday,
-                                     tce_establishment
+[Operator clicks "Agregar pago"]
+    ↓
+[Modal: amount + method + note]
+    ↓
+[POST /orders/{id}/payments]
+    ↓
+[SalesService in single transaction:]
+    1. Validate: amount + currentPaid <= totalAmount
+    2. INSERT into tco_order_payment
+    3. UPDATE tco_order SET amount_paid = (SELECT SUM(amount) FROM tco_order_payment WHERE order_id = ?)
+    4. Return updated order with new balance
+    ↓
+[Frontend: update order detail view + payment history panel]
 ```
 
-The existing `migration.sql` at the repo root maps to `sales-service` V2, since it modifies `tco_order_item`. Move its content verbatim — the `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` syntax is already safe for re-runs.
+**Decision:** Recompute-on-write within a single database transaction. The `amountPaid` column stays on `tco_order` for read-performance (every order list query uses it), but truth lives in the ledger. A consistency check (scheduled or manual) can verify `SUM(payments) = amountPaid` for any order.
 
 ---
 
-## 7. How to Generate V1 DDL
+### Pattern 3: Frontend-Joined Calendar Data
 
-Do not write V1 by hand. Extract it from the live production database:
+**What:** The calendar page's `+page.server.ts` calls two services in parallel (sales for revenue/workload, operations for capacity), merges the responses, and passes a single unified dataset to the Svelte component.
 
-```bash
-pg_dump \
-  --schema-only \
-  --no-owner \
-  --no-acl \
-  --table "tca_user" \
-  --table "cca_role" \
-  -h <host> -U admin anotame \
-  > identity-service/src/main/resources/db/migration/V1__initial_schema.sql
+**When to use:** When data lives across service boundaries but needs to be displayed together, and inter-service HTTP calls from the backend would create tight coupling.
+
+**Trade-offs:**
+- ✓ No new inter-service dependency (services don't call each other)
+- ✓ SvelteKit's server-side `load` function is the natural BFF layer
+- ✓ Each service endpoint is simple and focused
+- ✗ Two HTTP calls per page load (parallel, but still two round-trips from SvelteKit server to backends)
+- ✗ If either service is down, the calendar page degrades
+
+**Data flow:**
+
+```
+[User navigates to /calendar]
+    ↓
+[+page.server.ts load()]
+    ├── GET /sales/calendar?from=2026-04-01&to=2026-04-30
+    │   → { days: [{ date, revenue, totalMinutes, orderCount }] }
+    │
+    └── GET /operations/capacity?from=2026-04-01&to=2026-04-30
+        → { days: [{ date, capacityMinutes }] }
+    ↓
+[Merge by date → pass to component as unified array]
+    { date, revenue, totalMinutes, orderCount, capacityMinutes, loadPercent }
+    ↓
+[CalendarGrid.svelte renders color-coded cells]
 ```
 
-Run a separate dump per service using the table names owned by that service. Post-process the output to replace `CREATE TABLE` with `CREATE TABLE IF NOT EXISTS` — this ensures idempotency for fresh environment setup.
+**Decision:** Frontend-joined. This preserves service independence and avoids creating cross-service HTTP calls. If latency becomes an issue, the SvelteKit server can cache the operations/capacity response (it changes only when schedule is edited) while fetching sales data fresh.
 
 ---
 
-## 8. Startup Ordering and Race Conditions
+### Pattern 4: Soft Locale Swap (No Full Reload)
 
-All 4 services start independently and each runs Flyway on startup. Since they write to separate history tables and own non-overlapping table prefixes, concurrent startup is safe. There is no cross-service DDL dependency.
+**What:** When the user changes language in their profile, the app calls Paraglide's `setLocale()` then `invalidateAll()` to re-run SvelteKit `load` functions, re-rendering all text without a full page reload.
 
-However: if services share a foreign-key reference across prefixes (e.g., operations tables referencing catalog tables), ensure the referenced service starts and completes its migration first. In this codebase, no cross-prefix FK constraints were found in the entity code — each service uses its own prefix independently.
+**When to use:** Authenticated B2B apps where users switch language rarely but expect to stay in-context when they do.
 
----
+**Trade-offs:**
+- ✓ No lost form state or scroll position
+- ✓ SSR output is already in the right language (hooks.server.ts reads session locale)
+- ✗ First load after login must read locale from session, not browser `Accept-Language`
+- ✗ `invalidateAll()` re-runs all active `load` functions (acceptable overhead for a rare action)
 
-## 9. Dev Profile Override
+**Implementation flow:**
 
-During development, it is acceptable to use `drop-and-create` for fast iteration. Isolate this with a `%dev` profile override:
+```
+[hooks.server.ts]
+    → Read user.locale from session/JWT
+    → Call setLocale(locale) before any load() runs
+    → Anonymous users: fall back to Accept-Language → es-MX
 
-```properties
-# Disable Flyway in dev, allow Hibernate to recreate
-%dev.quarkus.flyway.enabled=false
-%dev.quarkus.hibernate-orm.database.generation=drop-and-create
+[Profile page — locale change]
+    → PATCH /users/{id}/locale { locale: "en" }
+    → On success: setLocale("en") → invalidateAll() → toast confirmation
+    → Session/JWT updated to include new locale
 ```
 
-In production and staging (`%prod`), Flyway is always active and Hibernate DDL is `none`.
+---
+
+## New Project Structure (additions only)
+
+```
+anotame-web/src/
+├── lib/
+│   ├── paraglide/              # Generated by paraglideVitePlugin
+│   │   ├── messages.js         # Compiled message functions (m.order.createWizard.title())
+│   │   ├── runtime.js          # setLocale(), getLocale()
+│   │   └── server.js           # SSR middleware (if using URL-based — we're NOT)
+│   ├── components/
+│   │   ├── calendar/           # NEW — Calendar components
+│   │   │   ├── CalendarGrid.svelte       # Month-view grid with color cells
+│   │   │   ├── CalendarDayCell.svelte    # Individual day cell with color logic
+│   │   │   ├── CalendarDayPopover.svelte # Click-day popover (revenue + workload + orders)
+│   │   │   └── CalendarStrip.svelte      # 7-day horizontal widget for dashboard
+│   │   ├── kpi/                # NEW — KPI widget components
+│   │   │   ├── RevenueTrendChart.svelte
+│   │   │   ├── ServiceProfitabilityTable.svelte
+│   │   │   ├── TopCustomersWidget.svelte
+│   │   │   ├── AtRiskCustomersWidget.svelte
+│   │   │   └── RepeatRateWidget.svelte
+│   │   └── payments/           # NEW — Payment ledger components
+│   │       ├── AddPaymentModal.svelte
+│   │       └── PaymentHistory.svelte
+│   ├── i18n/                   # NEW — i18n utilities
+│   │   ├── error-resolver.ts   # Maps backend error codes → Paraglide message functions
+│   │   └── locale-utils.ts     # Locale detection, preference logic
+│   └── services/
+│       └── ...                 # Existing services unchanged
+├── messages/                   # NEW — Paraglide message source files
+│   ├── es-MX.json              # Spanish (Mexico) — source language
+│   └── en.json                 # English — AI-translated
+└── routes/
+    └── (app)/
+        └── dashboard/
+            ├── calendar/       # NEW — Full calendar page
+            │   └── +page.svelte
+            │   └── +page.server.ts
+            └── ...             # Existing routes unchanged
+
+anotame-api/backend/sales-service/
+├── src/main/java/com/anotame/sales/
+│   ├── domain/model/
+│   │   └── Payment.java        # NEW — Payment domain model
+│   ├── application/
+│   │   ├── port/out/
+│   │   │   └── PaymentRepository.java  # NEW — Payment persistence port
+│   │   └── service/
+│   │       └── SalesService.java       # MODIFIED — addPayment(), getKpiData()
+│   └── infrastructure/
+│       ├── persistence/
+│       │   ├── entity/
+│       │   │   └── PaymentJpa.java     # NEW — JPA entity
+│       │   └── adapter/
+│       │       └── PaymentPersistenceAdapter.java  # NEW
+│       └── web/
+│           └── controller/
+│               ├── PaymentResource.java   # NEW — POST /orders/{id}/payments
+│               └── KpiResource.java       # NEW — GET /kpi/revenue, /kpi/profitability, etc.
+├── src/main/resources/db/migration/
+│   └── V2__payment_ledger.sql  # NEW — tco_order_payment table
+
+anotame-api/backend/identity-service/
+├── src/main/java/.../
+│   └── ...                     # MODIFIED — user.locale column, PATCH /users/{id}/locale
+├── src/main/resources/db/migration/
+│   └── V2__user_locale.sql     # NEW — ALTER TABLE tca_user ADD COLUMN locale VARCHAR(10) DEFAULT 'es-MX'
+
+anotame-api/backend/operations-service/
+├── src/main/java/.../
+│   └── web/controller/
+│       └── CapacityResource.java  # NEW — GET /capacity?from=&to= (daily capacity)
+```
 
 ---
 
-## 10. Best Practices for Additive Changes
+## Data Flow — Key Flows
 
-- Every schema change after V1 gets its own versioned file (V2, V3, V4...)
-- Never modify a migration file that has already been applied — Flyway stores its checksum and will fail on checksum mismatch
-- Prefer additive changes: `ADD COLUMN`, `CREATE INDEX`, `CREATE TABLE`
-- Destructive changes (`DROP COLUMN`, `DROP TABLE`) require coordination: ensure no service code references the dropped object before the migration runs
-- For column renames: add the new column (V_n), backfill data (V_n+1 or application logic), drop the old column only after all services are updated (V_n+2)
-- Use `IF NOT EXISTS` / `IF EXISTS` guards wherever possible to make scripts re-runnable in edge-case recovery scenarios
+### 1. Locale Resolution on Page Load
+
+```
+Browser → SvelteKit server (hooks.server.ts)
+    → Read locale from session cookie / JWT claims
+    → setLocale(locale) for Paraglide SSR
+    → load() functions execute → all m.xyz.abc() calls return locale-correct text
+    → HTML sent to browser with correct language
+    → Hydration picks up locale from server, no flash
+```
+
+### 2. Add Payment Flow
+
+```
+[Order Detail Page]
+    → Click "Agregar pago"
+    → AddPaymentModal opens (amount, method, note)
+    → Submit → POST /api/sales/orders/{id}/payments
+    → SalesService.addPayment():
+        1. Validate amount + currentPaid <= totalAmount
+        2. INSERT tco_order_payment (in transaction)
+        3. UPDATE tco_order.amount_paid = SUM(payments) (in same transaction)
+        4. Return { order, payment, balance }
+    → Frontend updates:
+        - Payment history panel (new row)
+        - Balance badge on order header
+        - Toast: "Pago registrado" / "Payment recorded"
+```
+
+### 3. KPI Dashboard Load
+
+```
+[Dashboard Page +page.server.ts]
+    → Parallel:
+        GET /api/sales/kpi/revenue?period=month&buckets=12
+        GET /api/sales/kpi/profitability?days=30
+        GET /api/sales/kpi/customers?type=top&limit=5
+        GET /api/sales/kpi/customers?type=at-risk&days=60
+        GET /api/sales/kpi/retention?days=90
+    → All responses merged into single page data object
+    → Rendered by KPI widget components (Chart.js canvases + tables)
+```
+
+### 4. Calendar Page Load
+
+```
+[Calendar Page +page.server.ts]
+    → Parallel:
+        GET /api/sales/calendar?from=YYYY-MM-01&to=YYYY-MM-30
+            → { days: [{ date, revenue, totalMinutes, orderCount }] }
+        GET /api/operations/capacity?from=YYYY-MM-01&to=YYYY-MM-30
+            → { days: [{ date, capacityMinutes }] }
+    → Merge by date:
+        { date, revenue, totalMinutes, orderCount, capacityMinutes,
+          loadPercent: totalMinutes / capacityMinutes * 100 }
+    → Pass to CalendarGrid.svelte
+    → Color logic: <50% green, 50-85% amber, >85% red
+```
 
 ---
 
-## Component Boundaries
+## Integration Points
 
-| Service | Table Prefixes | Flyway History Table | Migration Path |
-|---------|---------------|---------------------|----------------|
-| identity-service | `tca_`, `cca_` | `flyway_schema_history_identity` | `db/migration/` |
-| catalog-service | `tcc_`, `cci_` | `flyway_schema_history_catalog` | `db/migration/` |
-| sales-service | `tco_` (orders) | `flyway_schema_history_sales` | `db/migration/` |
-| operations-service | `tco_` (work orders), `top_`, `tce_` | `flyway_schema_history_operations` | `db/migration/` |
+### Internal Boundaries
 
-Note: `tco_` prefix is shared between sales-service and operations-service. Each service owns disjoint tables under that prefix (`tco_order*` vs `tco_work_order*`). Flyway per-service isolation handles this correctly since each service's V1 only declares its own tables.
+| Boundary | Communication | Notes |
+|----------|---------------|-------|
+| identity ↔ frontend | REST (locale in JWT/session) | Locale preference stored in identity-db; included in login response; frontend reads from session |
+| sales ↔ frontend | REST (payments, KPIs, calendar workload) | Sales-service owns all financial data; new endpoints for payment CRUD, KPI aggregation, calendar workload |
+| operations ↔ frontend | REST (capacity) | Operations-service provides daily capacity from schedule; lightweight read-only endpoint |
+| sales ↔ operations | **None** (no inter-service calls) | Frontend-joined: SvelteKit server merges data from both services |
+| All services → frontend | Error codes | Backend returns `{ "error": "ERR.CODE" }`; frontend resolves via Paraglide |
+
+### Schema Changes (Additive — Safe for Live Client)
+
+| Service | Migration | Description |
+|---------|-----------|-------------|
+| identity-service | V2__user_locale.sql | `ALTER TABLE tca_user ADD COLUMN locale VARCHAR(10) DEFAULT 'es-MX' NOT NULL` |
+| sales-service | V2__payment_ledger.sql | `CREATE TABLE tco_order_payment (id UUID PRIMARY KEY, order_id UUID NOT NULL REFERENCES tco_order(id), amount NUMERIC(12,2) NOT NULL, method VARCHAR(50) NOT NULL, note VARCHAR(255), recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), recorded_by_user_id UUID NOT NULL)` |
+
+---
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Duplicating Translation Catalogs
+
+**What people do:** Backend `@MessageBundle` returns localized strings AND frontend has its own Paraglide messages.
+**Why it's wrong:** Two catalogs diverge; every new error message requires changes in two places; deployment coupling.
+**Do this instead:** Backend returns error codes only; frontend resolves all user-facing text via single Paraglide catalog.
+
+### Anti-Pattern 2: Storing amountPaid Without Ledger Verification
+
+**What people do:** Let operators directly edit `amountPaid` on the order entity.
+**Why it's wrong:** Destroys audit trail; makes revenue-by-date KPIs inaccurate; can silently hide payment discrepancies.
+**Do this instead:** `amountPaid` is recomputed from SUM(tco_order_payment.amount) on every payment write; direct edit of `amountPaid` is removed from the order edit wizard.
+
+### Anti-Pattern 3: Inter-Service Calls for Calendar Data
+
+**What people do:** Sales-service calls operations-service internally to get capacity, then returns a unified calendar response.
+**Why it's wrong:** Creates runtime coupling between services; operations-service downtime breaks calendar AND order creation.
+**Do this instead:** Frontend-joined: SvelteKit `+page.server.ts` calls both services in parallel, merges responses.
+
+---
+
+## Scaling Considerations
+
+| Scale | Architecture Adjustments |
+|-------|--------------------------|
+| 1 tenant (current) | Current architecture is fine. All KPI queries run against sales-db directly. Calendar data merged by frontend. |
+| 5-10 tenants | KPI aggregation queries may need database indexes on `recorded_at` + `order_id` in tco_order_payment. Consider materialized views for revenue-by-period if queries exceed 500ms. |
+| 50+ tenants | Dedicated analytics service (read replica) for KPI computation. Calendar capacity may need caching layer. |
 
 ---
 
 ## Sources
 
-- Quarkus Flyway guide (quarkus.io/guides/flyway) — HIGH confidence, core extension docs
-- Flyway documentation on baseline (flywaydb.org/documentation/command/baseline) — HIGH confidence
-- `quarkus.flyway.table` property confirmed in Quarkus config reference — HIGH confidence
-- Table ownership derived from `@Table` annotations in this codebase — verified directly
+- [Paraglide JS docs — inlang](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) — compile-time i18n, SvelteKit integration
+- [Quarkus Qute i18n — @MessageBundle](https://quarkus.io/guides/qute-reference#type-safe-message-bundles) — considered and rejected for error-code approach
+- [Hexagonal Architecture — Anotame AI_RULES.md](./../../AI_RULES.md) — existing patterns for ports/adapters
+- [Append-only ledger patterns](https://martinfowler.com/eaaDev/AccountingNarrative.html) — Martin Fowler's accounting narrative
+
+---
+*Architecture research for: garment-repair shop SaaS (Anotame / El hilvan) — v1.5 integration*
+*Researched: 2026-04-19*

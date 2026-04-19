@@ -1,116 +1,187 @@
-# Research Summary
+# Project Research Summary — v1.5 Bilingual Launch + KPI Intelligence
 
-**Project:** Anotame — Quarkus 3.27.2 microservices
-**Milestone:** Security hardening + code quality cleanup
-**Researched:** 2026-03-31
-**Confidence:** HIGH
+**Project:** Anotame Microservices
+**Domain:** Garment-repair / alteration shop SaaS (one live tenant: El hilvan)
+**Researched:** 2026-04-19
+**Confidence:** HIGH overall
+
+## Executive Summary
+
+Anotame v1.5 adds three major capability dimensions to an already-functional order management platform: **bilingual UX** (Paraglide i18n across SvelteKit + Quarkus error codes), a **partial-payment ledger** (append-only `tco_order_payment` enabling accurate financial KPIs), and **operational intelligence** (revenue trends, service profitability, customer retention, workload calendar).
+
+The research strongly favors a **single-catalog i18n architecture**: Paraglide compiles all user-facing strings in the frontend; backend services return machine-readable error codes that the frontend resolves to localized text. This eliminates dual-catalog drift and decouples backend deploys from translation updates. For charting, native Chart.js with Svelte 5's `$effect` lifecycle is the cleanest integration — no framework-specific wrapper needed. The workload calendar should be a custom Svelte grid (~200 lines) reusing existing shadcn Popover, since FullCalendar is 90KB+ of complexity we won't use.
+
+The critical sequencing constraint is that the **i18n naming convention (SEED-002) must land before any string extraction begins** — otherwise hundreds of keys get named ad-hoc and then renamed, doubling the work. The **payment ledger must land before financial KPIs**, since revenue-by-date is only accurate when anchored to payment timestamps, not order creation dates.
+
+## Key Findings
+
+### Recommended Stack
+
+_Full details: [STACK.md](./STACK.md)_
+
+**Stack additions for v1.5 (everything else stays unchanged):**
+- `@inlang/paraglide-js` v2+: compile-time i18n with tree-shaking and type-safe keys; replaces any need for i18next or runtime loaders
+- `chart.js` v4.4+: canvas-based charts for revenue trend and service profitability widgets; native Svelte 5 integration via `$effect` + `bind:this`
+- Custom Svelte calendar grid: ~200 lines of Svelte using existing shadcn Popover + Tailwind grid; FullCalendar rejected as overkill
+
+**What NOT to add:**
+- No `@inlang/paraglide-sveltekit` (deprecated)
+- No FullCalendar (overkill for color-coded cells + popovers)
+- No Quarkus `@MessageBundle` (error codes approach keeps translation catalog in one place)
+- No WebSocket for dashboard (reload-on-visit is sufficient for shop use case)
+
+### Expected Features
+
+_Full details: [FEATURES.md](./FEATURES.md)_
+
+**Must have (table stakes — missing = broken feel):**
+- Per-user locale setting with native-label switcher on profile page (not header nav)
+- Soft locale swap (no reload, no lost form state)
+- Add Payment modal on order detail with append-only ledger
+- Payment history panel (reverse-chronological) with computed balance
+- Revenue trend chart (day/week/month toggle, 12 buckets, delta vs. previous period)
+- Month-view workload calendar with color-coded capacity (<50% green, 50-85% amber, >85% red)
+- Mobile agenda fallback for calendar on <640px screens
+
+**Should have (differentiators — Anotame's edge):**
+- Backend error messages resolved in user's locale (error codes pattern)
+- Past vs. future visual distinction on calendar (saturated vs. desaturated)
+- Single-popover calendar day view (earnings + workload + order list together)
+- 7-day dashboard strip widget
+- Service-type profitability by revenue-per-minute (sharper than gross sales)
+- Top customers + at-risk customers (60+ day idle) + repeat rate KPI
+
+**Defer (v1.6+):**
+- Configurable calendar thresholds per establishment
+- Configurable payment method list (beyond hardcoded Efectivo/Tarjeta/Transferencia)
+- Customer credit / over-payment handling
+- Budget/revenue target goal-setting KPIs
+
+### Architecture Approach
+
+_Full details: [ARCHITECTURE.md](./ARCHITECTURE.md)_
+
+v1.5 extends the existing architecture without changing its fundamentals. The key architectural decisions are:
+
+1. **Error codes, not localized backend strings** — backend returns `ERR.ORDER.LOCKED`; frontend resolves via Paraglide
+2. **Append-only payment ledger** — `tco_order_payment` is immutable; `amountPaid` on order is recomputed on write within a single transaction
+3. **Frontend-joined calendar data** — SvelteKit `+page.server.ts` calls sales-service (revenue/workload) and operations-service (capacity) in parallel, merges responses
+4. **Soft locale swap** — `setLocale()` + `invalidateAll()`, no full page reload
+
+**Major new components:**
+1. Paraglide message catalog (SvelteKit) — single source of truth for all user-facing text
+2. `tco_order_payment` table (sales-db) — append-only ledger with `recorded_at` timestamps
+3. KPI aggregation endpoints (sales-service) — revenue trend, profitability, retention
+4. Capacity aggregation endpoint (operations-service) — daily capacity from schedule
+5. Calendar/KPI/Payment UI components (SvelteKit) — Chart.js widgets, custom calendar grid, payment modal
+
+### Critical Pitfalls
+
+_Full details: [PITFALLS.md](./PITFALLS.md)_
+
+1. **Naming convention before extraction** — if i18n keys are extracted with ad-hoc names, all 500+ keys need renaming later. Convention (SEED-002) must be the FIRST v1.5 deliverable.
+2. **Payment ledger transaction boundary** — INSERT payment and UPDATE amountPaid MUST be in a single `@Transactional` method, or a crash between them creates phantom revenue.
+3. **Revenue date dimension** — KPI revenue queries MUST use `tco_order_payment.recorded_at`, NOT `tco_order.created_at`; otherwise split-payment orders distort monthly reports.
+4. **amountPaid wizard backdoor** — the existing order edit wizard has a direct `amountPaid` field; this must be REMOVED when the ledger ships, or operators can bypass the audit trail.
+5. **Calendar division by zero** — holidays/weekends have 0 capacity; render as "closed" (gray), not "overloaded" (red).
+
+## Implications for Roadmap
+
+Based on research, suggested phase structure (continuing from Phase 21):
+
+### Phase 22: i18n Naming Convention + Infrastructure
+**Rationale:** Must land first — convention-before-extraction is the single most important sequencing constraint (Pitfall #1)
+**Delivers:** SEED-002 naming convention document, lint rule, Paraglide project init, Vite plugin config, `user.locale` column in identity-db
+**Addresses:** SEED-002, per-user locale infrastructure
+**Avoids:** Pitfall #1 (naming convention after extraction), Pitfall #7 (SSR locale flash)
+
+### Phase 23: Paraglide String Extraction + EN Translation
+**Rationale:** Long pole of v1.5 (~1000 strings); depends on naming convention from Phase 22
+**Delivers:** All hardcoded ES strings extracted to Paraglide messages; AI-generated EN translations; error code resolution wired
+**Addresses:** Full bilingual UX, backend error localization
+**Avoids:** Pitfall #2 (common key reuse)
+
+### Phase 24: Partial Payment Ledger
+**Rationale:** Must land before KPIs (revenue accuracy depends on payment timestamps); independent of i18n work
+**Delivers:** `tco_order_payment` table, AddPaymentModal, PaymentHistory panel, balance computation, amountPaid removal from edit wizard
+**Addresses:** SEED-001 remainder, accurate financial foundation
+**Avoids:** Pitfall #3 (transaction boundary), Pitfall #4 (over-payment), Pitfall #8 (wizard backdoor)
+
+### Phase 25: Financial KPIs
+**Rationale:** Depends on payment ledger (Phase 24) for date-accurate revenue
+**Delivers:** Revenue trend chart, service profitability table, top customers, at-risk customers, repeat rate
+**Addresses:** Financial intelligence for shop owner
+**Avoids:** Pitfall #5 (wrong date dimension)
+**Uses:** Chart.js native integration
+
+### Phase 26: Workload Calendar + Dashboard Widget
+**Rationale:** Independent of KPIs but depends on existing schedule module; can run in parallel with Phase 25 if needed
+**Delivers:** Full month calendar page with color-coded cells, daily popover, 7-day dashboard strip, mobile agenda fallback
+**Addresses:** SEED-007
+**Avoids:** Pitfall #6 (calendar capacity=0)
+**Uses:** Custom Svelte calendar grid, shadcn Popover
+
+### Phase Ordering Rationale
+
+```
+Phase 22 (naming + infrastructure) ──must precede─→ Phase 23 (extraction)
+Phase 24 (payment ledger) ──must precede─→ Phase 25 (KPIs)
+
+Phase 22/23 (i18n track) ─── independent of ─── Phase 24/25 (financial track)
+Phase 26 (calendar) ─── independent of ─── Phase 23 (extraction)
+Phase 26 (calendar) ─── independent of ─── Phase 25 (KPIs)
+```
+
+Two parallel tracks are possible:
+- **Track A:** 22 → 23 (i18n foundation → extraction)
+- **Track B:** 24 → 25 (payment ledger → KPIs)
+- **Phase 26** can run after either track completes
+
+### Research Flags
+
+Phases likely needing deeper research during planning:
+- **Phase 23:** Paraglide SvelteKit `hooks.server.ts` integration — verify exact lifecycle hook ordering for locale setting before SSR `load()`
+- **Phase 26:** Calendar aggregation endpoint — clarify whether workload numerator should be based on promised-pickup-date or order status transition timestamps
+
+Phases with standard patterns (skip research-phase):
+- **Phase 22:** i18n naming convention + Flyway migration for user.locale — well-documented, straightforward
+- **Phase 24:** Append-only ledger + CRUD endpoint — textbook accounting pattern, no research needed
+- **Phase 25:** Chart.js integration + SQL aggregation queries — standard OLAP-style queries
+
+## Confidence Assessment
+
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Stack | HIGH | All libraries are current, versions verified; Paraglide is the project's stated i18n choice |
+| Features | HIGH on bilingual/payments; MEDIUM on KPI specifics | Competitor analysis for bilingual + payments is strong; KPI metric definitions are clear; calendar threshold percentages are our best estimate |
+| Architecture | HIGH | Error-codes pattern and append-only ledger are well-established; frontend-joined calendar is a pragmatic choice for 4-service architecture |
+| Pitfalls | HIGH | All 8 pitfalls are specific to this project's situation (adding features to a live system); prevention strategies map directly to phases |
+
+**Overall confidence:** HIGH
+
+### Gaps to Address
+
+- **Calendar capacity source exact query:** which schedule tables/columns to use for per-day capacity — verify during Phase 26 planning by inspecting operations-service schema
+- **Paraglide SSR hook exact API:** the `setLocale()` before `load()` pattern needs verification against latest Paraglide docs at Phase 22 planning time
+- **EN translation quality bar:** "AI-generated, unreviewed" is the decision, but the pipeline tool (which AI? what prompt?) is unspecified — decide during Phase 23 planning
+- **Payment method enum values:** hardcoded for v1.5, but exact values (CASH, CARD, TRANSFER?) need confirmation with shop owner — decide during Phase 24 planning
+
+## Sources
+
+### Primary (HIGH confidence)
+- [Paraglide JS — inlang docs](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) — setup, tree-shaking, message keys
+- [Locize — i18n key naming guide](https://www.locize.com/blog/guide-to-i18n-key-naming/) — naming patterns, no-reuse rule
+- [Chart.js v4 — official docs](https://www.chartjs.org/docs/latest/) — Svelte integration, tree-shaking
+- [RepairDesk / Geelus / Orderry](https://www.repairdesk.co/) — tailor shop payment UX patterns
+
+### Secondary (MEDIUM confidence)
+- [Smashing Magazine — language selector UX](https://www.smashingmagazine.com/2022/05/designing-better-language-selector/) — profile vs. header switcher
+- [Scopestack — service industry KPIs](https://scopestack.io/blog/professional-services-kpis-to-measure-profitability) — revenue-per-minute, retention metrics
+- [FullCalendar docs](https://fullcalendar.io/docs/) — evaluated and rejected for v1.5
+
+### Tertiary (LOW confidence)
+- Calendar capacity threshold percentages (50/85%) — derived from multiple vendor patterns; no single standard exists; verify with shop owner post-launch
 
 ---
-
-## Stack Recommendations
-
-| Technology | Purpose | Rationale |
-|---|---|---|
-| MicroProfile Config env var overrides | Secret externalization | Automatic, no code changes — dots/hyphens become underscores, all caps |
-| `mp.jwt.verify.publickey` (inline) | JWT public key injection | Preferred over `.location`; inline takes priority; supports multi-line PEM via Railway |
-| `smallrye.jwt.sign.key` | JWT private key injection | Replaces file-based `privateKey.pem`; set via `SMALLRYE_JWT_SIGN_KEY` env var |
-| Quarkus profiles (`%dev.`, `%prod.`) | Environment-specific config | Railway runs packaged JAR = `prod` profile; correct-by-default without extra env vars |
-| `quarkus-flyway` | Schema management | Replace `hibernate-orm.database.generation=update`; per-service history tables prevent conflicts on shared DB |
-| `quarkus-smallrye-health` | Service health endpoints | Zero-code DB health check; enables Docker Compose `depends_on: condition: service_healthy` |
-| `@ServerExceptionMapper` | Structured error responses | Quarkus REST preferred pattern over `ExceptionMapper<T>`; sales-service already has the template |
-
-**Key version notes:** Flyway is BOM-managed (no explicit version). `quarkus-flyway` requires `baseline-on-migrate=true` for the live production DB.
-
----
-
-## Table Stakes
-
-These are non-negotiable for this milestone. All exist as patterns in the codebase or Quarkus core — effort is low.
-
-1. **JWT keys out of version control** — `privateKey.pem` and `publicKey.pem` committed to repo are a critical exposure. Delete, rotate, and inject via env vars before any other security work.
-2. **`@Authenticated` at class level on all unguarded controllers** — `UserController`, `OperationsController`, `ScheduleController`, and `EstablishmentController` currently have no auth guard. Apply class-level annotation; use `@PermitAll` to carve out public methods.
-3. **Consistent JSON error shape across all 4 services** — `{ "message": "...", "details": [] }`. sales-service's `GlobalExceptionHandler` is the reference implementation. Copy it to identity, catalog, and operations.
-4. **Typed domain exceptions in identity-service** — `AuthService` throws bare `RuntimeException` for invalid credentials and duplicate usernames. Wrap in `InvalidCredentialsException` / `UserAlreadyExistsException` extending `DomainException`.
-5. **`%prod.anotame.auth.cookie.secure=true`** — cookie secure flag must be `true` in production. Profile-gate it so local HTTP dev still works.
-6. **`quarkus.hibernate-orm.database.generation=none` + Flyway** — all 4 services must stop using ORM-managed DDL in production. Each service needs a `db/migration/` directory and per-service Flyway history table.
-7. **Profile-gated SQL logging** — `%dev.quarkus.hibernate-orm.log.sql=true`, off in prod. Trivial property change.
-
----
-
-## Watch Out For
-
-1. **JWT key rotation breaks active sessions (certain)** — all logged-in users get 401s immediately. Deploy all 4 services in a single release window after setting env vars in Railway. Communicate forced re-login to the client in advance.
-
-2. **Multi-line PEM in Railway env var** — SmallRye JWT expects full PEM headers. Test with `export MP_JWT_VERIFY_PUBLICKEY="$(cat publicKey.pem)"` locally before pushing to Railway. Missing or malformed key = every request returns 401.
-
-3. **Flyway V1 must come from `pg_dump`, not hand-written** — if V1 DDL diverges from what `hibernate update` actually created in production, Flyway will fail on checksum or "table already exists." Run `pg_dump --schema-only` per service to generate V1.
-
-4. **`SameSite=Strict` blocks cross-origin Railway calls** — if the SvelteKit frontend and backend land on different Railway subdomains, `Strict` will silently drop the cookie. Use `Lax` (same-domain BFF proxy) or `None`+`Secure` (fully different domains). Verify Railway deployment topology before choosing.
-
-5. **Hardcoded branch UUID in SalesService** — `UUID.fromString("ea22f4a4-...")` is tied to live client data. Any refactoring of branch resolution must fall back to this UUID during rollout; remove the fallback only after JWT claims carry the branch ID and all active sessions have refreshed.
-
----
-
-## Phase Implications
-
-Research points to three natural phases based on risk, dependency order, and effort:
-
-### Phase 1: Security Foundations (critical path, do first)
-Keys out of git, auth annotations on all controllers, cookie config. This is the highest-severity work and unblocks everything else. Requires coordinated Railway deploy of all 4 services simultaneously due to JWT key rotation.
-
-- Remove `privateKey.pem` / `publicKey.pem` from resources; rotate key pair
-- Inject keys via `SMALLRYE_JWT_SIGN_KEY` + `MP_JWT_VERIFY_PUBLICKEY` env vars
-- Add `@Authenticated` (class-level) to all unguarded controllers
-- Add `.env.example` at repo root documenting required vars
-- `%prod.anotame.auth.cookie.secure=true`; verify `SameSite` for Railway topology
-
-**Research flag:** Standard patterns, no additional research needed.
-
-### Phase 2: Code Quality + Error Handling
-Typed exceptions and consistent error responses across services. Low-risk (no schema changes, no auth changes), can be done service-by-service without coordinated deploy.
-
-- Port `GlobalExceptionHandler` from sales-service to identity, catalog, operations
-- Introduce `DomainException` hierarchy in identity-service
-- Profile-gate SQL logging and cookie flags
-- Address hardcoded branch UUID in SalesService (add JWT claim → gradual rollout)
-
-**Research flag:** Branch UUID migration needs a careful rollout plan. Consider `/gsd:research-phase` if the JWT claim shape is uncertain.
-
-### Phase 3: Flyway Migration
-Schema management is architecturally independent but operationally the most dangerous step with a live client. Do it after security and code quality are stable.
-
-- Add `quarkus-flyway` to all 4 services
-- Generate V1 DDL via `pg_dump` per service (not hand-written)
-- Configure per-service history tables (`flyway_schema_history_{service}`)
-- Set `baseline-on-migrate=true` for the live DB
-- Move `migration.sql` → sales-service `V2__add_unit_price_to_order_item.sql`
-- Add SmallRye Health + Docker Compose health checks (natural companion to this phase)
-
-**Research flag:** Validate against staging before touching production. V1 generation and `flyway validate` must pass in a staging environment first.
-
-### Phase ordering rationale
-
-- Phase 1 before Phase 2: auth annotations and secret management are immediate security risks; they must be addressed before code quality cleanup to avoid false assurance.
-- Phase 2 before Phase 3: code quality changes are zero-downtime and low-risk; completing them simplifies the Flyway phase by keeping infra changes isolated.
-- Phase 3 last: Flyway on a live DB is the highest-risk infrastructure change. Batching it last means the codebase is stable when the migration runs.
-
----
-
-## Open Questions
-
-These need answers before or during planning — research did not resolve them:
-
-1. **Railway deployment topology** — are the SvelteKit frontend and Quarkus backends on the same Railway subdomain? This determines whether `SameSite=Lax` or `SameSite=None` is correct. Wrong choice = cookies silently dropped in production.
-
-2. **Staging environment availability** — Flyway `baseline-on-migrate` must be validated against a copy of the live schema before touching production. Does a staging DB exist, or does one need to be provisioned?
-
-3. **JWT claim shape for branch** — identity-service needs to add `branchId` to the JWT payload during Phase 2. What is the source of truth for user-to-branch mapping? Is there a `tca_user_branch` join table or is it a direct FK on `tca_user`?
-
-4. **`anotame-web-legacy` status** — `node_modules/` may be committed, polluting security scans. Confirm whether this directory is active or can be removed entirely. If only legacy, archive or delete.
-
-5. **Client re-login communication** — Phase 1 will force all active sessions to log out. Is there a maintenance window or communication channel to notify the live client before the JWT key rotation deploy?
-
----
-
-*Research completed: 2026-03-31*
-*Ready for roadmap: yes*
+*Research completed: 2026-04-19*
+*Ready for requirements: yes*
