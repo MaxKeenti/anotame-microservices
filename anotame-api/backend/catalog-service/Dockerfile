@@ -1,5 +1,5 @@
 # Build Stage
-FROM maven:4.0.0-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.14-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 ENV MAVEN_OPTS="-Xmx512m"
 
