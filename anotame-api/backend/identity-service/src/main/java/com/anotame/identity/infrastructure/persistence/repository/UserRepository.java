@@ -45,7 +45,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
                     .setParameter("userId", userId)
                     .getSingleResult();
             return UUID.fromString(result.toString());
-        } catch (NoResultException e) {
+        } catch (Exception e) {
+            // Broad catch for NoResultException or SQLGrammarException (isolated DB)
             return null;
         }
     }
