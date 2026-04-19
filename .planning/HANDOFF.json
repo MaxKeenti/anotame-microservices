@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-04-19T06:43:24Z",
+  "context": "debug",
+  "phase": null,
+  "phase_name": null,
+  "phase_dir": null,
+  "debug_session": ".planning/debug/prod-502-catalog-sales-ops.md",
+  "status": "paused",
+  "completed_tasks": [
+    {"name": "Diagnose prod 502s on catalog/sales/operations", "status": "done"},
+    {"name": "Rule out memory-as-root-cause via fresh Railway log pull", "status": "done"},
+    {"name": "Identify real root cause: Railway domain target port mismatch (user chat with Railway support)", "status": "done"},
+    {"name": "Apply Dockerfile memory hardening (MaxRAMPercentage, +ExitOnOutOfMemoryError)", "status": "done", "committed": "d0d4879 / 69d50fe / c96134c"},
+    {"name": "Pin ${PORT:8080} fallback in all 4 application.properties", "status": "done", "committed": false}
+  ],
+  "remaining_tasks": [
+    {"name": "Commit port fix (4 application.properties files) on a named branch", "status": "not_started", "owner": "user"},
+    {"name": "Railway dashboard — set Target Port = 8080 for catalog, sales, operations (verify identity)", "status": "not_started", "owner": "user", "blocking": true},
+    {"name": "Redeploy all 4 services", "status": "not_started", "owner": "user"},
+    {"name": "Verify /q/health/live = 200 on all 4 prod URLs", "status": "not_started", "owner": "user"},
+    {"name": "Re-verify at the 5-minute mark (old bug hit at ~2m22s post-boot)", "status": "not_started", "owner": "user"},
+    {"name": "Separate follow-up: add quarkus-smallrye-jwt to operations-service/pom.xml (will cause 401s once 502s clear)", "status": "not_started", "owner": "user"}
+  ],
+  "human_actions_pending": [
+    {"action": "Railway dashboard: Settings → Networking → Target Port = 8080 for catalog, sales, operations", "context": "Container listens on 8080 (Railway's injected PORT), but domain routing was configured to 8082/8083/8084. This is the actual root cause per Railway support chat.", "blocking": true},
+    {"action": "Commit and push port fix + redeploy", "context": "Port fix is on disk, uncommitted.", "blocking": true}
+  ],
+  "decisions": [
+    {"decision": "Keep Dockerfile memory hardening as a separate, defensive improvement", "rationale": "+ExitOnOutOfMemoryError makes any future silent SIGKILL loud; MaxRAMPercentage=60 is saner than fixed -Xmx100m. Already committed by user across d0d4879 / 69d50fe / c96134c."},
+    {"decision": "Pin fallback to ${PORT:8080} in all 4 services instead of keeping 8081/8082/8083/8084", "rationale": "Removes divergence between container listen port and future Railway auto-port-detection. dev.sh passes -Dquarkus.http.port=<N> at JVM level so local dev is unaffected."},
+    {"decision": "Do NOT commit port fix in this session", "rationale": "User owns commit and redeploy. Plus — Railway dashboard port change must happen before or alongside the deploy or the fix won't resolve the 502."}
+  ],
+  "uncommitted_files": [
+    "anotame-api/backend/identity-service/src/main/resources/application.properties",
+    "anotame-api/backend/catalog-service/src/main/resources/application.properties",
+    "anotame-api/backend/sales-service/src/main/resources/application.properties",
+    "anotame-api/backend/operations-service/src/main/resources/application.properties",
+    ".planning/STATE.md"
+  ],
+  "blockers": [
+    {"description": "Port mismatch fix requires coordinated Railway dashboard change (Target Port = 8080) + code deploy. Dashboard change is user-owned.", "type": "human_action", "workaround": "none"}
+  ],
+  "anti_patterns_discovered": [
+    {"pattern": "Anchoring on first plausible hypothesis with confirmatory signal", "severity": "advisory", "description": "Memory-hypothesis looked airtight (strict -Xmx100m + restart loop + silent death = classic SIGKILL signature) but the real root cause was Railway domain port mismatch. Clean-boot-then-silence-then-502 is ambiguous between cgroup SIGKILL and Railway killing a failed-healthcheck container; both leave identical log signatures. Should have explicitly listed 'Railway edge routes to wrong upstream port' as an alternative hypothesis from the start and asked the user to check dashboard port mapping in parallel with pulling fresh logs.", "mitigation": "For 'connection refused from cloud edge' bugs, always verify upstream port config in the dashboard BEFORE investigating the container's internals. Edge-level 502s can be routing misconfig just as easily as container death."}
+  ],
+  "next_action": "Resume by: (1) confirming Railway dashboard Target Port = 8080 for catalog/sales/operations, (2) committing the 4 application.properties port fixes, (3) redeploy, (4) verify /q/health/live at 5-min mark, (5) open separate follow-up for operations-service missing quarkus-smallrye-jwt.",
+  "context_notes": "Debug session slug = prod-502-catalog-sales-ops. Full investigation + evidence + resolution is captured in .planning/debug/prod-502-catalog-sales-ops.md (status: resolved, verification: pending Railway redeploy + dashboard port fix). Identity service was surviving because its Railway domain Target Port happened to match what the container listens on; catalog/sales/operations had a mismatch. The Dockerfile memory changes are genuinely beneficial but are NOT what unblocks the 502s."
+}
