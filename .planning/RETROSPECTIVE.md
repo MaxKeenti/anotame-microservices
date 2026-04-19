@@ -156,6 +156,38 @@
 
 ---
 
+## Milestone: v1.4 — Deployment Refactor
+
+**Shipped:** 2026-04-19
+**Phases:** 4 | **Plans:** 10 | **Commits:** 99
+
+### What Was Built
+- Clean per-service Flyway V1 baselines — cross-service FKs dropped, incremental migrations folded in
+- All datasource URLs, credentials, ports externalized to env vars with %dev fallbacks
+- 4 Railway Dockerfile deployments with per-service PostgreSQL instances; GHCR pipeline deleted
+- Local dev docker-compose with 4 independent PostgreSQL containers; init.sql eliminated
+
+### What Worked
+- Phase dependency sequencing (18→19→20→21) was tight and correct — no backtracking
+- Deleting `anotame-db/` and `build_and_push.sh` completely (no deprecation stubs) kept the repo clean
+- Removing the base `quarkus.datasource.jdbc.url=` line (rather than overriding) was the right call — forces visible failure
+
+### What Was Inefficient
+- Post-deploy OOM-kill required a full debug session to diagnose; could have been caught with a `-m 500m` local Docker smoke test before Railway deploy
+- Multiple Dockerfile commits chasing the same OOM issue (5+ commits on JVM flags) — a single pre-deploy local container test would have resolved in one pass
+
+### Key Lessons
+- **Always run `docker run --rm -m 500m` locally** before deploying Quarkus to Railway — catches SIGKILL OOM before they hit prod
+- **Container-aware JVM flags** (`MaxRAMPercentage`) are safer than hardcoded `-Xmx` on memory-constrained platforms; entity count drives real working set
+- **`+ExitOnOutOfMemoryError`** is mandatory on Railway — internal OOM must print and fail loudly; SIGKILL leaves no trace
+
+### Patterns Established
+- Railway native Dockerfile pattern: `dependency:resolve dependency:resolve-plugins`, `MAVEN_OPTS=-Xmx512m`, logging manager ENTRYPOINT, container-aware JVM flags
+- Per-service `railway.toml`: minimal config (builder, dockerfilePath, healthcheckPath, healthcheckTimeout=300)
+- DB-per-service local dev: 4 containers on ports 5431–5434; Flyway `migrate-at-start=true` eliminates init.sql
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Deployment Refactor
 status: completed
-stopped_at: ""
-last_updated: "2026-04-19T00:00:00.000Z"
+stopped_at: milestone close 2026-04-19
+last_updated: "2026-04-19T17:09:39.994Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 4
@@ -29,7 +29,7 @@ Milestone: v1.4 Deployment Refactor — COMPLETE
 Phase: 21 (complete)
 Plan: 2/2 complete
 Status: Milestone complete — ready for v1.5
-Last activity: 2026-04-18
+Last activity: 2026-04-19
 
 Progress: [██████████] 100% (4/4 phases complete)
 
@@ -152,8 +152,29 @@ None.
 
 Last activity: 2026-04-18 - Completed quick task 260418-prt: Fix catalog 502 port heuristic mismatch
 
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-04-19:
+
+| Category | Item | Status |
+|----------|------|--------|
+| verification | Phase 19: env var injection live test | human_needed — confirmed working in prod |
+| verification | Phase 20: Railway build log confirmation | human_needed — Railway health check passed at deploy |
+| verification | Phase 21: docker compose + quarkus:dev Flyway live test | human_needed — pending local run |
+| uat | Phase 20: 2 pending human UAT scenarios | partial — confirmed healthy via test_integration.sh |
+| quick_task | 33 v1.0–v1.3 quick task directories | missing from .planning/quick/ — all committed and shipped |
+| seed | SEED-002 paraglide naming refactor | dormant — deferred to future milestone |
+| seed | SEED-003 auto-update GitHub on milestone | dormant — deferred to future milestone |
+| seed | SEED-005 UI contract mandate | dormant — deferred to future milestone |
+| seed | SEED-006 categorical sorting | dormant — deferred to future milestone |
+| seed | SEED-007 workload calendar | dormant — deferred to future milestone |
+| seed | SEED-008 bulk-send orders | dormant — deferred to future milestone |
+| seed | SEED-009 database-per-service | DELIVERED in v1.4 — needs seed file updated |
+
+Known deferred items at close: 47 (see above — all acknowledged, none blocking)
+
 ## Session Continuity
 
 Last session: 2026-04-19T06:42:30.622Z
-Stopped at: context exhaustion at 90% (2026-04-19)
+Stopped at: milestone close 2026-04-19
 Resume file: None

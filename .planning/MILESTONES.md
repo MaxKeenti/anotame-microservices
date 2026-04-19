@@ -1,5 +1,23 @@
 # Milestones
 
+## v1.4 Deployment Refactor (Shipped: 2026-04-19)
+
+**Phases completed:** 4 phases, 10 plans, 19 tasks
+
+**Key accomplishments:**
+
+- Replaced full pg_dump monolith V1 SQL files for identity-service and catalog-service with clean per-service schemas owning only their tables, and removed shared-DB Flyway workaround flags from both application.properties files.
+- Sales-service schema rewritten as clean consolidated DDL: 3 cross-service FK constraints dropped, current_status removed, branch_name snapshot added, V2-V4 migrations folded into V1 and deleted
+- Operations-service V1__baseline.sql rewritten as a clean 8-table schema with cross-service FKs dropped, V2 theme columns folded in, and Flyway workaround flags removed from application.properties.
+- Externalized datasource URL and HTTP port for identity-service and catalog-service via Quarkus env var ordinal 300 pattern, with %dev localhost fallbacks and explicit prod failure on missing QUARKUS_DATASOURCE_JDBC_URL
+- One-liner:
+- One-liner:
+- 4 railway.toml files committed (dockerfile builder, 300s healthcheck) and legacy GHCR pipeline files (build_and_push.sh, anotame-db/) removed via git rm in a single atomic commit
+- One-liner:
+- README.md rewritten to accurately document the 4-DB-container + quarkus:dev local dev workflow, replacing stale Spring Boot / single-postgres / docker-compose up --build instructions
+
+---
+
 ## v1.3 Advanced Operations (Shipped: 2026-04-14)
 
 **Phases completed:** 3 phases (15–17), 5 plans, ~13 tasks

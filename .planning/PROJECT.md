@@ -8,31 +8,20 @@ Anotame is the management SaaS platform for *El hilvan*, a garment care / clothi
 
 A *El hilvan* staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
 
-## Current Milestone: v1.4 — Deployment Refactor
+## Current Milestone: v1.5 — Planning
 
-**Goal:** Move from a shared monolithic PostgreSQL instance to 4 isolated per-service PostgreSQL databases, eliminate external build dependencies, and rebuild Railway deployment with per-service Dockerfiles.
-
-**Target features:**
-- DB-per-service architecture (SEED-009) — 4 independent Railway PostgreSQL instances; separate credentials per service; fresh Flyway baselines per service
-- init.sql refresh — Flyway migrations become single source of truth; local Docker Compose updated to 4 PostgreSQL containers
-- PostGIS removal — drop PostGIS dependency from catalog-service POM (no geometry columns in use)
-- Eliminate GitHub Packages dependency — all Quarkus BOMs/artifacts move to Maven Central only; no PAT token at build time
-- Per-service Railway Dockerfile deploys — individual Dockerfiles per service replacing docker-compose deploy approach
-
-**Key decisions:**
-- Clean-slate deployment — planned downtime for cutover is acceptable
-- 4 separate Railway PostgreSQL instances chosen over 4 schemas for credential blast-radius containment and lateral-movement prevention
+**Goal:** TBD — run `/gsd:new-milestone` to define v1.5 scope.
 
 ---
 
 ## Current State
 
-**Version:** v1.4-complete — Deployment Refactor milestone finished
+**Version:** v1.4-complete — Deployment Refactor milestone finished 2026-04-19
 **Codebase:** Monorepo — `anotame-api/backend/` (4 Quarkus 3.27.2 services) + `anotame-web/` (SvelteKit 5 + Svelte 5 Runes)
-**Backend:** Full order lifecycle: edit with role restrictions, field-level audit log, pickup code deliver flow, price list stored on order. Phase 18 complete — all 4 services now own clean, self-contained Flyway V1 baselines; cross-service FKs dropped, incremental migrations folded in, shared-DB vestiges removed.
+**Backend:** Full order lifecycle: edit with role restrictions, field-level audit log, pickup code deliver flow, price list stored on order. All 4 services own clean, self-contained Flyway V1 baselines; cross-service FKs dropped, incremental migrations folded in, shared-DB vestiges removed.
 **Frontend:** Order edit wizard, bulk actions with FloatingActionBar, PriceListStep in order wizard with auto-fill pricing, per-device configurable DataTable row count (5/10/20/50)
-**Local Dev:** Phase 21 complete — `docker compose up -d` starts 4 isolated PostgreSQL containers (identity-db/5431, catalog-db/5432, sales-db/5433, operations-db/5434); each Quarkus service connects to its own container via `%dev` profile; Flyway auto-creates schema on first `quarkus:dev` start.
-**Deployment:** Railway (main branch auto-deploy); v1.4 Deployment Refactor complete — all 4 Quarkus services live on Railway with dedicated PostgreSQL instances. Dockerfiles use dependency:resolve (no go-offline), -Xmx512m heap ceiling, Quarkus logging manager ENTRYPOINT. Legacy GHCR pipeline removed.
+**Local Dev:** `docker compose up -d` starts 4 isolated PostgreSQL containers (identity-db/5431, catalog-db/5432, sales-db/5433, operations-db/5434); each Quarkus service connects to its own container via `%dev` profile; Flyway auto-creates schema on first `quarkus:dev` start.
+**Deployment:** Railway (main branch auto-deploy); all 4 Quarkus services live with dedicated PostgreSQL instances. Runtime JVM: `-XX:MaxRAMPercentage=70.0 -XX:MaxMetaspaceSize=192m -XX:+ExitOnOutOfMemoryError`. Build: `dependency:resolve` (no go-offline), `-Xmx512m` build heap ceiling. Legacy GHCR pipeline removed.
 
 ## Requirements
 
@@ -126,10 +115,17 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 | priceListName denormalized on order | No runtime catalog fetch needed for display | ✓ Done — v1.3 |
 | PersistedState without userId scoping | Per-device preference for kiosk-style workstations at El Hilvan | ✓ Done — v1.3 |
 | DataTableWrapper init-time only row count | No live $effect sync; table picks preference on mount; avoids re-render churn | ✓ Done — v1.3 |
+| 4 separate Railway PostgreSQL instances | Credential blast-radius containment over schemas; lateral movement prevention | ✓ Done — v1.4 |
+| Clean-slate DB cutover | Single client, planned downtime acceptable; no live migration needed | ✓ Done — v1.4 |
+| Cross-service FKs dropped at DB layer | Impossible to enforce across isolated DB instances; app layer enforces integrity | ✓ Done — v1.4 |
+| Remove base datasource.jdbc.url entirely | Forces visible prod failure if env var missing; shadowing silently wrong is worse | ✓ Done — v1.4 |
+| dependency:resolve over go-offline in Docker | go-offline OOM-kills Railway build runners; dependency:resolve resolves exactly what's needed | ✓ Done — v1.4 |
+| MaxRAMPercentage=70.0 over hardcoded -Xmx | Container-aware sizing; hardcoded 100m caused SIGKILL on catalog/sales/ops after JIT warmup | ✓ Done — v1.4 |
+| Eliminate init.sql; rely on Flyway | migrate-at-start=true makes init.sql redundant; one less manual step for devs | ✓ Done — v1.4 |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
 ---
-*Last updated: 2026-04-18 — Phase 21 complete (Local Dev Docker Compose — 4 isolated DB containers)*
+*Last updated: 2026-04-19 — v1.4 milestone complete (Deployment Refactor — 4 isolated DBs, per-service Railway Dockerfiles, local dev compose)*
