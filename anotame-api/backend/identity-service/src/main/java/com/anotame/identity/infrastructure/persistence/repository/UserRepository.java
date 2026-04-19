@@ -5,7 +5,6 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +39,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     public UUID findActiveBranchForUser(UUID userId) {
         try {
             Object result = em.createNativeQuery(
-                            "SELECT id_branch FROM tce_employee_assignment " +
+                    "SELECT id_branch FROM tce_employee_assignment " +
                             "WHERE id_user = :userId AND is_active = true LIMIT 1")
                     .setParameter("userId", userId)
                     .getSingleResult();

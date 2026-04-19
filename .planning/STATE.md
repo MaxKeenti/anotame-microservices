@@ -147,8 +147,10 @@ None.
 | 260418-zv | Commit uncommitted changes and add a dev startup script to launch all 4 Quarkus services and the SvelteKit frontend for local development | 2026-04-18 | 140ac60 | - | [260418-zv-dev-startup-script](./quick/260418-zv-dev-startup-script/) |
 | 260418-uu | Fix prod 502 — switch Railway healthcheck from /q/health/ready to /q/health/live so DB blips don't kill all 4 services | 2026-04-18 | bf71512 | - | [260418-uu-fix-prod-502-healthcheck](./quick/260418-uu-fix-prod-502-healthcheck/) |
 | 260418-bnd | Fix prod 502 connection refused by setting quarkus.http.host=0.0.0.0 and removing EXPOSE 8080 from Dockerfiles | 2026-04-18 | 053cc0e | COMPLETED | - |
+| 260418-sql | Fix SQLGrammarException in identity-service branchId lookup (isolated DB mode) | 2026-04-18 | 9da7b7d | COMPLETED | - |
+| 260418-prt | Fix Railway port mismatch heuristics by explicitly binding all prod profiles to 8080 and EXPOSING 8080 | 2026-04-18 | 1b2129f | COMPLETED | - |
 
-Last activity: 2026-04-18 - Completed quick task 260418-bnd: Fix prod 502 connection refused (removed EXPOSE 8080)
+Last activity: 2026-04-18 - Completed quick task 260418-prt: Fix catalog 502 port heuristic mismatch
 
 ## Session Continuity
 
