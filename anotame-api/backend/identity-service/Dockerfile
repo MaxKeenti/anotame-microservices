@@ -27,4 +27,4 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/identity-service/target/quarkus-app/ /app/
 
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=40.0", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
