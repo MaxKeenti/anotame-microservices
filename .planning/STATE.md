@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Deployment Refactor
-status: executing
-stopped_at: Completed quick-260418-god-PLAN.md
-last_updated: "2026-04-18T18:37:16.748Z"
+status: milestone_complete
+stopped_at: Phase 21 complete — v1.4 Deployment Refactor milestone finished
+last_updated: "2026-04-18T19:00:00.000Z"
 last_activity: 2026-04-18
 progress:
   total_phases: 4
@@ -18,29 +18,29 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-14 for v1.3)
+See: .planning/PROJECT.md (updated 2026-04-18 after Phase 21 — v1.4 complete)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** Phase 21 — local-dev-docker-compose
+**Current focus:** v1.4 milestone complete — ready for v1.5 planning
 
 ## Current Position
 
-Milestone: v1.4 Deployment Refactor — in progress
-Phase: 21
-Plan: Not started
-Status: Executing Phase 21
+Milestone: v1.4 Deployment Refactor — COMPLETE
+Phase: 21 (complete)
+Plan: 2/2 complete
+Status: Milestone complete — ready for v1.5
 Last activity: 2026-04-18
 
-Progress: [----------] 0% (0/4 phases complete)
+Progress: [██████████] 100% (4/4 phases complete)
 
 ## Phase Structure (v1.4)
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 18 | DB Ownership + Fresh V1 Baselines | DB-01–08 | Not started |
-| 19 | Application Configuration | CFG-01–03 | Not started |
-| 20 | Dockerfile Fixes + Railway Deployment | DOCKER-01–04, DEPLOY-01–05 | Not started |
-| 21 | Local Dev Docker Compose | DEV-01–03 | Not started |
+| 18 | DB Ownership + Fresh V1 Baselines | DB-01–08 | Complete (2026-04-16) |
+| 19 | Application Configuration | CFG-01–03 | Complete (2026-04-16) |
+| 20 | Dockerfile Fixes + Railway Deployment | DOCKER-01–04, DEPLOY-01–05 | Complete (2026-04-18) |
+| 21 | Local Dev Docker Compose | DEV-01–03 | Complete (2026-04-18) |
 
 ## Performance Metrics
 
@@ -146,12 +146,12 @@ None.
 | 260418-god | Let's make a robust ./test_integration.sh for checking services actually are healthy | 2026-04-18 | fea189d | - | [260418-god-let-s-make-a-robust-test-integration-sh-](./quick/260418-god-let-s-make-a-robust-test-integration-sh-/) |
 | 260418-zv | Commit uncommitted changes and add a dev startup script to launch all 4 Quarkus services and the SvelteKit frontend for local development | 2026-04-18 | 140ac60 | - | [260418-zv-dev-startup-script](./quick/260418-zv-dev-startup-script/) |
 | 260418-uu | Fix prod 502 — switch Railway healthcheck from /q/health/ready to /q/health/live so DB blips don't kill all 4 services | 2026-04-18 | bf71512 | - | [260418-uu-fix-prod-502-healthcheck](./quick/260418-uu-fix-prod-502-healthcheck/) |
-| 260418-bnd | Fix prod 502 connection refused by setting quarkus.http.host=0.0.0.0 to bind all interfaces | 2026-04-18 | 3b86ac1 | COMPLETED | - |
+| 260418-bnd | Fix prod 502 connection refused by setting quarkus.http.host=0.0.0.0 and removing EXPOSE 8080 from Dockerfiles | 2026-04-18 | 053cc0e | COMPLETED | - |
 
-Last activity: 2026-04-18 - Completed quick task 260418-bnd: Fix prod 502 connection refused
+Last activity: 2026-04-18 - Completed quick task 260418-bnd: Fix prod 502 connection refused (removed EXPOSE 8080)
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:03:26.787Z
-Stopped at: Completed quick-260418-god-PLAN.md
+Last session: 2026-04-18
+Stopped at: Phase 21 complete — v1.4 Deployment Refactor milestone finished; UAT passed (3/3)
 Resume file: None

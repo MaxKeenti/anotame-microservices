@@ -68,10 +68,12 @@ A *El hilvan* staff member can take a complete order — from walk-in to ticket 
 - ✓ Order lifecycle improvements (edit, bulk actions, audit log, pickup code deliver flow) — v1.3
 - ✓ Price list selection in order wizard with auto-fill pricing — v1.3
 - ✓ DataTable row count configurability (per-device localStorage preference) — v1.3
+- ✓ DB-per-service architecture — 4 isolated Railway PostgreSQL instances, fresh Flyway baselines, cross-service FKs dropped — v1.4
+- ✓ Dockerfile fixes + Railway deployment — per-service Dockerfiles, JVM heap ceiling, GHCR pipeline removed — v1.4
+- ✓ Application configuration — all datasource URLs, ports, credentials externalized via env vars with %dev fallbacks — v1.4
+- ✓ Local dev Docker Compose — 4 independent PostgreSQL containers (5431–5434), init.sql eliminated, README updated — v1.4
 
 ### Active
-- [ ] Deployment refactor — research Railway Dockerfile deploys, migrate from PostGIS to native PostgreSQL — v1.4
-- [ ] Deployment implementation — eliminate GitHub Packages dependency across all services — v1.4
 - [ ] KPI intelligence improvements — smarter metrics and planning tools (budget tracking, order load prediction) (needs dedicated design phase)
 - [ ] Automated test suite — @QuarkusTest for SalesService and AuthService; Vitest + @testing-library/svelte for frontend (deferred from v1.0)
 - [ ] Server-side auth validation in SvelteKit hooks.server.ts before SSR render (deferred from v1.0)
