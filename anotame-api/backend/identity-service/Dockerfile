@@ -1,5 +1,5 @@
 # Build Stage
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
+FROM maven:4.0.0-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 ENV MAVEN_OPTS="-Xmx512m"
 
@@ -27,4 +27,4 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/identity-service/target/quarkus-app/ /app/
 
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=70.0", "-XX:InitialRAMPercentage=50.0", "-XX:MaxMetaspaceSize=192m", "-Xss512k", "-XX:+ExitOnOutOfMemoryError", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=60.0", "-XX:InitialRAMPercentage=50.0", "-XX:MaxMetaspaceSize=192m", "-Xss512k", "-XX:+ExitOnOutOfMemoryError", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "quarkus-run.jar"]
