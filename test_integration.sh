@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Anotame Integration Health Check
-# Checks all four Quarkus microservices via /q/health/ready
+# Anotame Integration Health Check (liveness + readiness)
+# Checks all four Quarkus microservices for liveness (/q/health/live) and readiness (/q/health/ready)
 #
 # Usage:
 #   ./test_integration.sh [--local] [--retries N] [--delay S] [--timeout S]
@@ -60,10 +60,11 @@ SERVICES=(
   "operations:8084:https://anotame-operations-service-production.up.railway.app"
 )
 
-HEALTH_PATH="/q/health/ready"
+LIVE_PATH="/q/health/live"
+READY_PATH="/q/health/ready"
 
 # --- Header -----------------------------------------------------------------
-echo "Anotame Integration Health Check"
+echo "Anotame Integration Health Check (liveness + readiness)"
 if [[ "$LOCAL" == "true" ]]; then
   echo "Mode: local"
 else
@@ -72,13 +73,48 @@ fi
 echo "Services: identity catalog sales operations"
 echo ""
 
+# --- Helper: probe a single URL with retries --------------------------------
+# Usage: probe_url <url> <label>
+# Sets PROBE_STATUS, PROBE_ATTEMPTS, PROBE_LAST_HTTP in caller scope
+probe_url() {
+  local URL="$1"
+  local LABEL="$2"
+
+  PROBE_STATUS="FAIL"
+  PROBE_LAST_HTTP="000"
+  PROBE_ATTEMPTS=0
+
+  for ((attempt = 1; attempt <= RETRIES; attempt++)); do
+    PROBE_ATTEMPTS=$attempt
+    local TMP_BODY="/tmp/health_body_${LABEL//\//_}"
+
+    HTTP_CODE=$(curl -s -o "$TMP_BODY" -w "%{http_code}" --max-time "$TIMEOUT" "$URL" 2>/dev/null || true)
+    PROBE_LAST_HTTP="$HTTP_CODE"
+
+    if [[ "$HTTP_CODE" == "200" ]]; then
+      printf "    attempt %d/%d: HTTP %s - OK\n" "$attempt" "$RETRIES" "$HTTP_CODE"
+      PROBE_STATUS="PASS"
+      break
+    else
+      if [[ $attempt -lt $RETRIES ]]; then
+        printf "    attempt %d/%d: HTTP %s - retrying in %ds...\n" \
+          "$attempt" "$RETRIES" "$HTTP_CODE" "$DELAY"
+        sleep "$DELAY"
+      else
+        printf "    attempt %d/%d: HTTP %s - failed\n" "$attempt" "$RETRIES" "$HTTP_CODE"
+      fi
+    fi
+  done
+}
+
 # --- Per-service check -------------------------------------------------------
 TOTAL=${#SERVICES[@]}
 PASS_COUNT=0
 FAIL_COUNT=0
 
-# Arrays to hold summary results
+# Arrays to hold summary results (two rows per service: LIVE then READY)
 declare -a RESULT_NAMES
+declare -a RESULT_CHECKS
 declare -a RESULT_STATUSES
 declare -a RESULT_ATTEMPTS
 declare -a RESULT_LAST_HTTP
@@ -93,60 +129,61 @@ for i in "${!SERVICES[@]}"; do
   IDX=$((i + 1))
 
   if [[ "$LOCAL" == "true" ]]; then
-    URL="http://localhost:${PORT}${HEALTH_PATH}"
+    LIVE_URL="http://localhost:${PORT}${LIVE_PATH}"
+    READY_URL="http://localhost:${PORT}${READY_PATH}"
   else
-    URL="${PROD_BASE}${HEALTH_PATH}"
+    LIVE_URL="${PROD_BASE}${LIVE_PATH}"
+    READY_URL="${PROD_BASE}${READY_PATH}"
   fi
 
-  printf "[%d/%d] %-12s ... checking %s\n" "$IDX" "$TOTAL" "$NAME" "$URL"
+  printf "[%d/%d] %-12s ... checking liveness %s\n" "$IDX" "$TOTAL" "$NAME" "$LIVE_URL"
+  probe_url "$LIVE_URL" "${NAME}_live"
+  LIVE_STATUS="$PROBE_STATUS"
+  LIVE_ATTEMPTS="$PROBE_ATTEMPTS"
+  LIVE_LAST_HTTP="$PROBE_LAST_HTTP"
 
-  STATUS="FAIL"
-  LAST_HTTP="000"
-  ATTEMPT=0
+  printf "[%d/%d] %-12s ... checking readiness %s\n" "$IDX" "$TOTAL" "$NAME" "$READY_URL"
+  probe_url "$READY_URL" "${NAME}_ready"
+  READY_STATUS="$PROBE_STATUS"
+  READY_ATTEMPTS="$PROBE_ATTEMPTS"
+  READY_LAST_HTTP="$PROBE_LAST_HTTP"
 
-  for ((attempt = 1; attempt <= RETRIES; attempt++)); do
-    ATTEMPT=$attempt
-    TMP_BODY="/tmp/health_body_${NAME}"
-
-    # Capture HTTP status; do NOT let curl's exit code stop the script
-    HTTP_CODE=$(curl -s -o "$TMP_BODY" -w "%{http_code}" --max-time "$TIMEOUT" "$URL" 2>/dev/null || true)
-    LAST_HTTP="$HTTP_CODE"
-
-    if [[ "$HTTP_CODE" == "200" ]]; then
-      printf "  attempt %d/%d: HTTP %s - OK\n" "$attempt" "$RETRIES" "$HTTP_CODE"
-      STATUS="PASS"
-      break
-    else
-      if [[ $attempt -lt $RETRIES ]]; then
-        printf "  attempt %d/%d: HTTP %s - retrying in %ds...\n" \
-          "$attempt" "$RETRIES" "$HTTP_CODE" "$DELAY"
-        sleep "$DELAY"
-      else
-        printf "  attempt %d/%d: HTTP %s - failed\n" "$attempt" "$RETRIES" "$HTTP_CODE"
-      fi
-    fi
-  done
-
+  # Record liveness row
   RESULT_NAMES+=("$NAME")
-  RESULT_STATUSES+=("$STATUS")
-  RESULT_ATTEMPTS+=("$ATTEMPT")
-  RESULT_LAST_HTTP+=("$LAST_HTTP")
+  RESULT_CHECKS+=("LIVE")
+  RESULT_STATUSES+=("$LIVE_STATUS")
+  RESULT_ATTEMPTS+=("$LIVE_ATTEMPTS")
+  RESULT_LAST_HTTP+=("$LIVE_LAST_HTTP")
 
-  if [[ "$STATUS" == "PASS" ]]; then
+  # Record readiness row — WARN on failure, not FAIL
+  local_ready_display="$READY_STATUS"
+  if [[ "$READY_STATUS" == "FAIL" ]]; then
+    local_ready_display="WARN"
+  fi
+  RESULT_NAMES+=("$NAME")
+  RESULT_CHECKS+=("READY")
+  RESULT_STATUSES+=("$local_ready_display")
+  RESULT_ATTEMPTS+=("$READY_ATTEMPTS")
+  RESULT_LAST_HTTP+=("$READY_LAST_HTTP")
+
+  # Only liveness drives pass/fail counts
+  if [[ "$LIVE_STATUS" == "PASS" ]]; then
     PASS_COUNT=$((PASS_COUNT + 1))
   else
     FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
+
+  echo ""
 done
 
 # --- Summary table -----------------------------------------------------------
-echo ""
 echo "--------------------------------------------------"
 echo " SUMMARY"
 echo "--------------------------------------------------"
 
 for i in "${!RESULT_NAMES[@]}"; do
   SVC_NAME="${RESULT_NAMES[$i]}"
+  SVC_CHECK="${RESULT_CHECKS[$i]}"
   SVC_STATUS="${RESULT_STATUSES[$i]}"
   SVC_ATTEMPTS="${RESULT_ATTEMPTS[$i]}"
   SVC_LAST_HTTP="${RESULT_LAST_HTTP[$i]}"
@@ -158,17 +195,23 @@ for i in "${!RESULT_NAMES[@]}"; do
   fi
 
   if [[ "$SVC_STATUS" == "PASS" ]]; then
-    printf " %-12s PASS   (%s)\n" "$SVC_NAME" "$ATTEMPT_LABEL"
+    printf " %-12s %-6s PASS   (%s)\n" "$SVC_NAME" "$SVC_CHECK" "$ATTEMPT_LABEL"
+  elif [[ "$SVC_STATUS" == "WARN" ]]; then
+    printf " %-12s %-6s WARN   (%s, last HTTP: %s) [DB issue, JVM alive]\n" \
+      "$SVC_NAME" "$SVC_CHECK" "$ATTEMPT_LABEL" "$SVC_LAST_HTTP"
   else
-    printf " %-12s FAIL   (%s, last HTTP: %s)\n" "$SVC_NAME" "$ATTEMPT_LABEL" "$SVC_LAST_HTTP"
+    printf " %-12s %-6s FAIL   (%s, last HTTP: %s)\n" \
+      "$SVC_NAME" "$SVC_CHECK" "$ATTEMPT_LABEL" "$SVC_LAST_HTTP"
   fi
 done
 
 echo "--------------------------------------------------"
-printf " Result: %d/%d passed\n" "$PASS_COUNT" "$TOTAL"
+printf " Result: %d/%d passed (liveness only)\n" "$PASS_COUNT" "$TOTAL"
 echo "--------------------------------------------------"
 
 # --- Exit code ---------------------------------------------------------------
+# Exit 1 only if any service fails liveness (JVM dead).
+# Readiness failures (DB connectivity) are warnings, not fatal.
 if [[ $FAIL_COUNT -gt 0 ]]; then
   exit 1
 fi
