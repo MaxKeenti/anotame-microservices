@@ -146,8 +146,9 @@ None.
 | 260418-god | Let's make a robust ./test_integration.sh for checking services actually are healthy | 2026-04-18 | fea189d | - | [260418-god-let-s-make-a-robust-test-integration-sh-](./quick/260418-god-let-s-make-a-robust-test-integration-sh-/) |
 | 260418-zv | Commit uncommitted changes and add a dev startup script to launch all 4 Quarkus services and the SvelteKit frontend for local development | 2026-04-18 | 140ac60 | - | [260418-zv-dev-startup-script](./quick/260418-zv-dev-startup-script/) |
 | 260418-uu | Fix prod 502 — switch Railway healthcheck from /q/health/ready to /q/health/live so DB blips don't kill all 4 services | 2026-04-18 | bf71512 | - | [260418-uu-fix-prod-502-healthcheck](./quick/260418-uu-fix-prod-502-healthcheck/) |
+| 260418-bnd | Fix prod 502 connection refused by setting quarkus.http.host=0.0.0.0 to bind all interfaces | 2026-04-18 | 3b86ac1 | COMPLETED | - |
 
-Last activity: 2026-04-18 - Completed quick task 260418-uu: Fix prod 502 healthcheck
+Last activity: 2026-04-18 - Completed quick task 260418-bnd: Fix prod 502 connection refused
 
 ## Session Continuity
 
