@@ -45,6 +45,7 @@ public class AuthService {
                                 .firstName(user.getFirstName())
                                 .lastName(user.getLastName())
                                 .role(user.getRole() != null ? user.getRole().getCode() : null)
+                                .locale(user.getLocale())
                                 .build();
 
                 return AuthResponse.builder()
@@ -64,6 +65,7 @@ public class AuthService {
                                 .firstName(user.getFirstName())
                                 .lastName(user.getLastName())
                                 .role(user.getRole() != null ? user.getRole().getCode() : null)
+                                .locale(user.getLocale())
                                 .build();
         }
 
@@ -113,6 +115,7 @@ public class AuthService {
                                 .firstName(user.getFirstName())
                                 .lastName(user.getLastName())
                                 .role(user.getRole() != null ? user.getRole().getCode() : null)
+                                .locale(user.getLocale())
                                 .build();
 
                 return AuthResponse.builder()
