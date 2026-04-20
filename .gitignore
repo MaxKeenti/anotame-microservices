@@ -462,3 +462,24 @@ next-env.d.ts
 # Legacy Next.js build artifacts (anotame-web-legacy is deprecated — block build dirs)
 anotame-web-legacy/node_modules/
 anotame-web-legacy/.next/
+
+# ── GSD baseline (auto-generated) ──
+.gsd
+.gsd-id
+.bg-shell/
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+*.code-workspace
+.env.*
+!.env.example
+.next/
+dist/
+build/
+.venv/
+venv/
+vendor/
+coverage/
+.cache/
+tmp/

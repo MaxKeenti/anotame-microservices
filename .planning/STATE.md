@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Bilingual Launch + KPI Intelligence
-status: planning
-stopped_at: milestone start 2026-04-19
-last_updated: "2026-04-19T00:00:00.000Z"
-last_activity: 2026-04-19
+status: executing
+stopped_at: milestone close 2026-04-19
+last_updated: "2026-04-20T15:24:33.654Z"
+last_activity: 2026-04-20 -- Phase 22 execution started
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 3
   completed_plans: 0
   percent: 0
 ---
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19 — v1.5 milestone started)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** v1.5 Bilingual Launch + KPI Intelligence — roadmap ready, ready to plan Phase 22
+**Current focus:** Phase 22 — i18n-naming-convention-locale-infrastructure
 
 ## Current Position
 
 Milestone: v1.5 Bilingual Launch + KPI Intelligence
-Phase: 22 — i18n Naming Convention + Locale Infrastructure (context gathered, ready to plan)
-Plan: —
-Status: Context gathered — ready for planning
-Last activity: 2026-04-19 — Phase 22 context gathered (locale persistence decisions)
+Phase: 22 (i18n-naming-convention-locale-infrastructure) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 22
+Last activity: 2026-04-20 -- Phase 22 execution started
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
@@ -44,6 +44,7 @@ Progress: [░░░░░░░░░░] 0% (0/5 phases)
 | 26 | Workload Calendar + Dashboard Widget | CAL-01 – CAL-06 | — | Pending |
 
 **Parallel tracks:**
+
 - Track A (i18n): 22 → 23
 - Track B (financial): 24 → 25
 - Phase 26 (calendar): independent, run after either track
