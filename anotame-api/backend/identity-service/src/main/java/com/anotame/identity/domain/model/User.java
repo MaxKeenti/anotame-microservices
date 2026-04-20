@@ -39,6 +39,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "locale", nullable = false)
+    private String locale = "es";
+
     @Column(name = "is_active")
     private boolean active = true;
 
