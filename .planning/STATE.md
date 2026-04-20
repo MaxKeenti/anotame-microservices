@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-19 — v1.5 milestone started)
 ## Current Position
 
 Milestone: v1.5 Bilingual Launch + KPI Intelligence
-Phase: 22 — i18n Naming Convention + Locale Infrastructure (next to plan)
+Phase: 22 — i18n Naming Convention + Locale Infrastructure (context gathered, ready to plan)
 Plan: —
-Status: Roadmap created — ready to plan first phase
-Last activity: 2026-04-19 — Roadmap created (5 phases, 26 requirements)
+Status: Context gathered — ready for planning
+Last activity: 2026-04-19 — Phase 22 context gathered (locale persistence decisions)
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
