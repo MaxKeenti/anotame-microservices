@@ -5,8 +5,14 @@
   import SunIcon from 'lucide-svelte/icons/sun';
   import MoonIcon from 'lucide-svelte/icons/moon';
   import MonitorIcon from 'lucide-svelte/icons/monitor';
+  import GlobeIcon from 'lucide-svelte/icons/globe';
   import { paletteStore, type UserPalette } from '$lib/stores/palette.svelte';
   import { tablePreferences, PAGE_SIZE_OPTIONS } from '$lib/stores/table-preferences.svelte';
+  import * as m from '$lib/paraglide/messages';
+  import { getLocale, setLocale } from '$lib/paraglide/runtime';
+  import { authService } from '$lib/services/auth.svelte';
+  import { invalidateAll } from '$app/navigation';
+  import { toast } from 'svelte-sonner';
 
   type ColorKey = keyof UserPalette;
 
@@ -30,18 +36,36 @@
   function previewColor(key: ColorKey): string {
     return paletteStore.current[key] ?? colorEntries.find((e) => e.key === key)!.defaultHex;
   }
+
+  let changingLocale = $state(false);
+
+  async function handleLocaleChange(newLocale: string) {
+    if (newLocale === getLocale()) return;
+    changingLocale = true;
+    try {
+      await authService.changeLocale(newLocale);
+      // Paraglide soft swap — update locale without full page reload
+      setLocale(newLocale as 'es' | 'en', { reload: false });
+      await invalidateAll();
+      toast.success(newLocale === 'en' ? 'Language changed to English' : 'Idioma cambiado a Español');
+    } catch (e: any) {
+      toast.error(e.message || 'Error al cambiar idioma');
+    } finally {
+      changingLocale = false;
+    }
+  }
 </script>
 
 <div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
   <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">Preferencias</h1>
-    <p class="text-muted-foreground">Configura tu experiencia y visualización del sistema.</p>
+    <h1 class="text-3xl font-heading font-bold text-foreground">{m["settings.page.title"]()}</h1>
+    <p class="text-muted-foreground">{m["settings.page.description"]()}</p>
   </div>
 
   <Card.Root>
     <Card.Header>
-      <Card.Title>Apariencia</Card.Title>
-      <Card.Description>Personaliza el tema visual para la aplicación.</Card.Description>
+      <Card.Title>{m["settings.appearance.title"]()}</Card.Title>
+      <Card.Description>{m["settings.appearance.description"]()}</Card.Description>
     </Card.Header>
     <Card.Content>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -51,7 +75,7 @@
           onclick={() => setMode('light')}
         >
           <SunIcon class="w-6 h-6" />
-          Claro
+          {m["settings.theme.light"]()}
         </Button>
         <Button
           variant={mode.current === 'dark' ? 'default' : 'outline'}
@@ -59,7 +83,7 @@
           onclick={() => setMode('dark')}
         >
           <MoonIcon class="w-6 h-6" />
-          Oscuro
+          {m["settings.theme.dark"]()}
         </Button>
         <Button
           variant={mode.current === undefined ? 'default' : 'outline'}
@@ -67,7 +91,7 @@
           onclick={() => resetMode()}
         >
           <MonitorIcon class="w-6 h-6" />
-          Sistema
+          {m["settings.theme.system"]()}
         </Button>
       </div>
     </Card.Content>
@@ -142,11 +166,30 @@
 
   <Card.Root>
     <Card.Header>
-      <Card.Title>Idioma (Próximamente)</Card.Title>
-      <Card.Description>Configuración de idioma en progreso mediante Paraglide.</Card.Description>
+      <Card.Title>{m["settings.language.title"]()}</Card.Title>
+      <Card.Description>{m["settings.language.description"]()}</Card.Description>
     </Card.Header>
     <Card.Content>
-      <p class="text-sm text-muted-foreground">Las traducciones están en desarrollo. El sistema operará temporalmente en Español general.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Button
+          variant={getLocale() === 'es' ? 'default' : 'outline'}
+          class="h-24 flex flex-col gap-2 touch-manipulation"
+          disabled={changingLocale}
+          onclick={() => handleLocaleChange('es')}
+        >
+          <GlobeIcon class="w-6 h-6" />
+          Español (México)
+        </Button>
+        <Button
+          variant={getLocale() === 'en' ? 'default' : 'outline'}
+          class="h-24 flex flex-col gap-2 touch-manipulation"
+          disabled={changingLocale}
+          onclick={() => handleLocaleChange('en')}
+        >
+          <GlobeIcon class="w-6 h-6" />
+          English
+        </Button>
+      </div>
     </Card.Content>
   </Card.Root>
 </div>
