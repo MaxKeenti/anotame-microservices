@@ -102,37 +102,37 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| I18N-01 | — | Pending |
-| I18N-02 | — | Pending |
-| I18N-03 | — | Pending |
-| I18N-04 | — | Pending |
-| I18N-05 | — | Pending |
-| I18N-06 | — | Pending |
-| I18N-07 | — | Pending |
-| PAY-01 | — | Pending |
-| PAY-02 | — | Pending |
-| PAY-03 | — | Pending |
-| PAY-04 | — | Pending |
-| PAY-05 | — | Pending |
-| PAY-06 | — | Pending |
-| PAY-07 | — | Pending |
-| KPI-01 | — | Pending |
-| KPI-02 | — | Pending |
-| KPI-03 | — | Pending |
-| KPI-04 | — | Pending |
-| KPI-05 | — | Pending |
-| KPI-06 | — | Pending |
-| CAL-01 | — | Pending |
-| CAL-02 | — | Pending |
-| CAL-03 | — | Pending |
-| CAL-04 | — | Pending |
-| CAL-05 | — | Pending |
-| CAL-06 | — | Pending |
+| I18N-01 | Phase 22 | Pending |
+| I18N-02 | Phase 23 | Pending |
+| I18N-03 | Phase 23 | Pending |
+| I18N-04 | Phase 23 | Pending |
+| I18N-05 | Phase 23 | Pending |
+| I18N-06 | Phase 22 | Pending |
+| I18N-07 | Phase 22 | Pending |
+| PAY-01 | Phase 24 | Pending |
+| PAY-02 | Phase 24 | Pending |
+| PAY-03 | Phase 24 | Pending |
+| PAY-04 | Phase 24 | Pending |
+| PAY-05 | Phase 24 | Pending |
+| PAY-06 | Phase 24 | Pending |
+| PAY-07 | Phase 24 | Pending |
+| KPI-01 | Phase 25 | Pending |
+| KPI-02 | Phase 25 | Pending |
+| KPI-03 | Phase 25 | Pending |
+| KPI-04 | Phase 25 | Pending |
+| KPI-05 | Phase 25 | Pending |
+| KPI-06 | Phase 25 | Pending |
+| CAL-01 | Phase 26 | Pending |
+| CAL-02 | Phase 26 | Pending |
+| CAL-03 | Phase 26 | Pending |
+| CAL-04 | Phase 26 | Pending |
+| CAL-05 | Phase 26 | Pending |
+| CAL-06 | Phase 26 | Pending |
 
 **Coverage:**
 - v1.5 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 ⚠️
+- Mapped to phases: 26
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-19*

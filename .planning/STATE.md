@@ -7,7 +7,7 @@ stopped_at: milestone start 2026-04-19
 last_updated: "2026-04-19T00:00:00.000Z"
 last_activity: 2026-04-19
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,21 +21,32 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19 — v1.5 milestone started)
 
 **Core value:** A El hilvan staff member can take a complete order — from walk-in to ticket — without confusion, on any device, in under two minutes.
-**Current focus:** v1.5 Bilingual Launch + KPI Intelligence — defining requirements
+**Current focus:** v1.5 Bilingual Launch + KPI Intelligence — roadmap ready, ready to plan Phase 22
 
 ## Current Position
 
 Milestone: v1.5 Bilingual Launch + KPI Intelligence
-Phase: Not started (defining requirements)
+Phase: 22 — i18n Naming Convention + Locale Infrastructure (next to plan)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-19 — Milestone v1.5 started
+Status: Roadmap created — ready to plan first phase
+Last activity: 2026-04-19 — Roadmap created (5 phases, 26 requirements)
 
-Progress: [░░░░░░░░░░] 0% (requirements pending)
+Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
 ## Phase Structure (v1.5)
 
-_Phases defined after roadmap creation — continues numbering from v1.4 (Phase 22+)._
+| Phase | Name | Requirements | Depends on | Status |
+|-------|------|-------------|------------|--------|
+| 22 | i18n Naming Convention + Locale Infrastructure | I18N-01, I18N-06, I18N-07 | — | Pending |
+| 23 | Paraglide String Extraction + EN Translation | I18N-02, I18N-03, I18N-04, I18N-05 | Phase 22 | Pending |
+| 24 | Partial Payment Ledger | PAY-01 – PAY-07 | — | Pending |
+| 25 | Financial KPIs | KPI-01 – KPI-06 | Phase 24 | Pending |
+| 26 | Workload Calendar + Dashboard Widget | CAL-01 – CAL-06 | — | Pending |
+
+**Parallel tracks:**
+- Track A (i18n): 22 → 23
+- Track B (financial): 24 → 25
+- Phase 26 (calendar): independent, run after either track
 
 ## Performance Metrics
 
