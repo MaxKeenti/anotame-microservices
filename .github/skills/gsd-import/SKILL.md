@@ -18,6 +18,7 @@ Future: `--prd` mode for PRD extraction is planned for a follow-up PR.
 @.github/get-shit-done/workflows/import.md
 @.github/get-shit-done/references/ui-brand.md
 @.github/get-shit-done/references/gate-prompts.md
+@.github/get-shit-done/references/doc-conflict-engine.md
 </execution_context>
 
 <context>

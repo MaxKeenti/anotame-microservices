@@ -41,6 +41,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.gemini/hooks/gsd-read-injection-scanner.js",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "BeforeTool": [
