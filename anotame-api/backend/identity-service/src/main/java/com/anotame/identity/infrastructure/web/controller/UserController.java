@@ -1,5 +1,6 @@
 package com.anotame.identity.infrastructure.web.controller;
 
+import com.anotame.identity.application.dto.UpdateLocaleRequest;
 import com.anotame.identity.application.dto.UpdateUserRequest;
 import com.anotame.identity.application.dto.UserResponse;
 import com.anotame.identity.application.service.UserService;
@@ -48,5 +49,13 @@ public class UserController {
     @Path("/{id}")
     public void deleteUser(@PathParam("id") UUID id) {
         userService.deleteUser(id);
+    }
+
+    @PATCH
+    @Path("/{id}/locale")
+    public jakarta.ws.rs.core.Response updateLocale(@PathParam("id") UUID id,
+                                                    @jakarta.validation.Valid UpdateLocaleRequest request) {
+        userService.updateLocale(id, request.getLocale());
+        return jakarta.ws.rs.core.Response.noContent().build();
     }
 }
