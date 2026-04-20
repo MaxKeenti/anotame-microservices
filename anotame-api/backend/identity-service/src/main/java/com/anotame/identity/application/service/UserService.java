@@ -77,6 +77,15 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Transactional
+    public void updateLocale(UUID userId, String locale) {
+        var user = userRepository.findById(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User");
+        }
+        user.setLocale(locale);
+    }
+
     private UserResponse mapToResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
