@@ -94,6 +94,7 @@ public class UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole() != null ? user.getRole().getCode() : "UNKNOWN")
+                .locale(user.getLocale())
                 .build();
     }
 }
