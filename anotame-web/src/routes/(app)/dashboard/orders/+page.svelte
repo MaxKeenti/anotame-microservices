@@ -17,6 +17,7 @@
   import { toast } from 'svelte-sonner';
   import type { ColumnDef } from '@tanstack/table-core';
   import * as Tabs from '$lib/components/ui/tabs';
+  import * as m from '$lib/paraglide/messages';
 
   let view = $state<'active' | 'drafts'>('active');
   let orders = $state<any[]>([]);
@@ -37,21 +38,21 @@
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
 
   const activeColumns: ColumnDef<any>[] = [
-    { accessorKey: 'ticketNumber', header: 'Ticket', enableSorting: true },
-    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: 'Cliente', enableSorting: true },
-    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: 'Prendas (Resumen)', enableSorting: false },
-    { id: 'status', accessorFn: (row) => row.status, header: 'Estado', enableSorting: true },
-    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: 'Entrega', enableSorting: true },
-    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: 'Total', enableSorting: true },
-    { id: 'actions', header: 'Acciones', enableSorting: false },
+    { accessorKey: 'ticketNumber', header: m.orders_column_ticket(), enableSorting: true },
+    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m.orders_column_customer(), enableSorting: true },
+    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: m.orders_column_garmentsSummary(), enableSorting: false },
+    { id: 'status', accessorFn: (row) => row.status, header: m.orders_column_status(), enableSorting: true },
+    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m.orders_column_deadline(), enableSorting: true },
+    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m.orders_column_total(), enableSorting: true },
+    { id: 'actions', header: m.common_actions(), enableSorting: false },
   ];
 
   const draftsColumns: ColumnDef<any>[] = [
-    { id: 'draftId', accessorFn: (row) => row.id, header: 'ID (Temporal)', enableSorting: false },
-    { id: 'customer', accessorFn: (row) => row.customer?.firstName ? `${row.customer.firstName} ${row.customer.lastName ?? ''}` : 'Sin nombre', header: 'Cliente', enableSorting: true },
-    { id: 'garments', accessorFn: (row) => `${row.items?.length || 0} prendas`, header: 'Prendas', enableSorting: false },
-    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: 'Última Modificación', enableSorting: true },
-    { id: 'actions', header: 'Acciones', enableSorting: false },
+    { id: 'draftId', accessorFn: (row) => row.id, header: m.orders_column_tempId(), enableSorting: false },
+    { id: 'customer', accessorFn: (row) => row.customer?.firstName ? `${row.customer.firstName} ${row.customer.lastName ?? ''}` : m.orders_noName(), header: m.orders_column_customer(), enableSorting: true },
+    { id: 'garments', accessorFn: (row) => m.orders_garmentCount({ count: String(row.items?.length || 0) }), header: m.orders_column_garments(), enableSorting: false },
+    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: m.orders_column_lastModified(), enableSorting: true },
+    { id: 'actions', header: m.common_actions(), enableSorting: false },
   ];
 
   async function fetchData() {
@@ -77,8 +78,8 @@
 
   async function handleDeleteDraft(id: string) {
     const ok = await adaptiveConfirm({
-      title: 'Eliminar Borrador',
-      description: '¿Estás seguro de eliminar este borrador? Esta acción no se puede deshacer.'
+      title: m.orders_deleteDraft_title(),
+      description: m.orders_deleteDraft_description()
     });
     if (ok) {
       orderWizardState.deleteDraft(id);
@@ -100,11 +101,11 @@
         });
         successCount++;
       } catch (e: any) {
-        toast.error(`Error al actualizar ${order.ticketNumber}`, { description: e?.message });
+        toast.error(m.orders_bulk_updateError({ ticket: order.ticketNumber }), { description: e?.message });
       }
     }
     if (successCount > 0) {
-      toast.success(`Se actualizaron ${successCount} pedidos.`);
+      toast.success(m.orders_bulk_updateSuccess({ count: String(successCount) }));
     }
     selectedOrders = [];
     fetchData();
@@ -115,8 +116,8 @@
 
     const ticketList = selectedOrders.map(o => o.ticketNumber).join(', ');
     const ok = await adaptiveConfirm({
-      title: 'Eliminar pedidos',
-      description: `Se eliminarán ${selectedOrders.length} pedidos en borrador: ${ticketList}. Esta acción no se puede deshacer.`
+      title: m.orders_bulkDelete_title(),
+      description: m.orders_bulkDelete_description({ count: String(selectedOrders.length), tickets: ticketList })
     });
     if (!ok) return;
 
@@ -127,16 +128,16 @@
         successCount++;
       } catch (e: any) {
         if (e instanceof ApiError && e.status === 409) {
-          toast.error(`No se puede eliminar ${order.ticketNumber}`, {
-            description: 'Tiene registros de trabajo vinculados.'
+          toast.error(m.orders_bulk_cannotDelete({ ticket: order.ticketNumber }), {
+            description: m.orders_bulk_hasLinkedRecords()
           });
         } else {
-          toast.error(`Error al eliminar ${order.ticketNumber}`, { description: e?.message });
+          toast.error(m.orders_bulk_deleteError({ ticket: order.ticketNumber }), { description: e?.message });
         }
       }
     }
     if (successCount > 0) {
-      toast.success(`Se actualizaron ${successCount} pedidos.`);
+      toast.success(m.orders_bulk_updateSuccess({ count: String(successCount) }));
     }
     selectedOrders = [];
     fetchData();
@@ -181,49 +182,49 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-brand font-bold text-foreground">Pedidos</h1>
-      <p class="text-muted-foreground">Ver y gestionar pedidos de clientes.</p>
+      <h1 class="text-3xl font-heading font-brand font-bold text-foreground">{m.orders_page_title()}</h1>
+      <p class="text-muted-foreground">{m.orders_page_description()}</p>
     </div>
-    <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ Nuevo Pedido</Button>
+    <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ {m.orders_new()}</Button>
   </div>
 
   <Tabs.Root bind:value={view} class="space-y-6">
     <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="active" class="px-6 font-bold">Órdenes Activas</Tabs.Trigger>
+      <Tabs.Trigger value="active" class="px-6 font-bold">{m.orders_tab_active()}</Tabs.Trigger>
       <Tabs.Trigger value="drafts" class="px-6 font-bold">
-        Borradores {drafts.length > 0 ? `(${drafts.length})` : ''}
+        {m.orders_tab_drafts()} {drafts.length > 0 ? `(${drafts.length})` : ''}
       </Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="active" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
         <div class="col-span-1 md:col-span-2 space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-orders">Buscar</label>
+          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-orders">{m.common_search()}</label>
           <Input
             id="search-orders"
-            placeholder="Ticket, Nombre del Cliente..."
+            placeholder={m.orders_filter_searchPlaceholder()}
             bind:value={searchQuery}
             class="h-12 text-base touch-manipulation"
           />
         </div>
         <div class="space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">Filtrar por Prenda</label>
+          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">{m.orders_filter_garment()}</label>
           <AdaptiveSelect
             id="filter-garment"
             bind:value={garmentFilter}
-            placeholder="Selecciona una prenda"
+            placeholder={m.orders_filter_selectGarment()}
             items={garments.map(g => ({ value: g.id, label: g.name }))}
             allowClear={true}
-            clearText="Todas las prendas"
+            clearText={m.orders_filter_allGarments()}
             class=""
           />
         </div>
         <div class="space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">Fecha de Entrega</label>
+          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">{m.orders_filter_deadline()}</label>
           <AdaptiveDatePicker
             id="filter-date"
             bind:value={dateFilter}
-            placeholder="Seleccionar fecha..."
+            placeholder={m.orders_filter_selectDate()}
           />
         </div>
       </div>
@@ -236,7 +237,7 @@
             class="h-12 px-4 touch-manipulation text-muted-foreground hover:text-foreground"
             onclick={() => { selectedOrders = []; }}
           >
-            Limpiar selección ({selectedOrders.length})
+            {m.orders_clearSelection({ count: String(selectedOrders.length) })}
           </Button>
         </div>
       {/if}
@@ -251,8 +252,8 @@
           columns={activeColumns}
           data={filteredOrders}
           loading={loading}
-          emptyMessage="No se encontraron pedidos."
-          filterPlaceholder="Buscar pedidos..."
+          emptyMessage={m.orders_empty()}
+          filterPlaceholder={m.orders_searchPlaceholder()}
           showFilter={false}
           cellRenders={{
             status: statusCell
@@ -265,11 +266,11 @@
             <div class="flex justify-end gap-2">
               <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
                 <Edit class="w-4 h-4 mr-2" />
-                Editar
+                {m.common_edit()}
               </Button>
               <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
                 <Eye class="w-4 h-4 mr-2" />
-                Detalles
+                {m.orders_details()}
               </Button>
             </div>
           {/snippet}
@@ -291,19 +292,19 @@
         <DataTableWrapper
           columns={draftsColumns}
           data={drafts}
-          emptyMessage="No hay borradores guardados."
-          filterPlaceholder="Buscar borradores..."
+          emptyMessage={m.orders_drafts_empty()}
+          filterPlaceholder={m.orders_drafts_searchPlaceholder()}
           showFilter={false}
         >
           {#snippet actionCell(row)}
             <div class="flex justify-end gap-2">
               <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
                 <Edit class="w-4 h-4 mr-2" />
-                <span>Editar Borrador</span>
+                <span>{m.orders_editDraft()}</span>
               </Button>
               <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
                 <Trash2 class="w-4 h-4 mr-2" />
-                <span>Eliminar</span>
+                <span>{m.common_delete()}</span>
               </Button>
             </div>
           {/snippet}

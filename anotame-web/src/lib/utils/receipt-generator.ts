@@ -1,3 +1,15 @@
+import * as m from '$lib/paraglide/messages';
+import { getLocale } from '$lib/paraglide/runtime';
+
+const localeMap: Record<string, string> = {
+  es: 'es-MX',
+  en: 'en-US',
+};
+
+function getIntlLocale(): string {
+  return localeMap[getLocale()] ?? 'es-MX';
+}
+
 export const generateReceiptHtml = (data: {
   ticketNumber: string;
   customerName: string;
@@ -25,11 +37,13 @@ export const generateReceiptHtml = (data: {
     contactPhone?: string;
   };
 }) => {
-  const date = new Date().toLocaleDateString('es-MX', {
+  const intlLocale = getIntlLocale();
+
+  const date = new Date().toLocaleDateString(intlLocale, {
     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
   });
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('es-MX', {
+  const formatDate = (d: string) => new Date(d).toLocaleDateString(intlLocale, {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
   });
 
@@ -38,7 +52,7 @@ export const generateReceiptHtml = (data: {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Ticket ${data.ticketNumber}</title>
+  <title>${m.receipt_ticketTitle({ ticket: data.ticketNumber })}</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -62,7 +76,7 @@ export const generateReceiptHtml = (data: {
     .totals { text-align: right; font-size: 12px; font-weight: bold; }
     .footer { text-align: center; margin-top: 20px; font-size: 10px; }
     @media print {
-      @page { size: auto; margin: 0mm; } 
+      @page { size: auto; margin: 0mm; }
       body { margin: 0 auto; padding: 1mm; width: 40mm; }
     }
   </style>
@@ -71,19 +85,19 @@ export const generateReceiptHtml = (data: {
   <div class="header">
     <h1>${data.establishment.name}</h1>
     ${data.establishment.address ? `<div>${data.establishment.address}</div>` : ''}
-    ${data.establishment.contactPhone ? `<div>Tel: ${data.establishment.contactPhone}</div>` : ''}
+    ${data.establishment.contactPhone ? `<div>${m.receipt_phone()}: ${data.establishment.contactPhone}</div>` : ''}
     ${data.establishment.rfc ? `<div>RFC: ${data.establishment.rfc}</div>` : ''}
-    ${data.establishment.taxRegime ? `<div>Régimen: ${data.establishment.taxRegime}</div>` : ''}
-    
+    ${data.establishment.taxRegime ? `<div>${m.receipt_taxRegime()}: ${data.establishment.taxRegime}</div>` : ''}
+
     <div style="margin-top: 5px;">${date}</div>
-    <div><strong>Folio: ${data.ticketNumber}</strong></div>
+    <div><strong>${m.receipt_folio()}: ${data.ticketNumber}</strong></div>
   </div>
 
   <div class="section">
-    <div class="row"><span>Cliente:</span><span style="text-align: right;">${data.customerName}</span></div>
-    <div class="row"><span>Tel:</span><span>${data.phone || ''}</span></div>
-    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>ENTREGA:</span><span>${formatDate(data.deadline)}</span></div>
-    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">(Entrega después de las 18:00 hrs)</div>
+    <div class="row"><span>${m.receipt_customer()}:</span><span style="text-align: right;">${data.customerName}</span></div>
+    <div class="row"><span>${m.receipt_phone()}:</span><span>${data.phone || ''}</span></div>
+    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>${m.receipt_delivery()}:</span><span>${formatDate(data.deadline)}</span></div>
+    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">${m.receipt_deliveryNote()}</div>
   </div>
 
   <div class="section">
@@ -95,39 +109,39 @@ export const generateReceiptHtml = (data: {
                 <span style="flex: 1; margin-right: 2px;">+ ${service.name}</span>
                 <span>$${(service.price + (service.adjustment || 0)).toFixed(2)}</span>
             </div>
-            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">Adj: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${service.adjustmentReason || ''})</div>` : ''}
+            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">${m.receipt_adjustment()}: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${service.adjustmentReason || ''})</div>` : ''}
         `).join('')}
-        ${item.notes ? `<div class="item-detail" style="font-style: italic;">Nota: ${item.notes}</div>` : ''}
+        ${item.notes ? `<div class="item-detail" style="font-style: italic;">${m.receipt_note()}: ${item.notes}</div>` : ''}
       </div>
     `).join('')}
   </div>
 
   <div class="section totals">
     <div class="row">
-      <span>TOTAL:</span>
+      <span>${m.receipt_total()}:</span>
       <span>$${data.total.toFixed(2)}</span>
     </div>
     <div class="row">
-      <span>ANTICIPO:</span>
+      <span>${m.receipt_deposit()}:</span>
       <span>$${data.amountPaid.toFixed(2)}</span>
     </div>
     <div class="row" style="font-size: 14px;">
-      <span>RESTA:</span>
+      <span>${m.receipt_remaining()}:</span>
       <span>$${data.balance.toFixed(2)}</span>
     </div>
   </div>
 
    ${data.pickupCode ? `
    <div class="section" style="text-align: center;">
-     <div style="font-size: 10px; font-weight: normal; margin-bottom: 5px;">CÓDIGO DE RETIRO</div>
+     <div style="font-size: 10px; font-weight: normal; margin-bottom: 5px;">${m.receipt_pickupCode()}</div>
      <div style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; letter-spacing: 2px; text-align: center;">${data.pickupCode}</div>
    </div>
    ` : ""}
 
 
   <div class="footer">
-    <p>¡Gracias por su preferencia!</p>
-    <p>No se entrega sin ticket.</p>
+    <p>${m.receipt_thankYou()}</p>
+    <p>${m.receipt_noTicketNoDelivery()}</p>
   </div>
 </body>
 </html>

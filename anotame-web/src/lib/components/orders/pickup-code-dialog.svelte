@@ -5,6 +5,7 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
+  import * as m from '$lib/paraglide/messages';
 
   type Props = {
     open: boolean;
@@ -38,16 +39,16 @@
         method: 'PATCH',
         body: JSON.stringify({ pickupCode })
       });
-      toast.success('Pedido entregado correctamente.');
+      toast.success(m.orders_pickup_deliveredSuccess());
       pickupCode = '';
       open = false;
       onDelivered();
     } catch (e: any) {
       if (e instanceof ApiError && e.status === 400) {
-        errorMessage = 'Código incorrecto. Verifique con el cliente.';
+        errorMessage = m.orders_pickup_wrongCode();
         pickupCode = '';
       } else {
-        toast.error('Ocurrió un error. Por favor, intente nuevamente.');
+        toast.error(m.orders_pickup_genericError());
       }
     } finally {
       submitting = false;
@@ -65,9 +66,9 @@
 <Dialog.Root bind:open onOpenChange={(v) => { if (!v) handleClose(); }}>
   <Dialog.Content class="sm:max-w-sm">
     <Dialog.Header>
-      <Dialog.Title>Confirmar entrega</Dialog.Title>
+      <Dialog.Title>{m.orders_pickup_title()}</Dialog.Title>
       <Dialog.Description>
-        Ingrese el código de retiro del cliente para confirmar la entrega del pedido {ticketNumber}.
+        {m.orders_pickup_description({ ticket: ticketNumber })}
       </Dialog.Description>
     </Dialog.Header>
 
@@ -79,7 +80,7 @@
         maxlength={6}
         pattern="[0-9]{6}"
         placeholder="000000"
-        aria-label="Código de retiro del cliente"
+        aria-label={m.orders_pickup_ariaLabel()}
         aria-describedby={errorMessage ? 'pickup-code-error' : undefined}
         value={pickupCode}
         oninput={handleInput}
@@ -93,14 +94,14 @@
 
     <Dialog.Footer class="gap-2">
       <Button variant="outline" onclick={handleClose} class="h-12 touch-manipulation">
-        Cancelar
+        {m.common_cancel()}
       </Button>
       <Button
         onclick={handleSubmit}
         disabled={!isValid || submitting}
         class="h-12 touch-manipulation"
       >
-        {submitting ? 'Confirmando...' : 'Confirmar entrega'}
+        {submitting ? m.orders_pickup_confirming() : m.orders_pickup_confirmDelivery()}
       </Button>
     </Dialog.Footer>
   </Dialog.Content>

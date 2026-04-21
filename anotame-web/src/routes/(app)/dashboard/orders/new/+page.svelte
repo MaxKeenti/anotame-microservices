@@ -8,6 +8,7 @@
     import ItemsStep from '$lib/components/orders/wizard/items-step.svelte';
     import PaymentStep from '$lib/components/orders/wizard/payment-step.svelte';
     import { Button } from '$lib/components/ui/button';
+    import * as m from '$lib/paraglide/messages';
 
     let isLoading = $state(true);
 
@@ -33,10 +34,10 @@
     });
 
     const steps = [
-        { title: "Cliente", component: CustomerStep },
-        { title: "Lista de Precios", component: PriceListStep },
-        { title: "Prendas", component: ItemsStep },
-        { title: "Pago", component: PaymentStep },
+        { title: m.orders_wizard_customer(), component: CustomerStep },
+        { title: m.orders_wizard_priceList(), component: PriceListStep },
+        { title: m.orders_wizard_garments(), component: ItemsStep },
+        { title: m.orders_wizard_payment(), component: PaymentStep },
     ];
 
     function handleNext() {
@@ -60,7 +61,7 @@
 
 {#if isLoading}
     <div class="flex flex-col h-full items-center justify-center text-muted-foreground gap-2">
-        <div>Cargando...</div>
+        <div>{m.common_loading()}</div>
     </div>
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
@@ -70,7 +71,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <div class="flex items-center gap-2">
                 <h1 class="text-2xl font-bold font-heading">
-                    {draft?.isEditing ? "Editar Orden" : "Nueva Orden"}
+                    {draft?.isEditing ? m.orders_edit_editOrder() : m.orders_new_title()}
                 </h1>
                 {#if draft?.id && !draft?.isEditing}
                     <span class="text-xs text-muted-foreground font-mono bg-muted px-2 py-1 rounded">Draft: {draft.id.slice(0, 8)}...</span>
@@ -99,7 +100,7 @@
             </div>
 
             <Button variant="outline" class="h-10 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto("/dashboard/orders"); }}>
-                {draft?.isEditing ? "Cancelar" : "Salir"}
+                {draft?.isEditing ? m.common_cancel() : m.orders_new_exit()}
             </Button>
         </div>
 
