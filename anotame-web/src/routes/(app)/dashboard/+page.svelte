@@ -1,21 +1,21 @@
 <script lang="ts">
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import { authService } from '$lib/services/auth.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   const userRole = $derived(authService.user?.role);
   const isAdmin = $derived(userRole === 'ADMIN');
 
-
   const visibleItems = $derived(menuItems.filter((item) => {
-    if (adminOnlyItems.includes(item.name)) return isAdmin;
+    if (adminOnlyItems.includes(item.key)) return isAdmin;
     return true;
   }));
 </script>
 
 <div class="space-y-8 pb-20 p-2 sm:p-0">
   <div class="mb-8">
-     <h2 class="text-3xl sm:text-4xl font-bold font-heading">Hola, {authService.user?.username || 'Usuario'}</h2>
-     <p class="text-muted-foreground mt-2 sm:text-lg">Bienvenido a tu panel de control.</p>
+     <h2 class="text-3xl sm:text-4xl font-bold font-heading">{m.dashboard_greeting({ name: authService.user?.username || m.common_user() })}</h2>
+     <p class="text-muted-foreground mt-2 sm:text-lg">{m.dashboard_welcome()}</p>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -27,9 +27,9 @@
             <IconComponent class="w-8 h-8" />
           </div>
           <div>
-            <h3 class="text-xl font-bold font-heading">{item.name}</h3>
+            <h3 class="text-xl font-bold font-heading">{item.getName()}</h3>
             <p class="text-sm text-muted-foreground mt-2">
-              {item.description || "Navegar a " + item.name}
+              {item.getDescription()}
             </p>
           </div>
         </div>

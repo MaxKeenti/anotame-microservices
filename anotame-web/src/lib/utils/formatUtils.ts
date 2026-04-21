@@ -1,6 +1,17 @@
+import { getLocale } from '$lib/paraglide/runtime';
+
+const localeMap: Record<string, string> = {
+    es: 'es-MX',
+    en: 'en-US',
+};
+
+function getIntlLocale(): string {
+    return localeMap[getLocale()] ?? 'es-MX';
+}
+
 export const formatCurrency = (amount: number | undefined | null): string => {
     if (amount === undefined || amount === null) return "$0.00";
-    return new Intl.NumberFormat('es-MX', {
+    return new Intl.NumberFormat(getIntlLocale(), {
         style: 'currency',
         currency: 'MXN',
         minimumFractionDigits: 2
@@ -9,7 +20,7 @@ export const formatCurrency = (amount: number | undefined | null): string => {
 
 export const formatDate = (date: string | Date | undefined | null): string => {
     if (!date) return "-";
-    return new Date(date).toLocaleDateString('es-MX', {
+    return new Date(date).toLocaleDateString(getIntlLocale(), {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
@@ -18,7 +29,7 @@ export const formatDate = (date: string | Date | undefined | null): string => {
 
 export const formatDateTime = (date: string | Date | undefined | null): string => {
     if (!date) return "-";
-    return new Date(date).toLocaleString('es-MX', {
+    return new Date(date).toLocaleString(getIntlLocale(), {
         weekday: 'long',
         year: 'numeric',
         month: '2-digit',

@@ -17,6 +17,7 @@
   import * as Table from '$lib/components/ui/table';
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
+  import * as m from '$lib/paraglide/messages';
 
   type Props = {
     columns: ColumnDef<TData>[];
@@ -38,8 +39,8 @@
     data,
     pageSize: pageSizeProp = 20,
     loading = false,
-    emptyMessage = 'No hay datos.',
-    filterPlaceholder = 'Buscar...',
+    emptyMessage,
+    filterPlaceholder,
     showFilter = true,
     actionCell,
     cellRenders = {},
@@ -47,6 +48,9 @@
     bulkMode = $bindable(false),
     onSelectionChange,
   }: Props = $props();
+
+  let resolvedEmptyMessage = $derived(emptyMessage ?? m.common_noData());
+  let resolvedFilterPlaceholder = $derived(filterPlaceholder ?? m.common_searchEllipsis());
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
   let initialPageSize = untrack(() => tablePreferences.pageSize);
@@ -155,10 +159,10 @@
   <!-- Search input -->
   {#if showFilter}
     <div>
-      <label for="dt-filter" class="sr-only text-sm font-medium">Buscar</label>
+      <label for="dt-filter" class="sr-only text-sm font-medium">{m.common_search()}</label>
       <Input
         id="dt-filter"
-        placeholder={filterPlaceholder}
+        placeholder={resolvedFilterPlaceholder}
         bind:value={globalFilter}
         class="h-12 touch-manipulation"
       />
@@ -184,7 +188,7 @@
                       <input
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
-                        aria-label="Seleccionar todos"
+                        aria-label={m.common_selectAll()}
                         checked={table.getIsAllRowsSelected()}
                         onchange={table.getToggleAllRowsSelectedHandler()}
                       />
@@ -193,7 +197,7 @@
                     <button
                       class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
                       onclick={header.column.getToggleSortingHandler()}
-                      aria-label={`Ordenar por ${header.column.columnDef.header as string}`}
+                      aria-label={m.common_sortBy({ column: header.column.columnDef.header as string })}
                     >
                       {header.column.columnDef.header as string}
                       {#if header.column.getIsSorted() === 'asc'}
@@ -220,13 +224,13 @@
         {#if loading}
           <Table.Row>
             <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
-              Cargando...
+              {m.common_loading()}
             </Table.Cell>
           </Table.Row>
         {:else if table.getRowModel().rows.length === 0}
           <Table.Row>
             <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground font-medium text-base">
-              {emptyMessage}
+              {resolvedEmptyMessage}
             </Table.Cell>
           </Table.Row>
         {:else}
@@ -239,7 +243,7 @@
                       <input
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
-                        aria-label="Seleccionar fila"
+                        aria-label={m.common_selectRow()}
                         checked={cell.row.getIsSelected()}
                         onchange={cell.row.getToggleSelectedHandler()}
                       />
@@ -268,10 +272,10 @@
       disabled={!table.getCanPreviousPage()}
       onclick={() => table.previousPage()}
     >
-      Anterior
+      {m.common_previous()}
     </Button>
     <span class="text-sm text-muted-foreground">
-      Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount() || 1}
+      {m.common_pagination({ current: String(table.getState().pagination.pageIndex + 1), total: String(table.getPageCount() || 1) })}
     </span>
     <Button
       variant="outline"
@@ -279,7 +283,7 @@
       disabled={!table.getCanNextPage()}
       onclick={() => table.nextPage()}
     >
-      Siguiente
+      {m.common_next()}
     </Button>
   </div>
 </div>

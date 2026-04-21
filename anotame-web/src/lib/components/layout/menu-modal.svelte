@@ -6,6 +6,7 @@
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
+  import * as m from '$lib/paraglide/messages';
 
   let { isOpen = $bindable(false), onOpenProfile } = $props<{
     isOpen: boolean;
@@ -18,13 +19,12 @@
     isOpen = false;
   }
 
-  // Close formatting on escape key
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === "Escape" && isOpen) {
       handleClose();
     }
   }
-  
+
   onMount(() => {
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
@@ -34,12 +34,12 @@
 {#if isOpen}
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
     <div class="relative w-full max-w-5xl bg-card border shadow-2xl rounded-xl overflow-hidden flex flex-col max-h-[90vh]">
-      
+
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b">
         <div>
-          <h2 class="text-2xl font-bold font-heading">Menú Principal</h2>
-          <p class="text-muted-foreground">Selecciona una opción para navegar</p>
+          <h2 class="text-2xl font-bold font-heading">{m.nav_menu_title()}</h2>
+          <p class="text-muted-foreground">{m.nav_menu_subtitle()}</p>
         </div>
         <Button variant="ghost" size="icon" onclick={handleClose} class="h-12 w-12 rounded-full">
           <XIcon class="h-8 w-8" />
@@ -51,7 +51,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {#each menuItems as item}
             {@const isAdmin = user?.role === 'ADMIN'}
-            {@const isAllowed = adminOnlyItems.includes(item.name) ? isAdmin : true}
+            {@const isAllowed = adminOnlyItems.includes(item.key) ? isAdmin : true}
             {#if isAllowed}
               {@const isActive = page.url.pathname === item.href}
               {@const SvelteIcon = item.icon}
@@ -65,7 +65,7 @@
                   }"
               >
                 <SvelteIcon class="w-12 h-12 {isActive ? 'text-primary' : 'text-muted-foreground'}" />
-                <span class="text-lg font-semibold text-center">{item.name}</span>
+                <span class="text-lg font-semibold text-center">{item.getName()}</span>
               </a>
             {/if}
           {/each}
@@ -79,13 +79,13 @@
             {user?.username?.charAt(0).toUpperCase() || "U"}
           </div>
           <div>
-            <div class="font-semibold">{user?.username || "Usuario"}</div>
+            <div class="font-semibold">{user?.username || m.common_user()}</div>
             <Button
               variant="ghost"
               class="h-auto p-0 text-xs text-muted-foreground hover:text-primary underline"
               onclick={() => { handleClose(); onOpenProfile?.(); }}
             >
-              Editar Credenciales
+              {m.nav_menu_editCredentials()}
             </Button>
           </div>
         </div>
@@ -97,10 +97,10 @@
           class="gap-2"
         >
           <LogOutIcon class="w-5 h-5" />
-          <span>Cerrar Sesión</span>
+          <span>{m.nav_menu_logout()}</span>
         </Button>
       </div>
-      
+
     </div>
   </div>
 {/if}
