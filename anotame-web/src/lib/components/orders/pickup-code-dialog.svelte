@@ -39,16 +39,16 @@
         method: 'PATCH',
         body: JSON.stringify({ pickupCode })
       });
-      toast.success(m.orders_pickup_deliveredSuccess());
+      toast.success(m["orders.pickup.deliveredSuccess"]());
       pickupCode = '';
       open = false;
       onDelivered();
     } catch (e: any) {
       if (e instanceof ApiError && e.status === 400) {
-        errorMessage = m.orders_pickup_wrongCode();
+        errorMessage = m["orders.pickup.wrongCode"]();
         pickupCode = '';
       } else {
-        toast.error(m.orders_pickup_genericError());
+        toast.error(m["orders.pickup.genericError"]());
       }
     } finally {
       submitting = false;
@@ -66,9 +66,9 @@
 <Dialog.Root bind:open onOpenChange={(v) => { if (!v) handleClose(); }}>
   <Dialog.Content class="sm:max-w-sm">
     <Dialog.Header>
-      <Dialog.Title>{m.orders_pickup_title()}</Dialog.Title>
+      <Dialog.Title>{m["orders.pickup.title"]()}</Dialog.Title>
       <Dialog.Description>
-        {m.orders_pickup_description({ ticket: ticketNumber })}
+        {m["orders.pickup.description"]({ ticket: ticketNumber })}
       </Dialog.Description>
     </Dialog.Header>
 
@@ -80,7 +80,7 @@
         maxlength={6}
         pattern="[0-9]{6}"
         placeholder="000000"
-        aria-label={m.orders_pickup_ariaLabel()}
+        aria-label={m["orders.pickup.ariaLabel"]()}
         aria-describedby={errorMessage ? 'pickup-code-error' : undefined}
         value={pickupCode}
         oninput={handleInput}
@@ -94,14 +94,14 @@
 
     <Dialog.Footer class="gap-2">
       <Button variant="outline" onclick={handleClose} class="h-12 touch-manipulation">
-        {m.common_cancel()}
+        {m["common.cancel"]()}
       </Button>
       <Button
         onclick={handleSubmit}
         disabled={!isValid || submitting}
         class="h-12 touch-manipulation"
       >
-        {submitting ? m.orders_pickup_confirming() : m.orders_pickup_confirmDelivery()}
+        {submitting ? m["orders.pickup.confirming"]() : m["orders.pickup.confirmDelivery"]()}
       </Button>
     </Dialog.Footer>
   </Dialog.Content>

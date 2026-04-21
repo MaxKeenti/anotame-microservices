@@ -16,11 +16,11 @@
   let { count, isAdmin, allDraft, onChangeStatus, onDelete, onCancel }: Props = $props();
 
   const statusLabelMap: Record<string, () => string> = {
-    RECEIVED: m.order_status_received,
-    IN_PROGRESS: m.order_status_inProgress,
-    READY: m.order_status_ready,
-    DELIVERED: m.order_status_delivered,
-    CANCELLED: m.order_status_cancelled,
+    RECEIVED: m["order.status.received"],
+    IN_PROGRESS: m["order.status.inProgress"],
+    READY: m["order.status.ready"],
+    DELIVERED: m["order.status.delivered"],
+    CANCELLED: m["order.status.cancelled"],
   };
 
   const adminStatuses = ['RECEIVED', 'IN_PROGRESS', 'READY', 'DELIVERED', 'CANCELLED'];
@@ -42,15 +42,15 @@
 {#if count > 0}
 <div
   role="toolbar"
-  aria-label={m.order_bulk_title()}
+  aria-label={m["order.bulk.title"]()}
   class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card border border-border rounded-xl shadow-lg px-4 py-2"
 >
-  <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m.common_selected({ count: String(count) })}</span>
+  <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 
   <div class="flex items-center gap-2">
     <AdaptiveSelect
       bind:value={selectedStatus}
-      placeholder={m.order_bulk_changeStatus()}
+      placeholder={m["order.bulk.changeStatus"]()}
       items={statusItems}
       class="h-9 min-w-[160px] text-sm"
     />
@@ -61,7 +61,7 @@
       disabled={!selectedStatus}
       onclick={handleChangeStatus}
     >
-      {m.common_apply()}
+      {m["common.apply"]()}
     </Button>
   </div>
 
@@ -70,17 +70,17 @@
     size="sm"
     class="h-9 touch-manipulation"
     disabled={!allDraft}
-    title={!allDraft ? m.order_bulk_deleteTooltip() : undefined}
+    title={!allDraft ? m["order.bulk.deleteTooltip"]() : undefined}
     onclick={onDelete}
   >
-    {m.order_bulk_deleteOrders()}
+    {m["order.bulk.deleteOrders"]()}
   </Button>
 
   <Button
     variant="ghost"
     size="icon"
     class="h-9 w-9 touch-manipulation"
-    aria-label={m.order_bulk_cancelSelection()}
+    aria-label={m["order.bulk.cancelSelection"]()}
     onclick={onCancel}
   >
     <X class="w-4 h-4" />

@@ -38,8 +38,8 @@
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b">
         <div>
-          <h2 class="text-2xl font-bold font-heading">{m.nav_menu_title()}</h2>
-          <p class="text-muted-foreground">{m.nav_menu_subtitle()}</p>
+          <h2 class="text-2xl font-bold font-heading">{m["nav.menu.title"]()}</h2>
+          <p class="text-muted-foreground">{m["nav.menu.subtitle"]()}</p>
         </div>
         <Button variant="ghost" size="icon" onclick={handleClose} class="h-12 w-12 rounded-full">
           <XIcon class="h-8 w-8" />
@@ -79,13 +79,13 @@
             {user?.username?.charAt(0).toUpperCase() || "U"}
           </div>
           <div>
-            <div class="font-semibold">{user?.username || m.common_user()}</div>
+            <div class="font-semibold">{user?.username || m["common.user"]()}</div>
             <Button
               variant="ghost"
               class="h-auto p-0 text-xs text-muted-foreground hover:text-primary underline"
               onclick={() => { handleClose(); onOpenProfile?.(); }}
             >
-              {m.nav_menu_editCredentials()}
+              {m["nav.menu.editCredentials"]()}
             </Button>
           </div>
         </div>
@@ -97,7 +97,7 @@
           class="gap-2"
         >
           <LogOutIcon class="w-5 h-5" />
-          <span>{m.nav_menu_logout()}</span>
+          <span>{m["nav.menu.logout"]()}</span>
         </Button>
       </div>
 
