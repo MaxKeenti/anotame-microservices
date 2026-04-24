@@ -1,0 +1,6 @@
+# Optional: use this file to define a price list that overrides base prices for a date range.
+# Leave it empty (headers only) if you only want base prices from services.csv.
+# Priority: higher number = takes precedence over lower. Use 0 for standard lists.
+# valid_to: leave empty for an open-ended list.
+#
+list_name,valid_from,valid_to,priority,garment_type,service_name,override_price

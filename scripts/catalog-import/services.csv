@@ -1,0 +1,20 @@
+garment_type,name,description,duration_min,base_price
+Pants,Hemming,Shorten leg length,15,12.00
+Pants,Tapering,Slim down leg fit,30,25.00
+Pants,Waistband Adjustment,Take in or let out the waistband,30,20.00
+Pants,Zipper Replace,Install new zipper,45,20.00
+Pants,Patching,Repair hole or tear,20,10.00
+Shirt,Button Replace,Sew on replacement button,5,2.00
+Shirt,Collar Repair,Re-attach or reinforce collar,20,15.00
+Shirt,Sleeve Shortening,Shorten sleeve length,20,18.00
+Jacket,Zipper Replace,Install new zipper on jacket,45,22.00
+Jacket,Lining Replace,Replace interior lining,90,45.00
+Jacket,Sleeve Shortening,Shorten jacket sleeve,30,25.00
+Dress,Hemming,Shorten dress length,30,18.00
+Dress,Zipper Replace,Install new dress zipper,45,20.00
+Dress,Taking In,Reduce dress size at seams,60,35.00
+Skirt,Hemming,Shorten skirt length,20,12.00
+Skirt,Waistband Adjustment,Adjust skirt waistband,25,18.00
+Suit,Dry Clean,Standard dry cleaning treatment,1440,8.00
+Suit,Pressing,Professional steam pressing,60,15.00
+Suit,Trouser Hemming,Shorten suit trouser length,15,12.00
