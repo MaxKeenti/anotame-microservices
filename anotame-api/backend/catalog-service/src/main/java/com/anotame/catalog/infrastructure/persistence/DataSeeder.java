@@ -37,7 +37,6 @@ public class DataSeeder {
         createGarment("Chamarra", "Saco, Blazer, Abrigo");
         createGarment("Vestido", "Casual, Formal");
         createGarment("Falda", "Mini, Midi, Maxi");
-        createGarment("Traje", "2 Piezas, 3 Piezas");
 
         System.out.println("Seeded Garment Types");
     }
@@ -49,7 +48,6 @@ public class DataSeeder {
         GarmentType pantalon = garmentTypeRepository.find("name", "Pantalón").firstResult();
         GarmentType camisa = garmentTypeRepository.find("name", "Camisa").firstResult();
         GarmentType chamarra = garmentTypeRepository.find("name", "Chamarra").firstResult();
-        GarmentType traje = garmentTypeRepository.find("name", "Traje").firstResult();
 
         if (pantalon == null)
             return;
@@ -59,7 +57,6 @@ public class DataSeeder {
         createService("Cambio de Cierre", "Instalación de cierre nuevo", 45, new BigDecimal("20.00"), chamarra);
         createService("Parche", "Reparar agujero o rasgadura", 20, new BigDecimal("10.00"), pantalon);
         createService("Cambio de Botón", "Coser botón nuevo", 5, new BigDecimal("2.00"), camisa);
-        createService("Lavado en Seco", "Lavado en seco estándar", 1440, new BigDecimal("8.00"), traje);
 
         System.out.println("Seeded Services");
     }
