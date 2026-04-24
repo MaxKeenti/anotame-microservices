@@ -32,12 +32,12 @@ public class DataSeeder {
         if (garmentTypeRepository.count() > 0)
             return;
 
-        createGarment("Pants", "Trousers, Jeans, Chinos");
-        createGarment("Shirt", "Dress Shirt, T-Shirt, Polo");
-        createGarment("Jacket", "Suit Jacket, Blazer, Coat");
-        createGarment("Dress", "Casual, Formal");
-        createGarment("Skirt", "Mini, Midi, Maxi");
-        createGarment("Suit", "2-Piece, 3-Piece");
+        createGarment("Pantalón", "Pantalones de vestir, Jeans, Chinos");
+        createGarment("Camisa", "Camisa de vestir, Playera, Polo");
+        createGarment("Chamarra", "Saco, Blazer, Abrigo");
+        createGarment("Vestido", "Casual, Formal");
+        createGarment("Falda", "Mini, Midi, Maxi");
+        createGarment("Traje", "2 Piezas, 3 Piezas");
 
         System.out.println("Seeded Garment Types");
     }
@@ -46,21 +46,20 @@ public class DataSeeder {
         if (serviceRepository.count() > 0)
             return;
 
-        GarmentType pants = garmentTypeRepository.find("name", "Pants").firstResult();
-        GarmentType shirt = garmentTypeRepository.find("name", "Shirt").firstResult();
-        GarmentType jacket = garmentTypeRepository.find("name", "Jacket").firstResult();
-        GarmentType suit = garmentTypeRepository.find("name", "Suit").firstResult();
+        GarmentType pantalon = garmentTypeRepository.find("name", "Pantalón").firstResult();
+        GarmentType camisa = garmentTypeRepository.find("name", "Camisa").firstResult();
+        GarmentType chamarra = garmentTypeRepository.find("name", "Chamarra").firstResult();
+        GarmentType traje = garmentTypeRepository.find("name", "Traje").firstResult();
 
-        // Fallback if not found (should not happen if seeded above)
-        if (pants == null)
+        if (pantalon == null)
             return;
 
-        createService("Hemming", "Shorten length", 15, new BigDecimal("12.00"), pants);
-        createService("Tapering", "Slim down fit", 30, new BigDecimal("25.00"), pants);
-        createService("Zipper Replace", "New zipper install", 45, new BigDecimal("20.00"), jacket);
-        createService("Patching", "Repair hole or tear", 20, new BigDecimal("10.00"), pants);
-        createService("Button Replace", "Sew on new button", 5, new BigDecimal("2.00"), shirt);
-        createService("Dry Clean", "Standard dry cleaning", 1440, new BigDecimal("8.00"), suit);
+        createService("Bastilla", "Acortar largo de prenda", 15, new BigDecimal("12.00"), pantalon);
+        createService("Entallado", "Ajustar para un corte más delgado", 30, new BigDecimal("25.00"), pantalon);
+        createService("Cambio de Cierre", "Instalación de cierre nuevo", 45, new BigDecimal("20.00"), chamarra);
+        createService("Parche", "Reparar agujero o rasgadura", 20, new BigDecimal("10.00"), pantalon);
+        createService("Cambio de Botón", "Coser botón nuevo", 5, new BigDecimal("2.00"), camisa);
+        createService("Lavado en Seco", "Lavado en seco estándar", 1440, new BigDecimal("8.00"), traje);
 
         System.out.println("Seeded Services");
     }
