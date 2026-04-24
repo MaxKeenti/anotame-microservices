@@ -1,154 +1,120 @@
 # Catalog Import — El hilvan
 
-A zero-dependency Node.js script that digitizes price sheets into the catalog-service.
+Tooling to digitize paper price sheets into the catalog-service.
 
 ---
 
-## The Problem
+## Strategy: Flyway migrations (primary)
 
-You have a folder of paper sheets with El hilvan's services and prices. Typing everything by hand into the app UI would take hours and is error-prone. This toolset solves it in three steps:
-
-1. **Photograph → extract** (AI-assisted OCR, see below)
-2. **Review the CSV** (spot errors, handle duplicates — in a spreadsheet if you prefer)
-3. **Run the import script** — it calls the API, skips existing entries, and reports what it created
-
----
-
-## Step 1: Digitize the Paper Sheets (AI OCR)
-
-You do not need to type anything manually. Use AI vision to convert photos of the sheets into CSV rows.
-
-### Option A — Claude (recommended, free to use)
-
-1. Open [claude.ai](https://claude.ai) in your browser.
-2. Attach a photo of each price sheet (drag & drop).
-3. Send this prompt:
+All catalog seed data lives in versioned Flyway SQL files under:
 
 ```
-Extract the services and prices from this price list into a CSV table with these exact columns:
-garment_type,name,description,duration_min,base_price
-
-Rules:
-- garment_type: the clothing category (Pants, Shirt, Jacket, Dress, Skirt, Suit, or Other)
-- name: the service name
-- description: brief description of what the service is (invent one if not on the paper)
-- duration_min: estimated minutes to complete (guess if not shown: Hemming=15, Button=5, Zipper=45, etc.)
-- base_price: price in MXN as a decimal number (e.g. 12.00)
-
-Output only the CSV rows, no explanation.
+anotame-api/backend/catalog-service/src/main/resources/db/migration/
+  V1__baseline.sql          ← schema only (tables)
+  V2__seed_catalog_es.sql   ← initial Spanish catalog (types + services)
+  V3__...                   ← real business prices (add when ready)
 ```
 
-4. Copy the output into `services.csv`.
-5. Repeat for each sheet.
+When the service deploys, Flyway runs new migrations automatically. **No manual API calls or scripts needed** — just add a new `V3__...sql` file and redeploy.
 
-### Option B — Google Lens / Drive OCR
+### Why Flyway instead of an API import script?
 
-1. Upload photos to Google Drive.
-2. Right-click → Open with Google Docs (it auto-runs OCR).
-3. Copy the extracted text into a spreadsheet and clean it up manually.
-4. Export as CSV.
+- Every data change is version-controlled and auditable.
+- Prod and staging stay in sync automatically on deploy.
+- No credentials or running service needed to apply data — it runs at startup.
+- Migrations are idempotent at the version level (Flyway tracks what has run).
 
 ---
 
-## Step 2: Fill the CSVs
+## Adding real business data (V3)
 
-Three files live in this directory:
+When you have the AI-extracted CSV from the paper sheets:
 
-| File | What it contains |
-|------|-----------------|
-| `garments.csv` | Clothing types (Pants, Shirt, etc.) — pre-filled with defaults |
-| `services.csv` | All services with base price — **edit this one with your data** |
-| `price-list.csv` | Optional price overrides for a date range (e.g. holiday promos) |
+1. Paste the rows into `services.csv` (columns: `tipo_prenda,nombre,descripcion,duracion_min,precio_base`).
+2. Run the helper script to generate the SQL:
+   ```bash
+   node csv-to-migration.js --version 3 --description "precios_negocio"
+   # → creates V3__precios_negocio.sql
+   ```
+3. Copy the file to `src/main/resources/db/migration/`.
+4. Redeploy — Flyway picks it up on startup.
 
-### `garments.csv` columns
+---
+
+## AI extraction prompt (Spanish)
+
+Use this prompt when photographing the paper sheets with Claude or any vision AI:
+
+```
+Extrae los servicios y precios de esta lista en una tabla CSV con exactamente estas columnas:
+tipo_prenda,nombre,descripcion,duracion_min,precio_base
+
+Reglas:
+- tipo_prenda: categoría de la prenda (Pantalón, Camisa, Chamarra, Vestido, Falda, Traje, u Otro)
+- nombre: nombre del servicio
+- descripcion: descripción breve de lo que incluye el servicio (inventa una si no aparece)
+- duracion_min: minutos estimados (si no se muestra: Ruedo=15, Cambio de botón=5, Cambio de cierre=45, etc.)
+- precio_base: precio en MXN como decimal (p.ej. 12.00)
+
+Devuelve solo las filas CSV, sin explicación.
+```
+
+Paste the output into `services.csv`, then generate the migration with the script above.
+
+---
+
+## CSV reference
+
+### `garments.csv` — clothing types (pre-filled, edit if needed)
 
 | Column | Required | Notes |
 |--------|----------|-------|
-| `name` | yes | Clothing type name |
-| `description` | no | Short description |
+| `name` | yes | Nombre del tipo de prenda |
+| `description` | no | Descripción corta |
 
 ### `services.csv` columns
 
 | Column | Required | Notes |
 |--------|----------|-------|
-| `garment_type` | yes | Must match a name in `garments.csv` (or already in prod) |
-| `name` | yes | Service name |
-| `description` | no | What the service does |
-| `duration_min` | yes | Estimated minutes |
-| `base_price` | yes | Price in MXN (e.g. `12.00`) |
+| `tipo_prenda` | yes | Debe coincidir con un nombre en `garments.csv` |
+| `nombre` | yes | Nombre del servicio |
+| `descripcion` | no | Qué incluye el servicio |
+| `duracion_min` | yes | Minutos estimados |
+| `precio_base` | yes | Precio en MXN (p.ej. `12.00`) |
 
-### `price-list.csv` columns (optional)
+### `price-list.csv` — optional date-range overrides
 
-Only fill this if you want override pricing for a specific date range.
+Only needed for seasonal pricing or promotions. Leave empty if using base prices.
 
 | Column | Notes |
 |--------|-------|
-| `list_name` | Name for this price list |
+| `list_name` | Nombre de la lista de precios |
 | `valid_from` | ISO datetime e.g. `2026-06-01T00:00:00` |
-| `valid_to` | ISO datetime or leave empty for open-ended |
+| `valid_to` | ISO datetime or empty for open-ended |
 | `priority` | Higher number wins over lower |
-| `garment_type` | For reference only (not sent to API) |
-| `service_name` | Must match a name in `services.csv` exactly |
-| `override_price` | Price in MXN |
+| `tipo_prenda` | For reference only |
+| `nombre_servicio` | Must match `services.csv` exactly |
+| `precio_override` | Price in MXN |
 
 ---
 
-## Step 3: Run the Import
+## API import script (fallback)
 
-### Prerequisites
-
-- Node.js 18+ installed
-- The catalog-service must be running (locally or on Railway)
-
-### Local environment
+`import.js` is kept as a fallback for one-off loads to a running environment without redeploy access.
 
 ```bash
-cd scripts/catalog-import
-node import.js --env local --username admin --password secret
-```
+# dry run first
+node import.js --env local --username admin --password secret --dry-run
 
-### Production (Railway)
-
-First, set the Railway service URLs:
-
-```bash
-export IDENTITY_URL=https://your-identity-service.up.railway.app
-export CATALOG_URL=https://your-catalog-service.up.railway.app
-
+# apply
 node import.js --env prod --username admin --password yourprodpassword
 ```
 
-### Dry run (no changes made)
-
-Always run with `--dry-run` first to verify what would be created:
-
-```bash
-node import.js --env local --username admin --password secret --dry-run
-```
+Set `IDENTITY_URL` and `CATALOG_URL` env vars for prod.
 
 ---
 
-## Behavior
+## Known limitations / deferred
 
-- **Dedup by name**: garments and services that already exist in the database are skipped (case-insensitive). Safe to re-run.
-- **Unknown garment type**: if a service references a garment type not found in the database, it imports without a garment type and logs a warning.
-- **Errors**: individual row errors are logged but do not abort the whole import.
-
----
-
-## Known Limitations / Deferred
-
-- **Duplicate detection** for near-matches (e.g. "Hemming" vs "Hem") is not implemented — that's a data quality milestone for later. The script only skips exact name matches (case-insensitive).
-- **Bulk updates** (updating existing service prices) are not supported yet — the script only creates new entries.
-- **CSV format**: fields containing commas must be wrapped in double quotes: `"Jacket, Blazer"`.
-
----
-
-## Troubleshooting
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `Login succeeded but no cookie returned` | Auth service unreachable or wrong URL | Check `--env` and that identity-service is running |
-| `POST /catalog/services → 401` | JWT expired or wrong credentials | Re-run the script (it re-logs in each time) |
-| `garment type "X" not found` | Typo in `garment_type` column | Match exactly what's in `garments.csv` |
-| `ECONNREFUSED` | Service is not running | Start with `docker compose up -d && ./dev.sh` |
+- **Near-duplicate detection** ("Ruedo" vs "Ruedo de pantalón") — deferred to a data-quality milestone.
+- **Bulk price updates** on existing rows — not supported yet.
