@@ -38,7 +38,7 @@
                 priceListId: res.priceListId || null,
                 priceListName: res.priceListName || null,
                 items: res.items.map((item) => ({
-                    garmentTypeId: item.garmentName, // garmentTypeId not returned by API; use garmentName as fallback label
+                    garmentTypeId: null, // garmentTypeId is not returned by the API
                     garmentId: undefined,
                     garmentName: item.garmentName,
                     quantity: item.quantity,

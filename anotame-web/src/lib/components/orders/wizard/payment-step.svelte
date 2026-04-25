@@ -81,7 +81,7 @@
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
 				const orderItems = (draft?.items || []).map((item: any) => ({
-					garmentTypeId: item.garmentTypeId || item.garmentId || '',
+					garmentTypeId: item.garmentTypeId || item.garmentId || null,
 					garmentName: item.garmentName || '',
 					quantity: item.quantity ?? 1,
 					notes: item.notes || '',
