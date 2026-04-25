@@ -74,7 +74,7 @@
                 <!-- Title -->
                 <div class="flex items-center gap-2 min-w-0 flex-1">
                     <h1 class="text-lg sm:text-2xl font-bold font-heading truncate">
-                        {draft?.isEditing ? "Editar Orden" : "Nueva Orden"}
+                        {draft?.isEditing ? "Editar Nota" : "Nueva Nota"}
                     </h1>
                     {#if draft?.id && !draft?.isEditing}
                         <span class="hidden sm:inline text-xs text-muted-foreground font-mono bg-muted px-2 py-1 rounded shrink-0">Draft: {draft.id.slice(0, 8)}...</span>

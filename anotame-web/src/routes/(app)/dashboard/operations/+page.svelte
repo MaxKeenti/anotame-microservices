@@ -41,7 +41,7 @@
   async function handleComplete(order: any) {
     const ok = await adaptiveConfirm({
       title: 'Marcar como Listo',
-      description: `¿Desea marcar la orden ${order.ticketNumber} como lista? El estado cambiará a LISTO.`
+      description: `¿Desea marcar la nota ${order.ticketNumber} como lista? El estado cambiará a LISTO.`
     });
     if (!ok) return;
 
@@ -50,7 +50,7 @@
         method: 'PATCH',
         body: JSON.stringify({ status: 'READY' })
       });
-      toast.success("¡Orden marcada como lista!", { description: order.ticketNumber });
+      toast.success("¡Nota marcada como lista!", { description: order.ticketNumber });
       fetchWorkOrders();
     } catch (e: any) {
       console.error(e);
@@ -60,23 +60,23 @@
 
   async function handleCancelWorkOrder(order: any) {
     const ok = await adaptiveConfirm({
-      title: 'Cancelar Orden de Trabajo',
-      description: `¿Estás seguro que deseas cancelar la orden ${order.ticketNumber}? Esta acción no se puede deshacer.`
+      title: 'Cancelar Nota de Trabajo',
+      description: `¿Estás seguro que deseas cancelar la nota ${order.ticketNumber}? Esta acción no se puede deshacer.`
     });
     if (!ok) return;
 
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
-      toast.success('Orden cancelada exitosamente', { description: order.ticketNumber });
+      toast.success('Nota cancelada exitosamente', { description: order.ticketNumber });
       fetchWorkOrders();
     } catch (e: any) {
       console.error(e);
       if (e instanceof ApiError && e.status === 409) {
         toast.error('No se puede cancelar', {
-          description: 'La orden tiene registros de trabajo vinculados.'
+          description: 'La nota tiene registros de trabajo vinculados.'
         });
       } else {
-        toast.error('Error al cancelar la orden', { description: e?.message });
+        toast.error('Error al cancelar la nota', { description: e?.message });
       }
     }
   }

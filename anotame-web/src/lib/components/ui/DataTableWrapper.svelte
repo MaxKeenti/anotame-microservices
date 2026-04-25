@@ -193,7 +193,7 @@
                     <button
                       class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
                       onclick={header.column.getToggleSortingHandler()}
-                      aria-label={`Ordenar por ${header.column.columnDef.header as string}`}
+                      aria-label={`Notaar por ${header.column.columnDef.header as string}`}
                     >
                       {header.column.columnDef.header as string}
                       {#if header.column.getIsSorted() === 'asc'}

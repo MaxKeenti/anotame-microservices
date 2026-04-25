@@ -124,7 +124,7 @@
 						method: 'POST',
 						body: JSON.stringify(payload)
 					});
-					toast.success('Orden confirmada exitosamente');
+					toast.success('Nota confirmada exitosamente');
 					const targetId = res?.id;
 
 					// Navigate first, then cleanup to avoid UI "blink" to Step 1
@@ -154,11 +154,11 @@
 						toast.error('No es posible editar este pedido.');
 					} else {
 						error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
-						toast.error('Error al procesar la orden', { description: e.message });
+						toast.error('Error al procesar la nota', { description: e.message });
 					}
 				} else {
 					error = `Error: ${e.message}`;
-					toast.error('Error al procesar la orden', { description: e.message });
+					toast.error('Error al procesar la nota', { description: e.message });
 				}
 			} finally {
 				isSubmitting = false;
@@ -397,7 +397,7 @@
 				{#snippet children({ constraints })}
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Notas Generales de Orden</Form.Label>
+							<Form.Label>Notas Generales de Nota</Form.Label>
 							<Input
 								{...props}
 								{...constraints}
@@ -477,7 +477,7 @@
 				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
 				Procesando...
 			{:else}
-				{draft?.isEditing ? 'Actualizar Orden' : 'Confirmar Orden'}
+				{draft?.isEditing ? 'Actualizar Nota' : 'Confirmar Nota'}
 			{/if}
 		</Button>
 	</div>
