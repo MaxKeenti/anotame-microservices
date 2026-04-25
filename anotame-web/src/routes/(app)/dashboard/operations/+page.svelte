@@ -105,10 +105,10 @@
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
       <h1 class="text-3xl font-heading font-bold text-foreground">Control de Operaciones</h1>
-      <p class="text-muted-foreground">Órdenes en progreso pendientes de completar.</p>
+      <p class="text-muted-foreground">Notas en progreso pendientes de completar.</p>
     </div>
     <div class="text-sm text-muted-foreground bg-card border border-border px-4 py-2 rounded-lg">
-      {workOrders.length} {workOrders.length === 1 ? 'orden' : 'órdenes'} en progreso
+      {workOrders.length} {workOrders.length === 1 ? 'nota' : 'notas'} en progreso
     </div>
   </div>
 
@@ -141,7 +141,7 @@
             {:else if workOrders.length === 0}
               <Table.Row>
                 <Table.Cell colspan={6} class="h-24 text-center text-muted-foreground">
-                  No hay órdenes en progreso.
+                  No hay notas en progreso.
                 </Table.Cell>
               </Table.Row>
             {:else}
@@ -215,8 +215,8 @@
               <Table.Row>
                 <Table.Cell colspan={5} class="h-32 text-center">
                   <div class="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p class="text-base font-semibold">Sin pedidos listos</p>
-                    <p class="text-sm">No hay pedidos marcados como LISTO en este momento.</p>
+                    <p class="text-base font-semibold">Sin notas listas</p>
+                    <p class="text-sm">No hay notas marcadas como LISTO en este momento.</p>
                   </div>
                 </Table.Cell>
               </Table.Row>
@@ -236,7 +236,7 @@
                       class="h-12 px-4 touch-manipulation font-medium"
                       onclick={() => openDeliverDialog(ro)}
                     >
-                      Entregar pedido
+                      Entregar nota
                     </Button>
                   </Table.Cell>
                 </Table.Row>
