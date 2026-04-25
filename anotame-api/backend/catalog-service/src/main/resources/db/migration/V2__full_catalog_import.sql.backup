@@ -95,7 +95,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Ajuste de piernas', 'Reducción del ancho de las piernas del pantalón', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Valenciana española', 'Dobladillo con estilo de valenciana española', 20, 70.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Dobladillo a mano', 'Ajuste de largo cosido a mano para un acabado invisible', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
-    ('Dobladillo a máquina', 'Ajuste de largo cosido a máquina', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Dobladillo a maquina', 'Ajuste de largo cosido a máquina', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Cambio de cierre de Nylon o invisible', 'Reemplazo de cremallera de nylon o invisible', 45, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Cambio de cierre de Metal', 'Reemplazo de cremallera metálica', 45, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Ajuste de cintura con costado', 'Ajuste combinado de cintura y laterales', 60, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
@@ -119,8 +119,8 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Aumento con cuchillas', 'Ampliación de talla mediante inserción de cuchillas de tela', 60, 140.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Aumentar cintura por pinzas', 'Ampliación de cintura soltando costura de pinzas', 30, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Cambio de forro', 'Reemplazo completo del forro interior', 90, 280.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
-    ('Colocar botón metal', 'Instalación de botón metálico', 5, 20.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
-    ('Colocar botón plastico', 'Instalación de botón de plástico', 5, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar boton metal', 'Instalación de botón metálico', 5, 20.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar boton plastico', 'Instalación de botón de plástico', 5, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
     ('Correr ajuste', 'Modificación y reubicación de ajuste', 45, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true)
 ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
     description = EXCLUDED.description,
@@ -150,7 +150,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Voltear cuello', 'Rotación del cuello para ocultar desgaste', 30, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
     ('Recortar cuello', 'Reducción del tamaño del cuello', 30, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
     ('Transformar puños', 'Modificación de estilo o tamaño de los puños', 45, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
-    ('Colocar botón', 'Instalación de botón', 5, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Colocar boton', 'Instalación de botón', 5, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
     ('Subir hombros', 'Ajuste para subir la costura de los hombros', 45, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
     ('Subir hombros y puños', 'Ajuste combinado de hombros y puños', 60, 170.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
     ('Subir hombros puños y faldilla', 'Ajuste completo de hombros puños y faldilla', 90, 180.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
@@ -189,7 +189,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Ajuste de costados', 'Ajuste en los laterales de la camisa', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Ajuste de costado con mangas', 'Ajuste lateral y de ancho de mangas', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Ajuste de costado con mangas y subir puño', 'Ajuste lateral mangas y posición de puños', 60, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
-    ('Ajuste de costado con mangas puño y dobladillo a máquina', 'Ajuste completo lateral mangas puños y largo', 90, 270.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de costado con mangas puño y dobladillo a maquina', 'Ajuste completo lateral mangas puños y largo', 90, 270.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Cambio de cuello', 'Reemplazo del cuello de la camisa', 45, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Cambio de cuello con pie de cuello y ojal', 'Reemplazo de cuello incluyendo pie y ojal', 60, 70.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Parchar', 'Aplicación de un parche en zona dañada', 20, 40.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
@@ -201,8 +201,8 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Colocar ojal en cuello', 'Creación de ojal en el cuello', 15, 30.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Poner escudos', 'Aplicación de escudo o parche bordado', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Poner sectores', 'Aplicación de sector o insignia', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
-    ('Dobladillo a máquina y subir puño', 'Ajuste de largo a máquina y posición de puños', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
-    ('Dobladillo a máquina faldilla', 'Ajuste de largo de faldilla a máquina', 20, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Dobladillo a maquina y subir puño', 'Ajuste de largo a máquina y posición de puños', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Dobladillo a maquina faldilla', 'Ajuste de largo de faldilla a máquina', 20, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Voltear cuellos', 'Rotación del cuello para ocultar desgaste', 30, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Cuchillas con tela de canesú', 'Inserción de cuchillas usando tela del canesú', 60, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
     ('Subir hombros', 'Ajuste para subir la costura de los hombros', 45, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
@@ -254,8 +254,8 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Subir hombros y puños', 'Ajuste combinado de hombros y posición de puños', 90, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
     ('Cambio de forro completo', 'Reemplazo total del forro interior del saco', 180, 450.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
     ('Cambio de forro de alguna pieza', 'Reemplazo parcial del forro', 60, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
-    ('Poner botónes x pieza', 'Instalación de un botón', 5, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
-    ('Cambio de botónes', 'Reemplazo de todos los botónes del saco', 30, 130.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
+    ('Poner botones x pieza', 'Instalación de un botón', 5, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
+    ('Cambio de botones', 'Reemplazo de todos los botones del saco', 30, 130.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
     ('Ajuste de solapa', 'Modificación de la forma o tamaño de la solapa', 60, 125.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
     ('Subir largo faldilla', 'Ajuste del largo de la faldilla del saco', 60, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
     ('Aflojar contornos', 'Ampliación de los contornos del saco', 90, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true)
@@ -281,7 +281,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Ajuste de costados con mangas dobladillo y subir puños', 'Ajuste completo y posición de puños', 105, 285.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Cambio de cierre', 'Reemplazo de cremallera del vestido', 45, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Poner botón', 'Instalación de un botón', 5, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
-    ('Poner botónes', 'Instalación de múltiples botónes', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
+    ('Poner botones', 'Instalación de múltiples botones', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Poner broche', 'Instalación de un broche', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Hacer pinzas', 'Creación de pinzas para ajustar la silueta', 30, 60.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Cambio de forro', 'Reemplazo completo del forro interior', 180, 380.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
@@ -290,7 +290,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Dobladillo a máquina con piezas extras', 'Ajuste de largo con aplicaciones decorativas', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Poner pedrería', 'Aplicación de pedrería decorativa', 60, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
     ('Reforzar broches', 'Costura de refuerzo en broches existentes', 15, 45.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
-    ('Reforzar botónes', 'Costura de refuerzo en botónes existentes', 20, 70.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true)
+    ('Reforzar botones', 'Costura de refuerzo en botones existentes', 20, 70.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true)
 ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
     description = EXCLUDED.description,
     default_duration_min = EXCLUDED.default_duration_min,
@@ -317,7 +317,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Recoser de roto en varios lados', 'Reparación general de desgarres o roturas en múltiples áreas', 45, 60.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
     ('Cambio de cierre de bolsas', 'Reemplazo de cremalleras en los bolsillos', 45, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
     ('Poner broches', 'Instalación de broches a presión', 10, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
-    ('Poner cierres con broches de presión', 'Instalación de cremallera combinada con botónes a presión', 90, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
+    ('Poner cierres con broches de presión', 'Instalación de cremallera combinada con botones a presión', 90, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
     ('Cierre de naylon', 'Reemplazo de cremallera principal de nylon', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
     ('Cambio de cierre nylon', 'Reemplazo de cremallera principal de nylon', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true),
     ('Cambio de cierre nylon especial', 'Reemplazo de cremallera de nylon de características especiales', 60, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Chamarra'), true)
@@ -333,7 +333,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Ajuste de costados con mangas', 'Ajuste combinado de laterales y mangas', 60, 180.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
     ('Ajustes de costados con mangas y ruedo', 'Ajuste lateral mangas y largo', 90, 220.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
     ('Ajustes de costados con mangas ruedo y subir hombros', 'Ajuste completo de abrigo', 120, 285.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
-    ('Dobladillo a máquina', 'Ajuste de largo cosido a máquina', 30, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
+    ('Dobladillo a maquina', 'Ajuste de largo cosido a máquina', 30, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
     ('Dobladillo de puños', 'Ajuste de largo en los puños', 30, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
     ('Subir hombros', 'Ajuste para subir la costura de los hombros', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true),
     ('Subir hombros y puños', 'Ajuste combinado de hombros y posición de puños', 60, 185.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Abrigo'), true)
@@ -348,7 +348,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Recoser tiro', 'Reparación de costura en el tiro', 15, 30.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
     ('Recoser tiro y piernas', 'Reparación de costuras en tiro y piernas', 30, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
     ('Recoser piernas', 'Reparación de costura en las piernas', 20, 45.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
-    ('Cortar ruedo y dobladillo a máquina', 'Reducción de largo y dobladillo a máquina', 30, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
+    ('Cortar ruedo y dobladillo a maquina', 'Reducción de largo y dobladillo a máquina', 30, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
     ('Poner elástico', 'Instalación o reemplazo de banda elástica', 30, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
     ('Ajustar contornos piernas', 'Ajuste para ceñir las piernas', 45, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
     ('Ajustar cintura', 'Ajuste para reducir la cintura', 30, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Licras'), true),
@@ -363,8 +363,8 @@ ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
 INSERT INTO cci_service (name, description, default_duration_min, base_price, id_garment_type, is_active) VALUES
     ('Ajustes de costados', 'Ajuste en los laterales de la playera', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
     ('Ajuste de costados con dobladillo', 'Ajuste lateral y de largo', 45, 135.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
-    ('Dobladillo a máquina', 'Ajuste de largo cosido a máquina', 15, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
-    ('Dobladillo a máquina con aberturas', 'Ajuste de largo con acabado de aberturas laterales', 30, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo a maquina', 'Ajuste de largo cosido a máquina', 15, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo a maquina con aberturas', 'Ajuste de largo con acabado de aberturas laterales', 30, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
     ('Ajustes de costados con abertura', 'Ajuste lateral manteniendo o creando abertura', 45, 95.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
     ('Ajustes de costados con abertura y bies', 'Ajuste lateral con acabado de bies en aberturas', 60, 135.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
     ('Ajustes de costados con mangas', 'Ajuste combinado de laterales y mangas', 60, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
@@ -381,7 +381,7 @@ ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
 
 -- pans (19 services)
 INSERT INTO cci_service (name, description, default_duration_min, base_price, id_garment_type, is_active) VALUES
-    ('Dobladillo a máquina', 'Ajuste de largo cosido a máquina', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
+    ('Dobladillo a maquina', 'Ajuste de largo cosido a máquina', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Poner cierre en bolsas', 'Instalación de cierre en bolsillos del pantalón', 30, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Hacer dobladillo a máquina con cierre', 'Ajuste de largo con acabado de cierre en los bajos', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Cambio de cierre en dobladillo', 'Reemplazo de la cremallera ubicada en el dobladillo', 30, 130.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
@@ -392,7 +392,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Cambio de elástico de ruedo', 'Reemplazo de la banda elástica en los puños o bajo', 30, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Recoser rotos en varios lados', 'Reparación general de múltiples desgarres', 45, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Cambio de cierre de bolsas', 'Reemplazo de cremalleras en bolsillos', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
-    ('Poner broches', 'Instalación de botónes de presión o broches', 10, 40.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
+    ('Poner broches', 'Instalación de botones de presión o broches', 10, 40.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Poner cierres con broches de presión', 'Instalación de cierre y refuerzo con broches', 60, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Ajustar piernas', 'Reducción del ancho de las piernas', 45, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
     ('Ajustar piernas con entrepiernas', 'Ajuste de ancho incluyendo la costura de entrepierna', 60, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pans'), true),
@@ -417,7 +417,7 @@ INSERT INTO cci_service (name, description, default_duration_min, base_price, id
     ('Poner botón', 'Instalación de botón', 5, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Short'), true),
     ('Aumentar pretina talla', 'Ampliación de la pretina para aumentar una talla', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Short'), true),
     ('Colocar cuchillas para aumento', 'Inserción de piezas de tela para ganar amplitud', 60, 160.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Short'), true),
-    ('Dobladillo a máquina', 'Ajuste de largo cosido a máquina', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Short'), true)
+    ('Dobladillo a maquina', 'Ajuste de largo cosido a máquina', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Short'), true)
 ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
     description = EXCLUDED.description,
     default_duration_min = EXCLUDED.default_duration_min,
@@ -542,7 +542,7 @@ ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
 
 -- mantel (2 services)
 INSERT INTO cci_service (name, description, default_duration_min, base_price, id_garment_type, is_active) VALUES
-    ('Dobladillo mantel a máquina', 'Costura de bordes a máquina para mantel', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Mantel'), true),
+    ('Dobladillo mantel a maquina', 'Costura de bordes a máquina para mantel', 45, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Mantel'), true),
     ('Poner bies a mantel', 'Aplicación de cinta bies decorativa en el contorno', 60, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Mantel'), true)
 ON CONFLICT ON CONSTRAINT uq_service_name_garment_type DO UPDATE SET
     description = EXCLUDED.description,
