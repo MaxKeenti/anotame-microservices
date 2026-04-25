@@ -226,10 +226,13 @@
                     {#each garmentTypes as g}
                         <Button
                             variant="outline"
-                            class="h-28 flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation"
+                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation py-3"
                             onclick={() => handleGarmentSelect(g)}
                         >
                             <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
+                            {#if g.description}
+                                <span class="text-xs text-muted-foreground text-center px-2 leading-snug w-full line-clamp-2">{g.description}</span>
+                            {/if}
                         </Button>
                     {/each}
                 </div>
@@ -240,7 +243,12 @@
                 <div class="space-y-6">
                     <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
                         <div class="w-14 h-14 bg-background rounded-full flex items-center justify-center text-3xl shadow-sm">👕</div>
-                        <div class="font-bold text-2xl">{selectedGarment.name}</div>
+                        <div>
+                            <div class="font-bold text-2xl">{selectedGarment.name}</div>
+                            {#if selectedGarment.description}
+                                <div class="text-sm text-muted-foreground mt-0.5">{selectedGarment.description}</div>
+                            {/if}
+                        </div>
                     </div>
 
                     {#if addedServices.length > 0}
