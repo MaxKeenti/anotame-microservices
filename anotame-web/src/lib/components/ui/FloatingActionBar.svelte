@@ -34,7 +34,7 @@
 <div
   role="toolbar"
   aria-label="Acciones en lote"
-  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card border border-border rounded-xl shadow-lg px-4 py-2"
+  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-2rem)] overflow-x-auto flex items-center gap-3 bg-card border border-border rounded-xl shadow-lg px-4 py-2"
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{count} seleccionadas</span>
 
