@@ -68,6 +68,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .getResultList();
     }
 
+    @SuppressWarnings("unchecked")
     public List<Object[]> getDailyWorkload(OffsetDateTime start, OffsetDateTime end, String zoneId) {
         return getEntityManager()
                 .createNativeQuery(
