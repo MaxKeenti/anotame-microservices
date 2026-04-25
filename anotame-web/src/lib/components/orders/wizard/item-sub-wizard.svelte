@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from 'lucide-svelte';
+	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
 	let props = $props<{
@@ -30,6 +30,8 @@
 	let adj = $state<string>("");
 	let adjReason = $state("");
 	let duration = $state<number>(30);
+
+	let editingServiceIndex = $state(-1);
 
 	let notes = $state("");
 	let showAllServices = $state(false);
@@ -138,17 +140,37 @@
 		step = 2;
 	}
 
+	function handleEditService(idx: number) {
+		const s = addedServices[idx];
+		const catalogEntry = services.find(x => x.id === s.serviceId);
+		tempService = catalogEntry ?? { id: s.serviceId, name: s.serviceName, description: '' };
+		price = String(s.unitPrice);
+		adj = String(s.adjustmentAmount || '');
+		adjReason = s.adjustmentReason || '';
+		duration = s.durationMin;
+		editingServiceIndex = idx;
+		step = 2;
+	}
+
 	function handleAddService() {
 		if (!tempService) return;
-		addedServices = [...addedServices, {
+		const entry = {
 			serviceId: tempService.id,
 			serviceName: tempService.name,
 			unitPrice: parseFloat(price) || 0,
 			adjustmentAmount: parseFloat(adj) || 0,
 			adjustmentReason: adjReason,
 			durationMin: duration
-		}];
-		toast.success("Servicio agregado", { description: tempService.name });
+		};
+		if (editingServiceIndex >= 0) {
+			addedServices[editingServiceIndex] = entry;
+			addedServices = [...addedServices];
+			toast.success("Servicio actualizado", { description: tempService.name });
+			editingServiceIndex = -1;
+		} else {
+			addedServices = [...addedServices, entry];
+			toast.success("Servicio agregado", { description: tempService.name });
+		}
 		tempService = null;
 		step = 3;
 	}
@@ -181,7 +203,8 @@
         <div class="flex items-center gap-4 border-b border-border pb-4 mb-4">
             {#if step > 0}
                 <Button variant="ghost" size="sm" class="px-2 h-12 w-12 touch-manipulation" onclick={() => {
-                    if (step === 2 || step === 3) step = 1;
+                    if (step === 2) { editingServiceIndex = -1; step = 1; }
+                    else if (step === 3) step = 1;
                     else if (step === 1) step = 0;
                 }}>
                     <ArrowLeft class="w-6 h-6" />
@@ -234,10 +257,13 @@
                                             <span>⏱️ {s.durationMin} min</span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-2">
                                         <div class="text-right">
                                             <div class="font-mono font-bold text-lg">${(s.unitPrice + s.adjustmentAmount).toFixed(2)}</div>
                                         </div>
+                                        <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
+                                            <Pencil class="w-5 h-5" />
+                                        </Button>
                                         <Button variant="ghost" size="icon" class="h-12 w-12 text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleRemoveService(idx)}>
                                             <X class="w-6 h-6" />
                                         </Button>
@@ -368,7 +394,7 @@
                     </div>
 
                     <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
-                        Confirmar Servicio
+                        {editingServiceIndex >= 0 ? 'Actualizar Servicio' : 'Confirmar Servicio'}
                     </Button>
                 </div>
             {/if}
