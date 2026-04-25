@@ -3,7 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
-	import { apiService, API_SALES, API_OPERATIONS, ApiValidationError } from '$lib/services/api.svelte';
+	import {
+		apiService,
+		API_SALES,
+		API_OPERATIONS,
+		ApiValidationError
+	} from '$lib/services/api.svelte';
 	import { ApiError } from '$lib/services/ApiError';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -121,7 +126,7 @@
 					});
 					toast.success('Orden confirmada exitosamente');
 					const targetId = res?.id;
-					
+
 					// Navigate first, then cleanup to avoid UI "blink" to Step 1
 					if (targetId) {
 						await goto(`/dashboard/orders/${targetId}?action=print`);
@@ -167,11 +172,18 @@
 
 	onMount(() => {
 		// Initialize form from existing draft when component mounts (for edit mode where draft already has values)
-		if (draft?.paymentMethod || draft?.amountPaid !== undefined || draft?.committedDeadline || draft?.notes) {
+		if (
+			draft?.paymentMethod ||
+			draft?.amountPaid !== undefined ||
+			draft?.committedDeadline ||
+			draft?.notes
+		) {
 			$form.paymentMethod = draft?.paymentMethod || 'CASH';
 			$form.amountPaid = draft?.amountPaid ?? 0;
 			// For edit mode, always set committedDeadline from draft (required field)
-			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : new Date().toISOString().slice(0, 16);
+			$form.committedDeadline = draft?.committedDeadline
+				? draft.committedDeadline.slice(0, 16)
+				: new Date().toISOString().slice(0, 16);
 			$form.notes = draft?.notes || '';
 		}
 	});
@@ -305,8 +317,19 @@
 						{#snippet children({ props })}
 							<Form.Label>Monto Recibido</Form.Label>
 							<div class="relative">
-								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl">$</span>
-								<Input {...props} {...constraints} type="number" min="0" step="0.01" class="pl-8 text-2xl font-bold h-14 rounded-xl" bind:value={$form.amountPaid} placeholder="0.00" />
+								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
+									>$</span
+								>
+								<Input
+									{...props}
+									{...constraints}
+									type="number"
+									min="0"
+									step="0.01"
+									class="pl-8 text-2xl font-bold h-14 rounded-xl"
+									bind:value={$form.amountPaid}
+									placeholder="0.00"
+								/>
 							</div>
 						{/snippet}
 					</Form.Control>
@@ -375,12 +398,55 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>Notas Generales de Orden</Form.Label>
-							<Input {...props} {...constraints} id="order-notes" placeholder="Detalles sobre entrega, atención, etc." class="h-12 rounded-xl text-lg" bind:value={$form.notes} />
+							<Input
+								{...props}
+								{...constraints}
+								id="order-notes"
+								placeholder="Detalles sobre entrega, atención, etc."
+								class="h-12 rounded-xl text-lg"
+								bind:value={$form.notes}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
 				{/snippet}
 			</Form.Field>
+
+			{#if draft?.committedDeadline}
+				<div
+					class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
+				>
+					<div class="flex justify-between items-center text-sm">
+						<span class="font-medium">Ocupación para este día:</span>
+						<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
+							{projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
+						</span>
+					</div>
+					<div class="h-2 w-full bg-secondary rounded-full overflow-hidden">
+						<div
+							class="h-full {isCluttered
+								? 'bg-destructive'
+								: 'bg-primary'} transition-all duration-500"
+							style="width: {occupancyPercentage}%"
+						></div>
+					</div>
+
+					{#if isCluttered}
+						<div
+							class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95"
+						>
+							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+							<div>
+								<h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
+								<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
+									Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la
+									entrega a tiempo.
+								</p>
+							</div>
+						</div>
+					{/if}
+				</div>
+			{/if}
 		</div>
 	</div>
 
@@ -389,40 +455,6 @@
 			class="p-3 bg-destructive/10 text-destructive rounded-xl text-center text-sm font-medium shadow-sm transition-all border border-destructive/20"
 		>
 			{error}
-		</div>
-	{/if}
-
-	{#if draft?.committedDeadline}
-		<div
-			class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
-		>
-			<div class="flex justify-between items-center text-sm">
-				<span class="font-medium">Ocupación para este día:</span>
-				<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
-					{projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
-				</span>
-			</div>
-			<div class="h-2 w-full bg-secondary rounded-full overflow-hidden">
-				<div
-					class="h-full {isCluttered ? 'bg-destructive' : 'bg-primary'} transition-all duration-500"
-					style="width: {occupancyPercentage}%"
-				></div>
-			</div>
-
-			{#if isCluttered}
-				<div
-					class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95"
-				>
-					<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-					<div>
-						<h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
-						<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
-							Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la entrega a
-							tiempo.
-						</p>
-					</div>
-				</div>
-			{/if}
 		</div>
 	{/if}
 
@@ -450,4 +482,3 @@
 		</Button>
 	</div>
 </form>
-
