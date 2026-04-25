@@ -33,7 +33,7 @@ public interface OrderRepositoryPort {
 
     java.math.BigDecimal sumPendingDebt();
 
-    java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start);
+    java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start, String zoneId);
 
     java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end, String zoneId);
 }

@@ -59,11 +59,15 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
     }
 
     // Chart
-    public List<Object[]> getWeeklyRevenueData(OffsetDateTime start) {
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getWeeklyRevenueData(OffsetDateTime start, String zoneId) {
         return getEntityManager()
-                .createQuery(
-                        "SELECT CAST(o.createdAt AS date), SUM(o.amountPaid) FROM OrderEntity o WHERE o.createdAt >= :start GROUP BY CAST(o.createdAt AS date) ORDER BY CAST(o.createdAt AS date)",
-                        Object[].class)
+                .createNativeQuery(
+                        "SELECT (created_at AT TIME ZONE :zone)::date AS day, SUM(amount_paid) " +
+                                "FROM tco_order " +
+                                "WHERE created_at >= :start AND is_deleted = false " +
+                                "GROUP BY day ORDER BY day")
+                .setParameter("zone", zoneId)
                 .setParameter("start", start)
                 .getResultList();
     }

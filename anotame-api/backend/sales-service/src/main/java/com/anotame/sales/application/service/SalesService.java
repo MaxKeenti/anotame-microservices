@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -45,6 +46,9 @@ public class SalesService {
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
     private final OrderAuditLogRepositoryPort auditLogRepositoryPort;
+
+    @ConfigProperty(name = "app.timezone", defaultValue = "America/Mexico_City")
+    String appTimezone;
 
     @Transactional
     public com.anotame.sales.application.dto.OrderResponse createOrderDTO(CreateOrderRequest request, UUID userId,
@@ -432,7 +436,7 @@ public class SalesService {
 
     @Transactional
     public DashboardMetricsResponse getDashboardMetrics() {
-        ZoneId zone = ZoneId.systemDefault();
+        ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
         OffsetDateTime startOfDay = today.atStartOfDay(zone).toOffsetDateTime();
@@ -456,7 +460,7 @@ public class SalesService {
         BigDecimal pendingDebt = orderRepository.sumPendingDebt();
 
         // Chart Data
-        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo);
+        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo, zoneId);
         List<DashboardMetricsResponse.WeeklyChartPoint> chartData = new ArrayList<>();
 
         // Ensure all 7 days are populated even if empty

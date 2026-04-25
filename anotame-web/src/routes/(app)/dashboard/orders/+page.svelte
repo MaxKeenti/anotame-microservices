@@ -185,15 +185,15 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-brand font-bold text-foreground">Pedidos</h1>
-      <p class="text-muted-foreground">Ver y gestionar pedidos de clientes.</p>
+      <h1 class="text-3xl font-heading font-brand font-bold text-foreground">Notas</h1>
+      <p class="text-muted-foreground">Ver y gestionar notas y borradores.</p>
     </div>
-    <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ Nuevo Pedido</Button>
+    <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ Nueva Nota</Button>
   </div>
 
   <Tabs.Root bind:value={view} class="space-y-6">
     <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="active" class="px-6 font-bold">Órdenes Activas</Tabs.Trigger>
+      <Tabs.Trigger value="active" class="px-6 font-bold">Notas Activas</Tabs.Trigger>
       <Tabs.Trigger value="drafts" class="px-6 font-bold">
         Borradores {drafts.length > 0 ? `(${drafts.length})` : ''}
       </Tabs.Trigger>

@@ -1,10 +1,12 @@
 <script lang="ts">
     import { Calendar as CalendarIcon, Info } from 'lucide-svelte';
 
-    let { dailyWorkload = [], capacity = 480 } = $props<{ 
-        dailyWorkload: any[], 
-        capacity: number 
+    let { dailyWorkload = [], capacity = 480 } = $props<{
+        dailyWorkload: any[],
+        capacity: number
     }>();
+
+    let activeIndex = $state<number | null>(null);
 
     function getOccupancyColor(percentage: number) {
         if (percentage >= 100) return 'bg-destructive shadow-[0_0_8px_oklch(from_var(--destructive)_l_c_h_/_40%)]';
@@ -17,6 +19,10 @@
     function formatDate(dateStr: string) {
         const d = new Date(dateStr + 'T12:00:00');
         return new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric', month: 'short' }).format(d);
+    }
+
+    function toggleActive(i: number) {
+        activeIndex = activeIndex === i ? null : i;
     }
 </script>
 
@@ -51,17 +57,21 @@
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
-        {#each dailyWorkload as day}
+        {#each dailyWorkload as day, i}
             {@const occupancy = Math.min(100, Math.round((day.totalMinutesUsed / capacity) * 100))}
-            
-            <div 
+            {@const isActive = activeIndex === i}
+
+            <div
                 class="group relative bg-card border border-border p-3 rounded-xl hover:ring-2 hover:ring-primary/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none transition-all cursor-default overflow-visible h-24 flex flex-col justify-between shadow-sm"
                 tabindex="0"
                 role="button"
+                aria-expanded={isActive}
                 aria-label={`${formatDate(day.date)}: ${day.totalMinutesUsed} de ${capacity} minutos usados (${occupancy}%)`}
+                onclick={() => toggleActive(i)}
+                onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleActive(i)}
             >
-                <!-- Custom Tooltip -->
-                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-popover border border-border rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 animate-in fade-in zoom-in-95 fill-mode-forwards">
+                <!-- Custom Tooltip — visible on hover (desktop) or tap (mobile via isActive) -->
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-popover border border-border rounded-lg shadow-xl pointer-events-none transition-opacity z-50 animate-in fade-in zoom-in-95 fill-mode-forwards {isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}">
                     <div class="text-sm font-bold border-b border-border pb-1 mb-2 capitalize">{formatDate(day.date)}</div>
                     <div class="space-y-1.5">
                         <div class="flex justify-between text-[10px]">

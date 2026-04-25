@@ -14,8 +14,8 @@ import TrendingUpIcon from "lucide-svelte/icons/trending-up";
 export const menuItems = [
     { name: "Inicio", href: "/dashboard", icon: HomeIcon, description: "Ir al inicio" },
     { name: "Tablero KPI", href: "/dashboard/admin/kpi", icon: TrendingUpIcon, description: "Métricas del negocio" },
-    { name: "Pedidos", href: "/dashboard/orders", icon: ClipboardListIcon, description: "Ver pedidos y borradores" },
-    { name: "Órdenes", href: "/dashboard/operations", icon: ActivityIcon, description: "Gestión operativa" },
+    { name: "Notas", href: "/dashboard/orders", icon: ClipboardListIcon, description: "Ver notas y borradores" },
+    { name: "Trabajo", href: "/dashboard/operations", icon: ActivityIcon, description: "Gestión operativa" },
     { name: "Prendas", href: "/dashboard/catalog/garments", icon: ShirtIcon, description: "Catálogo de prendas" },
     { name: "Servicios", href: "/dashboard/catalog/services", icon: TagIcon, description: "Catálogo de servicios" },
     { name: "Listas de Precios", href: "/dashboard/catalog/pricelists", icon: DollarSignIcon, description: "Gestionar precios" },

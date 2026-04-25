@@ -152,8 +152,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start) {
-        return orderRepository.getWeeklyRevenueData(start);
+    public java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start, String zoneId) {
+        return orderRepository.getWeeklyRevenueData(start, zoneId);
     }
 
     @Override
