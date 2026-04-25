@@ -183,7 +183,7 @@
 			// For edit mode, always set committedDeadline from draft (required field)
 			$form.committedDeadline = draft?.committedDeadline
 				? draft.committedDeadline.slice(0, 16)
-				: new Date().toISOString().slice(0, 16);
+				: defaultDeadline();
 			$form.notes = draft?.notes || '';
 		}
 	});
@@ -244,6 +244,12 @@
 		Math.min(100, Math.round((projectedOccupancy / capacity) * 100))
 	);
 	let isCluttered = $derived(projectedOccupancy > capacity);
+
+	function defaultDeadline(): string {
+		const now = new Date();
+		const pad = (n: number) => String(n).padStart(2, '0');
+		return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T18:00`;
+	}
 
 	let minDeadline = $derived.by(() => {
 		const now = new Date();
