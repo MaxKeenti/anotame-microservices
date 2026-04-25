@@ -136,14 +136,14 @@
            {/if}
        </div>
 
-       <div class="border-t border-border pt-6 mt-auto">
-           <div class="flex justify-between items-center mb-6 px-2">
-               <span class="text-xl font-medium">Total Estimado:</span>
-               <span class="text-4xl font-bold font-mono text-primary">${total.toFixed(2)}</span>
+       <div class="border-t border-border pt-4 sm:pt-6 mt-auto">
+           <div class="flex justify-between items-center mb-3 sm:mb-6 px-2">
+               <span class="text-base sm:text-xl font-medium">Total Estimado:</span>
+               <span class="text-2xl sm:text-4xl font-bold font-mono text-primary">${total.toFixed(2)}</span>
            </div>
-           <div class="flex flex-col-reverse sm:flex-row gap-4">
-               <Button variant="outline" class="w-full sm:w-auto sm:flex-1 h-16 text-lg rounded-xl touch-manipulation" onclick={onBack}>Atrás</Button>
-               <Button class="w-full sm:w-auto sm:flex-1 h-16 text-lg rounded-xl shadow-lg touch-manipulation" onclick={onNext} disabled={items.length === 0}>
+           <div class="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
+               <Button variant="outline" class="w-full sm:w-auto sm:flex-1 h-10 sm:h-16 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onBack}>Atrás</Button>
+               <Button class="w-full sm:w-auto sm:flex-1 h-10 sm:h-16 text-sm sm:text-lg rounded-xl shadow-lg touch-manipulation" onclick={onNext} disabled={items.length === 0}>
                    Continuar al Pago
                </Button>
            </div>

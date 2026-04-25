@@ -63,8 +63,8 @@
                 <p class="text-muted-foreground text-sm">{draft?.customer?.email}</p>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <Button variant="outline" class="h-14 px-8 text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>Cambiar</Button>
-                    <Button class="h-14 px-12 text-lg rounded-xl touch-manipulation" onclick={onNext}>Continuar</Button>
+                    <Button variant="outline" class="h-10 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>Cambiar</Button>
+                    <Button class="h-10 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onNext}>Continuar</Button>
                 </div>
             </div>
         {:else}
@@ -108,9 +108,9 @@
     </div>
 
     {#if !draft?.customer}
-        <div class="flex justify-between items-center py-4 border-t border-border mt-auto">
-            <Button variant="ghost" class="h-12 px-6 touch-manipulation" onclick={onBack}>Cancelar</Button>
-            <Button disabled class="h-12 px-6 rounded-xl">Selecciona un Cliente</Button>
+        <div class="flex justify-between items-center py-3 sm:py-4 border-t border-border mt-auto">
+            <Button variant="ghost" class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base touch-manipulation" onclick={onBack}>Cancelar</Button>
+            <Button disabled class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">Selecciona un Cliente</Button>
         </div>
     {/if}
 </div>
