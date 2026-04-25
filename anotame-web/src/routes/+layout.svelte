@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-<Toaster />
+<Toaster position="top-center" />
 <AdaptiveConfirm />
 <ModeWatcher />
 {@render children()}
