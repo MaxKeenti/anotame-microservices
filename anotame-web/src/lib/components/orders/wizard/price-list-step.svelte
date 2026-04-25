@@ -175,16 +175,14 @@
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
 		<Button
 			variant="outline"
-			size="lg"
 			onclick={onBack}
-			class="flex-1 rounded-xl h-14 text-lg touch-manipulation"
+			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg touch-manipulation"
 		>
 			Atrás
 		</Button>
 		<Button
 			type="submit"
-			size="lg"
-			class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation"
+			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation"
 			onclick={handleContinue}
 		>
 			Continuar

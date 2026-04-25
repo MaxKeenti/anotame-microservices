@@ -35,5 +35,5 @@ public interface OrderRepositoryPort {
 
     java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start);
 
-    java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+    java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end, String zoneId);
 }
