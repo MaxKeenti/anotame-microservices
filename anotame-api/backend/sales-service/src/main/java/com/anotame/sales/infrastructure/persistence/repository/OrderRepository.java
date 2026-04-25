@@ -73,10 +73,10 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
         return getEntityManager()
                 .createNativeQuery(
                         "SELECT (committed_deadline AT TIME ZONE :zone)::date AS day, SUM(total_duration_min) " +
-                        "FROM tco_order " +
-                        "WHERE committed_deadline >= :start AND committed_deadline < :end " +
-                        "AND status NOT IN ('DELIVERED', 'CANCELLED') AND is_deleted = false " +
-                        "GROUP BY day ORDER BY day")
+                                "FROM tco_order " +
+                                "WHERE committed_deadline >= :start AND committed_deadline < :end " +
+                                "AND status NOT IN ('DELIVERED', 'CANCELLED') AND is_deleted = false " +
+                                "GROUP BY day ORDER BY day")
                 .setParameter("zone", zoneId)
                 .setParameter("start", start)
                 .setParameter("end", end)

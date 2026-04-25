@@ -157,8 +157,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end, String zoneId) {
+    public java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end,
+            String zoneId) {
         return orderRepository.getDailyWorkload(start, end, zoneId);
     }
 
