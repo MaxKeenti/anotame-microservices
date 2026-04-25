@@ -33,6 +33,7 @@
 
 	let notes = $state("");
 	let showAllServices = $state(false);
+	let serviceFilter = $state("");
 
 	// Get the currently selected price list
 	let priceList = $derived(orderWizardState.getPriceList());
@@ -91,20 +92,15 @@
 			}
 		}
 
-		const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-		const garmentName = normalize(selectedGarment!.name);
-		const searchTerms = [garmentName];
-		if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
-		else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
+		return [...candidates].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+	});
 
-		return candidates.sort((a, b) => {
-			const aName = normalize(a.name);
-			const bName = normalize(b.name);
-			const aMatch = searchTerms.some(term => aName.includes(term));
-			const bMatch = searchTerms.some(term => bName.includes(term));
-			if (aMatch && !bMatch) return -1;
-			if (!aMatch && bMatch) return 1;
-			return a.name.localeCompare(b.name);
+	let visibleServices = $derived.by(() => {
+		if (!serviceFilter.trim()) return filteredServices;
+		const q = serviceFilter.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+		return filteredServices.filter(s => {
+			const sName = s.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+			return sName.includes(q);
 		});
 	});
 
@@ -113,6 +109,7 @@
 		addedServices = [];
 		step = 1;
 		showAllServices = false;
+		serviceFilter = "";
 	}
 
 	function handleServiceSelect(s: any) {
@@ -259,43 +256,50 @@
                             <Button
                                 variant="ghost"
                                 class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
-                                onclick={() => showAllServices = !showAllServices}
+                                onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
                             >
                                 {showAllServices ? "Ver recomendados" : "Ver todos"}
                             </Button>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {#each filteredServices as s}
+                        <Input
+                            type="search"
+                            placeholder="Buscar servicio..."
+                            class="h-11 rounded-xl"
+                            bind:value={serviceFilter}
+                        />
+
+                        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {#each visibleServices as s}
                                 <Button
                                     variant="outline"
-                                    class="h-28 p-5 rounded-xl border-2 hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-4 transition-all text-left bg-card shadow-sm w-full whitespace-normal touch-manipulation"
+                                    class="h-20 md:h-28 p-3 md:p-5 rounded-xl border-2 hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-2 transition-all text-left bg-card shadow-sm w-full whitespace-normal touch-manipulation"
                                     onclick={() => handleServiceSelect(s)}
                                 >
-                                    <span class="font-bold text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
+                                    <span class="font-bold text-sm md:text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
                                     <div class="flex flex-col items-end shrink-0">
                                         {#if priceListMap.size > 0}
                                             {@const plPrice = priceListMap.get(s.id)}
                                             {#if plPrice !== undefined}
-                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
-                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">${plPrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">${plPrice}</span>
                                             {:else}
-                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-muted-foreground">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-muted-foreground">${s.basePrice}</span>
                                             {/if}
                                         {:else}
                                             {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
-                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
                                             {/if}
-                                            <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">
+                                            <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">
                                                 ${s.effectivePrice ?? s.basePrice}
                                             </span>
                                         {/if}
                                     </div>
                                 </Button>
                             {/each}
-                            {#if filteredServices.length === 0}
+                            {#if visibleServices.length === 0}
                                 <div class="col-span-full text-center py-8 text-muted-foreground text-lg">
-                                    No hay servicios recomendados.
+                                    {serviceFilter ? "Sin resultados para tu búsqueda." : "No hay servicios recomendados."}
                                 </div>
                             {/if}
                         </div>
