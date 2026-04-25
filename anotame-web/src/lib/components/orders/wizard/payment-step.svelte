@@ -80,32 +80,33 @@
 				const mm = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
+				const orderItems = (draft?.items || []).map((item: any) => ({
+					garmentTypeId: item.garmentTypeId || item.garmentId || '',
+					garmentName: item.garmentName || '',
+					quantity: item.quantity ?? 1,
+					notes: item.notes || '',
+					services:
+						item.services?.map((s: any) => ({
+							serviceId: s.serviceId,
+							serviceName: s.serviceName,
+							unitPrice: s.unitPrice,
+							adjustmentAmount: s.adjustmentAmount,
+							adjustmentReason: s.adjustmentReason,
+							durationMin: s.durationMin
+						})) || []
+				}));
+
 				const payload: any = {
 					committedDeadline: deadlineStr,
 					notes: f.data.notes || '',
 					amountPaid: f.data.amountPaid,
-					paymentMethod: f.data.paymentMethod
+					paymentMethod: f.data.paymentMethod,
+					items: orderItems
 				};
 
-				// For creation (not edit), include customer, items, and price list
+				// For creation (not edit), also include customer and price list
 				if (!draft?.isEditing) {
-					const orderItems = (draft?.items || []).map((item: any) => ({
-						garmentTypeId: item.garmentTypeId || item.garmentId || '',
-						garmentName: item.garmentName || '',
-						quantity: item.quantity ?? 1,
-						notes: item.notes || '',
-						services:
-							item.services?.map((s: any) => ({
-								serviceId: s.serviceId,
-								serviceName: s.serviceName,
-								unitPrice: s.unitPrice,
-								adjustmentAmount: s.adjustmentAmount,
-								adjustmentReason: s.adjustmentReason,
-								durationMin: s.durationMin
-							})) || []
-					}));
 					payload.customer = draft?.customer;
-					payload.items = orderItems;
 					if (draft?.priceListId) {
 						payload.priceListId = draft.priceListId;
 						payload.priceListName = draft.priceListName ?? null;
