@@ -53,7 +53,7 @@
 				apiService.request<any[]>(`${API_CATALOG}/catalog/garments`),
 				apiService.request<any[]>(`${API_CATALOG}/catalog/services`)
 			]);
-			garmentTypes = gRes || [];
+			garmentTypes = (gRes || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'es'));
 			services = sRes || [];
 
 			if (props.initialItem) {
