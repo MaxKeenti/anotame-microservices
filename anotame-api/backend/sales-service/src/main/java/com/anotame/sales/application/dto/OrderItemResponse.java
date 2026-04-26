@@ -9,6 +9,7 @@ import java.util.UUID;
 @Builder
 public class OrderItemResponse {
     private UUID id;
+    private UUID garmentTypeId;
     private String garmentName;
     private java.util.List<OrderItemServiceDto> services;
     private Integer quantity;

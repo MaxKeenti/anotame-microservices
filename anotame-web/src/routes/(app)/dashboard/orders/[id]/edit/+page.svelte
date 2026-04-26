@@ -38,7 +38,7 @@
                 priceListId: res.priceListId || null,
                 priceListName: res.priceListName || null,
                 items: res.items.map((item) => ({
-                    garmentTypeId: null, // garmentTypeId is not returned by the API
+                    garmentTypeId: item.garmentTypeId,
                     garmentId: undefined,
                     garmentName: item.garmentName,
                     quantity: item.quantity,

@@ -170,6 +170,7 @@ public class SalesService {
 
                     return com.anotame.sales.application.dto.OrderItemResponse.builder()
                             .id(item.getId())
+                            .garmentTypeId(item.getGarmentTypeId())
                             .garmentName(item.getGarmentName())
                             .services(serviceDtos)
                             .quantity(item.getQuantity())
