@@ -1,0 +1,381 @@
+garment_type,name,description,duration_min,base_price
+Pantalón,Ajuste de cintura,Reducción o ampliación de la cintura del pantalón,30,85.0
+Pantalón,Ajuste de costado,Ajuste en los laterales para mejorar la silueta,30,80.0
+Pantalón,Ajuste de piernas,Reducción del ancho de las piernas del pantalón,30,85.0
+Pantalón,Valenciana española,Dobladillo con estilo de valenciana española,20,70.0
+Pantalón,Dobladillo a mano,Ajuste de largo cosido a mano para un acabado invisible,30,85.0
+Pantalón,Dobladillo a máquina,Ajuste de largo cosido a máquina,15,80.0
+Pantalón,Cambio de cierre de Nylon o invisible,Reemplazo de cremallera de nylon o invisible,45,85.0
+Pantalón,Cambio de cierre de Metal,Reemplazo de cremallera metálica,45,90.0
+Pantalón,Ajuste de cintura con costado,Ajuste combinado de cintura y laterales,60,145.0
+Pantalón,Ajuste de piernas con dobladillo,Ajuste de ancho de piernas y largo,45,145.0
+Pantalón,Ajuste de cintura con costado y dobladillo,Ajuste completo de cintura laterales y largo,75,190.0
+Pantalón,Ajuste de cintura con piernas y dobladillo,Ajuste de cintura ancho de piernas y largo,75,190.0
+Pantalón,Poner parche,Aplicación de un parche en zona dañada,15,35.0
+Pantalón,Poner parches,Aplicación de múltiples parches,30,60.0
+Pantalón,Cambio de bolsa,Reemplazo de un bolsillo interno dañado,30,80.0
+Pantalón,Cambio de bolsas,Reemplazo de ambos bolsillos internos,60,140.0
+Pantalón,Poner falso en pretina,Adición de falso de tela para extender la pretina,45,145.0
+Pantalón,Poner ajustador,Instalación de ajustador en la cintura,20,75.0
+Pantalón,Quitar pinzas,Eliminación de pinzas para soltar tela,30,125.0
+Pantalón,Quitar pinzas con ajuste de piernas,Eliminación de pinzas y ajuste de ancho de piernas,60,200.0
+Pantalón,Quitar pinzas con ajuste de costados y ajuste de cintura,Eliminación de pinzas con ajuste lateral y de cintura,90,280.0
+Pantalón,Recoser tiro,Reparación de costura en el tiro del pantalón,15,35.0
+Pantalón,Poner parche en tiro,Aplicación de parche en la zona del tiro,20,35.0
+Pantalón,Recoser costado,Reparación de costura en un lateral,15,45.0
+Pantalón,Recoser costados,Reparación de costuras en ambos laterales,25,60.0
+Pantalón,Cambio de cierre de lado al centro,Modificación de la posición del cierre de lado a centro,60,180.0
+Pantalón,Aumento con cuchillas,Ampliación de talla mediante inserción de cuchillas de tela,60,140.0
+Pantalón,Aumentar cintura por pinzas,Ampliación de cintura soltando costura de pinzas,30,145.0
+Pantalón,Cambio de forro,Reemplazo completo del forro interior,90,280.0
+Pantalón,Colocar botón metal,Instalación de botón metálico,5,20.0
+Pantalón,Colocar botón plástico,Instalación de botón de plástico,5,10.0
+Pantalón,Correr ajuste,Modificación y reubicación de ajuste,45,175.0
+Blusa,Ajuste de costados,Ajuste en los laterales de la blusa,30,85.0
+Blusa,Ajuste de mangas,Modificación del ancho de las mangas,30,75.0
+Blusa,Ajuste de hombro,Modificación de la caída del hombro,60,100.0
+Blusa,Dobladillo de ruedo a máquina,Ajuste de largo cosido a máquina,15,85.0
+Blusa,Dobladillo de ruedo a mano,Ajuste de largo cosido a mano para un acabado invisible,30,100.0
+Blusa,Ajuste de manga con puño,Ajuste integral de manga y puño,45,100.0
+Blusa,Ajuste de costados con manga dobladillo y puño,Ajuste completo de laterales mangas largo y puños,90,190.0
+Blusa,Ajuste de costado con dobladillo,Ajuste lateral y de largo,45,145.0
+Blusa,Ajuste de hombro con costado y puño,Ajuste de hombros laterales y puños,90,195.0
+Blusa,Parchar con cuchilla,Aplicación de parche insertando cuchilla de tela,30,40.0
+Blusa,Parche con costura,Aplicación de parche sencillo cosido,20,35.0
+Blusa,Cortar mangas,Reducción del largo de mangas,20,85.0
+Blusa,Colocar broches de presión,Instalación de broche de presión,5,15.0
+Blusa,Colocar broche de gancho,Instalación de broche tipo gancho,5,15.0
+Blusa,Retirar o poner resorte,Cambio o instalación de banda elástica,30,100.0
+Blusa,Dobladillo a mano forrado o a máquina,Dobladillo en blusa con forro,45,135.0
+Blusa,Cambio de forro,Reemplazo del forro interior,90,165.0
+Blusa,Voltear cuello,Rotación del cuello para ocultar desgaste,30,50.0
+Blusa,Recortar cuello,Reducción del tamaño del cuello,30,50.0
+Blusa,Transformar puños,Modificación de estilo o tamaño de los puños,45,100.0
+Blusa,Colocar botón,Instalación de botón,5,10.0
+Blusa,Subir hombros,Ajuste para subir la costura de los hombros,45,100.0
+Blusa,Subir hombros y puños,Ajuste combinado de hombros y puños,60,170.0
+Blusa,Subir hombros puños y faldilla,Ajuste completo de hombros puños y faldilla,90,180.0
+Blusa,Subir puños,Ajuste de posición de los puños,30,100.0
+Falda,Ajuste de cintura,Reducción o ampliación de la cintura,30,90.0
+Falda,Ajuste de costado,Ajuste en los laterales de la falda,30,90.0
+Falda,Ajuste de cintura con costado,Ajuste combinado de cintura y laterales,60,175.0
+Falda,Dobladillo a mano sin forro,Ajuste de largo cosido a mano para un acabado invisible en falda sin forro,30,100.0
+Falda,Dobladillo a máquina sin forro,Ajuste de largo cosido a máquina en falda sin forro,15,85.0
+Falda,Dobladillo a máquina con forro,Ajuste de largo cosido a máquina en falda con forro,30,120.0
+Falda,Dobladillo a mano con forro,Ajuste de largo cosido a mano en falda con forro,45,135.0
+Falda,Cambio de cierre de Nylon o invisible,Reemplazo de cremallera de nylon o invisible,45,90.0
+Falda,Cambio de cierre de metal,Reemplazo de cremallera metálica,45,90.0
+Falda,Aumentar pretina,Adición de tela o ajuste para agrandar la pretina,45,135.0
+Falda,Parchar,Aplicación de un parche en zona dañada,20,40.0
+Falda,Colocar broches,Instalación de broches,10,20.0
+Falda,Hacer cuchillas (Sobre Costura),Inserción de cuchillas de tela sobre la costura para dar amplitud,60,145.0
+Falda,Resorte en cintura,Instalación de banda elástica en la cintura,30,90.0
+Falda,Cambiar resorte,Reemplazo de banda elástica en la cintura,30,100.0
+Camisa,Ajuste de costados,Ajuste en los laterales de la camisa,30,75.0
+Camisa,Ajuste de costado con mangas,Ajuste lateral y de ancho de mangas,45,145.0
+Camisa,Ajuste de costado con mangas y subir puño,Ajuste lateral mangas y posición de puños,60,175.0
+Camisa,Ajuste de costado con mangas puño y dobladillo a máquina,Ajuste completo lateral mangas puños y largo,90,270.0
+Camisa,Cambio de cuello,Reemplazo del cuello de la camisa,45,50.0
+Camisa,Cambio de cuello con pie de cuello y ojal,Reemplazo de cuello incluyendo pie y ojal,60,70.0
+Camisa,Parchar,Aplicación de un parche en zona dañada,20,40.0
+Camisa,Hacer cuchilla,Inserción de cuchilla de tela para ampliar,60,180.0
+Camisa,Hacer bolsa,Confección y aplicación de un bolsillo,45,95.0
+Camisa,Cortar manga,Reducción del largo de las mangas,20,75.0
+Camisa,Subir de puño,Ajuste de posición de los puños,30,130.0
+Camisa,Poner botón,Instalación de botón,5,15.0
+Camisa,Colocar ojal en cuello,Creación de ojal en el cuello,15,30.0
+Camisa,Poner escudos,Aplicación de escudo o parche bordado,10,15.0
+Camisa,Poner sectores,Aplicación de sector o insignia,10,15.0
+Camisa,Dobladillo a máquina y subir puño,Ajuste de largo a máquina y posición de puños,45,145.0
+Camisa,Dobladillo a máquina faldilla,Ajuste de largo de faldilla a máquina,20,85.0
+Camisa,Voltear cuellos,Rotación del cuello para ocultar desgaste,30,50.0
+Camisa,Cuchillas con tela de canesú,Inserción de cuchillas usando tela del canesú,60,175.0
+Camisa,Subir hombros,Ajuste para subir la costura de los hombros,45,110.0
+Camisa,Subir hombros y puños,Ajuste combinado de hombros y puños,60,195.0
+Suéter,Ajuste de costados,Ajuste en los laterales del suéter,30,80.0
+Suéter,Ajuste de mangas,Ajuste del ancho de las mangas,30,75.0
+Suéter,Ajuste de costado con mangas,Ajuste combinado de laterales y mangas,45,145.0
+Suéter,Dobladillo de mangas,Ajuste del largo de las mangas,20,75.0
+Suéter,Dobladillo de ruedo,Ajuste del largo total del suéter,30,90.0
+Suéter,Poner parche en codos,Aplicación de parches en la zona de los codos,30,130.0
+Suéter,Zurcir hilos zafados,Reparación de hilos sueltos o rotos,20,40.0
+Suéter,Poner cierre en mangas,Instalación de cierres en las mangas,45,120.0
+Suéter,Cambio de cierre de metal,Reemplazo de cremallera metálica,45,150.0
+Suéter,Cambio de cierre de plástico,Reemplazo de cremallera de plástico,45,120.0
+Suéter,Poner botón,Instalación de botón,5,10.0
+Suéter,Poner franjas,Aplicación de franja decorativa,15,35.0
+Suéter,Poner escudos,Aplicación de escudo o parche bordado,10,15.0
+Suéter,Poner escudos con franjas,Aplicación combinada de escudo y franjas,20,45.0
+Suéter,Poner dos franjas,Aplicación de dos franjas decorativas,20,45.0
+Suéter,Poner tres franjas,Aplicación de tres franjas decorativas,30,60.0
+Suéter,Ajustar puños,Ajuste del ancho o elástico de los puños,20,50.0
+Suéter,Subir hombros,Ajuste para subir la costura de los hombros,45,90.0
+Suéter,Subir hombros y puños,Ajuste combinado de hombros y posición de puños,60,135.0
+Saco,Ajuste de costados,Ajuste en los laterales del saco,45,170.0
+Saco,Ajuste de mangas,Ajuste del ancho de las mangas,30,85.0
+Saco,Subir puños,Ajuste de posición de los puños,45,120.0
+Saco,Ajuste de centro,Ajuste en la costura central de la espalda,45,120.0
+Saco,Ajuste de hombro,Modificación de la caída del hombro,60,145.0
+Saco,Ajuste de costado con mangas,Ajuste combinado de laterales y mangas,60,200.0
+Saco,Ajuste de costado con mangas y ruedo,Ajuste lateral mangas y largo del saco,90,250.0
+Saco,Ajuste de costado con mangas ruedo y centro con hombros,Ajuste completo de saco,120,350.0
+Saco,Parche con cuchilla,Aplicación de parche insertando cuchilla,30,40.0
+Saco,Subir hombros y puños,Ajuste combinado de hombros y posición de puños,90,190.0
+Saco,Cambio de forro completo,Reemplazo total del forro interior del saco,180,450.0
+Saco,Cambio de forro de alguna pieza,Reemplazo parcial del forro,60,100.0
+Saco,Poner botones por pieza,Instalación de un botón,5,15.0
+Saco,Cambio de botones,Reemplazo de todos los botones del saco,30,130.0
+Saco,Ajuste de solapa,Modificación de la forma o tamaño de la solapa,60,125.0
+Saco,Subir largo faldilla,Ajuste del largo de la faldilla del saco,60,145.0
+Saco,Aflojar contornos,Ampliación de los contornos del saco,90,190.0
+Vestido,Ajuste de costados,Ajuste en los laterales del vestido,30,90.0
+Vestido,Ajuste de costados forrado,Ajuste en los laterales del vestido con forro,45,120.0
+Vestido,Ajuste de mangas,Modificación del ancho de las mangas,30,90.0
+Vestido,Ajuste de hombros,Ajuste en la costura de los hombros,45,100.0
+Vestido,Dobladillo a mano sin forro,Ajuste de largo cosido a mano para vestido sin forro,45,135.0
+Vestido,Dobladillo a máquina sin forro,Ajuste de largo cosido a máquina para vestido sin forro,20,110.0
+Vestido,Dobladillo a mano con forro,Ajuste de largo cosido a mano para vestido con forro,60,175.0
+Vestido,Dobladillo a máquina con forro,Ajuste de largo cosido a máquina para vestido con forro,30,135.0
+Vestido,Ajuste de costados con mangas,Ajuste combinado de laterales y mangas,60,190.0
+Vestido,Ajuste de costados con mangas y dobladillo,Ajuste de laterales mangas y largo,90,240.0
+Vestido,Ajuste de costados con mangas dobladillo y cambio de cierre,Ajuste completo con cambio de cierre,120,295.0
+Vestido,Ajuste de costados con mangas dobladillo y subir puños,Ajuste completo y posición de puños,105,285.0
+Vestido,Cambio de cierre,Reemplazo de cremallera del vestido,45,100.0
+Vestido,Poner botón,Instalación de un botón,5,15.0
+Vestido,Poner botones,Instalación de múltiples botones,30,75.0
+Vestido,Poner broche,Instalación de un broche,10,15.0
+Vestido,Hacer pinzas,Creación de pinzas para ajustar la silueta,30,60.0
+Vestido,Cambio de forro,Reemplazo completo del forro interior,180,380.0
+Vestido,Poner medio forro,Instalación parcial de forro interior,90,175.0
+Vestido,Cortar vestido en dos piezas,Transformación de vestido a conjunto de dos piezas,60,190.0
+Vestido,Dobladillo a máquina con piezas extras,Ajuste de largo con aplicaciones decorativas,45,120.0
+Vestido,Poner pedrería,Aplicación de pedrería decorativa,60,120.0
+Vestido,Reforzar broches,Costura de refuerzo en broches existentes,15,45.0
+Vestido,Reforzar botones,Costura de refuerzo en botones existentes,20,70.0
+Cojín,Coser cojín,Costura general para cierre o reparación de cojín,30,30.0
+Cojín,Poner cierre a cojín,Instalación de cierre en cojín,30,90.0
+Bolsa,Poner cierre a bolsa,Instalación de cierre en bolsa o bolso,30,90.0
+Sábanas,Recoser sabanas,Reparación de costuras o rasgaduras en sábanas,20,50.0
+Toalla,Recoser toallas en orillas,Reparación de las orillas deshilachadas de toallas,15,45.0
+Bolsa,Cambio de cierre en bolsas,Reemplazo de la cremallera en bolsa o bolso,45,95.0
+Peluche,Recoser muñeco de peluche,Reparación de costuras o relleno en peluche,20,40.0
+Tapete,Pasar over a tapete,Costura de overlock en las orillas del tapete,30,70.0
+Faja,Aumentar tela a faja,Ampliación de faja añadiendo tela,45,100.0
+Faja,Cambio de cierre a faja,Reemplazo de cremallera en faja,45,130.0
+Faja,Repasar costura a faja,Refuerzo de las costuras existentes en la faja,15,35.0
+Cobija,Dobladillar cobijas,Ajuste de bordes y creación de dobladillo en cobijas,45,120.0
+Calcetines,Recoser calcetines,Reparación de agujeros o costuras en calcetines,15,25.0
+Ropa Interior,Recoser Boxer de elástico,Ajuste o reparación del resorte en ropa interior,15,25.0
+Corbata,Cortar corbatas de largo,Reducción del largo de la corbata,30,90.0
+Cortina,Dobladillo de cortinas,Ajuste del largo de las cortinas,45,100.0
+Mantel,Dobladillo mantel a máquina,Costura de bordes a máquina para mantel,45,120.0
+Mantel,Poner bies a mantel,Aplicación de cinta bies decorativa en el contorno,60,100.0
+Toalla,Poner bies en toalla grande o chica,Aplicación de cinta bies en el contorno de la toalla,45,100.0
+Varios,Botón,Instalación o reemplazo de un botón suelto,5,10.0
+Varios,Ojal,Confección o reparación de ojal para botón,15,10.0
+Corbata,Reducir ancho corbata,Modificación lateral para adelgazar la corbata,45,90.0
+Chamarra,Ajustes de costados,Ajuste en los laterales de la chamarra,45,90.0
+Chamarra,Ajuste de costados con mangas,Ajuste lateral y de ancho de mangas,60,150.0
+Chamarra,Ajustes de costados con mangas y puños,Ajuste lateral mangas y ajuste de puños,90,190.0
+Chamarra,Ajustes de puños por hombro,Ajuste de posición de puños modificando desde el hombro,60,145.0
+Chamarra,Cambio de cierre de metal,Reemplazo de cremallera metálica principal,60,180.0
+Chamarra,Cortar dobladillo,Ajuste y reducción del largo de la chamarra,45,90.0
+Chamarra,Quitar gorra,Remoción de la capucha y cerrado de costura,45,120.0
+Chamarra,Cambio de elástico de puños,Reemplazo de la banda elástica en los puños,30,100.0
+Chamarra,Cambio de elástico de ruedo,Reemplazo de la banda elástica en el borde inferior,45,130.0
+Chamarra,Cambio de elástico de ruedo y puños,Reemplazo de bandas elásticas inferior y en puños,60,190.0
+Chamarra,Cambio de cuello,Reemplazo o reparación del cuello,45,70.0
+Chamarra,Poner coderas,Aplicación de parches protectores en los codos,30,120.0
+Chamarra,Recoser bolsas,Reparación de costuras sueltas o rotas en los bolsillos,20,50.0
+Chamarra,Poner bolsas nuevas,Confección e instalación de bolsillos nuevos,60,170.0
+Chamarra,Quitar mangas y colocar vistas,Retiro de mangas para convertir en chaleco y detallado de sisas,90,100.0
+Chamarra,Recoser de roto en varios lados,Reparación general de desgarres o roturas en múltiples áreas,45,60.0
+Chamarra,Cambio de cierre de bolsas,Reemplazo de cremalleras en los bolsillos,45,100.0
+Chamarra,Poner broches,Instalación de broches a presión,10,10.0
+Chamarra,Poner cierres con broches de presión,Instalación de cremallera combinada con botones a presión,90,100.0
+Chamarra,Cierre de naylon,Reemplazo de cremallera principal de nylon,45,120.0
+Chamarra,Cambio de cierre nylon,Reemplazo de cremallera principal de nylon,45,120.0
+Chamarra,Cambio de cierre nylon especial,Reemplazo de cremallera de nylon de características especiales,60,175.0
+Abrigo,Ajustes de costados,Ajuste en los laterales del abrigo,45,120.0
+Abrigo,Ajuste de costados con mangas,Ajuste combinado de laterales y mangas,60,180.0
+Abrigo,Ajustes de costados con mangas y ruedo,Ajuste lateral mangas y largo,90,220.0
+Abrigo,Ajustes de costados con mangas ruedo y subir hombros,Ajuste completo de abrigo,120,285.0
+Abrigo,Dobladillo a máquina,Ajuste de largo cosido a máquina,30,120.0
+Abrigo,Dobladillo de puños,Ajuste de largo en los puños,30,145.0
+Abrigo,Subir hombros,Ajuste para subir la costura de los hombros,45,145.0
+Abrigo,Subir hombros y puños,Ajuste combinado de hombros y posición de puños,60,185.0
+Licras,Recoser tiro,Reparación de costura en el tiro,15,30.0
+Licras,Recoser tiro y piernas,Reparación de costuras en tiro y piernas,30,50.0
+Licras,Recoser piernas,Reparación de costura en las piernas,20,45.0
+Licras,Cortar ruedo y dobladillo a máquina,Reducción de largo y dobladillo a máquina,30,80.0
+Licras,Poner elástico,Instalación o reemplazo de banda elástica,30,90.0
+Licras,Ajustar contornos piernas,Ajuste para ceñir las piernas,45,100.0
+Licras,Ajustar cintura,Ajuste para reducir la cintura,30,80.0
+Licras,Ajustar entrepiernas,Ajuste de la zona de entrepierna,30,80.0
+Playera,Ajustes de costados,Ajuste en los laterales de la playera,30,75.0
+Playera,Ajuste de costados con dobladillo,Ajuste lateral y de largo,45,135.0
+Playera,Dobladillo a máquina,Ajuste de largo cosido a máquina,15,85.0
+Playera,Dobladillo a máquina con aberturas,Ajuste de largo con acabado de aberturas laterales,30,110.0
+Playera,Ajustes de costados con abertura,Ajuste lateral manteniendo o creando abertura,45,95.0
+Playera,Ajustes de costados con abertura y bies,Ajuste lateral con acabado de bies en aberturas,60,135.0
+Playera,Ajustes de costados con mangas,Ajuste combinado de laterales y mangas,60,145.0
+Playera,Ajuste de costados con dobladillo y mangas,Ajuste completo de laterales largo y mangas,75,175.0
+Playera,Subir tirantes,Ajuste para acortar tirantes,15,70.0
+Playera,Ajuste de hombros,Ajuste en la costura superior de los hombros,30,75.0
+Playera,Colocar parche,Aplicación de un parche en zona dañada,15,35.0
+Playera,Colocar parches,Aplicación de múltiples parches,30,45.0
+Pans,Dobladillo a máquina,Ajuste de largo cosido a máquina,15,80.0
+Pans,Poner cierre en bolsas,Instalación de cierre en bolsillos del pantalón,30,110.0
+Pans,Hacer dobladillo a máquina con cierre,Ajuste de largo con acabado de cierre en los bajos,45,120.0
+Pans,Cambio de cierre en dobladillo,Reemplazo de la cremallera ubicada en el dobladillo,30,130.0
+Pans,Recoser costados,Reparación de costuras laterales sueltas,20,35.0
+Pans,Recoser tiro,Reparación de costura en la zona del tiro,15,35.0
+Pans,Recoser tiro con costado,Reparación combinada de costuras en tiro y laterales,30,50.0
+Pans,Poner parches,Aplicación de parches en zonas desgastadas o rotas,30,40.0
+Pans,Cambio de elástico de ruedo,Reemplazo de la banda elástica en los puños o bajo,30,110.0
+Pans,Recoser rotos en varios lados,Reparación general de múltiples desgarres,45,75.0
+Pans,Cambio de cierre de bolsas,Reemplazo de cremalleras en bolsillos,45,120.0
+Pans,Poner broches,Instalación de botones de presión o broches,10,40.0
+Pans,Poner cierres con broches de presión,Instalación de cierre y refuerzo con broches,60,100.0
+Pans,Ajustar piernas,Reducción del ancho de las piernas,45,90.0
+Pans,Ajustar piernas con entrepiernas,Ajuste de ancho incluyendo la costura de entrepierna,60,110.0
+Pans,Colocar resorte en dobladillo,Instalación de banda elástica en el borde inferior,30,120.0
+Pans,Colocar resorte al centro,Instalación de banda elástica en la cintura,30,90.0
+Pans,Línea en costados,Aplicación de franja decorativa o refuerzo lateral,45,130.0
+Pans,Cambiar bolsas,Reemplazo de los fondos de los bolsillos,60,170.0
+Short,Ajustes de cintura,Reducción o ampliación de la cintura del short,30,80.0
+Short,Ajuste de costados,Ajuste en los laterales para mejorar el entalle,30,80.0
+Short,Ajustes de cintura con dobladillo,Ajuste de cintura y largo del short,45,145.0
+Short,Ajustes de cintura con costados,Ajuste combinado de cintura y laterales,60,145.0
+Short,Ajustes de cintura con costados y dobladillo,Ajuste integral de cintura laterales y largo,75,190.0
+Short,Cambio de bolsas,Reemplazo de los fondos de los bolsillos,60,135.0
+Short,Poner botón,Instalación de botón,5,10.0
+Short,Aumentar pretina talla,Ampliación de la pretina para aumentar una talla,45,145.0
+Short,Colocar cuchillas para aumento,Inserción de piezas de tela para ganar amplitud,60,160.0
+Short,Dobladillo a máquina,Ajuste de largo cosido a máquina,15,80.0
+Pantalón,Ajuste de cinturas con piernas y dobladillo,Ajuste a medida de cinturas con piernas y dobladillo para pantalón,60,190.0
+Pantalón,Ajustar por cierre,Servicio de ajustar por cierre para pantalón,45,175.0
+Pantalón,Dobladillo valenciana española,Ajuste de largo con dobladillo valenciana española para pantalón,30,90.0
+Pantalón,Dobladillo con falso,Ajuste de largo con dobladillo con falso para pantalón,20,95
+Pantalón,Dobladillo montado,Ajuste de largo con dobladillo montado para pantalón,15,95
+Pantalón,Cambio de cierre de nylon,Reemplazo de cremallera de nylon para pantalón,60,85.0
+Pantalón,Cambio de cierre invisible,Reemplazo de cremallera invisible para pantalón,45,90.0
+Pantalón,Cambio de cierre de lado a centro,Reemplazo de cremallera de lado a centro para pantalón,45,180.0
+Pantalón,Cambio de cierre de bolsa,Reemplazo de cremallera de bolsa para pantalón,25,65
+Pantalón,Colocar cierre en bolsa,Instalación de cierre en bolsa para pantalón,25,70
+Pantalón,Quitar falso en pretina,Servicio de quitar falso en pretina para pantalón,25,120
+Pantalón,Quitar ajustador,Servicio de quitar ajustador para pantalón,15,75
+Pantalón,Hacer pinzas,Servicio de hacer pinzas para pantalón,15,75
+Pantalón,Pinzas con ajuste de piernas,Servicio de pinzas con ajuste de piernas para pantalón,45,200.0
+Pantalón,Pinzas con ajuste de costados y ajuste de cintura,Servicio de pinzas con ajuste de costados y ajuste de cintura para pantalón,60,280.0
+Pantalón,Quitar forro,Servicio de quitar forro para pantalón,20,130
+Pantalón,Colocar botón de metal,Instalación de botón de metal para pantalón,10,20.0
+Pantalón,Colocar botón de plástico,Instalación de botón de plástico para pantalón,10,10.0
+Pantalón,Colocar broches,Instalación de broches para pantalón,2,15
+Pantalón,Quitar resorte de dobladillo,Servicio de quitar resorte de dobladillo para pantalón,15,85
+Pantalón,Quitar resorte de cintura,Servicio de quitar resorte de cintura para pantalón,20,95
+Pantalón,Colocar resorte de cintura,Instalación de resorte de cintura para pantalón,20,95
+Pantalón,Cambiar resorte de cintura,Servicio de cambiar resorte de cintura para pantalón,20,95
+Pantalón,Cambiar resorte de dobladillo,Servicio de cambiar resorte de dobladillo para pantalón,20,85
+Camisa,Ajuste de costados con dobladillo,Ajuste a medida de costados con dobladillo para camisa,45,75.0
+Camisa,Ajuste de costados con manga y subir puño,Ajuste a medida de costados con manga y subir puño para camisa,70,110.0
+Camisa,"Ajuste de costados con manga, dobladillo y puño","Ajuste a medida de costados con manga, dobladillo y puño para camisa",60,145.0
+Camisa,Ajuste de costados con mangas,Ajuste a medida de costados con mangas para camisa,55,100.0
+Camisa,Ajuste de hombro y subir puño,Ajuste a medida de hombro y subir puño para camisa,60,175.0
+Camisa,Ajuste de hombros,Ajuste a medida de hombros para camisa,45,270.0
+Camisa,Ajuste de mangas,Ajuste a medida de mangas para camisa,30,145.0
+Camisa,Ajuste de manga con puño,Ajuste a medida de manga con puño para camisa,55,195.0
+Camisa,Ajuste de puños,Ajuste a medida de puños para camisa,30,100.0
+Camisa,"Subir hombros, puños y faldilla","Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para camisa",45,190.0
+Camisa,"Subir hombros, puños, faldilla y ajuste de costados","Modificación de altura/largo (subir hombros, puños, faldilla y ajuste de costados ) para mejorar el entalle para camisa",60,280
+Camisa,Subir puños,Modificación de altura/largo (subir puños) para mejorar el entalle para camisa,30,145.0
+Camisa,Dobladillo de faldilla,Ajuste de largo con dobladillo de faldilla para camisa,30,85.0
+Camisa,Dobladillo de ruedo a mano,Ajuste de largo con dobladillo de ruedo a mano para camisa,30,100.0
+Camisa,Dobladillo de mangas,Ajuste de largo con dobladillo de mangas para camisa,30,75.0
+Camisa,Parchar con cuchilla,Servicio de parchar con cuchilla para camisa,45,40.0
+Camisa,Poner coderas,Instalación de coderas para camisa,30,120.0
+Camisa,Recoser roto,Reparación y refuerzo de costura en roto para camisa,15,60.0
+Camisa,Parchar con costura,Servicio de parchar con costura para camisa,45,35.0
+Camisa,Colocar broche de presión,Instalación de broche de presión para camisa,10,15.0
+Camisa,Quitar broche de presión,Servicio de quitar broche de presión para camisa,2,25
+Camisa,Colocar broche de gancho,Instalación de broche de gancho para camisa,10,15.0
+Camisa,Quitar broche de gancho,Servicio de quitar broche de gancho para camisa,2,15
+Camisa,Colocar botón,Instalación de botón para camisa,10,10.0
+Camisa,Quitar botón,Servicio de quitar botón para camisa,2,15
+Camisa,Colocar ojal en el cuello,Instalación de ojal en el cuello para camisa,30,30.0
+Camisa,Quitar parches o escudos,Colocación de parche reparador en camisa,5,15
+Camisa,Poner parches o escudos,Instalación de parches o escudos para camisa,20,15.0
+Camisa,Voltear cuello,Servicio de voltear cuello para camisa,30,50.0
+Camisa,Quitar cuello,Servicio de quitar cuello para camisa,10,50
+Camisa,Recortar cuello,Servicio de recortar cuello para camisa,30,60.0
+Camisa,Aumentar cuello,Servicio de aumentar cuello para camisa,40,120
+Camisa,Cuchillas con tela de cansú,Servicio de cuchillas con tela de cansú para camisa,45,175.0
+Camisa,Cuchillas con tela de la prenda,Servicio de cuchillas con tela de la prenda para camisa,45,110.0
+Camisa,Hacer cuchilas,Servicio de hacer cuchilas para camisa,30,180.0
+Camisa,Quitar cuchillas,Servicio de quitar cuchillas para camisa,25,50
+Camisa,Recoser bolsas,Reparación y refuerzo de costura en bolsas para camisa,15,50.0
+Camisa,Poner bolsas nuevas,Instalación de bolsas nuevas para camisa,30,170.0
+Camisa,Quitar bolsas,Servicio de quitar bolsas para camisa,20,60
+Camisa,Cortar ruedo,Servicio de cortar ruedo para camisa,10,85
+Camisa,Cortar mangas,Servicio de cortar mangas para camisa,15,80
+Camisa,Quitar gorra,Servicio de quitar gorra para camisa,30,120.0
+Camisa,Cambio de elástico de puños,Servicio de cambio de elástico de puños para camisa,40,85
+Camisa,Quitar elástico de puños,Servicio de quitar elástico de puños para camisa,30,100.0
+Camisa,Cambio de velcro,Servicio de cambio de velcro para camisa,10,45
+Camisa,Cambio de elástico de ruedo,Servicio de cambio de elástico de ruedo para camisa,30,130.0
+Camisa,Cambio de elástico de ruedo y puños,Servicio de cambio de elástico de ruedo y puños para camisa,45,190.0
+Playera,Ajuste de costados,Ajuste a medida de costados para playera/blusa,30,85.0
+Playera,Ajuste de mangas,Ajuste a medida de mangas para playera/blusa,30,75.0
+Blusa,Ajuste de hombros,Ajuste a medida de hombros para playera/blusa,45,110.0
+Playera,Ajuste de manga con puño,Ajuste a medida de manga con puño para playera/blusa,55,100.0
+Playera,"Ajuste de costados con manga, dobladillo y puño","Ajuste a medida de costados con manga, dobladillo y puño para playera/blusa",60,190.0
+Blusa,"Ajuste de costados con manga, dobladillo y puño","Ajuste a medida de costados con manga, dobladillo y puño para playera/blusa",60,190.0
+Blusa,Ajuste de costados con dobladillo,Ajuste a medida de costados con dobladillo para playera/blusa,45,145.0
+Playera,Ajuste de hombro y subir puño,Ajuste a medida de hombro y subir puño para playera/blusa,60,195.0
+Blusa,Ajuste de hombro y subir puño,Ajuste a medida de hombro y subir puño para playera/blusa,60,195.0
+Playera,Ajustar puños,Servicio de ajustar puños para playera/blusa,30,100.0
+Blusa,Ajustar puños,Servicio de ajustar puños para playera/blusa,30,100.0
+Playera,Subir hombros,Modificación de altura/largo (subir hombros) para mejorar el entalle para playera/blusa,45,100.0
+Playera,Subir hombros y puños,Modificación de altura/largo (subir hombros y puños) para mejorar el entalle para playera/blusa,60,170.0
+Playera,"Subir hombros, puños y faldilla","Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para playera/blusa",45,190.0
+Blusa,"Subir hombros, puños y faldilla","Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para playera/blusa",45,190.0
+Playera,Subir puños,Modificación de altura/largo (subir puños) para mejorar el entalle para playera/blusa,30,100.0
+Playera,Dobladillo de ruedo,Ajuste de largo con dobladillo de ruedo para playera/blusa,30,85.0
+Blusa,Dobladillo de ruedo,Ajuste de largo con dobladillo de ruedo para playera/blusa,30,85.0
+Playera,Dobladillo de ruedo a mano,Ajuste de largo con dobladillo de ruedo a mano para playera/blusa,30,100.0
+Playera,Dobladillo de mangas,Ajuste de largo con dobladillo de mangas para playera/blusa,30,75.0
+Blusa,Dobladillo de mangas,Ajuste de largo con dobladillo de mangas para playera/blusa,30,75.0
+Playera,Dobladillo a mano forrado,Ajuste de largo con dobladillo a mano forrado para playera/blusa,30,135.0
+Blusa,Dobladillo a mano forrado,Ajuste de largo con dobladillo a mano forrado para playera/blusa,30,135.0
+Playera,Dobladillo a máquina forrado,Ajuste de largo con dobladillo a máquina forrado para playera/blusa,30,135.0
+Blusa,Dobladillo a máquina forrado,Ajuste de largo con dobladillo a máquina forrado para playera/blusa,30,135.0
+Playera,Parchar con cuchilla,Servicio de parchar con cuchilla para playera/blusa,45,40.0
+Playera,Parchar con costura,Servicio de parchar con costura para playera/blusa,45,35.0
+Blusa,Parchar con costura,Servicio de parchar con costura para playera/blusa,45,35.0
+Playera,Colocar broche de presión,Instalación de broche de presión para playera/blusa,10,15.0
+Blusa,Colocar broche de presión,Instalación de broche de presión para playera/blusa,10,15.0
+Playera,Colocar broche de gancho,Instalación de broche de gancho para playera/blusa,10,15.0
+Playera,Colocar botón,Instalación de botón para playera/blusa,10,10.0
+Playera,Colocar resorte,Instalación de resorte para playera/blusa,30,100.0
+Blusa,Colocar resorte,Instalación de resorte para playera/blusa,30,100.0
+Playera,Cambiar resorte,Servicio de cambiar resorte para playera/blusa,30,100.0
+Blusa,Cambiar resorte,Servicio de cambiar resorte para playera/blusa,30,100.0
+Falda,Cambio de cierre de nylon,Reemplazo de cremallera de nylon para falda,60,85.0
+Falda,Cambio de cierre invisible,Reemplazo de cremallera invisible para falda,45,90.0
+Falda,Cuchillas en costados,Servicio de cuchillas en costados para falda,30,145.0
+Falda,Colocar broche de presión,Instalación de broche de presión para falda,10,15.0
+Falda,Colocar broche de gancho,Instalación de broche de gancho para falda,10,15.0
+Falda,Colocar botón,Instalación de botón para falda,10,10.0
+Falda,Poner resorte en cintura,Instalación de resorte en cintura para falda,30,90.0
+Suéter,Ajuste de hombros,Ajuste a medida de hombros para suéter,45,1.0
+Suéter,Ajuste de costados con mangas,Ajuste a medida de costados con mangas para suéter,55,145.0
+Suéter,Ajuste de manga con puño,Ajuste a medida de manga con puño para suéter,55,100.0
+Suéter,Ajuste de costados con manga y subir puño,Ajuste a medida de costados con manga y subir puño para suéter,70,175.0
+Suéter,"Ajuste de costados con manga, dobladillo y puño","Ajuste a medida de costados con manga, dobladillo y puño para suéter",60,270.0
+Suéter,Ajuste de costados con dobladillo,Ajuste a medida de costados con dobladillo para suéter,45,145.0
+Suéter,Ajuste de hombro y subir puño,Ajuste a medida de hombro y subir puño para suéter,60,195.0
+Suéter,"Subir hombros, puños y faldilla","Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para suéter",45,190.0
+Suéter,"Subir hombros, puños, faldilla y ajuste de costados","Modificación de altura/largo (subir hombros, puños, faldilla y ajuste de costados ) para mejorar el entalle para suéter",45,240
+Suéter,Subir puños,Modificación de altura/largo (subir puños) para mejorar el entalle para suéter,30,145.0
+Suéter,Dobladillo de faldilla,Ajuste de largo con dobladillo de faldilla para suéter,30,85.0
+Suéter,Dobladillo a máquina y subir puño,Ajuste de largo con dobladillo a máquina y subir puño para suéter,45,145.0
