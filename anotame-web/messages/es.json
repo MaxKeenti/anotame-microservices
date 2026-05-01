@@ -484,5 +484,10 @@
   "userSettings.tableHint": "Los cambios aplican al recargar la tabla.",
   "userSettings.localeLabelEs": "Español (México)",
   "catalog.pricelist.zodNameRequired": "El nombre es obligatorio",
-  "catalog.pricelist.zodValidFromRequired": "La fecha de inicio es obligatoria"
+  "catalog.pricelist.zodValidFromRequired": "La fecha de inicio es obligatoria",
+  "layout.validatingSession": "Validando sesión...",
+  "layout.menuButton": "Menú",
+  "layout.brandName": "Anotame",
+  "userSettings.localeChangedToEn": "Language changed to English",
+  "userSettings.localeChangedToEs": "Idioma cambiado a Español"
 }

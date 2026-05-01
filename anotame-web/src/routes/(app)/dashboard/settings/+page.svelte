@@ -47,7 +47,7 @@
       // Paraglide soft swap — update locale without full page reload
       setLocale(newLocale as 'es' | 'en', { reload: false });
       await invalidateAll();
-      toast.success(newLocale === 'en' ? 'Language changed to English' : 'Idioma cambiado a Español');
+      toast.success(newLocale === 'en' ? m["userSettings.localeChangedToEn"]() : m["userSettings.localeChangedToEs"]());
     } catch (e: any) {
       toast.error(e.message || 'Error al cambiar idioma');
     } finally {

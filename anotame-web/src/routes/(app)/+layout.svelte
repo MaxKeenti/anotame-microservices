@@ -7,6 +7,7 @@
   import { paletteStore } from '$lib/stores/palette.svelte';
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
@@ -75,7 +76,7 @@
   <div class="h-screen w-screen flex flex-col items-center justify-center bg-background text-muted-foreground gap-4">
     <!-- Inline simple spinner and text, relying on standard tailwind utility classes -->
     <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-    <p class="text-sm font-medium">Validando sesión...</p>
+    <p class="text-sm font-medium">{m["layout.validatingSession"]()}</p>
   </div>
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
@@ -92,11 +93,11 @@
 
       <!-- Top navbar placeholder (Touch-friendly rules: tall enough for thumbs) -->
       <header class="h-16 shrink-0 border-b flex items-center justify-between px-4 sticky top-0 bg-background z-10 w-full">
-        <h1 class="text-xl font-bold">Anotame</h1>
+        <h1 class="text-xl font-bold">{m["layout.brandName"]()}</h1>
 
         <!-- Menu Modal Button Placeholder. Touch targets must be generous. -->
         <button onclick={() => isMenuOpen = true} class="h-10 px-4 py-2 border rounded-md hover:bg-accent hover:text-accent-foreground touch-manipulation font-medium">
-           Menú
+           {m["layout.menuButton"]()}
         </button>
       </header>
 

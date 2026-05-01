@@ -484,5 +484,10 @@
   "userSettings.tableHint": "Changes apply when the table reloads.",
   "userSettings.localeLabelEs": "Spanish (Mexico)",
   "catalog.pricelist.zodNameRequired": "Name is required",
-  "catalog.pricelist.zodValidFromRequired": "Start date is required"
+  "catalog.pricelist.zodValidFromRequired": "Start date is required",
+  "layout.validatingSession": "Validating session...",
+  "layout.menuButton": "Menu",
+  "layout.brandName": "Anotame",
+  "userSettings.localeChangedToEn": "Language changed to English",
+  "userSettings.localeChangedToEs": "Idioma cambiado a Español"
 }
