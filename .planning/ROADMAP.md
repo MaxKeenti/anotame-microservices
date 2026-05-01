@@ -167,6 +167,12 @@ Full phase details: [.planning/milestones/v1.4-ROADMAP.md](.planning/milestones/
   5. In wizard mode, "Agregar"/"Editar" actions on garments and services pages route to the wizard; in pro mode they open the existing dialogs — switching modes in Settings flips both pages without reload
   6. Menu modal renders 4 categorized sections (Operaciones, Catálogo, Administración, Configuración) with section headers; admin-only categories/items hidden for non-admins; `wizardOnly` items (Asistente de Catálogo) hidden in pro mode; existing footer (user info + logout) preserved
   7. Wizard page is admin-guarded via `useAuthGuard` and renders correctly at 375px width (touch targets `h-12`, `touch-manipulation`)
+**Plans**: 5 plans
+- [ ] 27-PLAN-1.md — catalogPreferences store + Settings 'Experiencia de Catálogo' toggle card
+- [ ] 27-PLAN-2.md — CatalogWizardState singleton + 3 step components (garment/service/review)
+- [ ] 27-PLAN-3.md — /dashboard/catalog/wizard page route with stepper + admin guard + ?serviceId edit URL
+- [ ] 27-PLAN-4.md — Mode-aware routing on garments/services pages (Agregar/Editar → wizard in wizard mode)
+- [ ] 27-PLAN-5.md — Categorized menu modal (4 sections) + menu.ts restructure with wizardOnly + adminOnly filters
 
 ---
 
@@ -200,5 +206,5 @@ Full phase details: [.planning/milestones/v1.4-ROADMAP.md](.planning/milestones/
 | 24. Partial Payment Ledger | v1.5 | 0/? | Pending | — |
 | 25. Financial KPIs | v1.5 | 0/? | Pending | — |
 | 26. Workload Calendar + Dashboard Widget | v1.5 | 0/? | Pending | — |
-| 27. Catalog Wizard + Categorized Menu Modal | v1.5 | 0/? | Pending | — |
+| 27. Catalog Wizard + Categorized Menu Modal | v1.5 | 0/5 | Pending | — |
 

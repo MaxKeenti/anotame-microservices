@@ -119,5 +119,8 @@
   "statusLine": {
     "type": "command",
     "command": "node .claude/hooks/gsd-statusline.js"
+  },
+  "env": {
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
   }
 }
