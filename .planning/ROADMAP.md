@@ -77,6 +77,7 @@ Full phase details: [.planning/milestones/v1.4-ROADMAP.md](.planning/milestones/
 - [ ] Phase 24: Partial Payment Ledger (PAY-01 – PAY-07)
 - [ ] Phase 25: Financial KPIs (KPI-01 – KPI-06)
 - [ ] Phase 26: Workload Calendar + Dashboard Widget (CAL-01 – CAL-06)
+- [ ] Phase 27: Catalog Wizard + Categorized Menu Modal
 
 ### Backlog: Print Server Integration
 **Goal**: Enable staff to print both a customer ticket (comprobante) and an internal work order tag (hoja de trabajo) — from the order detail page and via bulk print from the orders list.
@@ -150,6 +151,23 @@ Full phase details: [.planning/milestones/v1.4-ROADMAP.md](.planning/milestones/
   5. On screens narrower than 640px, the month grid is replaced with an agenda/list view showing daily summaries
   6. Days with no schedule entry (holidays, weekends, unconfigured days) display as "closed" (gray/hatched) — not red or green; no division-by-zero in capacity percentage
 
+### Phase 27: Catalog Wizard + Categorized Menu Modal
+**Goal**: Introduce a guided 3-step wizard for creating Garment+Service catalog entries (with a persisted user preference to opt into "pro" table mode), support editing existing services through the wizard for UX consistency, and restructure the menu modal from a flat 12-item grid into 4 categorized sections — so non-technical users have a guided creation/editing path while power users keep direct table access
+**Depends on**: Nothing (frontend-only, independent of v1.5 phases 22–26)
+**Requirements**: TBD (no existing REQ ids — derived from `.gsd/implementation_plan.md` PRD)
+**Locked Decisions**:
+  - Default `catalogMode` is `'pro'` for users with existing catalog entries; `'wizard'` only for empty catalogs
+  - Wizard supports BOTH create and edit (pre-populated steps) for parity with pro mode
+  - Price lists remain out of scope — separate admin-only flow as today
+**Success Criteria** (what must be TRUE):
+  1. `catalogPreferences` persisted store exists (LocalStorage via runed `PersistedState`); Settings page exposes wizard/pro toggle following the same card pattern as theme/table-rows
+  2. `/dashboard/catalog/wizard` route renders a 3-step flow (Garment → Service → Review) using the same stepper pattern, mobile expand tray, and `onNext`/`onBack` interface as `orders/new/+page.svelte`
+  3. Wizard create flow completes end-to-end: creates new garment (or selects existing) and creates a service against it via the existing `/catalog/garments` and `/catalog/services` REST endpoints — no backend changes
+  4. Wizard edit flow: navigating to `/dashboard/catalog/wizard?serviceId={id}` pre-populates all 3 steps with the existing garment + service data; submitting issues PUT/PATCH against the existing endpoints
+  5. In wizard mode, "Agregar"/"Editar" actions on garments and services pages route to the wizard; in pro mode they open the existing dialogs — switching modes in Settings flips both pages without reload
+  6. Menu modal renders 4 categorized sections (Operaciones, Catálogo, Administración, Configuración) with section headers; admin-only categories/items hidden for non-admins; `wizardOnly` items (Asistente de Catálogo) hidden in pro mode; existing footer (user info + logout) preserved
+  7. Wizard page is admin-guarded via `useAuthGuard` and renders correctly at 375px width (touch targets `h-12`, `touch-manipulation`)
+
 ---
 
 ## Progress
@@ -182,4 +200,5 @@ Full phase details: [.planning/milestones/v1.4-ROADMAP.md](.planning/milestones/
 | 24. Partial Payment Ledger | v1.5 | 0/? | Pending | — |
 | 25. Financial KPIs | v1.5 | 0/? | Pending | — |
 | 26. Workload Calendar + Dashboard Widget | v1.5 | 0/? | Pending | — |
+| 27. Catalog Wizard + Categorized Menu Modal | v1.5 | 0/? | Pending | — |
 
