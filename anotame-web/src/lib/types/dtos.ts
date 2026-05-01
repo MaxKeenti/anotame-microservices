@@ -46,6 +46,7 @@ export interface CreateOrderRequest {
 
 export interface OrderItemResponse {
   id: string;
+  garmentTypeId: string;
   garmentName: string;
   services: Array<{
     serviceId: string;

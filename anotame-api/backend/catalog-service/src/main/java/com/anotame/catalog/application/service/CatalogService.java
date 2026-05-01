@@ -6,6 +6,7 @@ import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.dto.GarmentTypeRequest;
 import com.anotame.catalog.dto.ServiceRequest;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +40,7 @@ public class CatalogService {
         return garmentRepository.save(garment);
     }
 
+    @Transactional
     public GarmentType updateGarment(UUID id, GarmentTypeRequest request) {
         return garmentRepository.findById(id).map(garment -> {
             garment.setName(request.getName());
@@ -72,6 +74,7 @@ public class CatalogService {
         return serviceRepository.save(service);
     }
 
+    @Transactional
     public com.anotame.catalog.domain.model.Service updateService(UUID id, ServiceRequest request) {
         return serviceRepository.findById(id).map(service -> {
             service.setName(request.getName());

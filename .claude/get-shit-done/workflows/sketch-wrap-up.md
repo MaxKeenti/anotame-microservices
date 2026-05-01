@@ -232,7 +232,7 @@ If this routing line already exists (append mode), leave it as-is.
 Commit all artifacts (if `COMMIT_DOCS` is true):
 
 ```bash
-gsd-sdk query commit "docs(sketch-wrap-up): package [N] sketch findings into project skill" .planning/sketches/WRAP-UP-SUMMARY.md
+gsd-sdk query commit "docs(sketch-wrap-up): package [N] sketch findings into project skill" --files .planning/sketches/WRAP-UP-SUMMARY.md
 ```
 </step>
 
@@ -255,15 +255,16 @@ The sketch-findings skill will auto-load when building the UI.
 
 ## ▶ Next Up
 
-**Start building** — implement the validated design
+**Explore frontier sketches** — see what else is worth sketching based on what we've explored
 
-`/gsd-plan-phase`
+`/gsd-sketch` (run with no argument — its frontier mode analyzes the sketch landscape and proposes consistency and frontier sketches)
 
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
+- `/gsd-plan-phase` — start building the real UI
 - `/gsd-ui-phase` — generate a UI design contract for a frontend phase
-- `/gsd-sketch` — sketch additional design areas
+- `/gsd-sketch [idea]` — sketch a specific new design area
 - `/gsd-explore` — continue exploring
 
 ───────────────────────────────────────────────────────────────
@@ -279,5 +280,6 @@ The sketch-findings skill will auto-load when building the UI.
 - [ ] Reference files contain design decisions, CSS patterns, HTML structures, anti-patterns
 - [ ] `.planning/sketches/WRAP-UP-SUMMARY.md` written for project history
 - [ ] Project CLAUDE.md has auto-load routing line
-- [ ] Summary presented with next-step routing
+- [ ] Summary presented
+- [ ] Next-step options presented (including frontier sketch exploration via `/gsd-sketch`)
 </success_criteria>

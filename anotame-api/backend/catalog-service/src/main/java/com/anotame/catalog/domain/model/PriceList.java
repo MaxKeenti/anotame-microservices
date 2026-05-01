@@ -18,9 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @SQLDelete(sql = "UPDATE tcc_price_list SET is_deleted = true, deleted_at = NOW() WHERE id_price_list = ?")
-// We don't restrict inactive lists by default because we might want to edit
-// them, but we WILL filter by active when querying for calculation.
-@SQLRestriction("deleted_at IS NULL") // using standard check since is_deleted logic varies
+@SQLRestriction("is_deleted = false")
 public class PriceList {
 
     @Id
@@ -109,6 +107,9 @@ public class PriceList {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;

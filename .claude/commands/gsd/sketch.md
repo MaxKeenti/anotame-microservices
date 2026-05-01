@@ -1,7 +1,7 @@
 ---
 name: gsd:sketch
-description: Rapidly sketch UI/design ideas using throwaway HTML mockups with multi-variant exploration
-argument-hint: "<design idea to explore> [--quick]"
+description: Sketch UI/design ideas with throwaway HTML mockups, or propose what to sketch next (frontier mode)
+argument-hint: "[design idea to explore] [--quick] [--text] [--wrap-up] or [frontier]"
 allowed-tools:
   - Read
   - Write
@@ -10,11 +10,20 @@ allowed-tools:
   - Grep
   - Glob
   - AskUserQuestion
+  - WebSearch
+  - WebFetch
+  - mcp__context7__resolve-library-id
+  - mcp__context7__query-docs
 ---
 <objective>
 Explore design directions through throwaway HTML mockups before committing to implementation.
 Each sketch produces 2-3 variants for comparison. Sketches live in `.planning/sketches/` and
-integrate with GSD commit patterns, state tracking, and handoff workflows.
+integrate with GSD commit patterns, state tracking, and handoff workflows. Loads spike
+findings to ground mockups in real data shapes and validated interaction patterns.
+
+Two modes:
+- **Idea mode** (default) — describe a design idea to sketch
+- **Frontier mode** (no argument or "frontier") — analyzes existing sketch landscape and proposes consistency and frontier sketches
 
 Does not require `/gsd-new-project` — auto-creates `.planning/sketches/` if needed.
 </objective>
@@ -37,9 +46,10 @@ Design idea: $ARGUMENTS
 
 **Available flags:**
 - `--quick` — Skip mood/direction intake, jump straight to decomposition and building. Use when the design direction is already clear.
+- `--wrap-up` — Package sketch design findings into a persistent project skill for future build conversations. Runs the sketch-wrap-up workflow.
 </context>
 
 <process>
 Execute the sketch workflow from @/Users/moonstone/Source/Personal/anotame-microservices/.claude/get-shit-done/workflows/sketch.md end-to-end.
-Preserve all workflow gates (intake, decomposition, variant evaluation, MANIFEST updates, commit patterns).
+Preserve all workflow gates (intake, decomposition, target stack research, variant evaluation, MANIFEST updates, commit patterns).
 </process>

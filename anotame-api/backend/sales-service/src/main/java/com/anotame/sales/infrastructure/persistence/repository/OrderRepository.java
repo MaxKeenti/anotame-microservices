@@ -59,20 +59,29 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
     }
 
     // Chart
-    public List<Object[]> getWeeklyRevenueData(OffsetDateTime start) {
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getWeeklyRevenueData(OffsetDateTime start, String zoneId) {
         return getEntityManager()
-                .createQuery(
-                        "SELECT CAST(o.createdAt AS date), SUM(o.amountPaid) FROM OrderEntity o WHERE o.createdAt >= :start GROUP BY CAST(o.createdAt AS date) ORDER BY CAST(o.createdAt AS date)",
-                        Object[].class)
+                .createNativeQuery(
+                        "SELECT (created_at AT TIME ZONE :zone)::date AS day, SUM(amount_paid) " +
+                                "FROM tco_order " +
+                                "WHERE created_at >= :start AND is_deleted = false " +
+                                "GROUP BY day ORDER BY day")
+                .setParameter("zone", zoneId)
                 .setParameter("start", start)
                 .getResultList();
     }
 
-    public List<Object[]> getDailyWorkload(OffsetDateTime start, OffsetDateTime end) {
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getDailyWorkload(OffsetDateTime start, OffsetDateTime end, String zoneId) {
         return getEntityManager()
-                .createQuery(
-                        "SELECT CAST(o.committedDeadline AS date), SUM(o.totalDurationMin) FROM OrderEntity o WHERE o.committedDeadline >= :start AND o.committedDeadline < :end AND o.status not in ('DELIVERED', 'CANCELLED') GROUP BY CAST(o.committedDeadline AS date) ORDER BY CAST(o.committedDeadline AS date)",
-                        Object[].class)
+                .createNativeQuery(
+                        "SELECT (committed_deadline AT TIME ZONE :zone)::date AS day, SUM(total_duration_min) " +
+                                "FROM tco_order " +
+                                "WHERE committed_deadline >= :start AND committed_deadline < :end " +
+                                "AND status NOT IN ('DELIVERED', 'CANCELLED') AND is_deleted = false " +
+                                "GROUP BY day ORDER BY day")
+                .setParameter("zone", zoneId)
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();

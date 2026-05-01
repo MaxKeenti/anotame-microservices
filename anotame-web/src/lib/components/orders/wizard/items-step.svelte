@@ -136,15 +136,27 @@
            {/if}
        </div>
 
-       <div class="border-t border-border pt-6 mt-auto">
-           <div class="flex justify-between items-center mb-6 px-2">
+       <div class="border-t border-border pt-3 sm:pt-6 mt-auto">
+           <!-- Desktop: total row then full-width buttons -->
+           <div class="hidden sm:flex justify-between items-center mb-6 px-2">
                <span class="text-xl font-medium">Total Estimado:</span>
                <span class="text-4xl font-bold font-mono text-primary">${total.toFixed(2)}</span>
            </div>
-           <div class="flex flex-col-reverse sm:flex-row gap-4">
-               <Button variant="outline" class="w-full sm:w-auto sm:flex-1 h-16 text-lg rounded-xl touch-manipulation" onclick={onBack}>Atrás</Button>
-               <Button class="w-full sm:w-auto sm:flex-1 h-16 text-lg rounded-xl shadow-lg touch-manipulation" onclick={onNext} disabled={items.length === 0}>
+           <div class="hidden sm:flex gap-4">
+               <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl touch-manipulation" onclick={onBack}>Atrás</Button>
+               <Button class="flex-1 h-16 text-lg rounded-xl shadow-lg touch-manipulation" onclick={onNext} disabled={items.length === 0}>
                    Continuar al Pago
+               </Button>
+           </div>
+           <!-- Mobile: single compact row — back | total | continue -->
+           <div class="flex sm:hidden items-center gap-2">
+               <Button variant="outline" class="h-10 px-3 text-sm rounded-xl touch-manipulation flex-shrink-0" onclick={onBack}>Atrás</Button>
+               <div class="flex-1 flex flex-col items-center leading-tight">
+                   <span class="text-xs text-muted-foreground">Total</span>
+                   <span class="text-lg font-bold font-mono text-primary">${total.toFixed(2)}</span>
+               </div>
+               <Button class="h-10 px-3 text-sm rounded-xl shadow-lg touch-manipulation flex-shrink-0" onclick={onNext} disabled={items.length === 0}>
+                   Continuar
                </Button>
            </div>
        </div>

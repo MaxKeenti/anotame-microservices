@@ -22,6 +22,17 @@ class AuthService {
             // In a more complex app, you might wait for an actual token validation
             this.loadingState = false;
         }
+
+        apiService.onUnauthorized = () => {
+            this.clearLocalSession();
+        };
+    }
+
+    clearLocalSession(): void {
+        this.userState.current = null;
+        if (typeof window !== "undefined" && !window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+        }
     }
 
     get loading(): boolean {

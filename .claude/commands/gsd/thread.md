@@ -38,7 +38,7 @@ ls .planning/threads/*.md 2>/dev/null
 For each thread file found:
 - Read frontmatter `status` field via:
   ```bash
-  gsd-sdk query frontmatter.get .planning/threads/{file} status 2>/dev/null
+  gsd-sdk query frontmatter.get .planning/threads/{file} status
   ```
 - If frontmatter `status` field is missing, fall back to reading markdown heading `## Status: OPEN` (or IN PROGRESS / RESOLVED) from the file body
 - Read frontmatter `updated` field for the last-updated date
@@ -83,7 +83,7 @@ When SUBCMD=close and SLUG is set (already sanitized):
 
 3. Commit:
    ```bash
-   gsd-sdk query commit "docs: resolve thread — {SLUG}" ".planning/threads/{SLUG}.md"
+   gsd-sdk query commit "docs: resolve thread — {SLUG}" --files ".planning/threads/{SLUG}.md"
    ```
 
 4. Print:
@@ -191,7 +191,7 @@ updated: {today ISO date}
 
 5. Commit:
    ```bash
-   gsd-sdk query commit "docs: create thread — ${ARGUMENTS}" ".planning/threads/${SLUG}.md"
+   gsd-sdk query commit "docs: create thread — ${ARGUMENTS}" --files ".planning/threads/${SLUG}.md"
    ```
 
 6. Report:

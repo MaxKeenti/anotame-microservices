@@ -1,0 +1,161 @@
+-- V4__complement_catalog_services.sql
+-- Complements V2 catalog with additional services from the consolidated
+-- price sheet (scripts/data-migration/consolidated_services_filled.csv).
+--
+-- Source rows total:        370
+-- After normalization:      380 priced + 0 unpriced
+-- Already in V2:            249
+-- Net-new in this migration: 131
+--
+-- Idempotent: ON CONFLICT (name, id_garment_type) DO NOTHING relies on the
+-- composite unique constraint added by V2. Re-running this migration is safe.
+--
+-- Unpriced rows (~0) are intentionally excluded — see
+-- scripts/data-migration/services_missing_price.csv. Add them in a follow-up
+-- migration once prices are confirmed by the business.
+
+BEGIN;
+
+INSERT INTO cci_service (name, description, default_duration_min, base_price, id_garment_type, is_active) VALUES
+    -- Blusa
+    ('Ajuste de hombros', 'Ajuste a medida de hombros para playera/blusa', 45, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Ajuste de costados con manga, dobladillo y puño', 'Ajuste a medida de costados con manga, dobladillo y puño para playera/blusa', 60, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Ajuste de costados con dobladillo', 'Ajuste a medida de costados con dobladillo para playera/blusa', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Ajuste de hombro y subir puño', 'Ajuste a medida de hombro y subir puño para playera/blusa', 60, 195.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Ajustar puños', 'Servicio de ajustar puños para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Subir hombros, puños y faldilla', 'Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para playera/blusa', 45, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Dobladillo de ruedo', 'Ajuste de largo con dobladillo de ruedo para playera/blusa', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Dobladillo de mangas', 'Ajuste de largo con dobladillo de mangas para playera/blusa', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Dobladillo a mano forrado', 'Ajuste de largo con dobladillo a mano forrado para playera/blusa', 30, 135.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Dobladillo a máquina forrado', 'Ajuste de largo con dobladillo a máquina forrado para playera/blusa', 30, 135.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Parchar con costura', 'Servicio de parchar con costura para playera/blusa', 45, 35.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Colocar broche de presión', 'Instalación de broche de presión para playera/blusa', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Colocar resorte', 'Instalación de resorte para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    ('Cambiar resorte', 'Servicio de cambiar resorte para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Blusa'), true),
+    -- Camisa
+    ('Ajuste de costados con dobladillo', 'Ajuste a medida de costados con dobladillo para camisa', 45, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de costados con manga y subir puño', 'Ajuste a medida de costados con manga y subir puño para camisa', 70, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de costados con manga, dobladillo y puño', 'Ajuste a medida de costados con manga, dobladillo y puño para camisa', 60, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de costados con mangas', 'Ajuste a medida de costados con mangas para camisa', 55, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de hombro y subir puño', 'Ajuste a medida de hombro y subir puño para camisa', 60, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de hombros', 'Ajuste a medida de hombros para camisa', 45, 270.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de mangas', 'Ajuste a medida de mangas para camisa', 30, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de manga con puño', 'Ajuste a medida de manga con puño para camisa', 55, 195.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Ajuste de puños', 'Ajuste a medida de puños para camisa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Subir hombros, puños y faldilla', 'Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para camisa', 45, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Subir hombros, puños, faldilla y ajuste de costados', 'Modificación de altura/largo (subir hombros, puños, faldilla y ajuste de costados ) para mejorar el entalle para camisa', 60, 280.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Subir puños', 'Modificación de altura/largo (subir puños) para mejorar el entalle para camisa', 30, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Dobladillo de faldilla', 'Ajuste de largo con dobladillo de faldilla para camisa', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Dobladillo de ruedo a mano', 'Ajuste de largo con dobladillo de ruedo a mano para camisa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Dobladillo de mangas', 'Ajuste de largo con dobladillo de mangas para camisa', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Parchar con cuchilla', 'Servicio de parchar con cuchilla para camisa', 45, 40.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Poner coderas', 'Instalación de coderas para camisa', 30, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Recoser roto', 'Reparación y refuerzo de costura en roto para camisa', 15, 60.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Parchar con costura', 'Servicio de parchar con costura para camisa', 45, 35.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Colocar broche de presión', 'Instalación de broche de presión para camisa', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar broche de presión', 'Servicio de quitar broche de presión para camisa', 2, 25.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Colocar broche de gancho', 'Instalación de broche de gancho para camisa', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar broche de gancho', 'Servicio de quitar broche de gancho para camisa', 2, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Colocar botón', 'Instalación de botón para camisa', 10, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar botón', 'Servicio de quitar botón para camisa', 2, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Colocar ojal en el cuello', 'Instalación de ojal en el cuello para camisa', 30, 30.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar parches o escudos', 'Colocación de parche reparador en camisa', 5, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Poner parches o escudos', 'Instalación de parches o escudos para camisa', 20, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Voltear cuello', 'Servicio de voltear cuello para camisa', 30, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar cuello', 'Servicio de quitar cuello para camisa', 10, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Recortar cuello', 'Servicio de recortar cuello para camisa', 30, 60.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Aumentar cuello', 'Servicio de aumentar cuello para camisa', 40, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cuchillas con tela de cansú', 'Servicio de cuchillas con tela de cansú para camisa', 45, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cuchillas con tela de la prenda', 'Servicio de cuchillas con tela de la prenda para camisa', 45, 110.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Hacer cuchilas', 'Servicio de hacer cuchilas para camisa', 30, 180.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar cuchillas', 'Servicio de quitar cuchillas para camisa', 25, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Recoser bolsas', 'Reparación y refuerzo de costura en bolsas para camisa', 15, 50.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Poner bolsas nuevas', 'Instalación de bolsas nuevas para camisa', 30, 170.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar bolsas', 'Servicio de quitar bolsas para camisa', 20, 60.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cortar ruedo', 'Servicio de cortar ruedo para camisa', 10, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cortar mangas', 'Servicio de cortar mangas para camisa', 15, 80.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar gorra', 'Servicio de quitar gorra para camisa', 30, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cambio de elástico de puños', 'Servicio de cambio de elástico de puños para camisa', 40, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Quitar elástico de puños', 'Servicio de quitar elástico de puños para camisa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cambio de velcro', 'Servicio de cambio de velcro para camisa', 10, 45.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cambio de elástico de ruedo', 'Servicio de cambio de elástico de ruedo para camisa', 30, 130.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    ('Cambio de elástico de ruedo y puños', 'Servicio de cambio de elástico de ruedo y puños para camisa', 45, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Camisa'), true),
+    -- Falda
+    ('Cambio de cierre de nylon', 'Reemplazo de cremallera de nylon para falda', 60, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    ('Cambio de cierre invisible', 'Reemplazo de cremallera invisible para falda', 45, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    ('Cuchillas en costados', 'Servicio de cuchillas en costados para falda', 30, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    ('Colocar broche de presión', 'Instalación de broche de presión para falda', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    ('Colocar broche de gancho', 'Instalación de broche de gancho para falda', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    ('Colocar botón', 'Instalación de botón para falda', 10, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    ('Poner resorte en cintura', 'Instalación de resorte en cintura para falda', 30, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Falda'), true),
+    -- Pantalón
+    ('Colocar botón plástico', 'Instalación de botón de plástico', 5, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Ajuste de cinturas con piernas y dobladillo', 'Ajuste a medida de cinturas con piernas y dobladillo para pantalón', 60, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Ajustar por cierre', 'Servicio de ajustar por cierre para pantalón', 45, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Dobladillo valenciana española', 'Ajuste de largo con dobladillo valenciana española para pantalón', 30, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Dobladillo con falso', 'Ajuste de largo con dobladillo con falso para pantalón', 20, 95.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Dobladillo montado', 'Ajuste de largo con dobladillo montado para pantalón', 15, 95.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Cambio de cierre de nylon', 'Reemplazo de cremallera de nylon para pantalón', 60, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Cambio de cierre invisible', 'Reemplazo de cremallera invisible para pantalón', 45, 90.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Cambio de cierre de lado a centro', 'Reemplazo de cremallera de lado a centro para pantalón', 45, 180.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Cambio de cierre de bolsa', 'Reemplazo de cremallera de bolsa para pantalón', 25, 65.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar cierre en bolsa', 'Instalación de cierre en bolsa para pantalón', 25, 70.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Quitar falso en pretina', 'Servicio de quitar falso en pretina para pantalón', 25, 120.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Quitar ajustador', 'Servicio de quitar ajustador para pantalón', 15, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Hacer pinzas', 'Servicio de hacer pinzas para pantalón', 15, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Pinzas con ajuste de piernas', 'Servicio de pinzas con ajuste de piernas para pantalón', 45, 200.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Pinzas con ajuste de costados y ajuste de cintura', 'Servicio de pinzas con ajuste de costados y ajuste de cintura para pantalón', 60, 280.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Quitar forro', 'Servicio de quitar forro para pantalón', 20, 130.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar botón de metal', 'Instalación de botón de metal para pantalón', 10, 20.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar botón de plástico', 'Instalación de botón de plástico para pantalón', 10, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar broches', 'Instalación de broches para pantalón', 2, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Quitar resorte de dobladillo', 'Servicio de quitar resorte de dobladillo para pantalón', 15, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Quitar resorte de cintura', 'Servicio de quitar resorte de cintura para pantalón', 20, 95.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Colocar resorte de cintura', 'Instalación de resorte de cintura para pantalón', 20, 95.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Cambiar resorte de cintura', 'Servicio de cambiar resorte de cintura para pantalón', 20, 95.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    ('Cambiar resorte de dobladillo', 'Servicio de cambiar resorte de dobladillo para pantalón', 20, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Pantalón'), true),
+    -- Playera
+    ('Ajuste de costados', 'Ajuste a medida de costados para playera/blusa', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Ajuste de mangas', 'Ajuste a medida de mangas para playera/blusa', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Ajuste de manga con puño', 'Ajuste a medida de manga con puño para playera/blusa', 55, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Ajuste de costados con manga, dobladillo y puño', 'Ajuste a medida de costados con manga, dobladillo y puño para playera/blusa', 60, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Ajuste de hombro y subir puño', 'Ajuste a medida de hombro y subir puño para playera/blusa', 60, 195.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Ajustar puños', 'Servicio de ajustar puños para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Subir hombros', 'Modificación de altura/largo (subir hombros) para mejorar el entalle para playera/blusa', 45, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Subir hombros y puños', 'Modificación de altura/largo (subir hombros y puños) para mejorar el entalle para playera/blusa', 60, 170.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Subir hombros, puños y faldilla', 'Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para playera/blusa', 45, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Subir puños', 'Modificación de altura/largo (subir puños) para mejorar el entalle para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo de ruedo', 'Ajuste de largo con dobladillo de ruedo para playera/blusa', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo de ruedo a mano', 'Ajuste de largo con dobladillo de ruedo a mano para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo de mangas', 'Ajuste de largo con dobladillo de mangas para playera/blusa', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo a mano forrado', 'Ajuste de largo con dobladillo a mano forrado para playera/blusa', 30, 135.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Dobladillo a máquina forrado', 'Ajuste de largo con dobladillo a máquina forrado para playera/blusa', 30, 135.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Parchar con cuchilla', 'Servicio de parchar con cuchilla para playera/blusa', 45, 40.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Parchar con costura', 'Servicio de parchar con costura para playera/blusa', 45, 35.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Colocar broche de presión', 'Instalación de broche de presión para playera/blusa', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Colocar broche de gancho', 'Instalación de broche de gancho para playera/blusa', 10, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Colocar botón', 'Instalación de botón para playera/blusa', 10, 10.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Colocar resorte', 'Instalación de resorte para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    ('Cambiar resorte', 'Servicio de cambiar resorte para playera/blusa', 30, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Playera'), true),
+    -- Saco
+    ('Poner botones x pieza', 'Instalación de un botón', 5, 15.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
+    ('Cambio de botones', 'Reemplazo de todos los botones del saco', 30, 130.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Saco'), true),
+    -- Suéter
+    ('Ajuste de hombros', 'Ajuste a medida de hombros para suéter', 45, 1.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Ajuste de costados con mangas', 'Ajuste a medida de costados con mangas para suéter', 55, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Ajuste de manga con puño', 'Ajuste a medida de manga con puño para suéter', 55, 100.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Ajuste de costados con manga y subir puño', 'Ajuste a medida de costados con manga y subir puño para suéter', 70, 175.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Ajuste de costados con manga, dobladillo y puño', 'Ajuste a medida de costados con manga, dobladillo y puño para suéter', 60, 270.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Ajuste de costados con dobladillo', 'Ajuste a medida de costados con dobladillo para suéter', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Ajuste de hombro y subir puño', 'Ajuste a medida de hombro y subir puño para suéter', 60, 195.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Subir hombros, puños y faldilla', 'Modificación de altura/largo (subir hombros, puños y faldilla) para mejorar el entalle para suéter', 45, 190.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Subir hombros, puños, faldilla y ajuste de costados', 'Modificación de altura/largo (subir hombros, puños, faldilla y ajuste de costados ) para mejorar el entalle para suéter', 45, 240.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Subir puños', 'Modificación de altura/largo (subir puños) para mejorar el entalle para suéter', 30, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Dobladillo de faldilla', 'Ajuste de largo con dobladillo de faldilla para suéter', 30, 85.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    ('Dobladillo a máquina y subir puño', 'Ajuste de largo con dobladillo a máquina y subir puño para suéter', 45, 145.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Suéter'), true),
+    -- Vestido
+    ('Poner botones', 'Instalación de múltiples botones', 30, 75.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true),
+    ('Reforzar botones', 'Costura de refuerzo en botones existentes', 20, 70.00, (SELECT id_garment_type FROM cci_garment_type WHERE name = 'Vestido'), true)
+ON CONFLICT (name, id_garment_type) DO NOTHING;
+
+COMMIT;

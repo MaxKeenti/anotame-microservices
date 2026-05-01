@@ -3,7 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
-	import { apiService, API_SALES, API_OPERATIONS, ApiValidationError } from '$lib/services/api.svelte';
+	import {
+		apiService,
+		API_SALES,
+		API_OPERATIONS,
+		ApiValidationError
+	} from '$lib/services/api.svelte';
 	import { ApiError } from '$lib/services/ApiError';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -75,32 +80,33 @@
 				const mm = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
+				const orderItems = (draft?.items || []).map((item: any) => ({
+					garmentTypeId: item.garmentTypeId || item.garmentId || null,
+					garmentName: item.garmentName || '',
+					quantity: item.quantity ?? 1,
+					notes: item.notes || '',
+					services:
+						item.services?.map((s: any) => ({
+							serviceId: s.serviceId,
+							serviceName: s.serviceName,
+							unitPrice: s.unitPrice,
+							adjustmentAmount: s.adjustmentAmount,
+							adjustmentReason: s.adjustmentReason,
+							durationMin: s.durationMin
+						})) || []
+				}));
+
 				const payload: any = {
 					committedDeadline: deadlineStr,
 					notes: f.data.notes || '',
 					amountPaid: f.data.amountPaid,
-					paymentMethod: f.data.paymentMethod
+					paymentMethod: f.data.paymentMethod,
+					items: orderItems
 				};
 
-				// For creation (not edit), include customer, items, and price list
+				// For creation (not edit), also include customer and price list
 				if (!draft?.isEditing) {
-					const orderItems = (draft?.items || []).map((item: any) => ({
-						garmentTypeId: item.garmentTypeId || item.garmentId || '',
-						garmentName: item.garmentName || '',
-						quantity: item.quantity ?? 1,
-						notes: item.notes || '',
-						services:
-							item.services?.map((s: any) => ({
-								serviceId: s.serviceId,
-								serviceName: s.serviceName,
-								unitPrice: s.unitPrice,
-								adjustmentAmount: s.adjustmentAmount,
-								adjustmentReason: s.adjustmentReason,
-								durationMin: s.durationMin
-							})) || []
-					}));
 					payload.customer = draft?.customer;
-					payload.items = orderItems;
 					if (draft?.priceListId) {
 						payload.priceListId = draft.priceListId;
 						payload.priceListName = draft.priceListName ?? null;
@@ -119,9 +125,9 @@
 						method: 'POST',
 						body: JSON.stringify(payload)
 					});
-					toast.success('Orden confirmada exitosamente');
+					toast.success('Nota confirmada exitosamente');
 					const targetId = res?.id;
-					
+
 					// Navigate first, then cleanup to avoid UI "blink" to Step 1
 					if (targetId) {
 						await goto(`/dashboard/orders/${targetId}?action=print`);
@@ -149,11 +155,11 @@
 						toast.error('No es posible editar este pedido.');
 					} else {
 						error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
-						toast.error('Error al procesar la orden', { description: e.message });
+						toast.error('Error al procesar la nota', { description: e.message });
 					}
 				} else {
 					error = `Error: ${e.message}`;
-					toast.error('Error al procesar la orden', { description: e.message });
+					toast.error('Error al procesar la nota', { description: e.message });
 				}
 			} finally {
 				isSubmitting = false;
@@ -167,11 +173,18 @@
 
 	onMount(() => {
 		// Initialize form from existing draft when component mounts (for edit mode where draft already has values)
-		if (draft?.paymentMethod || draft?.amountPaid !== undefined || draft?.committedDeadline || draft?.notes) {
+		if (
+			draft?.paymentMethod ||
+			draft?.amountPaid !== undefined ||
+			draft?.committedDeadline ||
+			draft?.notes
+		) {
 			$form.paymentMethod = draft?.paymentMethod || 'CASH';
 			$form.amountPaid = draft?.amountPaid ?? 0;
 			// For edit mode, always set committedDeadline from draft (required field)
-			$form.committedDeadline = draft?.committedDeadline ? draft.committedDeadline.slice(0, 16) : new Date().toISOString().slice(0, 16);
+			$form.committedDeadline = draft?.committedDeadline
+				? draft.committedDeadline.slice(0, 16)
+				: defaultDeadline();
 			$form.notes = draft?.notes || '';
 		}
 	});
@@ -232,6 +245,12 @@
 		Math.min(100, Math.round((projectedOccupancy / capacity) * 100))
 	);
 	let isCluttered = $derived(projectedOccupancy > capacity);
+
+	function defaultDeadline(): string {
+		const now = new Date();
+		const pad = (n: number) => String(n).padStart(2, '0');
+		return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T18:00`;
+	}
 
 	let minDeadline = $derived.by(() => {
 		const now = new Date();
@@ -305,8 +324,19 @@
 						{#snippet children({ props })}
 							<Form.Label>Monto Recibido</Form.Label>
 							<div class="relative">
-								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl">$</span>
-								<Input {...props} {...constraints} type="number" min="0" step="0.01" class="pl-8 text-2xl font-bold h-14 rounded-xl" bind:value={$form.amountPaid} placeholder="0.00" />
+								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
+									>$</span
+								>
+								<Input
+									{...props}
+									{...constraints}
+									type="number"
+									min="0"
+									step="0.01"
+									class="pl-8 text-2xl font-bold h-14 rounded-xl"
+									bind:value={$form.amountPaid}
+									placeholder="0.00"
+								/>
 							</div>
 						{/snippet}
 					</Form.Control>
@@ -374,13 +404,56 @@
 				{#snippet children({ constraints })}
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Notas Generales de Orden</Form.Label>
-							<Input {...props} {...constraints} id="order-notes" placeholder="Detalles sobre entrega, atención, etc." class="h-12 rounded-xl text-lg" bind:value={$form.notes} />
+							<Form.Label>Notas Generales de Nota</Form.Label>
+							<Input
+								{...props}
+								{...constraints}
+								id="order-notes"
+								placeholder="Detalles sobre entrega, atención, etc."
+								class="h-12 rounded-xl text-lg"
+								bind:value={$form.notes}
+							/>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
 				{/snippet}
 			</Form.Field>
+
+			{#if draft?.committedDeadline}
+				<div
+					class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
+				>
+					<div class="flex justify-between items-center text-sm">
+						<span class="font-medium">Ocupación para este día:</span>
+						<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
+							{projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
+						</span>
+					</div>
+					<div class="h-2 w-full bg-secondary rounded-full overflow-hidden">
+						<div
+							class="h-full {isCluttered
+								? 'bg-destructive'
+								: 'bg-primary'} transition-all duration-500"
+							style="width: {occupancyPercentage}%"
+						></div>
+					</div>
+
+					{#if isCluttered}
+						<div
+							class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95"
+						>
+							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+							<div>
+								<h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
+								<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
+									Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la
+									entrega a tiempo.
+								</p>
+							</div>
+						</div>
+					{/if}
+				</div>
+			{/if}
 		</div>
 	</div>
 
@@ -392,64 +465,27 @@
 		</div>
 	{/if}
 
-	{#if draft?.committedDeadline}
-		<div
-			class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
-		>
-			<div class="flex justify-between items-center text-sm">
-				<span class="font-medium">Ocupación para este día:</span>
-				<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
-					{projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
-				</span>
-			</div>
-			<div class="h-2 w-full bg-secondary rounded-full overflow-hidden">
-				<div
-					class="h-full {isCluttered ? 'bg-destructive' : 'bg-primary'} transition-all duration-500"
-					style="width: {occupancyPercentage}%"
-				></div>
-			</div>
-
-			{#if isCluttered}
-				<div
-					class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95"
-				>
-					<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-					<div>
-						<h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
-						<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
-							Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la entrega a
-							tiempo.
-						</p>
-					</div>
-				</div>
-			{/if}
-		</div>
-	{/if}
-
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
 		<Button
 			type="button"
 			variant="outline"
-			size="lg"
 			onclick={props.onBack}
-			class="flex-1 rounded-xl h-14 text-lg touch-manipulation"
+			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg touch-manipulation"
 			disabled={isSubmitting}
 		>
 			Atrás
 		</Button>
 		<Button
 			type="submit"
-			size="lg"
 			disabled={isSubmitting}
-			class="flex-1 rounded-xl h-14 text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
+			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
 		>
 			{#if isSubmitting}
 				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
 				Procesando...
 			{:else}
-				{draft?.isEditing ? 'Actualizar Orden' : 'Confirmar Orden'}
+				{draft?.isEditing ? 'Actualizar Nota' : 'Confirmar Nota'}
 			{/if}
 		</Button>
 	</div>
 </form>
-

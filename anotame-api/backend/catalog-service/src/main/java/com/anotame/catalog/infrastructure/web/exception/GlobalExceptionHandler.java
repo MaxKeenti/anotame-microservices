@@ -26,6 +26,11 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                     .entity(new ErrorResponse("Validation failed", details))
                     .build();
         }
+        if (hasCause(exception, org.hibernate.exception.ConstraintViolationException.class)) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse("A record with the same name already exists"))
+                    .build();
+        }
         if (exception instanceof WebApplicationException wae) {
             log.warn("Web application exception: {}", wae.getMessage());
             return Response.status(wae.getResponse().getStatus())
@@ -36,5 +41,16 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorResponse("Internal server error"))
                 .build();
+    }
+
+    private boolean hasCause(Throwable ex, Class<?> type) {
+        Throwable cause = ex;
+        while (cause != null) {
+            if (type.isInstance(cause)) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 }

@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -45,6 +46,9 @@ public class SalesService {
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
     private final OrderAuditLogRepositoryPort auditLogRepositoryPort;
+
+    @ConfigProperty(name = "app.timezone", defaultValue = "America/Mexico_City")
+    String appTimezone;
 
     @Transactional
     public com.anotame.sales.application.dto.OrderResponse createOrderDTO(CreateOrderRequest request, UUID userId,
@@ -166,6 +170,7 @@ public class SalesService {
 
                     return com.anotame.sales.application.dto.OrderItemResponse.builder()
                             .id(item.getId())
+                            .garmentTypeId(item.getGarmentTypeId())
                             .garmentName(item.getGarmentName())
                             .services(serviceDtos)
                             .quantity(item.getQuantity())
@@ -432,12 +437,14 @@ public class SalesService {
 
     @Transactional
     public DashboardMetricsResponse getDashboardMetrics() {
-        LocalDate today = LocalDate.now();
-        OffsetDateTime startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
-        OffsetDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
-        OffsetDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
+        ZoneId zone = ZoneId.of(appTimezone);
+        String zoneId = zone.getId();
+        LocalDate today = LocalDate.now(zone);
+        OffsetDateTime startOfDay = today.atStartOfDay(zone).toOffsetDateTime();
+        OffsetDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(zone).toOffsetDateTime();
+        OffsetDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(zone).toOffsetDateTime();
         OffsetDateTime startOfNextMonth = startOfMonth.plusMonths(1);
-        OffsetDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
+        OffsetDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay(zone).toOffsetDateTime();
 
         // Workload Metrics
         long todayDeliveries = orderRepository.countActiveByDeadlineRange(startOfDay, startOfTomorrow);
@@ -454,7 +461,7 @@ public class SalesService {
         BigDecimal pendingDebt = orderRepository.sumPendingDebt();
 
         // Chart Data
-        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo);
+        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo, zoneId);
         List<DashboardMetricsResponse.WeeklyChartPoint> chartData = new ArrayList<>();
 
         // Ensure all 7 days are populated even if empty
@@ -479,9 +486,9 @@ public class SalesService {
                     .build());
         }
 
-        // Daily Workload (Next 30 days)
+        // Daily Workload (Next 30 days) — dates grouped in local timezone so calendar labels match user expectations
         OffsetDateTime endOfWorkloadRange = startOfDay.plusDays(30);
-        List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange);
+        List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange, zoneId);
         List<DashboardMetricsResponse.WorkloadDayPoint> dailyWorkload = new ArrayList<>();
 
         for (int i = 0; i < 30; i++) {

@@ -33,6 +33,7 @@
   let metrics = $state<DashboardMetrics | null>(null);
   let capacity = $state(480);
   let isLoading = $state(true);
+  let activeBarIndex = $state<number | null>(null);
 
   // Math for simple bar chart scaling
   let chartMax = $derived(
@@ -221,15 +222,23 @@
         </Card.Header>
         <Card.Content>
           <div class="flex items-end gap-2 h-48 w-full mt-4">
-            {#each metrics.weeklyRevenueChart as day}
+            {#each metrics.weeklyRevenueChart as day, i}
               {@const heightPct = chartMax > 0 ? (day.totalPaid / chartMax) * 100 : 0}
-              <div class="relative flex-1 flex flex-col items-center justify-end h-full group">
-                <!-- Tooltip -->
-                <div class="absolute -top-10 scale-0 group-hover:scale-100 transition-transform bg-foreground text-background text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-10 pointer-events-none">
+              {@const isBarActive = activeBarIndex === i}
+              <div
+                class="relative flex-1 flex flex-col items-center justify-end h-full group cursor-pointer"
+                role="button"
+                tabindex="0"
+                aria-label={formatCurrency(day.totalPaid)}
+                onclick={() => activeBarIndex = isBarActive ? null : i}
+                onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (activeBarIndex = isBarActive ? null : i)}
+              >
+                <!-- Tooltip — visible on hover (desktop) or tap (mobile) -->
+                <div class="absolute -top-10 transition-transform bg-foreground text-background text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-10 pointer-events-none {isBarActive ? 'scale-100' : 'scale-0 group-hover:scale-100'}">
                   {formatCurrency(day.totalPaid)}
                 </div>
                 <!-- Bar -->
-                <div 
+                <div
                   class="w-full max-w-[40px] bg-primary/80 hover:bg-primary rounded-t-sm transition-all duration-500 ease-out"
                   style="height: {heightPct}%"
                 ></div>

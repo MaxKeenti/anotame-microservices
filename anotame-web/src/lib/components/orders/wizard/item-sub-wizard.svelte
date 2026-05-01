@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from 'lucide-svelte';
+	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
 	let props = $props<{
@@ -31,8 +31,11 @@
 	let adjReason = $state("");
 	let duration = $state<number>(30);
 
+	let editingServiceIndex = $state(-1);
+
 	let notes = $state("");
 	let showAllServices = $state(false);
+	let serviceFilter = $state("");
 
 	// Get the currently selected price list
 	let priceList = $derived(orderWizardState.getPriceList());
@@ -50,7 +53,7 @@
 				apiService.request<any[]>(`${API_CATALOG}/catalog/garments`),
 				apiService.request<any[]>(`${API_CATALOG}/catalog/services`)
 			]);
-			garmentTypes = gRes || [];
+			garmentTypes = (gRes || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'es'));
 			services = sRes || [];
 
 			if (props.initialItem) {
@@ -91,20 +94,15 @@
 			}
 		}
 
-		const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-		const garmentName = normalize(selectedGarment!.name);
-		const searchTerms = [garmentName];
-		if (garmentName.endsWith('es')) searchTerms.push(garmentName.slice(0, -2));
-		else if (garmentName.endsWith('s')) searchTerms.push(garmentName.slice(0, -1));
+		return [...candidates].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+	});
 
-		return candidates.sort((a, b) => {
-			const aName = normalize(a.name);
-			const bName = normalize(b.name);
-			const aMatch = searchTerms.some(term => aName.includes(term));
-			const bMatch = searchTerms.some(term => bName.includes(term));
-			if (aMatch && !bMatch) return -1;
-			if (!aMatch && bMatch) return 1;
-			return a.name.localeCompare(b.name);
+	let visibleServices = $derived.by(() => {
+		if (!serviceFilter.trim()) return filteredServices;
+		const q = serviceFilter.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+		return filteredServices.filter(s => {
+			const sName = s.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+			return sName.includes(q);
 		});
 	});
 
@@ -113,6 +111,7 @@
 		addedServices = [];
 		step = 1;
 		showAllServices = false;
+		serviceFilter = "";
 	}
 
 	function handleServiceSelect(s: any) {
@@ -141,17 +140,37 @@
 		step = 2;
 	}
 
+	function handleEditService(idx: number) {
+		const s = addedServices[idx];
+		const catalogEntry = services.find(x => x.id === s.serviceId);
+		tempService = catalogEntry ?? { id: s.serviceId, name: s.serviceName, description: '' };
+		price = String(s.unitPrice);
+		adj = String(s.adjustmentAmount || '');
+		adjReason = s.adjustmentReason || '';
+		duration = s.durationMin;
+		editingServiceIndex = idx;
+		step = 2;
+	}
+
 	function handleAddService() {
 		if (!tempService) return;
-		addedServices = [...addedServices, {
+		const entry = {
 			serviceId: tempService.id,
 			serviceName: tempService.name,
 			unitPrice: parseFloat(price) || 0,
 			adjustmentAmount: parseFloat(adj) || 0,
 			adjustmentReason: adjReason,
 			durationMin: duration
-		}];
-		toast.success("Servicio agregado", { description: tempService.name });
+		};
+		if (editingServiceIndex >= 0) {
+			addedServices[editingServiceIndex] = entry;
+			addedServices = [...addedServices];
+			toast.success("Servicio actualizado", { description: tempService.name });
+			editingServiceIndex = -1;
+		} else {
+			addedServices = [...addedServices, entry];
+			toast.success("Servicio agregado", { description: tempService.name });
+		}
 		tempService = null;
 		step = 3;
 	}
@@ -184,7 +203,8 @@
         <div class="flex items-center gap-4 border-b border-border pb-4 mb-4">
             {#if step > 0}
                 <Button variant="ghost" size="sm" class="px-2 h-12 w-12 touch-manipulation" onclick={() => {
-                    if (step === 2 || step === 3) step = 1;
+                    if (step === 2) { editingServiceIndex = -1; step = 1; }
+                    else if (step === 3) step = 1;
                     else if (step === 1) step = 0;
                 }}>
                     <ArrowLeft class="w-6 h-6" />
@@ -206,10 +226,13 @@
                     {#each garmentTypes as g}
                         <Button
                             variant="outline"
-                            class="h-28 flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation"
+                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation py-3"
                             onclick={() => handleGarmentSelect(g)}
                         >
                             <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
+                            {#if g.description}
+                                <span class="text-xs text-muted-foreground text-center px-2 leading-snug w-full line-clamp-2">{g.description}</span>
+                            {/if}
                         </Button>
                     {/each}
                 </div>
@@ -220,7 +243,12 @@
                 <div class="space-y-6">
                     <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
                         <div class="w-14 h-14 bg-background rounded-full flex items-center justify-center text-3xl shadow-sm">👕</div>
-                        <div class="font-bold text-2xl">{selectedGarment.name}</div>
+                        <div>
+                            <div class="font-bold text-2xl">{selectedGarment.name}</div>
+                            {#if selectedGarment.description}
+                                <div class="text-sm text-muted-foreground mt-0.5">{selectedGarment.description}</div>
+                            {/if}
+                        </div>
                     </div>
 
                     {#if addedServices.length > 0}
@@ -237,10 +265,13 @@
                                             <span>⏱️ {s.durationMin} min</span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-2">
                                         <div class="text-right">
                                             <div class="font-mono font-bold text-lg">${(s.unitPrice + s.adjustmentAmount).toFixed(2)}</div>
                                         </div>
+                                        <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
+                                            <Pencil class="w-5 h-5" />
+                                        </Button>
                                         <Button variant="ghost" size="icon" class="h-12 w-12 text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleRemoveService(idx)}>
                                             <X class="w-6 h-6" />
                                         </Button>
@@ -259,43 +290,50 @@
                             <Button
                                 variant="ghost"
                                 class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
-                                onclick={() => showAllServices = !showAllServices}
+                                onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
                             >
                                 {showAllServices ? "Ver recomendados" : "Ver todos"}
                             </Button>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {#each filteredServices as s}
+                        <Input
+                            type="search"
+                            placeholder="Buscar servicio..."
+                            class="h-11 rounded-xl"
+                            bind:value={serviceFilter}
+                        />
+
+                        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {#each visibleServices as s}
                                 <Button
                                     variant="outline"
-                                    class="h-28 p-5 rounded-xl border-2 hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-4 transition-all text-left bg-card shadow-sm w-full whitespace-normal touch-manipulation"
+                                    class="h-20 md:h-28 p-3 md:p-5 rounded-xl border-2 hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-2 transition-all text-left bg-card shadow-sm w-full whitespace-normal touch-manipulation"
                                     onclick={() => handleServiceSelect(s)}
                                 >
-                                    <span class="font-bold text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
+                                    <span class="font-bold text-sm md:text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
                                     <div class="flex flex-col items-end shrink-0">
                                         {#if priceListMap.size > 0}
                                             {@const plPrice = priceListMap.get(s.id)}
                                             {#if plPrice !== undefined}
-                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
-                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">${plPrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">${plPrice}</span>
                                             {:else}
-                                                <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-muted-foreground">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-muted-foreground">${s.basePrice}</span>
                                             {/if}
                                         {:else}
                                             {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
-                                                <span class="text-sm text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
                                             {/if}
-                                            <span class="font-mono bg-secondary px-3 py-1 rounded-md text-base font-bold text-primary">
+                                            <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">
                                                 ${s.effectivePrice ?? s.basePrice}
                                             </span>
                                         {/if}
                                     </div>
                                 </Button>
                             {/each}
-                            {#if filteredServices.length === 0}
+                            {#if visibleServices.length === 0}
                                 <div class="col-span-full text-center py-8 text-muted-foreground text-lg">
-                                    No hay servicios recomendados.
+                                    {serviceFilter ? "Sin resultados para tu búsqueda." : "No hay servicios recomendados."}
                                 </div>
                             {/if}
                         </div>
@@ -364,7 +402,7 @@
                     </div>
 
                     <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
-                        Confirmar Servicio
+                        {editingServiceIndex >= 0 ? 'Actualizar Servicio' : 'Confirmar Servicio'}
                     </Button>
                 </div>
             {/if}
