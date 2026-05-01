@@ -16,10 +16,10 @@
 
   type ColorKey = keyof UserPalette;
 
-  const colorEntries: { key: ColorKey; label: string; defaultHex: string }[] = [
-    { key: 'primary',     label: 'Principal',   defaultHex: '#303030' },
-    { key: 'accent',      label: 'Acento',      defaultHex: '#f5f5f5' },
-    { key: 'destructive', label: 'Destructivo',  defaultHex: '#dc2626' },
+  const colorEntries: { key: ColorKey; label: () => string; defaultHex: string }[] = [
+    { key: 'primary',     label: m["userSettings.colorPrimary"],     defaultHex: '#303030' },
+    { key: 'accent',      label: m["userSettings.colorAccent"],      defaultHex: '#f5f5f5' },
+    { key: 'destructive', label: m["userSettings.colorDestructive"], defaultHex: '#dc2626' },
   ];
 
   function normalizeHex(raw: string): string | null {
@@ -99,9 +99,9 @@
 
   <Card.Root>
     <Card.Header>
-      <Card.Title>Paleta de colores</Card.Title>
+      <Card.Title>{m["userSettings.paletteCardTitle"]()}</Card.Title>
       <Card.Description>
-        Personaliza los colores principales. Ingresa un valor hexadecimal (#rrggbb). Deja vacío para usar el color predeterminado.
+        {m["userSettings.paletteCardDesc"]()}
       </Card.Description>
     </Card.Header>
     <Card.Content class="space-y-4">
@@ -111,7 +111,7 @@
             class="w-8 h-8 rounded-full border border-border shrink-0"
             style="background-color: {previewColor(key)}"
           ></div>
-          <span class="w-28 text-sm font-medium shrink-0">{label}</span>
+          <span class="w-28 text-sm font-medium shrink-0">{label()}</span>
           <input
             type="text"
             class="flex-1 h-9 px-3 border border-input rounded-md bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
@@ -126,7 +126,7 @@
               class="shrink-0"
               onclick={() => paletteStore.set({ [key]: null })}
             >
-              Restaurar
+              {m["userSettings.restoreColor"]()}
             </Button>
           {/if}
         </div>
@@ -135,7 +135,7 @@
       {#if paletteStore.hasCustom()}
         <div class="pt-2 border-t border-border">
           <Button variant="outline" size="sm" onclick={() => paletteStore.reset()}>
-            Restaurar todos los colores
+            {m["userSettings.restoreAllColors"]()}
           </Button>
         </div>
       {/if}
@@ -144,8 +144,8 @@
 
   <Card.Root>
     <Card.Header>
-      <Card.Title>Tabla</Card.Title>
-      <Card.Description>Ajusta cuántas filas se muestran por página en todas las tablas.</Card.Description>
+      <Card.Title>{m["userSettings.tableCardTitle"]()}</Card.Title>
+      <Card.Description>{m["userSettings.tableCardDesc"]()}</Card.Description>
     </Card.Header>
     <Card.Content class="space-y-3">
       <div class="grid grid-cols-4 gap-3">
@@ -156,11 +156,11 @@
             onclick={() => tablePreferences.setPageSize(size)}
           >
             <span class="text-2xl font-bold">{size}</span>
-            <span class="text-sm">filas</span>
+            <span class="text-sm">{m["userSettings.tableRowsLabel"]()}</span>
           </Button>
         {/each}
       </div>
-      <p class="text-xs text-muted-foreground">Los cambios aplican al recargar la tabla.</p>
+      <p class="text-xs text-muted-foreground">{m["userSettings.tableHint"]()}</p>
     </Card.Content>
   </Card.Root>
 
@@ -178,7 +178,7 @@
           onclick={() => handleLocaleChange('es')}
         >
           <GlobeIcon class="w-6 h-6" />
-          Español (México)
+          {m["userSettings.localeLabelEs"]()}
         </Button>
         <Button
           variant={getLocale() === 'en' ? 'default' : 'outline'}

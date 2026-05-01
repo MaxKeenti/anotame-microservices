@@ -26,9 +26,9 @@
   let cloneFromId = $derived($page.url.searchParams.get('cloneFrom'));
 
   const pricelistSchema = z.object({
-    name: z.string().min(1, 'El nombre es obligatorio'),
+    name: z.string().min(1, m["catalog.pricelist.zodNameRequired"]()),
     priority: z.number().default(0),
-    validFrom: z.string().min(1, 'La fecha de inicio es obligatoria'),
+    validFrom: z.string().min(1, m["catalog.pricelist.zodValidFromRequired"]()),
     validTo: z.string().optional().or(z.literal('')),
     active: z.boolean().default(true),
     baseListId: z.string().optional().or(z.literal('')),
