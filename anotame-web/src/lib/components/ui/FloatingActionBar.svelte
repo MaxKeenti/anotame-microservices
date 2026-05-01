@@ -52,7 +52,7 @@
       bind:value={selectedStatus}
       placeholder={m["order.bulk.changeStatus"]()}
       items={statusItems}
-      class="h-9 min-w-[160px] text-sm"
+      class="h-9 min-w-40 text-sm"
     />
     <Button
       variant="default"
