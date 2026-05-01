@@ -20,6 +20,8 @@ type FetchOptions = RequestInit & {
 };
 
 class ApiService {
+  public onUnauthorized?: () => void;
+
   async request<T>(input: RequestInfo | URL, init?: FetchOptions): Promise<T> {
     const headers = new Headers(init?.headers);
 
@@ -37,8 +39,9 @@ class ApiService {
 
     if (!response.ok) {
       if (response.status === 401 && !init?.skipAuthRedirect) {
-        // Redirect to login if unauthorized
-        if (
+        if (this.onUnauthorized) {
+          this.onUnauthorized();
+        } else if (
           typeof window !== "undefined" &&
           !window.location.pathname.includes("/login")
         ) {
