@@ -7,6 +7,7 @@
   import { toast } from 'svelte-sonner';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
+  import * as m from '$lib/paraglide/messages';
 
   import UserDialog from '$lib/components/users/user-dialog.svelte';
 
@@ -17,11 +18,11 @@
   let editingUser = $state<any | null>(null);
 
   const columns: ColumnDef<any>[] = [
-    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: 'Nombre', enableSorting: true },
-    { accessorKey: 'username', header: 'Usuario', enableSorting: true },
-    { accessorKey: 'email', header: 'Email', enableSorting: false },
-    { id: 'role', accessorFn: (row) => row.role, header: 'Rol', enableSorting: true },
-    { id: 'actions', header: 'Acciones', enableSorting: false },
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["users.colName"](), enableSorting: true },
+    { accessorKey: 'username', header: m["users.colUsername"](), enableSorting: true },
+    { accessorKey: 'email', header: m["users.colEmail"](), enableSorting: false },
+    { id: 'role', accessorFn: (row) => row.role, header: m["users.colRole"](), enableSorting: true },
+    { id: 'actions', header: m["common.actions"](), enableSorting: false },
   ];
 
   async function fetchUsers() {
@@ -31,7 +32,7 @@
       users = data || [];
     } catch (e: any) {
       console.error('Failed to fetch users', e);
-      toast.error("Error al cargar los usuarios");
+      toast.error(m["users.loadError"]());
       users = [];
     } finally {
       loading = false;
@@ -52,16 +53,16 @@
 
   async function handleDeleteClick(user: any) {
     const ok = await adaptiveConfirm({
-      title: 'Eliminar Usuario',
-      description: `¿Estás seguro de que deseas eliminar a "${user.username}"? Esta acción no se puede deshacer.`
+      title: m["users.deleteTitle"](),
+      description: m["users.deleteDesc"]({ username: user.username })
     });
     if (ok) {
       try {
         await apiService.request(`${API_IDENTITY}/users/${user.id}`, { method: 'DELETE' });
-        toast.success("Usuario eliminado exitosamente");
+        toast.success(m["users.deleteSuccess"]());
         users = users.filter(u => u.id !== user.id);
       } catch (e: any) {
-        toast.error(e.message || "Error al eliminar el usuario");
+        toast.error(e.message || m["users.deleteError"]());
       }
     }
   }
@@ -75,11 +76,11 @@
 <div class="space-y-6 animate-in fade-in duration-300">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-heading font-bold text-foreground">Usuarios</h1>
-        <p class="text-muted-foreground">Administrar usuarios y acceso al sistema.</p>
+        <h1 class="text-3xl font-heading font-bold text-foreground">{m["users.title"]()}</h1>
+        <p class="text-muted-foreground">{m["users.description"]()}</p>
       </div>
       <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
-        + Nuevo Usuario
+        {m["users.addButton"]()}
       </Button>
     </div>
 
@@ -88,8 +89,8 @@
       {columns}
       data={users}
       {loading}
-      emptyMessage="No se encontraron usuarios."
-      filterPlaceholder="Buscar usuarios..."
+      emptyMessage={m["users.emptyMessage"]()}
+      filterPlaceholder={m["users.searchPlaceholder"]()}
     >
       {#snippet actionCell(row)}
         <div class="flex justify-end gap-2">
@@ -100,7 +101,7 @@
             onclick={() => handleEditClick(row.original)}
           >
             <Edit class="w-4 h-4 mr-2" />
-            Editar
+            {m["common.edit"]()}
           </Button>
           <Button
             variant="outline"
@@ -109,7 +110,7 @@
             onclick={() => handleDeleteClick(row.original)}
           >
             <Trash2 class="w-4 h-4 mr-2" />
-            Eliminar
+            {m["common.delete"]()}
           </Button>
         </div>
       {/snippet}

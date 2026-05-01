@@ -14,6 +14,7 @@
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 import * as Tabs from '$lib/components/ui/tabs';
+  import * as m from '$lib/paraglide/messages';
 
   let activeTab = $state<'weekly' | 'holidays'>('weekly');
   const guard = useAuthGuard(true, '/dashboard');
@@ -24,11 +25,19 @@ import * as Tabs from '$lib/components/ui/tabs';
   let workDays = $state<any[]>([]);
   let holidays = $state<any[]>([]);
 
-  const DAYS_ES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+  const DAYS_KEYS = [
+    m["schedule.day.monday"],
+    m["schedule.day.tuesday"],
+    m["schedule.day.wednesday"],
+    m["schedule.day.thursday"],
+    m["schedule.day.friday"],
+    m["schedule.day.saturday"],
+    m["schedule.day.sunday"],
+  ] as const;
 
   const holidaySchema = z.object({
-    date: z.string().min(1, 'Selecciona una fecha'),
-    description: z.string().min(1, 'La descripción es obligatoria'),
+    date: z.string().min(1, m["schedule.zodDateRequired"]()),
+    description: z.string().min(1, m["schedule.zodDescRequired"]()),
   });
 
   const holidaySuperform = superForm(defaults(zod4(holidaySchema)), {
@@ -43,11 +52,11 @@ import * as Tabs from '$lib/components/ui/tabs';
           method: 'POST',
           body: JSON.stringify({ date: f.data.date, description: f.data.description }),
         });
-        toast.success('Excepción agregada');
+        toast.success(m["schedule.holidayAddSuccess"]());
         resetHoliday();
         loadData();
       } catch (err: any) {
-        toast.error(err.message || 'Error al agregar excepción');
+        toast.error(err.message || m["schedule.holidayAddError"]());
       } finally {
         isHolidaySubmitting = false;
       }
@@ -72,7 +81,7 @@ import * as Tabs from '$lib/components/ui/tabs';
       holidays = (holsData || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     } catch (err: any) {
       console.warn('Backend endpoint may not exist yet', err);
-      toast.error('Error al cargar horarios (el backend podría no tener esta API implementada todavía)');
+      toast.error(m["schedule.loadError"]());
     } finally {
       isLoading = false;
     }
@@ -89,9 +98,9 @@ import * as Tabs from '$lib/components/ui/tabs';
         method: 'PUT',
         body: JSON.stringify(workDays)
       });
-      toast.success("Horario semanal actualizado exitosamente");
+      toast.success(m["schedule.saveSuccess"]());
     } catch (err: any) {
-      toast.error(err.message || "Error al actualizar horario semanal");
+      toast.error(err.message || m["schedule.saveError"]());
     } finally {
       isLoading = false;
     }
@@ -99,17 +108,17 @@ import * as Tabs from '$lib/components/ui/tabs';
 
   async function handleDeleteHoliday(id: string, desc: string) {
     const ok = await adaptiveConfirm({
-      title: 'Eliminar Excepción',
-      description: `¿Estás seguro de que deseas eliminar la excepción "${desc}"?`
+      title: m["schedule.holidayDeleteTitle"](),
+      description: m["schedule.holidayDeleteDesc"]({ desc })
     });
 
     if (ok) {
       try {
         await apiService.request(`${API_OPERATIONS}/schedule/holidays/${id}`, { method: 'DELETE' });
-        toast.success("Excepción eliminada");
+        toast.success(m["schedule.holidayDeleteSuccess"]());
         loadData();
       } catch (err: any) {
-        toast.error(err.message || "Error al eliminar");
+        toast.error(err.message || m["schedule.holidayDeleteError"]());
       }
     }
   }
@@ -117,37 +126,37 @@ import * as Tabs from '$lib/components/ui/tabs';
 
 {#if guard.checking}
   <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-    Validando acceso...
+    {m["schedule.checkingAccess"]()}
   </div>
 {:else if guard.allowed}
 <div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
   <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-heading font-bold text-foreground">Horarios de Trabajo</h1>
+    <h1 class="text-3xl font-heading font-bold text-foreground">{m["schedule.title"]()}</h1>
   </div>
 
   <Tabs.Root bind:value={activeTab} class="space-y-6">
     <Tabs.List class="shadow-sm border border-border/50">
       <Tabs.Trigger value="weekly" class="px-6 font-bold flex items-center gap-2">
         <CalendarDays class="w-4 h-4" />
-        Horario Semanal
+        {m["schedule.tabWeekly"]()}
       </Tabs.Trigger>
       <Tabs.Trigger value="holidays" class="px-6 font-bold flex items-center gap-2">
         <AlertTriangle class="w-4 h-4" />
-        Excepciones / Festivos
+        {m["schedule.tabHolidays"]()}
       </Tabs.Trigger>
     </Tabs.List>
 
     {#if isLoading && workDays.length === 0}
       <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-        Cargando horario...
+        {m["schedule.loading"]()}
       </div>
     {:else}
-      <!-- Tab 1: Horario Semanal -->
+      <!-- Tab 1: Weekly Schedule -->
       <Tabs.Content value="weekly">
         <Card.Root>
           <Card.Header>
-            <Card.Title>Horario de Apertura Estándar</Card.Title>
-            <Card.Description>Configura los días y horas hábiles de la sucursal.</Card.Description>
+            <Card.Title>{m["schedule.weeklyCardTitle"]()}</Card.Title>
+            <Card.Description>{m["schedule.weeklyCardDesc"]()}</Card.Description>
           </Card.Header>
           <Card.Content class="space-y-2">
             <div class="border rounded-md divide-y divide-border">
@@ -160,7 +169,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                         class="checkbox-custom"
                         bind:checked={day.open}
                       />
-                      {DAYS_ES[day.dayOfWeek - 1] || 'Día'}
+                      {DAYS_KEYS[day.dayOfWeek - 1]?.() || m["schedule.dayFallback"]()}
                     </label>
                   </div>
 
@@ -172,7 +181,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                           bind:value={day.openTime}
                           class="w-32 h-10 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
                         />
-                        <span class="text-muted-foreground text-sm font-medium">a</span>
+                        <span class="text-muted-foreground text-sm font-medium">{m["schedule.timeSeparator"]()}</span>
                         <Input
                           type="time"
                           bind:value={day.closeTime}
@@ -180,7 +189,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                         />
                       </div>
                     {:else}
-                      <span class="text-muted-foreground text-sm px-4 py-2 bg-muted/50 rounded-lg">Cerrado</span>
+                      <span class="text-muted-foreground text-sm px-4 py-2 bg-muted/50 rounded-lg">{m["schedule.dayClosed"]()}</span>
                     {/if}
                   </div>
                 </div>
@@ -189,32 +198,32 @@ import * as Tabs from '$lib/components/ui/tabs';
 
             <div class="flex justify-end pt-6">
               <Button onclick={saveWeeklySchedule} disabled={isLoading} class="h-12 px-6 shadow-sm">
-                {isLoading ? 'Guardando...' : 'Guardar Horario Semanal'}
+                {isLoading ? m["schedule.savingButton"]() : m["schedule.saveButton"]()}
               </Button>
             </div>
           </Card.Content>
         </Card.Root>
       </Tabs.Content>
 
-      <!-- Tab 2: Excepciones -->
+      <!-- Tab 2: Exceptions -->
       <Tabs.Content value="holidays">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <!-- Agregar Form -->
+          <!-- Add Form -->
           <Card.Root class="md:col-span-1 h-fit">
             <Card.Header>
-              <Card.Title>Nueva Excepción</Card.Title>
+              <Card.Title>{m["schedule.holidayCardTitle"]()}</Card.Title>
             </Card.Header>
             <Card.Content>
               <form method="POST" use:holidayEnhance class="space-y-4">
                 <Form.Field form={holidaySuperform} name="date">
                   {#snippet children({ constraints })}
-                    <Form.Label>Fecha (Inhábile)</Form.Label>
+                    <Form.Label>{m["schedule.holidayDateLabel"]()}</Form.Label>
                     <AdaptiveDatePicker
                       id="hol-date"
                       bind:value={$holidayForm.date}
                       min={new Date().toISOString().slice(0, 10)}
-                      placeholder="Elige una fecha"
+                      placeholder={m["schedule.holidayDatePlaceholder"]()}
                     />
                     <Form.FieldErrors />
                   {/snippet}
@@ -223,12 +232,12 @@ import * as Tabs from '$lib/components/ui/tabs';
                   {#snippet children({ constraints })}
                     <Form.Control>
                       {#snippet children({ props })}
-                        <Form.Label>Motivo / Descripción</Form.Label>
+                        <Form.Label>{m["schedule.holidayDescLabel"]()}</Form.Label>
                         <Input
                           {...props}
                           {...constraints}
                           id="hol-desc"
-                          placeholder="Ej. Navidad, Año Nuevo"
+                          placeholder={m["schedule.holidayDescPlaceholder"]()}
                           bind:value={$holidayForm.description}
                           class="h-12"
                         />
@@ -240,35 +249,35 @@ import * as Tabs from '$lib/components/ui/tabs';
                 <Button type="submit" disabled={isHolidaySubmitting} class="w-full h-12 shadow-sm">
                   {#if isHolidaySubmitting}
                     <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-                    Agregando...
+                    {m["schedule.holidayAddingButton"]()}
                   {:else}
-                    Agregar Excepción
+                    {m["schedule.holidayAddButton"]()}
                   {/if}
                 </Button>
               </form>
             </Card.Content>
           </Card.Root>
 
-          <!-- Lista Table -->
+          <!-- List Table -->
           <Card.Root class="md:col-span-2">
             <Card.Header>
-              <Card.Title>Excepciones Registradas</Card.Title>
-              <Card.Description>Días donde la sucursal estará cerrada.</Card.Description>
+              <Card.Title>{m["schedule.holidayListCardTitle"]()}</Card.Title>
+              <Card.Description>{m["schedule.holidayListCardDesc"]()}</Card.Description>
             </Card.Header>
             <Card.Content>
               {#if holidays.length === 0}
                 <div class="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
                   <AlertTriangle class="w-8 h-8 mx-auto mb-3 opacity-50" />
-                  <p>No hay días festivos configurados.</p>
+                  <p>{m["schedule.holidayEmpty"]()}</p>
                 </div>
               {:else}
                 <div class="border rounded-md overflow-x-auto">
                   <Table.Root class="min-w-[400px]">
                     <Table.Header class="bg-secondary/20">
                       <Table.Row>
-                        <Table.Head class="p-4 w-[160px]">Fecha</Table.Head>
-                        <Table.Head class="p-4">Descripción</Table.Head>
-                        <Table.Head class="p-4 text-right">Acciones</Table.Head>
+                        <Table.Head class="p-4 w-[160px]">{m["schedule.holidayColDate"]()}</Table.Head>
+                        <Table.Head class="p-4">{m["schedule.holidayColDesc"]()}</Table.Head>
+                        <Table.Head class="p-4 text-right">{m["schedule.holidayColActions"]()}</Table.Head>
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -290,7 +299,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                               onclick={() => h.id && handleDeleteHoliday(h.id, h.description)}
                             >
                               <Trash2 class="w-4 h-4" />
-                              <span class="sr-only">Eliminar</span>
+                              <span class="sr-only">{m["common.delete"]()}</span>
                             </Button>
                           </Table.Cell>
                         </Table.Row>
