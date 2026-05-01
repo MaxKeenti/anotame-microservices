@@ -11,6 +11,7 @@
   import * as Table from '$lib/components/ui/table';
   import { toast } from 'svelte-sonner';
   import { Loader2 } from 'lucide-svelte';
+  import * as m from '$lib/paraglide/messages';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
@@ -66,10 +67,10 @@
           body: JSON.stringify(payload)
         });
 
-        toast.success('Lista de precios creada exitosamente');
+        toast.success(m["catalog.pricelist.createSuccess"]());
         goto('/dashboard/catalog/pricelists');
       } catch (err: any) {
-        toast.error(err.message || 'Error al crear la lista');
+        toast.error(err.message || m["catalog.pricelist.createError"]());
       } finally {
         isLoading = false;
       }
@@ -105,12 +106,12 @@
         }
       }
     } catch (err) {
-      toast.error('Error al cargar datos necesarios');
+      toast.error(m["catalog.pricelist.loadDataError"]());
     }
   });
 
   const availableListItems = $derived.by(() => {
-    const items = [{ value: '', label: 'Iniciar desde cero (Precios Base)' }, ...availableLists.map(l => ({ value: l.id, label: l.name }))];
+    const items = [{ value: '', label: m["catalog.pricelist.baseListFromScratch"]() }, ...availableLists.map(l => ({ value: l.id, label: l.name }))];
     // If baseListId is set but not in the items, add a temporary placeholder
     if ($form.baseListId && !items.find(i => i.value === $form.baseListId)) {
       items.unshift({ value: $form.baseListId, label: 'Cargando...' });
@@ -165,10 +166,10 @@
           });
         }
         overrides = newOverrides;
-        toast.info(isFromCloneParam ? 'Lista original cargada como plantilla.' : 'Precios base cargados.');
+        toast.info(isFromCloneParam ? m["catalog.pricelist.cloneLoadSuccess"]() : m["catalog.pricelist.baseLoadSuccess"]());
       }
     } catch (error) {
-      toast.error('Error al cargar la lista base');
+      toast.error(m["catalog.pricelist.baseLoadError"]());
     } finally {
       isFetchingBase = false;
     }
@@ -182,7 +183,7 @@
       next[service.id] = newPrice.toFixed(2);
     });
     overrides = next;
-    toast.success(`Ajuste masivo de ${amount > 0 ? '+' : ''}$${amount} aplicado.`);
+    toast.success(m["catalog.pricelist.bulkAdjustSuccess"]({ sign: amount > 0 ? '+' : '', amount }));
   }
 
   function handleReset() {
@@ -200,22 +201,22 @@
 
 <div class="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
   <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-heading font-bold text-foreground">Nueva Lista de Precios</h1>
-    <Button variant="outline" class="h-10 touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>
+    <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.newTitle"]()}</h1>
+    <Button variant="outline" class="h-10 touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
   </div>
 
   <form method="POST" use:enhance class="space-y-6">
     <Card.Root>
       <Card.Header>
-        <Card.Title>Detalles de la Estrategia</Card.Title>
+        <Card.Title>{m["catalog.pricelist.detailsCardTitle"]()}</Card.Title>
       </Card.Header>
       <Card.Content class="space-y-4">
         <Form.Field form={superform} name="name">
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Nombre de la Lista <span class="text-destructive">*</span></Form.Label>
-                <Input {...props} {...constraints} id="pl-name" placeholder="Ej. Promoción de Verano 2026" bind:value={$form.name} class="h-12" />
+                <Form.Label>{m["catalog.pricelist.nameLabel"]()} <span class="text-destructive">*</span></Form.Label>
+                <Input {...props} {...constraints} id="pl-name" placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} class="h-12" />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -227,11 +228,11 @@
             {#snippet children({ constraints })}
               <Form.Control>
                 {#snippet children({ props })}
-                  <Form.Label>Prioridad (Mayor gana)</Form.Label>
+                  <Form.Label>{m["catalog.pricelist.priorityLabel"]()}</Form.Label>
                   <Input {...props} {...constraints} id="pl-priority" type="number" bind:value={$form.priority} class="h-12 font-mono" />
                 {/snippet}
               </Form.Control>
-              <p class="text-xs text-muted-foreground mt-1">Si dos listas chocan en fecha, aplicará la de mayor prioridad.</p>
+              <p class="text-xs text-muted-foreground mt-1">{m["catalog.pricelist.priorityHint"]()}</p>
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
@@ -246,7 +247,7 @@
                     class="checkbox-custom"
                     bind:checked={$form.active}
                   />
-                  Estrategia Activa
+                  {m["catalog.pricelist.activeLabel"]()}
                 </label>
               </div>
               <Form.FieldErrors />
@@ -257,23 +258,23 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Field form={superform} name="validFrom">
             {#snippet children({ constraints })}
-                  <Form.Label>Válido Desde</Form.Label>
-                  <AdaptiveDatePicker 
-                    id="pl-from" 
-                    bind:value={$form.validFrom} 
-                    min={new Date().toISOString().slice(0, 10)} 
+                  <Form.Label>{m["catalog.pricelist.validFromLabel"]()}</Form.Label>
+                  <AdaptiveDatePicker
+                    id="pl-from"
+                    bind:value={$form.validFrom}
+                    min={new Date().toISOString().slice(0, 10)}
                   />
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
           <Form.Field form={superform} name="validTo">
             {#snippet children({ constraints })}
-                  <Form.Label>Válido Hasta (Opcional)</Form.Label>
-                  <AdaptiveDatePicker 
-                    id="pl-to" 
-                    value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} 
-                    min={$form.validFrom || new Date().toISOString().slice(0, 10)} 
-                    placeholder="Permanente si está vacío" 
+                  <Form.Label>{m["catalog.pricelist.validToLabel"]()}</Form.Label>
+                  <AdaptiveDatePicker
+                    id="pl-to"
+                    value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v}
+                    min={$form.validFrom || new Date().toISOString().slice(0, 10)}
+                    placeholder={m["catalog.pricelist.validToPlaceholder"]()}
                   />
               <Form.FieldErrors />
             {/snippet}
@@ -284,12 +285,12 @@
 
     <Card.Root>
       <Card.Header>
-        <Card.Title>Configuración Base</Card.Title>
+        <Card.Title>{m["catalog.pricelist.baseConfigCardTitle"]()}</Card.Title>
       </Card.Header>
       <Card.Content>
         <Form.Field form={superform} name="baseListId">
           {#snippet children({ constraints })}
-                <Form.Label>Copiar desde una lista existente</Form.Label>
+                <Form.Label>{m["catalog.pricelist.baseListLabel"]()}</Form.Label>
                 <AdaptiveSelect
                   id="pl-base"
                   value={$form.baseListId as string}
@@ -297,10 +298,10 @@
                     $form.baseListId = newValue;
                     handleBaseListChange(newValue);
                   }}
-                  placeholder="-- Iniciar desde cero (Precios Base) --"
+                  placeholder={m["catalog.pricelist.baseListPlaceholder"]()}
                   items={availableListItems}
                 />
-            <p class="text-xs text-muted-foreground mt-1">Al seleccionar una lista, se cargarán sus precios y sobrescribirán los actuales.</p>
+            <p class="text-xs text-muted-foreground mt-1">{m["catalog.pricelist.baseListHint"]()}</p>
             <Form.FieldErrors />
           {/snippet}
         </Form.Field>
@@ -309,13 +310,13 @@
 
     <Card.Root>
       <Card.Header>
-        <Card.Title>Sobrescritura de Precios (Overrides)</Card.Title>
-        <Card.Description>Deja el campo vacío para mantener el Precio Base.</Card.Description>
+        <Card.Title>{m["catalog.pricelist.overridesCardTitle"]()}</Card.Title>
+        <Card.Description>{m["catalog.pricelist.overridesCardDescription"]()}</Card.Description>
       </Card.Header>
       <Card.Content class="space-y-4">
         <!-- Bulk adjustments -->
         <div class="flex flex-col sm:flex-row flex-wrap gap-2 items-center p-4 bg-secondary/20 rounded-lg border border-border">
-          <span class="text-sm font-bold mr-2 uppercase tracking-wide opacity-70">Ajuste Masivo:</span>
+          <span class="text-sm font-bold mr-2 uppercase tracking-wide opacity-70">{m["catalog.pricelist.bulkAdjust"]()}</span>
           <div class="flex gap-2">
             {#each [5, 10, 15, 20] as amount}
               <Button type="button" variant="outline" size="sm" class="font-mono text-success hover:text-success hover:bg-success/10 border-success/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(amount)}>
@@ -333,7 +334,7 @@
           </div>
           <div class="w-full sm:w-px sm:h-6 bg-border mx-0 sm:mx-2 my-2 sm:my-0"></div>
           <Button type="button" variant="ghost" size="sm" class="h-10 text-muted-foreground w-full sm:w-auto" onclick={handleReset} disabled={isFetchingBase}>
-            {isFetchingBase ? 'Cargando...' : 'Revertir a originales'}
+            {isFetchingBase ? m["common.loading"]() : m["catalog.pricelist.revertOriginals"]()}
           </Button>
         </div>
 
@@ -342,9 +343,9 @@
           <Table.Root class="w-full text-sm">
             <Table.Header class="bg-secondary/30">
               <Table.Row>
-                <Table.Head class="p-4 font-bold">Servicio</Table.Head>
-                <Table.Head class="p-4 font-bold text-right">Precio Base</Table.Head>
-                <Table.Head class="p-4 font-bold text-center">Precio Override</Table.Head>
+                <Table.Head class="p-4 font-bold">{m["catalog.pricelist.overrideServiceHeader"]()}</Table.Head>
+                <Table.Head class="p-4 font-bold text-right">{m["catalog.pricelist.overrideBaseHeader"]()}</Table.Head>
+                <Table.Head class="p-4 font-bold text-center">{m["catalog.pricelist.overrideOverrideHeader"]()}</Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -360,7 +361,7 @@
                       step="0.01"
                       min="0"
                       class="h-12 w-full max-w-[180px] mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
-                      placeholder="Igual al base"
+                      placeholder={m["catalog.pricelist.overridePlaceholder"]()}
                       bind:value={overrides[service.id]}
                     />
                   </Table.Cell>
@@ -369,7 +370,7 @@
               {#if services.length === 0}
                 <Table.Row>
                   <Table.Cell colspan={3} class="p-8 text-center text-muted-foreground">
-                    No hay servicios configurados en el catálogo.
+                    {m["catalog.pricelist.noServices"]()}
                   </Table.Cell>
                 </Table.Row>
               {/if}
@@ -381,13 +382,13 @@
 
 
     <div class="flex justify-end gap-4 pt-4 pb-12">
-      <Button type="button" variant="outline" class="h-14 px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>Cancelar</Button>
+      <Button type="button" variant="outline" class="h-14 px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       <Button type="submit" disabled={isLoading} class="h-14 px-8 text-lg shadow-md touch-manipulation">
         {#if isLoading}
           <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-          Creando...
+          {m["catalog.pricelist.creating"]()}
         {:else}
-          Guardar Lista de Precios
+          {m["catalog.pricelist.saveButton"]()}
         {/if}
       </Button>
     </div>

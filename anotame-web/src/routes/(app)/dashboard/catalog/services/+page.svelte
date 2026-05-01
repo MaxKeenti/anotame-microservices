@@ -12,6 +12,7 @@
   import type { ColumnDef } from '@tanstack/table-core';
 
   import ServiceDialog from '$lib/components/catalog/service-dialog.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
@@ -41,11 +42,11 @@
   });
 
   let columns = $derived<ColumnDef<any>[]>([
-    { accessorKey: 'name', header: 'Nombre', enableSorting: true },
-    { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: 'Prenda', enableSorting: true },
-    { accessorKey: 'defaultDurationMin', header: 'Duración (min)', enableSorting: true },
-    { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: 'Precio', enableSorting: true },
-    ...(isAdmin ? [{ id: 'actions', header: 'Acciones', enableSorting: false } as ColumnDef<any>] : []),
+    { accessorKey: 'name', header: m["catalog.services.colName"](), enableSorting: true },
+    { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true },
+    { accessorKey: 'defaultDurationMin', header: m["catalog.services.colDuration"](), enableSorting: true },
+    { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true },
+    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false } as ColumnDef<any>] : []),
   ]);
 
   async function fetchData() {
@@ -58,7 +59,7 @@
       services = servicesData || [];
       garments = garmentsData || [];
     } catch (e: any) {
-      toast.error(e.message || "Error al cargar los servicios");
+      toast.error(e.message || m["catalog.services.loadError"]());
       services = [];
       garments = [];
     } finally {
@@ -87,16 +88,16 @@
 
   async function handleDeleteClick(service: any) {
     const ok = await adaptiveConfirm({
-      title: 'Eliminar Servicio',
-      description: `¿Estás seguro de que deseas eliminar "${service.name}"? Esta acción no se puede deshacer.`
+      title: m["catalog.services.deleteTitle"](),
+      description: m["catalog.services.deleteDescription"]({ name: service.name })
     });
     if (ok) {
       try {
         await apiService.request(`${API_CATALOG}/catalog/services/${service.id}`, { method: 'DELETE' });
-        toast.success("Servicio eliminado exitosamente");
+        toast.success(m["catalog.services.deleteSuccess"]());
         fetchData();
       } catch (e: any) {
-        toast.error(e.message || "Error al eliminar el servicio");
+        toast.error(e.message || m["catalog.services.deleteError"]());
       }
     }
   }
@@ -115,12 +116,12 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">Servicios</h1>
-      <p class="text-muted-foreground">Gestionar servicios ofrecidos y precios.</p>
+      <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.services.title"]()}</h1>
+      <p class="text-muted-foreground">{m["catalog.services.description"]()}</p>
     </div>
     {#if isAdmin}
       <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">
-        + Agregar Servicio
+        {m["catalog.services.addButton"]()}
       </Button>
     {/if}
   </div>
@@ -128,23 +129,23 @@
   <!-- External Filters -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
     <div class="col-span-1 md:col-span-2 space-y-1.5">
-      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-services">Buscar</label>
+      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-services">{m["catalog.services.searchLabel"]()}</label>
       <Input
         id="search-services"
-        placeholder="Nombre del servicio..."
+        placeholder={m["catalog.services.searchPlaceholder"]()}
         bind:value={searchQuery}
         class="h-12 text-base touch-manipulation"
       />
     </div>
     <div class="space-y-1.5">
-      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment-service">Filtrar por Prenda</label>
+      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment-service">{m["catalog.services.filterGarmentLabel"]()}</label>
       <AdaptiveSelect
         id="filter-garment-service"
         bind:value={garmentFilter}
-        placeholder="Selecciona prenda..."
+        placeholder={m["catalog.services.filterGarmentPlaceholder"]()}
         items={garments.map(g => ({ value: g.id, label: g.name }))}
         allowClear={true}
-        clearText="Cualquier prenda"
+        clearText={m["catalog.services.filterGarmentClear"]()}
       />
     </div>
   </div>
@@ -156,8 +157,8 @@
       data={filteredServices}
       {loading}
       showFilter={false}
-      emptyMessage="No se encontraron servicios."
-      filterPlaceholder="Filtrar servicios..."
+      emptyMessage={m["catalog.services.emptyMessage"]()}
+      filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
     >
       {#snippet actionCell(row)}
         <div class="flex justify-end gap-2">
@@ -168,7 +169,7 @@
             onclick={() => handleEditClick(row.original)}
           >
             <Edit class="w-4 h-4 mr-2" />
-            Editar
+            {m["common.edit"]()}
           </Button>
           <Button
             variant="outline"
@@ -177,7 +178,7 @@
             onclick={() => handleDeleteClick(row.original)}
           >
             <Trash2 class="w-4 h-4 mr-2" />
-            Eliminar
+            {m["common.delete"]()}
           </Button>
         </div>
       {/snippet}

@@ -10,6 +10,7 @@
   import type { ColumnDef } from '@tanstack/table-core';
 
   import GarmentDialog from '$lib/components/catalog/garment-dialog.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
@@ -20,9 +21,9 @@
   let editingGarment = $state<any | null>(null);
 
   let columns = $derived<ColumnDef<any>[]>([
-    { accessorKey: 'name', header: 'Nombre', enableSorting: true },
-    { id: 'description', accessorFn: (row: any) => row.description || '-', header: 'Descripción', enableSorting: false },
-    ...(isAdmin ? [{ id: 'actions', header: 'Acciones', enableSorting: false } as ColumnDef<any>] : []),
+    { accessorKey: 'name', header: m["catalog.garments.colName"](), enableSorting: true },
+    { id: 'description', accessorFn: (row: any) => row.description || '-', header: m["catalog.garments.colDescription"](), enableSorting: false },
+    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false } as ColumnDef<any>] : []),
   ]);
 
   async function fetchGarments() {
@@ -31,7 +32,7 @@
       const response = await apiService.request<any[]>(`${API_CATALOG}/catalog/garments`);
       garments = response || [];
     } catch (e: any) {
-      toast.error(e.message || "Error al cargar las prendas");
+      toast.error(e.message || m["catalog.garments.loadError"]());
       garments = [];
     } finally {
       loading = false;
@@ -51,14 +52,14 @@
   }
 
   async function handleDeleteClick(garment: any) {
-    const ok = await adaptiveConfirm({ title: 'Eliminar Prenda', description: `¿Estás seguro de que deseas eliminar ${garment.name}?` });
+    const ok = await adaptiveConfirm({ title: m["catalog.garments.deleteTitle"](), description: m["catalog.garments.deleteDescription"]({ name: garment.name }) });
     if (ok) {
       try {
         await apiService.request(`${API_CATALOG}/catalog/garments/${garment.id}`, { method: 'DELETE' });
-        toast.success("Prenda eliminada exitosamente");
+        toast.success(m["catalog.garments.deleteSuccess"]());
         fetchGarments();
       } catch (e: any) {
-        toast.error(e.message || "Error al eliminar la prenda");
+        toast.error(e.message || m["catalog.garments.deleteError"]());
       }
     }
   }
@@ -72,11 +73,11 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">Prendas</h1>
-      <p class="text-muted-foreground">Gestionar tipos de prendas (Camisas, Pantalones, etc).</p>
+      <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.garments.title"]()}</h1>
+      <p class="text-muted-foreground">{m["catalog.garments.description"]()}</p>
     </div>
     {#if isAdmin}
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ Agregar Prenda</Button>
+      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">{m["catalog.garments.addButton"]()}</Button>
     {/if}
   </div>
 
@@ -85,8 +86,8 @@
       {columns}
       data={garments}
       {loading}
-      emptyMessage="No se encontraron prendas."
-      filterPlaceholder="Buscar prendas..."
+      emptyMessage={m["catalog.garments.emptyMessage"]()}
+      filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
     >
       {#snippet actionCell(row)}
         <div class="flex justify-end gap-2">
@@ -97,7 +98,7 @@
             onclick={() => handleEditClick(row.original)}
           >
             <Edit class="w-4 h-4 mr-2" />
-            Editar
+            {m["common.edit"]()}
           </Button>
           <Button
             variant="outline"
@@ -106,7 +107,7 @@
             onclick={() => handleDeleteClick(row.original)}
           >
             <Trash2 class="w-4 h-4 mr-2" />
-            Eliminar
+            {m["common.delete"]()}
           </Button>
         </div>
       {/snippet}
