@@ -9,13 +9,14 @@
   import { superForm, defaults, setError } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+  import * as m from '$lib/paraglide/messages';
 
   // Protect this route from authenticated users
   const guard = useGuestGuard('/dashboard');
 
   const loginSchema = z.object({
-    username: z.string().min(1, 'El usuario es obligatorio'),
-    password: z.string().min(1, 'La contraseña es obligatoria'),
+    username: z.string().min(1, m["login.zod.usernameRequired"]()),
+    password: z.string().min(1, m["login.zod.passwordRequired"]()),
   });
 
   let isLoading = $state(false);
@@ -30,13 +31,13 @@
       isLoading = true;
       errorMsg = '';
       try {
-        await authService.login({ 
-          username: form.data.username, 
-          password: form.data.password 
+        await authService.login({
+          username: form.data.username,
+          password: form.data.password
         });
         window.location.href = '/dashboard';
       } catch (err: any) {
-        errorMsg = "Error iniciando sesión. Verifica tus credenciales.";
+        errorMsg = m["login.error.invalidCredentials"]();
       } finally {
         isLoading = false;
       }
@@ -53,9 +54,9 @@
       <h1 class="text-3xl font-heading font-bold text-foreground">
         Anotame<span class="text-primary">.</span>
       </h1>
-      <Card.Title>Inicia sesión en tu cuenta</Card.Title>
+      <Card.Title>{m["login.card.title"]()}</Card.Title>
       <p class="text-sm text-muted-foreground">
-        Ingresa tus credenciales para acceder
+        {m["login.card.subtitle"]()}
       </p>
     </Card.Header>
     <Card.Content>
@@ -70,7 +71,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Usuario</Form.Label>
+                <Form.Label>{m["login.label.username"]()}</Form.Label>
                 <Input {...props} {...constraints} id="username" placeholder="admin" bind:value={$form.username} />
               {/snippet}
             </Form.Control>
@@ -82,7 +83,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Contraseña</Form.Label>
+                <Form.Label>{m["login.label.password"]()}</Form.Label>
                 <Input {...props} {...constraints} id="password" type="password" placeholder="••••••••" bind:value={$form.password} />
               {/snippet}
             </Form.Control>
@@ -98,15 +99,15 @@
         >
           {#if isLoading}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            Iniciando...
+            {m["login.button.loading"]()}
           {:else}
-            Iniciar Sesión
+            {m["login.button.submit"]()}
           {/if}
         </Button>
 
         <div class="text-center text-sm pt-4">
           <a href="/" class="text-muted-foreground hover:text-primary transition-colors">
-            &larr; Volver al Inicio
+            {m["login.link.back"]()}
           </a>
         </div>
       </form>
@@ -114,4 +115,3 @@
   </Card.Root>
 </div>
 {/if}
-

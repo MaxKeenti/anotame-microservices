@@ -8,6 +8,7 @@
   import { toast } from 'svelte-sonner';
   import type { ColumnDef } from '@tanstack/table-core';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   // We will scaffold CustomerDialog incorporating superForms
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
@@ -19,10 +20,10 @@
   let editingCustomer = $state<any | null>(null);
 
   const columns: ColumnDef<any>[] = [
-    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: 'Nombre', enableSorting: true },
-    { accessorKey: 'phoneNumber', header: 'Teléfono', enableSorting: false },
-    { accessorKey: 'email', header: 'Correo', enableSorting: false },
-    { id: 'actions', header: 'Acciones', enableSorting: false },
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["customers.column.name"](), enableSorting: true },
+    { accessorKey: 'phoneNumber', header: m["customers.column.phone"](), enableSorting: false },
+    { accessorKey: 'email', header: m["customers.column.email"](), enableSorting: false },
+    { id: 'actions', header: m["customers.column.actions"](), enableSorting: false },
   ];
 
   async function fetchCustomers() {
@@ -51,16 +52,16 @@
 
   async function handleDeleteClick(id: string) {
     const ok = await adaptiveConfirm({
-      title: 'Eliminar Cliente',
-      description: '¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.'
+      title: m["customers.delete.title"](),
+      description: m["customers.delete.desc"]()
     });
     if (ok) {
       try {
         await apiService.request(`${API_SALES}/api/customers/${id}`, { method: 'DELETE' });
-        toast.success('Cliente eliminado exitosamente');
+        toast.success(m["customers.delete.success"]());
         fetchCustomers();
       } catch (e) {
-        toast.error('Error al eliminar cliente');
+        toast.error(m["customers.delete.error"]());
       }
     }
   }
@@ -74,10 +75,10 @@
 <div class="space-y-3">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">Clientes</h1>
-      <p class="text-muted-foreground">Gestionar base de datos de clientes.</p>
+      <h1 class="text-3xl font-heading font-bold text-foreground">{m["customers.page.title"]()}</h1>
+      <p class="text-muted-foreground">{m["customers.page.subtitle"]()}</p>
     </div>
-    <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">+ Nuevo Cliente</Button>
+    <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">{m["customers.button.new"]()}</Button>
   </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
@@ -85,8 +86,8 @@
       columns={columns}
       data={customers}
       loading={loading}
-      emptyMessage="No se encontraron clientes."
-      filterPlaceholder="Filtrar clientes..."
+      emptyMessage={m["customers.empty"]()}
+      filterPlaceholder={m["customers.filter.placeholder"]()}
       showFilter={true}
     >
       {#snippet actionCell(row)}
@@ -98,7 +99,7 @@
             onclick={() => handleEditClick(row.original)}
           >
             <Edit class="w-4 h-4 mr-2" />
-            Editar
+            {m["common.edit"]()}
           </Button>
           <Button
             variant="outline"
@@ -107,7 +108,7 @@
             onclick={() => row.original.id && handleDeleteClick(row.original.id)}
           >
             <Trash2 class="w-4 h-4 mr-2" />
-            Eliminar
+            {m["common.delete"]()}
           </Button>
         </div>
       {/snippet}

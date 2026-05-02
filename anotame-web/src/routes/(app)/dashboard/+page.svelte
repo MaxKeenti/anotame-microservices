@@ -14,8 +14,8 @@
 
 <div class="space-y-8 pb-20 p-2 sm:p-0">
   <div class="mb-8">
-     <h2 class="text-3xl sm:text-4xl font-bold font-heading">{m.dashboard_greeting({ name: authService.user?.username || m.common_user() })}</h2>
-     <p class="text-muted-foreground mt-2 sm:text-lg">{m.dashboard_welcome()}</p>
+     <h2 class="text-3xl sm:text-4xl font-bold font-heading">{m["dashboard.greeting"]({ name: authService.user?.username || m["common.user"]() })}</h2>
+     <p class="text-muted-foreground mt-2 sm:text-lg">{m["dashboard.welcome"]()}</p>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

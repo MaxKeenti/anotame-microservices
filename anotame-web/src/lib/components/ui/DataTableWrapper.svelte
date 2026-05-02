@@ -49,8 +49,8 @@
     onSelectionChange,
   }: Props = $props();
 
-  let resolvedEmptyMessage = $derived(emptyMessage ?? m.common_noData());
-  let resolvedFilterPlaceholder = $derived(filterPlaceholder ?? m.common_searchEllipsis());
+  let resolvedEmptyMessage = $derived(emptyMessage ?? m["common.noData"]());
+  let resolvedFilterPlaceholder = $derived(filterPlaceholder ?? m["common.searchEllipsis"]());
 
   // Intercept pattern — avoid hydration warning from $props directly into $state
   let initialPageSize = untrack(() => tablePreferences.pageSize);
@@ -159,7 +159,7 @@
   <!-- Search input -->
   {#if showFilter}
     <div>
-      <label for="dt-filter" class="sr-only text-sm font-medium">{m.common_search()}</label>
+      <label for="dt-filter" class="sr-only text-sm font-medium">{m["common.search"]()}</label>
       <Input
         id="dt-filter"
         placeholder={resolvedFilterPlaceholder}
@@ -188,7 +188,7 @@
                       <input
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
-                        aria-label={m.common_selectAll()}
+                        aria-label={m["common.selectAll"]()}
                         checked={table.getIsAllRowsSelected()}
                         onchange={table.getToggleAllRowsSelectedHandler()}
                       />
@@ -197,7 +197,7 @@
                     <button
                       class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
                       onclick={header.column.getToggleSortingHandler()}
-                      aria-label={m.common_sortBy({ column: header.column.columnDef.header as string })}
+                      aria-label={m["common.sortBy"]({ column: header.column.columnDef.header as string })}
                     >
                       {header.column.columnDef.header as string}
                       {#if header.column.getIsSorted() === 'asc'}
@@ -224,7 +224,7 @@
         {#if loading}
           <Table.Row>
             <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
-              {m.common_loading()}
+              {m["common.loading"]()}
             </Table.Cell>
           </Table.Row>
         {:else if table.getRowModel().rows.length === 0}
@@ -243,7 +243,7 @@
                       <input
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
-                        aria-label={m.common_selectRow()}
+                        aria-label={m["common.selectRow"]()}
                         checked={cell.row.getIsSelected()}
                         onchange={cell.row.getToggleSelectedHandler()}
                       />
@@ -272,10 +272,10 @@
       disabled={!table.getCanPreviousPage()}
       onclick={() => table.previousPage()}
     >
-      {m.common_previous()}
+      {m["common.previous"]()}
     </Button>
     <span class="text-sm text-muted-foreground">
-      {m.common_pagination({ current: String(table.getState().pagination.pageIndex + 1), total: String(table.getPageCount() || 1) })}
+      {m["common.pagination"]({ current: String(table.getState().pagination.pageIndex + 1), total: String(table.getPageCount() || 1) })}
     </span>
     <Button
       variant="outline"
@@ -283,7 +283,7 @@
       disabled={!table.getCanNextPage()}
       onclick={() => table.nextPage()}
     >
-      {m.common_next()}
+      {m["common.next"]()}
     </Button>
   </div>
 </div>

@@ -64,7 +64,7 @@
             } else if (e instanceof ApiError && e.status === 401) {
                 await goto('/login');
             } else {
-                toast.error(m.orders_edit_loadError(), { description: (e as any)?.message });
+                toast.error(m["orders.edit.loadError"](), { description: (e as any)?.message });
                 await goto('/dashboard/orders');
             }
         } finally {
@@ -73,10 +73,10 @@
     });
 
     const steps = [
-        { title: m.orders_wizard_customer(), component: CustomerStep },
-        { title: m.orders_wizard_priceList(), component: PriceListStep },
-        { title: m.orders_wizard_garments(), component: ItemsStep },
-        { title: m.orders_wizard_payment(), component: PaymentStep },
+        { title: m["orders.wizard.customer"](), component: CustomerStep },
+        { title: m["orders.wizard.priceList"](), component: PriceListStep },
+        { title: m["orders.wizard.garments"](), component: ItemsStep },
+        { title: m["orders.wizard.payment"](), component: PaymentStep },
     ];
 
     function handleNext() {
@@ -104,7 +104,7 @@
 {#if isLoading}
     <div class="flex flex-col h-[60vh] items-center justify-center text-muted-foreground gap-4 animate-pulse">
         <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-        <div class="text-lg font-medium">{m.orders_detail_loading()}</div>
+        <div class="text-lg font-medium">{m["orders.detail.loading"]()}</div>
     </div>
 {:else if notFound}
     <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
@@ -114,11 +114,11 @@
             </svg>
         </div>
         <div>
-            <h2 class="text-2xl font-bold text-destructive">{m.orders_detail_notFound()}</h2>
-            <p class="text-muted-foreground mt-2 max-w-md">{m.orders_edit_notFoundDescription()}</p>
+            <h2 class="text-2xl font-bold text-destructive">{m["orders.detail.notFound"]()}</h2>
+            <p class="text-muted-foreground mt-2 max-w-md">{m["orders.edit.notFoundDescription"]()}</p>
         </div>
         <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
-            {m.orders_detail_backToList()}
+            {m["orders.detail.backToList"]()}
         </Button>
     </div>
 {:else}
@@ -134,7 +134,7 @@
                 <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <span>{m.orders_edit_lockedBanner()}</span>
+                <span>{m["orders.edit.lockedBanner"]()}</span>
             </div>
         {/if}
 
@@ -142,7 +142,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <div class="flex items-center gap-2">
                 <h1 class="text-2xl font-bold font-heading">
-                    {m.orders_edit_title({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
+                    {m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
                 </h1>
             </div>
 
@@ -168,7 +168,7 @@
             </div>
 
             <Button variant="outline" class="h-10 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
-                {m.common_cancel()}
+                {m["common.cancel"]()}
             </Button>
         </div>
 

@@ -52,7 +52,7 @@ export const generateReceiptHtml = (data: {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>${m.receipt_ticketTitle({ ticket: data.ticketNumber })}</title>
+  <title>${m["receipt.ticketTitle"]({ ticket: data.ticketNumber })}</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -85,19 +85,19 @@ export const generateReceiptHtml = (data: {
   <div class="header">
     <h1>${data.establishment.name}</h1>
     ${data.establishment.address ? `<div>${data.establishment.address}</div>` : ''}
-    ${data.establishment.contactPhone ? `<div>${m.receipt_phone()}: ${data.establishment.contactPhone}</div>` : ''}
+    ${data.establishment.contactPhone ? `<div>${m["receipt.phone"]()}: ${data.establishment.contactPhone}</div>` : ''}
     ${data.establishment.rfc ? `<div>RFC: ${data.establishment.rfc}</div>` : ''}
-    ${data.establishment.taxRegime ? `<div>${m.receipt_taxRegime()}: ${data.establishment.taxRegime}</div>` : ''}
+    ${data.establishment.taxRegime ? `<div>${m["receipt.taxRegime"]()}: ${data.establishment.taxRegime}</div>` : ''}
 
     <div style="margin-top: 5px;">${date}</div>
-    <div><strong>${m.receipt_folio()}: ${data.ticketNumber}</strong></div>
+    <div><strong>${m["receipt.folio"]()}: ${data.ticketNumber}</strong></div>
   </div>
 
   <div class="section">
-    <div class="row"><span>${m.receipt_customer()}:</span><span style="text-align: right;">${data.customerName}</span></div>
-    <div class="row"><span>${m.receipt_phone()}:</span><span>${data.phone || ''}</span></div>
-    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>${m.receipt_delivery()}:</span><span>${formatDate(data.deadline)}</span></div>
-    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">${m.receipt_deliveryNote()}</div>
+    <div class="row"><span>${m["receipt.customer"]()}:</span><span style="text-align: right;">${data.customerName}</span></div>
+    <div class="row"><span>${m["receipt.phone"]()}:</span><span>${data.phone || ''}</span></div>
+    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>${m["receipt.delivery"]()}:</span><span>${formatDate(data.deadline)}</span></div>
+    <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">${m["receipt.deliveryNote"]()}</div>
   </div>
 
   <div class="section">
@@ -109,39 +109,39 @@ export const generateReceiptHtml = (data: {
                 <span style="flex: 1; margin-right: 2px;">+ ${service.name}</span>
                 <span>$${(service.price + (service.adjustment || 0)).toFixed(2)}</span>
             </div>
-            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">${m.receipt_adjustment()}: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${service.adjustmentReason || ''})</div>` : ''}
+            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">${m["receipt.adjustment"]()}: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${service.adjustmentReason || ''})</div>` : ''}
         `).join('')}
-        ${item.notes ? `<div class="item-detail" style="font-style: italic;">${m.receipt_note()}: ${item.notes}</div>` : ''}
+        ${item.notes ? `<div class="item-detail" style="font-style: italic;">${m["receipt.note"]()}: ${item.notes}</div>` : ''}
       </div>
     `).join('')}
   </div>
 
   <div class="section totals">
     <div class="row">
-      <span>${m.receipt_total()}:</span>
+      <span>${m["receipt.total"]()}:</span>
       <span>$${data.total.toFixed(2)}</span>
     </div>
     <div class="row">
-      <span>${m.receipt_deposit()}:</span>
+      <span>${m["receipt.deposit"]()}:</span>
       <span>$${data.amountPaid.toFixed(2)}</span>
     </div>
     <div class="row" style="font-size: 14px;">
-      <span>${m.receipt_remaining()}:</span>
+      <span>${m["receipt.remaining"]()}:</span>
       <span>$${data.balance.toFixed(2)}</span>
     </div>
   </div>
 
    ${data.pickupCode ? `
    <div class="section" style="text-align: center;">
-     <div style="font-size: 10px; font-weight: normal; margin-bottom: 5px;">${m.receipt_pickupCode()}</div>
+     <div style="font-size: 10px; font-weight: normal; margin-bottom: 5px;">${m["receipt.pickupCode"]()}</div>
      <div style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; letter-spacing: 2px; text-align: center;">${data.pickupCode}</div>
    </div>
    ` : ""}
 
 
   <div class="footer">
-    <p>${m.receipt_thankYou()}</p>
-    <p>${m.receipt_noTicketNoDelivery()}</p>
+    <p>${m["receipt.thankYou"]()}</p>
+    <p>${m["receipt.noTicketNoDelivery"]()}</p>
   </div>
 </body>
 </html>

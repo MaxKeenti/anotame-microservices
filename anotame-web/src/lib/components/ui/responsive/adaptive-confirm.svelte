@@ -11,8 +11,8 @@
       <AlertDialog.Description>{confirmState.description}</AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
-      <AlertDialog.Cancel onclick={() => resolveConfirm(false)}>{m.common_cancel()}</AlertDialog.Cancel>
-      <AlertDialog.Action onclick={() => resolveConfirm(true)}>{m.common_confirm()}</AlertDialog.Action>
+      <AlertDialog.Cancel onclick={() => resolveConfirm(false)}>{m["common.cancel"]()}</AlertDialog.Cancel>
+      <AlertDialog.Action onclick={() => resolveConfirm(true)}>{m["common.confirm"]()}</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
