@@ -7,6 +7,7 @@
   import { apiService, API_SALES, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
   import { superForm, defaults, setError } from 'sveltekit-superforms';
+  import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 
@@ -14,8 +15,8 @@
     id: z.string().nullable().optional(),
     firstName: z.string().min(2, 'El nombre es obligatorio'),
     lastName: z.string().optional().or(z.literal('')),
-    phoneNumber: z.string().regex(/^\d{10}$/, 'Debe ser un número de 10 dígitos'),
-    email: z.string().email('Correo inválido').optional().or(z.literal(''))
+    phoneNumber: z.string().regex(/^\d{10}$/, m['customerDialog.zod.phoneFormat']()),
+    email: z.string().email(m['customerDialog.zod.emailInvalid']()).optional().or(z.literal(''))
   });
 
   let { item, onClose, onSuccess } = $props<{
@@ -88,7 +89,7 @@
     <Dialog.Header>
       <Dialog.Title>{item?.id ? 'Editar Cliente' : 'Nuevo Cliente'}</Dialog.Title>
       <Dialog.Description>
-        Diligencia la información de contacto de tu cliente.
+        {m['customerDialog.description']()}
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
@@ -120,7 +121,7 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Teléfono</Form.Label>
+              <Form.Label>{m['customerDialog.label.phone']()}</Form.Label>
               <Input {...props} {...constraints} type="tel" bind:value={$form.phoneNumber} class="h-12" />
             {/snippet}
           </Form.Control>
@@ -131,7 +132,7 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Correo Electrónico (opcional)</Form.Label>
+              <Form.Label>{m['customerDialog.label.email']()}</Form.Label>
               <Input {...props} {...constraints} type="email" bind:value={$form.email} class="h-12" />
             {/snippet}
           </Form.Control>

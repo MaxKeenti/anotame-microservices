@@ -10,6 +10,7 @@
   import { goto } from '$app/navigation';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
+  import * as m from '$lib/paraglide/messages';
 
   // Guard: Protect this route, strictly checking 'ADMIN'
   const guard = useAuthGuard(true, '/dashboard');
@@ -21,12 +22,12 @@
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
   const columns: ColumnDef<any>[] = [
-    { accessorKey: 'name', header: 'Nombre', enableSorting: true },
+    { accessorKey: 'name', header: m['customers.column.name'](), enableSorting: true },
     { accessorKey: 'priority', header: 'Prioridad', enableSorting: true },
-    { id: 'validFrom', accessorFn: (row) => new Date(row.validFrom).toLocaleDateString('es-ES'), header: 'Válido Desde', enableSorting: true },
-    { id: 'validTo', accessorFn: (row) => row.validTo ? new Date(row.validTo).toLocaleDateString('es-ES') : 'Permanente', header: 'Válido Hasta', enableSorting: true },
-    { id: 'status', accessorFn: (row) => row.active ? 'Activa' : 'Inactiva', header: 'Estado', enableSorting: true },
-    { id: 'actions', header: 'Acciones', enableSorting: false },
+    { id: 'validFrom', accessorFn: (row) => new Date(row.validFrom).toLocaleDateString('es-ES'), header: m['pricelists.column.validFrom'](), enableSorting: true },
+    { id: 'validTo', accessorFn: (row) => row.validTo ? new Date(row.validTo).toLocaleDateString('es-ES') : m['pricelists.column.permanent'](), header: m['pricelists.column.validTo'](), enableSorting: true },
+    { id: 'status', accessorFn: (row) => row.active ? m['pricelists.column.active']() : m['pricelists.column.inactive'](), header: 'Estado', enableSorting: true },
+    { id: 'actions', header: m['common.actions'](), enableSorting: false },
   ];
 
   async function loadLists() {
@@ -52,9 +53,9 @@
   });
 
   async function handleDelete(id: string, name: string) {
-    const ok = await adaptiveConfirm({ 
-      title: 'Eliminar Lista', 
-      description: `¿Estás seguro de que deseas eliminar la lista "${name}"?` 
+    const ok = await adaptiveConfirm({
+      title: m['pricelists.delete.title'](),
+      description: m['pricelists.delete.desc']({ name })
     });
     
     if (ok) {
@@ -90,8 +91,8 @@
 
     <Card.Root>
       <Card.Header>
-        <Card.Title>Estrategias Activas e Históricas</Card.Title>
-        <Card.Description>Las listas con mayor prioridad sobrescriben el precio base del catálogo.</Card.Description>
+        <Card.Title>{m['pricelists.card.title']()}</Card.Title>
+        <Card.Description>{m['pricelists.card.desc']()}</Card.Description>
       </Card.Header>
       <Card.Content>
         <DataTableWrapper

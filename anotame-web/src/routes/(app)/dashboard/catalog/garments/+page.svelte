@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
@@ -21,7 +22,7 @@
 
   let columns = $derived<ColumnDef<any>[]>([
     { accessorKey: 'name', header: 'Nombre', enableSorting: true },
-    { id: 'description', accessorFn: (row: any) => row.description || '-', header: 'Descripción', enableSorting: false },
+    { id: 'description', accessorFn: (row: any) => row.description || '-', header: m['garments.column.description'](), enableSorting: false },
     ...(isAdmin ? [{ id: 'actions', header: 'Acciones', enableSorting: false } as ColumnDef<any>] : []),
   ]);
 
@@ -51,7 +52,7 @@
   }
 
   async function handleDeleteClick(garment: any) {
-    const ok = await adaptiveConfirm({ title: 'Eliminar Prenda', description: `¿Estás seguro de que deseas eliminar ${garment.name}?` });
+    const ok = await adaptiveConfirm({ title: m['garments.delete.title'](), description: m['garments.delete.desc']({ name: garment.name }) });
     if (ok) {
       try {
         await apiService.request(`${API_CATALOG}/catalog/garments/${garment.id}`, { method: 'DELETE' });

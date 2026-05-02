@@ -9,6 +9,7 @@
   import { toast } from 'svelte-sonner';
 
   import { superForm, defaults, setError } from 'sveltekit-superforms';
+  import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 
@@ -17,7 +18,7 @@
     name: z.string().min(2, 'El nombre es obligatorio'),
     description: z.string().optional().or(z.literal('')),
     basePrice: z.number().min(0, 'El precio debe ser mayor o igual a 0'),
-    defaultDurationMin: z.number().min(1, 'La duración mínima es 1 minuto'),
+    defaultDurationMin: z.number().min(1, m['serviceDialog.zod.minDuration']()),
     garmentTypeId: z.string().min(1, 'Selecciona una prenda'),
   });
 
@@ -141,7 +142,7 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Descripción</Form.Label>
+              <Form.Label>{m['serviceDialog.label.description']()}</Form.Label>
               <Input {...props} {...constraints} placeholder="Detalles adicionales (opcional)" bind:value={$form.description} class="h-12" />
             {/snippet}
           </Form.Control>
@@ -165,7 +166,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Duración (min)</Form.Label>
+                <Form.Label>{m['serviceDialog.label.duration']()}</Form.Label>
                 <Input {...props} {...constraints} type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} class="h-12" />
               {/snippet}
             </Form.Control>

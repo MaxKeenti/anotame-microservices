@@ -7,6 +7,7 @@
   import { paletteStore } from '$lib/stores/palette.svelte';
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
@@ -96,7 +97,7 @@
 
         <!-- Menu Modal Button Placeholder. Touch targets must be generous. -->
         <button onclick={() => isMenuOpen = true} class="h-10 px-4 py-2 border rounded-md hover:bg-accent hover:text-accent-foreground touch-manipulation font-medium">
-           Menú
+           {m['nav.menu.button']()}
         </button>
       </header>
 

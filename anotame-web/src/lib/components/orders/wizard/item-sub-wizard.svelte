@@ -7,6 +7,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { ArrowLeft, CheckCircle2, Plus, Trash2, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
+	import * as m from '$lib/paraglide/messages';
 
 	let props = $props<{
 		initialItem?: any,
@@ -399,7 +400,7 @@
                         <Textarea
                             id="notas-prenda"
                             class="min-h-[160px] resize-none text-lg p-4 rounded-xl"
-                            placeholder="Detalles específicos para el sastre sobre esta prenda..."
+                            placeholder={m['orders.wizard.notesPlaceholder']()}
                             bind:value={notes}
                         />
                     </div>

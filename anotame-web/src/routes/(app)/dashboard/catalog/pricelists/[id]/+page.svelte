@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as m from '$lib/paraglide/messages';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
@@ -150,7 +151,7 @@
 
   function handleReset() {
     overrides = { ...originalOverrides };
-    toast.info('Valores restaurados a la configuración guardada.');
+    toast.info(m['pricelists.toast.resetValues']());
   }
 </script>
 
@@ -234,15 +235,15 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Form.Field form={superform} name="validFrom">
               {#snippet children({ constraints })}
-                <Form.Label>Válido Desde</Form.Label>
+                <Form.Label>{m['pricelists.form.validFrom']()}</Form.Label>
                 <AdaptiveDatePicker id="pl-from" bind:value={$form.validFrom} />
                 <Form.FieldErrors />
               {/snippet}
             </Form.Field>
             <Form.Field form={superform} name="validTo">
               {#snippet children({ constraints })}
-                <Form.Label>Válido Hasta (Opcional)</Form.Label>
-                <AdaptiveDatePicker id="pl-to" value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} placeholder="Permanente si está vacío" />
+                <Form.Label>{m['pricelists.form.validTo']()}</Form.Label>
+                <AdaptiveDatePicker id="pl-to" value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} placeholder={m['pricelists.form.permanentPlaceholder']()} />
                 <Form.FieldErrors />
               {/snippet}
             </Form.Field>
@@ -253,7 +254,7 @@
       <Card.Root>
         <Card.Header>
           <Card.Title>Sobrescritura de Precios (Overrides)</Card.Title>
-          <Card.Description>Deja el campo vacío para mantener el Precio Base.</Card.Description>
+          <Card.Description>{m['pricelists.form.overrideDesc']()}</Card.Description>
         </Card.Header>
         <Card.Content class="space-y-4">
           <!-- Bulk adjustments -->
@@ -302,7 +303,7 @@
           onclick={async () => {
             const ok = await adaptiveConfirm({
               title: 'Descartar Cambios',
-              description: '¿Estás seguro de que deseas salir sin guardar los cambios?'
+              description: m['pricelists.discard.desc']()
             });
             if(ok) goto('/dashboard/catalog/pricelists');
           }}

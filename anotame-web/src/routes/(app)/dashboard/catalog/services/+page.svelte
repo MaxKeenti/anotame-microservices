@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -43,7 +44,7 @@
   let columns = $derived<ColumnDef<any>[]>([
     { accessorKey: 'name', header: 'Nombre', enableSorting: true },
     { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: 'Prenda', enableSorting: true },
-    { accessorKey: 'defaultDurationMin', header: 'Duración (min)', enableSorting: true },
+    { accessorKey: 'defaultDurationMin', header: m['services.column.duration'](), enableSorting: true },
     { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: 'Precio', enableSorting: true },
     ...(isAdmin ? [{ id: 'actions', header: 'Acciones', enableSorting: false } as ColumnDef<any>] : []),
   ]);
@@ -87,8 +88,8 @@
 
   async function handleDeleteClick(service: any) {
     const ok = await adaptiveConfirm({
-      title: 'Eliminar Servicio',
-      description: `¿Estás seguro de que deseas eliminar "${service.name}"? Esta acción no se puede deshacer.`
+      title: m['services.delete.title'](),
+      description: m['services.delete.desc']({ name: service.name })
     });
     if (ok) {
       try {

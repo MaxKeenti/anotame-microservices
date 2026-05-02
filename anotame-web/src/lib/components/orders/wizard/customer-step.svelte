@@ -5,6 +5,7 @@
    import { Input } from '$lib/components/ui/input';
    import { Search, User, Plus } from 'lucide-svelte';
    import { toast } from 'svelte-sonner';
+   import * as m from '$lib/paraglide/messages';
    
    let query = $state('');
    let results = $state<any[]>([]);
@@ -72,7 +73,7 @@
                 <div class="relative">
                     <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-6 h-6" />
                     <Input
-                        placeholder="Buscar por nombre o teléfono..."
+                        placeholder={m['orders.wizard.searchPlaceholder']()}
                         class="pl-12 h-16 text-lg rounded-xl shadow-sm"
                         bind:value={query}
                         autofocus

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as m from '$lib/paraglide/messages';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
@@ -257,23 +258,23 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Field form={superform} name="validFrom">
             {#snippet children({ constraints })}
-                  <Form.Label>Válido Desde</Form.Label>
-                  <AdaptiveDatePicker 
-                    id="pl-from" 
-                    bind:value={$form.validFrom} 
-                    min={new Date().toISOString().slice(0, 10)} 
+                  <Form.Label>{m['pricelists.form.validFrom']()}</Form.Label>
+                  <AdaptiveDatePicker
+                    id="pl-from"
+                    bind:value={$form.validFrom}
+                    min={new Date().toISOString().slice(0, 10)}
                   />
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
           <Form.Field form={superform} name="validTo">
             {#snippet children({ constraints })}
-                  <Form.Label>Válido Hasta (Opcional)</Form.Label>
-                  <AdaptiveDatePicker 
-                    id="pl-to" 
-                    value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v} 
-                    min={$form.validFrom || new Date().toISOString().slice(0, 10)} 
-                    placeholder="Permanente si está vacío" 
+                  <Form.Label>{m['pricelists.form.validTo']()}</Form.Label>
+                  <AdaptiveDatePicker
+                    id="pl-to"
+                    value={$form.validTo ?? ''} onValueChange={(v) => $form.validTo = v}
+                    min={$form.validFrom || new Date().toISOString().slice(0, 10)}
+                    placeholder={m['pricelists.form.permanentPlaceholder']()}
                   />
               <Form.FieldErrors />
             {/snippet}
@@ -284,7 +285,7 @@
 
     <Card.Root>
       <Card.Header>
-        <Card.Title>Configuración Base</Card.Title>
+        <Card.Title>{m['pricelists.form.baseConfigTitle']()}</Card.Title>
       </Card.Header>
       <Card.Content>
         <Form.Field form={superform} name="baseListId">
@@ -310,7 +311,7 @@
     <Card.Root>
       <Card.Header>
         <Card.Title>Sobrescritura de Precios (Overrides)</Card.Title>
-        <Card.Description>Deja el campo vacío para mantener el Precio Base.</Card.Description>
+        <Card.Description>{m['pricelists.form.overrideDesc']()}</Card.Description>
       </Card.Header>
       <Card.Content class="space-y-4">
         <!-- Bulk adjustments -->
@@ -369,7 +370,7 @@
               {#if services.length === 0}
                 <Table.Row>
                   <Table.Cell colspan={3} class="p-8 text-center text-muted-foreground">
-                    No hay servicios configurados en el catálogo.
+                    {m['pricelists.form.noServices']()}
                   </Table.Cell>
                 </Table.Row>
               {/if}
