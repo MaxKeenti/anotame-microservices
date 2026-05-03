@@ -180,7 +180,7 @@
           <Table.Row class="hover:bg-transparent">
             {#each headerGroup.headers as header (header.id)}
               <Table.Head
-                class="px-6 py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? 'w-16' : ''} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
+                class="py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? 'px-0 w-16' : 'px-6'} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
               >
                 {#if !header.isPlaceholder}
                   {#if header.column.id === '__select__'}
@@ -237,7 +237,7 @@
           {#each table.getRowModel().rows as row (row.id)}
             <Table.Row class="hover:bg-muted/10 transition-colors">
               {#each row.getVisibleCells() as cell (cell.id)}
-                <Table.Cell class="px-6 py-4 {cell.column.id === '__select__' ? 'px-0' : ''}">
+                <Table.Cell class="py-4 {cell.column.id === '__select__' ? 'px-0' : 'px-6'}">
                   {#if cell.column.id === '__select__'}
                     <div class="flex items-center justify-center h-12 w-12 -ml-3">
                       <input

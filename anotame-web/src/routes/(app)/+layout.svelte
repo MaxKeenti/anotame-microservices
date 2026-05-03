@@ -92,7 +92,7 @@
   </div>
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
-  <div class="flex flex-col h-[100dvh] bg-background text-foreground overflow-hidden">
+  <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden">
 
       <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isProfileOpen = true; }} />
 
@@ -108,8 +108,8 @@
       </main>
 
       <!-- Bottom Dock Section -->
-      <div class="shrink-0 w-full border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe z-50 relative">
-        <div class="flex items-center justify-center gap-2 px-3 py-2 mx-auto w-max max-w-full overflow-x-auto no-scrollbar">
+      <div class="shrink-0 w-full pt-4 pb-6 bg-transparent z-40 relative pointer-events-none">
+        <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 mx-auto w-max max-w-[calc(100vw-2rem)] rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
           {#each dockItems as item, i}
             {@const Icon = item.icon}
             <a
@@ -119,7 +119,7 @@
             >
               <Icon class="w-6 h-6" />
               {#if page.url.pathname.startsWith(item.href)}
-                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
+                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
               {/if}
             </a>
           {/each}
