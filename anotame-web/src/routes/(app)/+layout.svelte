@@ -92,7 +92,7 @@
   </div>
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
-  <div class="flex flex-col min-h-screen bg-background text-foreground overflow-x-hidden">
+  <div class="flex flex-col h-[100dvh] bg-background text-foreground overflow-hidden">
 
       <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isProfileOpen = true; }} />
 
@@ -103,13 +103,13 @@
         onSuccess={() => { /* User data will be refetched via authService */ }}
       />
 
-      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-24 md:pb-28">
+      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 overflow-y-auto">
         {@render children()}
       </main>
 
-      <!-- macOS Style Dock -->
-      <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-max max-w-[calc(100vw-2rem)]">
-        <div class="flex items-center gap-2 px-3 py-2 rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl">
+      <!-- Bottom Dock Section -->
+      <div class="shrink-0 w-full border-t border-border/40 bg-background/80 backdrop-blur-xl pb-safe z-50 relative">
+        <div class="flex items-center justify-center gap-2 px-3 py-2 mx-auto w-max max-w-full overflow-x-auto no-scrollbar">
           {#each dockItems as item, i}
             {@const Icon = item.icon}
             <a
@@ -119,7 +119,7 @@
             >
               <Icon class="w-6 h-6" />
               {#if page.url.pathname.startsWith(item.href)}
-                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
+                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
               {/if}
             </a>
           {/each}
