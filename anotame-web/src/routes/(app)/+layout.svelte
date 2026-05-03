@@ -1,5 +1,6 @@
 <script lang="ts">
   import { type Snippet, untrack } from 'svelte';
+  import { page } from '$app/state';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
@@ -8,6 +9,8 @@
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
+  import { menuItems } from '$lib/config/menu';
+  import LayoutGridIcon from 'lucide-svelte/icons/layout-grid';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
@@ -17,6 +20,15 @@
   let currentUserForEdit = $state<any | null>(null);
 
   const user = $derived(authService.user);
+
+  const dockItems = $derived.by(() => {
+    const baseKeys = ['orders', 'operations', 'customers', 'garments', 'services'];
+    const items = baseKeys.map(k => menuItems.find(m => m.key === k)!);
+    if (user?.role === 'ADMIN') {
+      items.push(menuItems.find(m => m.key === 'kpi')!);
+    }
+    return items;
+  });
 
   // When profile is opened, set current user for editing
   $effect(() => {
@@ -91,19 +103,39 @@
         onSuccess={() => { /* User data will be refetched via authService */ }}
       />
 
-      <!-- Top navbar placeholder (Touch-friendly rules: tall enough for thumbs) -->
-      <header class="h-16 shrink-0 border-b flex items-center justify-between px-4 sticky top-0 bg-background z-10 w-full">
-        <h1 class="text-xl font-bold">{m["layout.brandName"]()}</h1>
-
-        <!-- Menu Modal Button Placeholder. Touch targets must be generous. -->
-        <button onclick={() => isMenuOpen = true} class="h-10 px-4 py-2 border rounded-md hover:bg-accent hover:text-accent-foreground touch-manipulation font-medium">
-           {m["layout.menuButton"]()}
-        </button>
-      </header>
-
-      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-24 md:pb-28">
         {@render children()}
       </main>
+
+      <!-- macOS Style Dock -->
+      <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-max max-w-[calc(100vw-2rem)]">
+        <div class="flex items-center gap-2 px-3 py-2 rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl">
+          {#each dockItems as item, i}
+            {@const Icon = item.icon}
+            <a
+              href={item.href}
+              class="relative flex items-center justify-center p-3 rounded-2xl transition-all duration-200 origin-bottom hover:scale-125 hover:-translate-y-2 {i >= 3 ? 'hidden sm:flex' : 'flex'} {page.url.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
+              title={item.getName()}
+            >
+              <Icon class="w-6 h-6" />
+              {#if page.url.pathname.startsWith(item.href)}
+                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
+              {/if}
+            </a>
+          {/each}
+          
+          <div class="w-px h-8 bg-border/50 mx-1"></div>
+
+          <!-- Full Menu Button -->
+          <button
+            onclick={() => isMenuOpen = true}
+            class="relative flex items-center justify-center p-3 rounded-2xl transition-all duration-200 origin-bottom hover:scale-125 hover:-translate-y-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            title={m["layout.menuButton"]()}
+          >
+            <LayoutGridIcon class="w-6 h-6" />
+          </button>
+        </div>
+      </div>
 
   </div>
 {/if}
