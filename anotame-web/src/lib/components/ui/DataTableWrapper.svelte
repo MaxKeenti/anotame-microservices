@@ -55,7 +55,21 @@
   // Intercept pattern — avoid hydration warning from $props directly into $state
   let initialPageSize = untrack(() => tablePreferences.pageSize);
 
-  let sorting = $state<SortingState>([]);
+  let sorting = $state<SortingState>(
+    (() => {
+      const sortableCols = columns.filter(c => c.enableSorting !== false && c.id !== '__select__');
+      const nameCol = sortableCols.find(c => {
+        const id = c.id as string | undefined;
+        const accessor = (c as any).accessorKey as string | undefined;
+        return ['name', 'title', 'customer', 'ticketNumber'].includes(id || accessor || '');
+      });
+      const targetCol = nameCol || sortableCols[0];
+      if (targetCol) {
+        return [{ id: targetCol.id as string || (targetCol as any).accessorKey as string, desc: false }];
+      }
+      return [];
+    })()
+  );
   let globalFilter = $state('');
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
   // Initialize columnPinning to prevent undefined state errors

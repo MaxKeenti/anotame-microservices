@@ -24,6 +24,8 @@
 
   const mobile = useIsMobile();
 
+  let sortedItems = $derived([...items].sort((a, b) => a.label.localeCompare(b.label)));
+
   function handleNativeChange(e: Event) {
     const target = e.target as HTMLSelectElement;
     value = target.value;
@@ -48,7 +50,7 @@
     {#if allowClear && value}
       <option value="">{clearText}</option>
     {/if}
-    {#each items as item (item.value)}
+    {#each sortedItems as item (item.value)}
       <option value={item.value}>{item.label}</option>
     {/each}
   </select>
@@ -57,7 +59,7 @@
   <Select.Root type="single" value={value} onValueChange={handleSelectChange}>
     <Select.Trigger {id} class="flex h-12! w-full text-base font-normal {className}">
       {#if value}
-        {@const selected = items.find(i => i.value === value)}
+        {@const selected = sortedItems.find(i => i.value === value)}
         {selected?.label ?? placeholder}
       {:else}
         <span class="text-muted-foreground">{placeholder}</span>
@@ -67,7 +69,7 @@
       {#if allowClear && value !== '' && value !== undefined}
         <Select.Item value="">{clearText}</Select.Item>
       {/if}
-      {#each items as item (item.value)}
+      {#each sortedItems as item (item.value)}
         <Select.Item value={item.value}>{item.label}</Select.Item>
       {/each}
     </Select.Content>

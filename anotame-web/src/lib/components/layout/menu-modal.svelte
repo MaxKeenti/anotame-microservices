@@ -15,6 +15,8 @@
 
   const user = $derived(authService.user);
 
+  let sortedMenuItems = $derived([...menuItems].sort((a, b) => a.getName().localeCompare(b.getName())));
+
   function handleClose() {
     isOpen = false;
   }
@@ -49,7 +51,7 @@
       <!-- Grid Content -->
       <div class="flex-1 overflow-y-auto p-6">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {#each menuItems as item}
+          {#each sortedMenuItems as item}
             {@const isAdmin = user?.role === 'ADMIN'}
             {@const isAllowed = adminOnlyItems.includes(item.key) ? isAdmin : true}
             {#if isAllowed}
