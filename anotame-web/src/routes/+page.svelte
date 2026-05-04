@@ -10,18 +10,18 @@
       {m["landing.heading"]()}<span class="text-primary">.com</span>
     </h1>
     <p class="text-xl text-muted-foreground max-w-md">
-      {m["landing.tagline"]()}
+      {m["landing.description"]()}
     </p>
 
     <div class="flex flex-col sm:flex-row gap-4 mt-8 w-full max-w-sm sm:max-w-md justify-center">
       {#if !authService.loading}
         {#if authService.isAuthenticated}
           <Button href="/dashboard" class="w-full sm:w-auto h-14 px-8 text-lg rounded-xl touch-manipulation">
-            {m["landing.goToDashboard"]()}
+            {m["landing.button.dashboard"]()}
           </Button>
         {:else}
           <Button href="/login" variant="secondary" class="w-full sm:w-auto h-14 px-8 text-lg rounded-xl touch-manipulation border mt-3 sm:mt-0">
-            {m["landing.signIn"]()}
+            {m["landing.button.login"]()}
           </Button>
         {/if}
       {/if}

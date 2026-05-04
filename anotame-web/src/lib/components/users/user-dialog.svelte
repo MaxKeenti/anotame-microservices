@@ -9,6 +9,7 @@
   import { toast } from 'svelte-sonner';
 
   import { superForm, defaults, setError } from 'sveltekit-superforms';
+  import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
@@ -20,7 +21,7 @@
     role: z.string().default('EMPLOYEE'),
     firstName: z.string().min(1, 'El nombre es obligatorio'),
     lastName: z.string().min(1, 'El apellido es obligatorio'),
-    email: z.string().email('Correo electrónico inválido'),
+    email: z.string().email(m['userDialog.zod.emailInvalid']()),
   });
 
   let { item, onClose, onSuccess, id: formId = 'user-dialog' } = $props<{
@@ -47,7 +48,7 @@
             return;
         }
         if (!form.data.password || form.data.password.length < 6) {
-            setError(form, 'password', 'La contraseña debe tener al menos 6 caracteres');
+            setError(form, 'password', m['userDialog.zod.minPassword']());
             return;
         }
       }
@@ -212,7 +213,7 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Correo Electrónico</Form.Label>
+              <Form.Label>{m['userDialog.label.email']()}</Form.Label>
               <Input {...props} {...constraints} id="u-email" type="email" bind:value={$form.email} class="h-12" />
             {/snippet}
           </Form.Control>

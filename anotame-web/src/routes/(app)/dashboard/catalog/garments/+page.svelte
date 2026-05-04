@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
@@ -52,7 +53,7 @@
   }
 
   async function handleDeleteClick(garment: any) {
-    const ok = await adaptiveConfirm({ title: m["catalog.garments.deleteTitle"](), description: m["catalog.garments.deleteDescription"]({ name: garment.name }) });
+    const ok = await adaptiveConfirm({ title: m['garments.delete.title'](), description: m['garments.delete.desc']({ name: garment.name }) });
     if (ok) {
       try {
         await apiService.request(`${API_CATALOG}/catalog/garments/${garment.id}`, { method: 'DELETE' });

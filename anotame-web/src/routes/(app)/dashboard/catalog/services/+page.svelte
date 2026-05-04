@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';

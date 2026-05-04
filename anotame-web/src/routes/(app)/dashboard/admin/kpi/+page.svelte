@@ -50,7 +50,7 @@
       metrics = metricsData;
       if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
     } catch (e) {
-      console.error("Error cargando KPIs:", e);
+      console.error("Error loading KPIs:", e);
     } finally {
       isLoading = false;
     }
@@ -61,30 +61,30 @@
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
       <h1 class="text-3xl font-heading font-bold text-foreground">
-        {m["kpi.title"]()}
+        {m['nav.kpi.name']()}
       </h1>
       <p class="text-muted-foreground">
-        {m["kpi.description"]()}
+        {m['kpi.page.desc']()}
       </p>
     </div>
   </div>
 
   {#if isLoading || !metrics}
     <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-      {m["kpi.loading"]()}
+      {m['kpi.loading']()}
     </div>
   {:else}
     <!-- Operations (Workload) -->
     <div>
       <h2 class="text-xl font-bold font-heading mb-4 flex items-center gap-2">
         <Activity class="w-5 h-5 text-primary" />
-        {m["kpi.sectionOperations"]()}
+        {m['kpi.section.operations']()}
       </h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <!-- Pipeline -->
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardPipeline"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.pipeline']()}</Card.Title>
             <Clock class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
@@ -92,7 +92,7 @@
               {metrics.workload.pendingPipeline}
             </div>
             <p class="text-xs text-muted-foreground mt-1">
-              {m["kpi.cardPipelineDesc"]()}
+              {m['kpi.card.pipelineDesc']()}
             </p>
           </Card.Content>
         </Card.Root>
@@ -100,7 +100,7 @@
         <!-- Ready -->
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardReady"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.ready']()}</Card.Title>
             <Truck class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
@@ -108,7 +108,7 @@
               {metrics.workload.readyForPickup}
             </div>
             <p class="text-xs text-muted-foreground mt-1">
-              {m["kpi.cardReadyDesc"]()}
+              {m['kpi.card.readyDesc']()}
             </p>
           </Card.Content>
         </Card.Root>
@@ -116,7 +116,7 @@
         <!-- Due Today -->
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardToday"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.todayDeliveries']()}</Card.Title>
             <AlertCircle class="h-4 w-4 text-destructive" />
           </Card.Header>
           <Card.Content>
@@ -124,7 +124,7 @@
               {metrics.workload.todayDeliveries}
             </div>
             <p class="text-xs mt-1 text-destructive/80 font-medium">
-              {m["kpi.cardTodayDesc"]()}
+              {m['kpi.card.todayDeliveriesDesc']()}
             </p>
           </Card.Content>
         </Card.Root>
@@ -132,7 +132,7 @@
         <!-- Coming -->
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardComing"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.upcoming']()}</Card.Title>
             <Calendar class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
@@ -140,7 +140,7 @@
               {metrics.workload.comingDeliveries}
             </div>
             <p class="text-xs text-muted-foreground mt-1">
-              {m["kpi.cardComingDesc"]()}
+              {m['kpi.card.upcomingDesc']()}
             </p>
           </Card.Content>
         </Card.Root>
@@ -149,8 +149,8 @@
       <!-- Workload Ratio Bar -->
       <div class="mt-4 p-4 rounded-xl border bg-card">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium">{m["kpi.workloadProgress"]()}</span>
-          <span class="text-sm text-foreground/70">{m["kpi.workloadOf"]({ ready: metrics.workload.readyForPickup, total: metrics.workload.totalActive })}</span>
+          <span class="text-sm font-medium">{m['kpi.workload.progress']()}</span>
+          <span class="text-sm text-foreground/70">{metrics.workload.readyForPickup} de {metrics.workload.totalActive} terminados</span>
         </div>
         <div class="h-3 w-full bg-muted rounded-full overflow-hidden flex">
           {#if metrics.workload.totalActive > 0}
@@ -161,7 +161,7 @@
         </div>
       </div>
 
-      <!-- New Workload Calendar -->
+      <!-- Workload Calendar -->
       <div class="mt-8">
         <WorkloadCalendar dailyWorkload={metrics.dailyWorkload} {capacity} />
       </div>
@@ -171,46 +171,46 @@
     <div>
       <h2 class="text-xl font-bold font-heading mb-4 mt-8 flex items-center gap-2">
         <Banknote class="w-5 h-5 text-success" />
-        {m["kpi.sectionFinance"]()}
+        {m['kpi.section.finance']()}
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <!-- Revenue Cards -->
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardTodayRevenue"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.todayRevenue']()}</Card.Title>
             <TrendingUp class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
             <div class="text-3xl font-bold font-mono">
               {formatCurrency(metrics.finance.todayRevenue)}
             </div>
-            <p class="text-xs text-muted-foreground mt-1">{m["kpi.cardTodayRevenueDesc"]()}</p>
+            <p class="text-xs text-muted-foreground mt-1">{m['kpi.card.todayRevenueDesc']()}</p>
           </Card.Content>
         </Card.Root>
 
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardMonthly"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.monthRevenue']()}</Card.Title>
             <Calendar class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
             <div class="text-3xl font-bold font-mono">
               {formatCurrency(metrics.finance.monthlyRevenue)}
             </div>
-            <p class="text-xs text-muted-foreground mt-1">{m["kpi.cardMonthlyDesc"]()}</p>
+            <p class="text-xs text-muted-foreground mt-1">{m['kpi.card.monthRevenueDesc']()}</p>
           </Card.Content>
         </Card.Root>
 
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m["kpi.cardReceivables"]()}</Card.Title>
+            <Card.Title class="text-sm font-medium">{m['kpi.card.receivables']()}</Card.Title>
             <Activity class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
             <div class="text-3xl font-bold font-mono text-amber-500">
               {formatCurrency(metrics.finance.pendingDebt)}
             </div>
-            <p class="text-xs text-muted-foreground mt-1">{m["kpi.cardReceivablesDesc"]()}</p>
+            <p class="text-xs text-muted-foreground mt-1">{m['kpi.card.receivablesDesc']()}</p>
           </Card.Content>
         </Card.Root>
       </div>
@@ -218,8 +218,8 @@
       <!-- Simple CSS Bar Chart -->
       <Card.Root class="mt-6">
         <Card.Header>
-          <Card.Title>{m["kpi.chartTitle"]()}</Card.Title>
-          <Card.Description>{m["kpi.chartDesc"]()}</Card.Description>
+          <Card.Title>{m['kpi.chart.weeklyTitle']()}</Card.Title>
+          <Card.Description>{m['kpi.chart.weeklyDesc']()}</Card.Description>
         </Card.Header>
         <Card.Content>
           <div class="flex items-end gap-2 h-48 w-full mt-4">
@@ -240,7 +240,7 @@
                 </div>
                 <!-- Bar -->
                 <div
-                  class="w-full max-w-[40px] bg-primary/80 hover:bg-primary rounded-t-sm transition-all duration-500 ease-out"
+                  class="w-full max-w-10 bg-primary/80 hover:bg-primary rounded-t-sm transition-all duration-500 ease-out"
                   style="height: {heightPct}%"
                 ></div>
                 <!-- Date Label -->

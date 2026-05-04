@@ -17,10 +17,10 @@
   let editingCustomer = $state<any | null>(null);
 
   const columns: ColumnDef<any>[] = [
-    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["customers.colName"](), enableSorting: true },
-    { accessorKey: 'phoneNumber', header: m["customers.colPhone"](), enableSorting: false },
-    { accessorKey: 'email', header: m["customers.colEmail"](), enableSorting: false },
-    { id: 'actions', header: m["common.actions"](), enableSorting: false },
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["customers.column.name"](), enableSorting: true },
+    { accessorKey: 'phoneNumber', header: m["customers.column.phone"](), enableSorting: false },
+    { accessorKey: 'email', header: m["customers.column.email"](), enableSorting: false },
+    { id: 'actions', header: m["customers.column.actions"](), enableSorting: false },
   ];
 
   async function fetchCustomers() {
@@ -49,16 +49,16 @@
 
   async function handleDeleteClick(id: string) {
     const ok = await adaptiveConfirm({
-      title: m["customers.deleteTitle"](),
-      description: m["customers.deleteDesc"]()
+      title: m["customers.delete.title"](),
+      description: m["customers.delete.desc"]()
     });
     if (ok) {
       try {
         await apiService.request(`${API_SALES}/api/customers/${id}`, { method: 'DELETE' });
-        toast.success(m["customers.deleteSuccess"]());
+        toast.success(m["customers.delete.success"]());
         fetchCustomers();
       } catch (e) {
-        toast.error(m["customers.deleteError"]());
+        toast.error(m["customers.delete.error"]());
       }
     }
   }
@@ -72,19 +72,19 @@
 <div class="space-y-3">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m["customers.title"]()}</h1>
-      <p class="text-muted-foreground">{m["customers.description"]()}</p>
+      <h1 class="text-3xl font-heading font-bold text-foreground">{m["customers.page.title"]()}</h1>
+      <p class="text-muted-foreground">{m["customers.page.subtitle"]()}</p>
     </div>
-    <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">{m["customers.addButton"]()}</Button>
+    <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">{m["customers.button.new"]()}</Button>
   </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
     <DataTableWrapper
       {columns}
       data={customers}
-      {loading}
-      emptyMessage={m["customers.emptyMessage"]()}
-      filterPlaceholder={m["customers.filterPlaceholder"]()}
+      loading={loading}
+      emptyMessage={m["customers.empty"]()}
+      filterPlaceholder={m["customers.filter.placeholder"]()}
       showFilter={true}
     >
       {#snippet actionCell(row)}

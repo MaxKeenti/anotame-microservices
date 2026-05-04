@@ -27,7 +27,7 @@
       readyOrders = (allOrders || []).filter((o: any) => o.status === 'READY');
     } catch (e: any) {
       console.error(e);
-      toast.error(m["operations.loadError"]());
+      toast.error(m["operations.toast.loadError"]());
       workOrders = [];
       readyOrders = [];
     } finally {
@@ -41,8 +41,8 @@
 
   async function handleComplete(order: any) {
     const ok = await adaptiveConfirm({
-      title: m["operations.markReadyTitle"](),
-      description: m["operations.markReadyDesc"]({ ticket: order.ticketNumber })
+      title: m["operations.confirmMarkReadyTitle"](),
+      description: m["operations.confirmMarkReadyDesc"]({ ticket: order.ticketNumber })
     });
     if (!ok) return;
 
@@ -51,33 +51,33 @@
         method: 'PATCH',
         body: JSON.stringify({ status: 'READY' })
       });
-      toast.success(m["operations.markReadySuccess"](), { description: order.ticketNumber });
+      toast.success(m["operations.toast.markedReady"](), { description: order.ticketNumber });
       fetchWorkOrders();
     } catch (e: any) {
       console.error(e);
-      toast.error(m["operations.markReadyError"](), { description: e.message });
+      toast.error(m["operations.toast.updateError"](), { description: e.message });
     }
   }
 
   async function handleCancelWorkOrder(order: any) {
     const ok = await adaptiveConfirm({
-      title: m["operations.cancelTitle"](),
-      description: m["operations.cancelDesc"]({ ticket: order.ticketNumber })
+      title: m["operations.confirmCancelTitle"](),
+      description: m["operations.confirmCancelDesc"]({ ticket: order.ticketNumber })
     });
     if (!ok) return;
 
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
-      toast.success(m["operations.cancelSuccess"](), { description: order.ticketNumber });
+      toast.success(m["operations.toast.cancelSuccess"](), { description: order.ticketNumber });
       fetchWorkOrders();
     } catch (e: any) {
       console.error(e);
       if (e instanceof ApiError && e.status === 409) {
-        toast.error(m["operations.cancelConflict"](), {
-          description: m["operations.cancelConflictDesc"]()
+        toast.error(m["operations.toast.cannotCancel"](), {
+          description: m["operations.toast.cannotCancelDesc"]()
         });
       } else {
-        toast.error(m["operations.cancelError"](), { description: e?.message });
+        toast.error(m["operations.toast.cancelError"](), { description: e?.message });
       }
     }
   }
@@ -105,44 +105,46 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m["operations.title"]()}</h1>
-      <p class="text-muted-foreground">{m["operations.description"]()}</p>
+      <h1 class="text-3xl font-heading font-bold text-foreground">{m["operations.page.title"]()}</h1>
+      <p class="text-muted-foreground">{m["operations.page.subtitle"]()}</p>
     </div>
     <div class="text-sm text-muted-foreground bg-card border border-border px-4 py-2 rounded-lg">
-      {workOrders.length === 1 ? m["operations.notesCount"]({ count: workOrders.length }) : m["operations.notesCountPlural"]({ count: workOrders.length })}
+      {workOrders.length === 1
+        ? m["operations.count.single"]({ count: workOrders.length })
+        : m["operations.count.plural"]({ count: workOrders.length })}
     </div>
   </div>
 
   <Tabs.Root value="in-progress" class="space-y-4">
     <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="in-progress" class="px-6 font-bold">{m["operations.tabInProgress"]()}</Tabs.Trigger>
-      <Tabs.Trigger value="ready" class="px-6 font-bold">{m["operations.tabReady"]()}</Tabs.Trigger>
+      <Tabs.Trigger value="in-progress" class="px-6 font-bold">{m["operations.tab.inProgress"]()}</Tabs.Trigger>
+      <Tabs.Trigger value="ready" class="px-6 font-bold">{m["operations.tab.ready"]()}</Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="in-progress">
       <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-        <Table.Root class="w-full min-w-[800px]">
+        <Table.Root class="w-full min-w-200">
           <Table.Header>
             <Table.Row>
-              <Table.Head class="px-6 py-4">{m["operations.colTicket"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colCustomer"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colStatus"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colServices"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colDeadline"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 text-right">{m["operations.colActions"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.ticket"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.customer"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.status"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.services"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.deadline"]()}</Table.Head>
+              <Table.Head class="px-6 py-4 text-right">{m["operations.column.actions"]()}</Table.Head>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {#if loading}
               <Table.Row>
                 <Table.Cell colspan={6} class="h-24 text-center">
-                  {m["operations.loading"]()}
+                  {m["common.loading"]()}
                 </Table.Cell>
               </Table.Row>
             {:else if workOrders.length === 0}
               <Table.Row>
                 <Table.Cell colspan={6} class="h-24 text-center text-muted-foreground">
-                  {m["operations.emptyInProgress"]()}
+                  {m["operations.empty.inProgress"]()}
                 </Table.Cell>
               </Table.Row>
             {:else}
@@ -167,7 +169,7 @@
                       href={`/dashboard/orders/${wo.id}`}
                     >
                       <Eye class="w-4 h-4 mr-2" />
-                      {m["operations.viewButton"]()}
+                      {m["common.view"]()}
                     </Button>
                     <Button
                       variant="outline"
@@ -176,7 +178,7 @@
                       onclick={() => handleCancelWorkOrder(wo)}
                     >
                       <XCircle class="w-4 h-4 mr-2" />
-                      {m["operations.cancelButton"]()}
+                      {m["operations.button.cancel"]()}
                     </Button>
                     <Button
                       size="sm"
@@ -184,7 +186,7 @@
                       onclick={() => handleComplete(wo)}
                     >
                       <CheckCircle2 class="w-4 h-4 mr-2" />
-                      {m["operations.markReadyButton"]()}
+                      {m["operations.button.markReady"]()}
                     </Button>
                   </Table.Cell>
                 </Table.Row>
@@ -197,26 +199,26 @@
 
     <Tabs.Content value="ready">
       <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-        <Table.Root class="w-full min-w-[700px]">
+        <Table.Root class="w-full min-w-175">
           <Table.Header>
             <Table.Row>
-              <Table.Head class="px-6 py-4">{m["operations.colTicket"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colCustomer"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colGarments"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.colPromisedDelivery"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 text-right">{m["operations.colActions"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.ticket"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.customer"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.garments"]()}</Table.Head>
+              <Table.Head class="px-6 py-4">{m["operations.column.deliveryPromised"]()}</Table.Head>
+              <Table.Head class="px-6 py-4 text-right">{m["operations.column.actions"]()}</Table.Head>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {#if loading}
               <Table.Row>
-                <Table.Cell colspan={5} class="h-24 text-center">{m["operations.loading"]()}</Table.Cell>
+                <Table.Cell colspan={5} class="h-24 text-center">{m["common.loading"]()}</Table.Cell>
               </Table.Row>
             {:else if readyOrders.length === 0}
               <Table.Row>
                 <Table.Cell colspan={5} class="h-32 text-center">
                   <div class="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p class="text-base font-semibold">{m["operations.emptyReady"]()}</p>
+                    <p class="text-base font-semibold">{m["operations.emptyReadyTitle"]()}</p>
                     <p class="text-sm">{m["operations.emptyReadyDesc"]()}</p>
                   </div>
                 </Table.Cell>
@@ -237,7 +239,7 @@
                       class="h-12 px-4 touch-manipulation font-medium"
                       onclick={() => openDeliverDialog(ro)}
                     >
-                      {m["operations.deliverButton"]()}
+                      {m["operations.button.deliver"]()}
                     </Button>
                   </Table.Cell>
                 </Table.Row>

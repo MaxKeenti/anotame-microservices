@@ -14,8 +14,8 @@
   const guard = useGuestGuard('/dashboard');
 
   const loginSchema = z.object({
-    username: z.string().min(1, m["login.zodUsername"]()),
-    password: z.string().min(1, m["login.zodPassword"]()),
+    username: z.string().min(1, m["login.zod.usernameRequired"]()),
+    password: z.string().min(1, m["login.zod.passwordRequired"]()),
   });
 
   let isLoading = $state(false);
@@ -36,7 +36,7 @@
         });
         window.location.href = '/dashboard';
       } catch (err: any) {
-        errorMsg = m["login.error"]();
+        errorMsg = m["login.error.invalidCredentials"]();
       } finally {
         isLoading = false;
       }
@@ -53,9 +53,9 @@
       <h1 class="text-3xl font-heading font-bold text-foreground">
         {m["login.title"]()}<span class="text-primary">.</span>
       </h1>
-      <Card.Title>{m["login.subtitle"]()}</Card.Title>
+      <Card.Title>{m["login.card.title"]()}</Card.Title>
       <p class="text-sm text-muted-foreground">
-        {m["login.hint"]()}
+        {m["login.card.subtitle"]()}
       </p>
     </Card.Header>
     <Card.Content>
@@ -70,7 +70,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>{m["login.usernameLabel"]()}</Form.Label>
+                <Form.Label>{m["login.label.username"]()}</Form.Label>
                 <Input {...props} {...constraints} id="username" placeholder="admin" bind:value={$form.username} />
               {/snippet}
             </Form.Control>
@@ -82,7 +82,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>{m["login.passwordLabel"]()}</Form.Label>
+                <Form.Label>{m["login.label.password"]()}</Form.Label>
                 <Input {...props} {...constraints} id="password" type="password" placeholder="••••••••" bind:value={$form.password} />
               {/snippet}
             </Form.Control>
@@ -98,15 +98,15 @@
         >
           {#if isLoading}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            {m["login.signingIn"]()}
+            {m["login.button.loading"]()}
           {:else}
-            {m["login.signInButton"]()}
+            {m["login.button.submit"]()}
           {/if}
         </Button>
 
         <div class="text-center text-sm pt-4">
           <a href="/" class="text-muted-foreground hover:text-primary transition-colors">
-            {m["login.backToHome"]()}
+            {m["login.link.back"]()}
           </a>
         </div>
       </form>

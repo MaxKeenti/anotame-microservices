@@ -7,6 +7,7 @@
 	import { Tag, Loader2, AlertTriangle } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
+	import * as m from '$lib/paraglide/messages';
 
 	let priceListOptions = $state<PriceListResponse[]>([]);
 	let isLoading = $state(true);
@@ -94,12 +95,12 @@
 		{#if isEditMode}
 			<h2 class="text-xl font-semibold">Lista de precios</h2>
 			<p class="text-sm text-muted-foreground">
-				La lista de precios no puede cambiarse después de crear el pedido.
+				{m['orders.priceList.cannotChange']()}
 			</p>
 		{:else}
 			<h2 class="text-xl font-semibold">Paso 2: ¿Qué lista de precios aplica?</h2>
 			<p class="text-base text-muted-foreground">
-				Elige una lista para pre-llenar precios, o continúa sin una.
+				{m['orders.priceList.chooseHint']()}
 			</p>
 		{/if}
 	</div>
@@ -164,7 +165,7 @@
 				{:else if !selectedPriceListId && !isLoading}
 					<!-- Message when "Sin lista de precios" selected -->
 					<div class="text-center py-8 text-muted-foreground">
-						<p>Continuarás sin lista de precios</p>
+						<p>{m['orders.priceList.continueWithout']()}</p>
 					</div>
 				{/if}
 			</div>
@@ -178,7 +179,7 @@
 			onclick={onBack}
 			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg touch-manipulation"
 		>
-			Atrás
+			{m['orders.detail.back']()}
 		</Button>
 		<Button
 			type="submit"

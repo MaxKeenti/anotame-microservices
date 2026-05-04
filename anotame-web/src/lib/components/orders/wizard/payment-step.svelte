@@ -17,6 +17,7 @@
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
+	import * as m from '$lib/paraglide/messages';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 
@@ -147,15 +148,15 @@
 					const errorMessages = Object.entries(e.validationErrors)
 						.map(([field, msg]) => `${field}: ${msg}`)
 						.join(', ');
-					toast.error('Error de Validación', {
+					toast.error(m['orders.wizard.validationError'](), {
 						description: errorMessages || 'Hay errores en los campos marcados'
 					});
 				} else if (e instanceof ApiError && e.status === 409) {
 					if (draft?.isEditing) {
 						toast.error('No es posible editar este pedido.');
 					} else {
-						error = `Conflicto de base de datos: Es posible que el número de ticket ya exista o haya un problema con los datos del cliente. Por favor, intenta de nuevo.`;
-						toast.error('Error al procesar la nota', { description: e.message });
+						error = m['orders.wizard.dbConflict']();
+						toast.error('Error al procesar la orden', { description: e.message });
 					}
 				} else {
 					error = `Error: ${e.message}`;
@@ -473,7 +474,7 @@
 			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg touch-manipulation"
 			disabled={isSubmitting}
 		>
-			Atrás
+			{m['orders.detail.back']()}
 		</Button>
 		<Button
 			type="submit"

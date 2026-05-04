@@ -13,7 +13,7 @@
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
-import * as Tabs from '$lib/components/ui/tabs';
+  import * as Tabs from '$lib/components/ui/tabs';
   import * as m from '$lib/paraglide/messages';
 
   let activeTab = $state<'weekly' | 'holidays'>('weekly');
@@ -25,19 +25,24 @@ import * as Tabs from '$lib/components/ui/tabs';
   let workDays = $state<any[]>([]);
   let holidays = $state<any[]>([]);
 
-  const DAYS_KEYS = [
-    m["schedule.day.monday"],
-    m["schedule.day.tuesday"],
-    m["schedule.day.wednesday"],
-    m["schedule.day.thursday"],
-    m["schedule.day.friday"],
-    m["schedule.day.saturday"],
-    m["schedule.day.sunday"],
+  const DAY_KEYS = [
+    'schedule.day.monday',
+    'schedule.day.tuesday',
+    'schedule.day.wednesday',
+    'schedule.day.thursday',
+    'schedule.day.friday',
+    'schedule.day.saturday',
+    'schedule.day.sunday',
   ] as const;
 
+  function getDayName(dayOfWeek: number): string {
+    const key = DAY_KEYS[dayOfWeek - 1];
+    return key ? m[key]() : m['schedule.day.fallback']();
+  }
+
   const holidaySchema = z.object({
-    date: z.string().min(1, m["schedule.zodDateRequired"]()),
-    description: z.string().min(1, m["schedule.zodDescRequired"]()),
+    date: z.string().min(1, m['schedule.zod.dateRequired']()),
+    description: z.string().min(1, m['schedule.zod.descRequired']()),
   });
 
   const holidaySuperform = superForm(defaults(zod4(holidaySchema)), {
@@ -52,11 +57,11 @@ import * as Tabs from '$lib/components/ui/tabs';
           method: 'POST',
           body: JSON.stringify({ date: f.data.date, description: f.data.description }),
         });
-        toast.success(m["schedule.holidayAddSuccess"]());
+        toast.success(m['schedule.holiday.addSuccess']());
         resetHoliday();
         loadData();
       } catch (err: any) {
-        toast.error(err.message || m["schedule.holidayAddError"]());
+        toast.error(err.message || m['schedule.holiday.addError']());
       } finally {
         isHolidaySubmitting = false;
       }
@@ -81,7 +86,7 @@ import * as Tabs from '$lib/components/ui/tabs';
       holidays = (holsData || []).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     } catch (err: any) {
       console.warn('Backend endpoint may not exist yet', err);
-      toast.error(m["schedule.loadError"]());
+      toast.error(m['schedule.load.error']());
     } finally {
       isLoading = false;
     }
@@ -98,9 +103,9 @@ import * as Tabs from '$lib/components/ui/tabs';
         method: 'PUT',
         body: JSON.stringify(workDays)
       });
-      toast.success(m["schedule.saveSuccess"]());
+      toast.success(m['schedule.save.success']());
     } catch (err: any) {
-      toast.error(err.message || m["schedule.saveError"]());
+      toast.error(err.message || m['schedule.save.error']());
     } finally {
       isLoading = false;
     }
@@ -108,17 +113,17 @@ import * as Tabs from '$lib/components/ui/tabs';
 
   async function handleDeleteHoliday(id: string, desc: string) {
     const ok = await adaptiveConfirm({
-      title: m["schedule.holidayDeleteTitle"](),
-      description: m["schedule.holidayDeleteDesc"]({ desc })
+      title: m['schedule.holiday.deleteTitle'](),
+      description: m['schedule.holiday.deleteDesc']({ desc })
     });
 
     if (ok) {
       try {
         await apiService.request(`${API_OPERATIONS}/schedule/holidays/${id}`, { method: 'DELETE' });
-        toast.success(m["schedule.holidayDeleteSuccess"]());
+        toast.success(m['schedule.holiday.deleteSuccess']());
         loadData();
       } catch (err: any) {
-        toast.error(err.message || m["schedule.holidayDeleteError"]());
+        toast.error(err.message || m['schedule.holiday.deleteError']());
       }
     }
   }
@@ -126,37 +131,37 @@ import * as Tabs from '$lib/components/ui/tabs';
 
 {#if guard.checking}
   <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-    {m["schedule.checkingAccess"]()}
+    {m['schedule.validating']()}
   </div>
 {:else if guard.allowed}
 <div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
   <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m["schedule.title"]()}</h1>
+    <h1 class="text-3xl font-heading font-bold text-foreground">{m['schedule.page.title']()}</h1>
   </div>
 
   <Tabs.Root bind:value={activeTab} class="space-y-6">
     <Tabs.List class="shadow-sm border border-border/50">
       <Tabs.Trigger value="weekly" class="px-6 font-bold flex items-center gap-2">
         <CalendarDays class="w-4 h-4" />
-        {m["schedule.tabWeekly"]()}
+        {m['schedule.tab.weekly']()}
       </Tabs.Trigger>
       <Tabs.Trigger value="holidays" class="px-6 font-bold flex items-center gap-2">
         <AlertTriangle class="w-4 h-4" />
-        {m["schedule.tabHolidays"]()}
+        {m['schedule.tab.holidays']()}
       </Tabs.Trigger>
     </Tabs.List>
 
     {#if isLoading && workDays.length === 0}
       <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-        {m["schedule.loading"]()}
+        {m['schedule.loading']()}
       </div>
     {:else}
       <!-- Tab 1: Weekly Schedule -->
       <Tabs.Content value="weekly">
         <Card.Root>
           <Card.Header>
-            <Card.Title>{m["schedule.weeklyCardTitle"]()}</Card.Title>
-            <Card.Description>{m["schedule.weeklyCardDesc"]()}</Card.Description>
+            <Card.Title>{m['schedule.card.weeklyTitle']()}</Card.Title>
+            <Card.Description>{m['schedule.card.weeklyDesc']()}</Card.Description>
           </Card.Header>
           <Card.Content class="space-y-2">
             <div class="border rounded-md divide-y divide-border">
@@ -169,7 +174,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                         class="checkbox-custom"
                         bind:checked={day.open}
                       />
-                      {DAYS_KEYS[day.dayOfWeek - 1]?.() || m["schedule.dayFallback"]()}
+                      {getDayName(day.dayOfWeek)}
                     </label>
                   </div>
 
@@ -181,7 +186,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                           bind:value={day.openTime}
                           class="w-32 h-10 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
                         />
-                        <span class="text-muted-foreground text-sm font-medium">{m["schedule.timeSeparator"]()}</span>
+                        <span class="text-muted-foreground text-sm font-medium">{m['schedule.label.to']()}</span>
                         <Input
                           type="time"
                           bind:value={day.closeTime}
@@ -189,7 +194,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                         />
                       </div>
                     {:else}
-                      <span class="text-muted-foreground text-sm px-4 py-2 bg-muted/50 rounded-lg">{m["schedule.dayClosed"]()}</span>
+                      <span class="text-muted-foreground text-sm px-4 py-2 bg-muted/50 rounded-lg">{m['schedule.label.closed']()}</span>
                     {/if}
                   </div>
                 </div>
@@ -198,7 +203,7 @@ import * as Tabs from '$lib/components/ui/tabs';
 
             <div class="flex justify-end pt-6">
               <Button onclick={saveWeeklySchedule} disabled={isLoading} class="h-12 px-6 shadow-sm">
-                {isLoading ? m["schedule.savingButton"]() : m["schedule.saveButton"]()}
+                {isLoading ? m['common.loading']() : m['schedule.button.saveWeekly']()}
               </Button>
             </div>
           </Card.Content>
@@ -212,18 +217,18 @@ import * as Tabs from '$lib/components/ui/tabs';
           <!-- Add Form -->
           <Card.Root class="md:col-span-1 h-fit">
             <Card.Header>
-              <Card.Title>{m["schedule.holidayCardTitle"]()}</Card.Title>
+              <Card.Title>{m['schedule.holiday.newTitle']()}</Card.Title>
             </Card.Header>
             <Card.Content>
               <form method="POST" use:holidayEnhance class="space-y-4">
                 <Form.Field form={holidaySuperform} name="date">
                   {#snippet children({ constraints })}
-                    <Form.Label>{m["schedule.holidayDateLabel"]()}</Form.Label>
+                    <Form.Label>{m['schedule.holiday.dateLabel']()}</Form.Label>
                     <AdaptiveDatePicker
                       id="hol-date"
                       bind:value={$holidayForm.date}
                       min={new Date().toISOString().slice(0, 10)}
-                      placeholder={m["schedule.holidayDatePlaceholder"]()}
+                      placeholder={m['schedule.holiday.dateLabel']()}
                     />
                     <Form.FieldErrors />
                   {/snippet}
@@ -232,12 +237,12 @@ import * as Tabs from '$lib/components/ui/tabs';
                   {#snippet children({ constraints })}
                     <Form.Control>
                       {#snippet children({ props })}
-                        <Form.Label>{m["schedule.holidayDescLabel"]()}</Form.Label>
+                        <Form.Label>{m['schedule.holiday.descLabel']()}</Form.Label>
                         <Input
                           {...props}
                           {...constraints}
                           id="hol-desc"
-                          placeholder={m["schedule.holidayDescPlaceholder"]()}
+                          placeholder={m['schedule.holiday.descPlaceholder']()}
                           bind:value={$holidayForm.description}
                           class="h-12"
                         />
@@ -249,9 +254,9 @@ import * as Tabs from '$lib/components/ui/tabs';
                 <Button type="submit" disabled={isHolidaySubmitting} class="w-full h-12 shadow-sm">
                   {#if isHolidaySubmitting}
                     <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-                    {m["schedule.holidayAddingButton"]()}
+                    {m['schedule.holiday.adding']()}
                   {:else}
-                    {m["schedule.holidayAddButton"]()}
+                    {m['schedule.holiday.addButton']()}
                   {/if}
                 </Button>
               </form>
@@ -261,23 +266,23 @@ import * as Tabs from '$lib/components/ui/tabs';
           <!-- List Table -->
           <Card.Root class="md:col-span-2">
             <Card.Header>
-              <Card.Title>{m["schedule.holidayListCardTitle"]()}</Card.Title>
-              <Card.Description>{m["schedule.holidayListCardDesc"]()}</Card.Description>
+              <Card.Title>{m['schedule.holiday.listTitle']()}</Card.Title>
+              <Card.Description>{m['schedule.holiday.listDesc']()}</Card.Description>
             </Card.Header>
             <Card.Content>
               {#if holidays.length === 0}
                 <div class="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
                   <AlertTriangle class="w-8 h-8 mx-auto mb-3 opacity-50" />
-                  <p>{m["schedule.holidayEmpty"]()}</p>
+                  <p>{m['schedule.holiday.empty']()}</p>
                 </div>
               {:else}
                 <div class="border rounded-md overflow-x-auto">
-                  <Table.Root class="min-w-[400px]">
+                  <Table.Root class="min-w-100">
                     <Table.Header class="bg-secondary/20">
                       <Table.Row>
-                        <Table.Head class="p-4 w-[160px]">{m["schedule.holidayColDate"]()}</Table.Head>
-                        <Table.Head class="p-4">{m["schedule.holidayColDesc"]()}</Table.Head>
-                        <Table.Head class="p-4 text-right">{m["schedule.holidayColActions"]()}</Table.Head>
+                        <Table.Head class="p-4 w-40">{m['schedule.holiday.colDate']()}</Table.Head>
+                        <Table.Head class="p-4">{m['schedule.holiday.colDesc']()}</Table.Head>
+                        <Table.Head class="p-4 text-right">{m['schedule.holiday.colActions']()}</Table.Head>
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -299,7 +304,7 @@ import * as Tabs from '$lib/components/ui/tabs';
                               onclick={() => h.id && handleDeleteHoliday(h.id, h.description)}
                             >
                               <Trash2 class="w-4 h-4" />
-                              <span class="sr-only">{m["common.delete"]()}</span>
+                              <span class="sr-only">{m['common.delete']()}</span>
                             </Button>
                           </Table.Cell>
                         </Table.Row>

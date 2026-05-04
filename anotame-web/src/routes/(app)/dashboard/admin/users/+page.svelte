@@ -32,7 +32,7 @@
       users = data || [];
     } catch (e: any) {
       console.error('Failed to fetch users', e);
-      toast.error(m["users.loadError"]());
+      toast.error(m['users.load.error']());
       users = [];
     } finally {
       loading = false;
@@ -53,16 +53,16 @@
 
   async function handleDeleteClick(user: any) {
     const ok = await adaptiveConfirm({
-      title: m["users.deleteTitle"](),
-      description: m["users.deleteDesc"]({ username: user.username })
+      title: m['users.delete.title'](),
+      description: m['users.delete.desc']({ username: user.username })
     });
     if (ok) {
       try {
         await apiService.request(`${API_IDENTITY}/users/${user.id}`, { method: 'DELETE' });
-        toast.success(m["users.deleteSuccess"]());
+        toast.success(m['users.delete.success']());
         users = users.filter(u => u.id !== user.id);
       } catch (e: any) {
-        toast.error(e.message || m["users.deleteError"]());
+        toast.error(e.message || m['users.delete.error']());
       }
     }
   }
@@ -76,11 +76,11 @@
 <div class="space-y-6 animate-in fade-in duration-300">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-heading font-bold text-foreground">{m["users.title"]()}</h1>
-        <p class="text-muted-foreground">{m["users.description"]()}</p>
+        <h1 class="text-3xl font-heading font-bold text-foreground">{m['nav.users.name']()}</h1>
+        <p class="text-muted-foreground">{m['users.page.desc']()}</p>
       </div>
       <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
-        {m["users.addButton"]()}
+        {m['users.button.new']()}
       </Button>
     </div>
 
@@ -89,8 +89,8 @@
       {columns}
       data={users}
       {loading}
-      emptyMessage={m["users.emptyMessage"]()}
-      filterPlaceholder={m["users.searchPlaceholder"]()}
+      emptyMessage={m['common.noData']()}
+      filterPlaceholder={m['common.searchEllipsis']()}
     >
       {#snippet actionCell(row)}
         <div class="flex justify-end gap-2">
@@ -101,7 +101,7 @@
             onclick={() => handleEditClick(row.original)}
           >
             <Edit class="w-4 h-4 mr-2" />
-            {m["common.edit"]()}
+            {m['common.edit']()}
           </Button>
           <Button
             variant="outline"
@@ -110,7 +110,7 @@
             onclick={() => handleDeleteClick(row.original)}
           >
             <Trash2 class="w-4 h-4 mr-2" />
-            {m["common.delete"]()}
+            {m['common.delete']()}
           </Button>
         </div>
       {/snippet}

@@ -8,6 +8,7 @@
   import { toast } from 'svelte-sonner';
   
   import { superForm, defaults, setError } from 'sveltekit-superforms';
+  import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 
@@ -108,7 +109,7 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Descripción</Form.Label>
+              <Form.Label>{m['garmentDialog.label.description']()}</Form.Label>
               <Input {...props} {...constraints} placeholder="Opcional" bind:value={$form.description} class="h-12" />
             {/snippet}
           </Form.Control>

@@ -8,7 +8,6 @@
   import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import * as Table from '$lib/components/ui/table';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -165,7 +164,7 @@
       type="number"
       step="0.01"
       min="0"
-      class="h-12 w-full max-w-[180px] mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
+      class="h-12 w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
       placeholder={m["catalog.pricelist.overridePlaceholder"]()}
       bind:value={overrides[row.original.id]}
     />

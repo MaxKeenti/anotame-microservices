@@ -360,7 +360,7 @@
                       type="number"
                       step="0.01"
                       min="0"
-                      class="h-12 w-full max-w-[180px] mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
+                      class="h-12 w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
                       placeholder={m["catalog.pricelist.overridePlaceholder"]()}
                       bind:value={overrides[service.id]}
                     />

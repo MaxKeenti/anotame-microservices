@@ -15,15 +15,15 @@
   let { data } = $props();
 
   const settingsSchema = z.object({
-    name: z.string().min(1, m["adminSettings.zodNameRequired"]()),
+    name: z.string().min(1, m['adminSettings.zod.nameRequired']()),
     ownerName: z.string().optional().or(z.literal('')),
-    dailyCapacityMinutes: z.number().min(1, m["adminSettings.zodCapacityMin"]()),
+    dailyCapacityMinutes: z.number().min(1, m['adminSettings.zod.minCapacity']()),
     rfc: z.string().optional().or(z.literal('')),
     regime: z.string().optional().or(z.literal('')),
     address: z.string().optional().or(z.literal('')),
     contactPhone: z.string().optional().or(z.literal('')),
     primaryColor: z.string()
-      .regex(/^#[0-9A-Fa-f]{6}$/, m["adminSettings.zodColorFormat"]())
+      .regex(/^#[0-9A-Fa-f]{6}$/, m['adminSettings.zod.colorFormat']())
       .nullable()
       .optional()
       .or(z.literal('')),
@@ -61,9 +61,9 @@
           method: 'PUT',
           body: JSON.stringify(payload),
         });
-        toast.success(m["adminSettings.saveSuccess"]());
+        toast.success(m['adminSettings.save.success']());
       } catch (err: any) {
-        toast.error(err.message || m["adminSettings.saveError"]());
+        toast.error(err.message || m['adminSettings.save.error']());
       } finally {
         isSaving = false;
       }
@@ -91,7 +91,7 @@
         });
       }
     } catch (err: any) {
-      toast.error(err.message || m["adminSettings.loadError"]());
+      toast.error(err.message || m['adminSettings.load.error']());
     } finally {
       isLoading = false;
     }
@@ -100,13 +100,13 @@
 
 <div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
   <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m["adminSettings.title"]()}</h1>
-    <p class="text-muted-foreground">{m["adminSettings.description"]()}</p>
+    <h1 class="text-3xl font-heading font-bold text-foreground">{m['adminSettings.page.title']()}</h1>
+    <p class="text-muted-foreground">{m['adminSettings.page.desc']()}</p>
   </div>
 
   {#if isLoading}
     <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-      {m["adminSettings.loading"]()}
+      {m['adminSettings.loading']()}
     </div>
   {:else}
     <form method="POST" use:enhance class="space-y-6">
@@ -116,26 +116,26 @@
         <Card.Header>
           <div class="flex items-center gap-2">
             <Store class="w-5 h-5 text-primary" />
-            <Card.Title>{m["adminSettings.generalCardTitle"]()}</Card.Title>
+            <Card.Title>{m['adminSettings.general.title']()}</Card.Title>
           </div>
           <Card.Description>
-            {m["adminSettings.generalCardDesc"]()}
+            {m['adminSettings.general.desc']()}
           </Card.Description>
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="space-y-2">
-            <label for="est-name" class="text-sm font-medium">{m["adminSettings.nameLabel"]()} <span class="text-destructive">*</span></label>
+            <label for="est-name" class="text-sm font-medium">{m['adminSettings.label.name']()} <span class="text-destructive">*</span></label>
             <Input
               id="est-name"
               bind:value={$form.name}
               required
               class="h-12"
-              placeholder={m["adminSettings.namePlaceholder"]()}
+              placeholder={m['adminSettings.placeholder.name']()}
             />
             {#if $errors.name}<span class="text-xs text-destructive">{$errors.name}</span>{/if}
           </div>
           <div class="space-y-2">
-            <label for="est-owner" class="text-sm font-medium">{m["adminSettings.ownerLabel"]()}</label>
+            <label for="est-owner" class="text-sm font-medium">{m['adminSettings.label.owner']()}</label>
             <Input
               id="est-owner"
               bind:value={$form.ownerName}
@@ -144,7 +144,7 @@
             />
           </div>
           <div class="space-y-2">
-            <label for="est-capacity" class="text-sm font-medium">{m["adminSettings.capacityLabel"]()}</label>
+            <label for="est-capacity" class="text-sm font-medium">{m['adminSettings.label.capacity']()}</label>
             <Input
               id="est-capacity"
               type="number"
@@ -153,7 +153,7 @@
               placeholder={m["adminSettings.capacityPlaceholder"]()}
             />
             {#if $errors.dailyCapacityMinutes}<span class="text-xs text-destructive">{$errors.dailyCapacityMinutes}</span>{/if}
-            <p class="text-xs text-muted-foreground">{m["adminSettings.capacityHint"]()}</p>
+            <p class="text-xs text-muted-foreground">{m['adminSettings.hint.capacity']()}</p>
           </div>
         </Card.Content>
       </Card.Root>
@@ -163,16 +163,16 @@
         <Card.Header>
           <div class="flex items-center gap-2">
             <ReceiptText class="w-5 h-5 text-primary" />
-            <Card.Title>{m["adminSettings.taxCardTitle"]()}</Card.Title>
+            <Card.Title>{m['adminSettings.tax.title']()}</Card.Title>
           </div>
           <Card.Description>
-            {m["adminSettings.taxCardDesc"]()}
+            {m['adminSettings.tax.desc']()}
           </Card.Description>
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <label for="tax-rfc" class="text-sm font-medium">{m["adminSettings.rfcLabel"]()}</label>
+              <label for="tax-rfc" class="text-sm font-medium">{m['adminSettings.label.rfc']()}</label>
               <Input
                 id="tax-rfc"
                 bind:value={$form.rfc}
@@ -181,7 +181,7 @@
               />
             </div>
             <div class="space-y-2">
-              <label for="tax-regime" class="text-sm font-medium">{m["adminSettings.regimeLabel"]()}</label>
+              <label for="tax-regime" class="text-sm font-medium">{m['adminSettings.label.regime']()}</label>
               <Input
                 id="tax-regime"
                 bind:value={$form.regime}
@@ -191,16 +191,16 @@
             </div>
           </div>
           <div class="space-y-2">
-            <label for="tax-address" class="text-sm font-medium">{m["adminSettings.addressLabel"]()}</label>
+            <label for="tax-address" class="text-sm font-medium">{m['adminSettings.label.address']()}</label>
             <Input
               id="tax-address"
               bind:value={$form.address}
               class="h-12"
-              placeholder={m["adminSettings.addressPlaceholder"]()}
+              placeholder={m['adminSettings.placeholder.address']()}
             />
           </div>
           <div class="space-y-2">
-            <label for="tax-phone" class="text-sm font-medium">{m["adminSettings.phoneLabel"]()}</label>
+            <label for="tax-phone" class="text-sm font-medium">{m['adminSettings.label.phone']()}</label>
             <Input
               id="tax-phone"
               bind:value={$form.contactPhone}
@@ -216,17 +216,17 @@
         <Card.Header>
           <div class="flex items-center gap-2">
             <Palette class="w-5 h-5 text-primary" />
-            <Card.Title>{m["adminSettings.brandCardTitle"]()}</Card.Title>
+            <Card.Title>{m['adminSettings.brand.title']()}</Card.Title>
           </div>
           <Card.Description>
-            {m["adminSettings.brandCardDesc"]()}
+            {m['adminSettings.brand.desc']()}
           </Card.Description>
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Brand Color Picker -->
             <div class="space-y-2">
-              <label for="brand-color" class="text-sm font-medium">{m["adminSettings.colorLabel"]()}</label>
+              <label for="brand-color" class="text-sm font-medium">{m['adminSettings.label.color']()}</label>
               <div class="flex items-center gap-3">
                 <input
                   id="brand-color"
@@ -249,7 +249,7 @@
 
             <!-- Font Family Dropdown -->
             <div class="space-y-2">
-              <label for="font-family" class="text-sm font-medium">{m["adminSettings.fontLabel"]()}</label>
+              <label for="font-family" class="text-sm font-medium">{m['adminSettings.label.font']()}</label>
               <Select.Root
                 type="single"
                 value={$form.fontFamily || ''}
@@ -259,15 +259,15 @@
               >
                 <Select.Trigger id="font-family" class="h-12">
                   {#if $form.fontFamily}
-                    {$form.fontFamily === 'Inter' ? m["adminSettings.fontInter"]() : $form.fontFamily === 'Outfit' ? m["adminSettings.fontOutfit"]() : m["adminSettings.fontMerriweather"]()}
+                    {$form.fontFamily === 'Inter' ? m['adminSettings.font.inter']() : $form.fontFamily === 'Outfit' ? m['adminSettings.font.outfit']() : m['adminSettings.font.merriweather']()}
                   {:else}
-                    <span class="text-muted-foreground">{m["adminSettings.fontPlaceholder"]()}</span>
+                    <span class="text-muted-foreground">{m['adminSettings.placeholder.font']()}</span>
                   {/if}
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="Inter">{m["adminSettings.fontInter"]()}</Select.Item>
-                  <Select.Item value="Outfit">{m["adminSettings.fontOutfit"]()}</Select.Item>
-                  <Select.Item value="Merriweather">{m["adminSettings.fontMerriweather"]()}</Select.Item>
+                  <Select.Item value="Inter">{m['adminSettings.font.inter']()}</Select.Item>
+                  <Select.Item value="Outfit">{m['adminSettings.font.outfit']()}</Select.Item>
+                  <Select.Item value="Merriweather">{m['adminSettings.font.merriweather']()}</Select.Item>
                 </Select.Content>
               </Select.Root>
               {#if $errors.fontFamily}
@@ -285,14 +285,14 @@
           class="h-12 px-6 touch-manipulation font-medium"
           href="/dashboard"
         >
-          {m["adminSettings.cancelButton"]()}
+          {m['common.cancel']()}
         </Button>
         <Button
           type="submit"
           disabled={isSaving}
           class="h-12 px-8 touch-manipulation font-medium shadow-sm"
         >
-          {isSaving ? m["adminSettings.savingButton"]() : m["adminSettings.saveButton"]()}
+          {isSaving ? m['adminSettings.button.saving']() : m['adminSettings.button.save']()}
         </Button>
       </div>
     </form>
