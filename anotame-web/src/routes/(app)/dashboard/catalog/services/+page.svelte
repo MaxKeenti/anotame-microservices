@@ -13,7 +13,6 @@
   import type { ColumnDef } from '@tanstack/table-core';
 
   import ServiceDialog from '$lib/components/catalog/service-dialog.svelte';
-  import * as m from '$lib/paraglide/messages';
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 

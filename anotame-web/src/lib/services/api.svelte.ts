@@ -52,12 +52,18 @@ class ApiService {
       // --- Extract backend error payload ---
       let backendMessage = `API Error: ${response.status} ${response.statusText}`;
       let errorData: any = undefined;
+      let errorCode: string | undefined = undefined;
       try {
         const errorText = await response.text();
         if (errorText) {
           errorData = JSON.parse(errorText);
 
-          // Format 1: New unified shape {"message": "...", "details": [...]}
+          // Extract machine-readable error code (I18N-05)
+          if (errorData.errorCode) {
+            errorCode = errorData.errorCode;
+          }
+
+          // Format 1: New unified shape {"errorCode": "...", "message": "...", "details": [...]}
           if (errorData.message) {
             backendMessage = errorData.message;
           // Format 2: Legacy shape {"error": "Message"} — kept for backward compat during migration
@@ -87,8 +93,8 @@ class ApiService {
         console.warn("Could not parse error response as JSON", parseError);
       }
 
-      // Throw ApiError with status code so catch blocks can check error.status
-      throw new ApiError(backendMessage, response.status, errorData);
+      // Throw ApiError with status code so catch blocks can check error.status / error.errorCode
+      throw new ApiError(backendMessage, response.status, errorData, errorCode);
     }
 
     // Handle empty responses

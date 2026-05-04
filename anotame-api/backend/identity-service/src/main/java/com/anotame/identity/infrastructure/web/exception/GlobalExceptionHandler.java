@@ -24,24 +24,24 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                     .map(v -> v.getPropertyPath() + ": " + v.getMessage())
                     .toList();
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorResponse("Validation failed", details))
+                    .entity(new ErrorResponse("VALIDATION_FAILED", "Validation failed", details))
                     .build();
         }
         if (exception instanceof DomainException de) {
             log.warn("Domain exception: {}", de.getMessage());
             return Response.status(de.getHttpStatus())
-                    .entity(new ErrorResponse("Operation failed"))
+                    .entity(new ErrorResponse("DOMAIN_EXCEPTION", de.getMessage()))
                     .build();
         }
         if (exception instanceof WebApplicationException wae) {
             log.warn("Web application exception: {}", wae.getMessage());
             return Response.status(wae.getResponse().getStatus())
-                    .entity(new ErrorResponse("Request could not be processed"))
+                    .entity(new ErrorResponse("REQUEST_FAILED", "Request could not be processed"))
                     .build();
         }
         log.error("Unhandled exception", exception);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(new ErrorResponse("Internal server error"))
+                .entity(new ErrorResponse("INTERNAL_ERROR", "Internal server error"))
                 .build();
     }
 }

@@ -696,5 +696,12 @@
   "layout.menuButton": "Menú",
   "layout.brandName": "Anotame",
   "userSettings.localeChangedToEn": "Language changed to English",
-  "userSettings.localeChangedToEs": "Idioma cambiado a Español"
+  "userSettings.localeChangedToEs": "Idioma cambiado a Español",
+  "error.code.validationFailed": "Error de validación",
+  "error.code.domainException": "Error en la operación",
+  "error.code.notFound": "Recurso no encontrado",
+  "error.code.conflict": "Ya existe un registro con los mismos datos",
+  "error.code.invalidRequest": "Solicitud inválida",
+  "error.code.requestFailed": "No se pudo procesar la solicitud",
+  "error.code.internalError": "Error interno del servidor"
 }

@@ -696,5 +696,12 @@
   "layout.menuButton": "Menu",
   "layout.brandName": "Anotame",
   "userSettings.localeChangedToEn": "Language changed to English",
-  "userSettings.localeChangedToEs": "Idioma cambiado a Español"
+  "userSettings.localeChangedToEs": "Idioma cambiado a Español",
+  "error.code.validationFailed": "Validation error",
+  "error.code.domainException": "Operation failed",
+  "error.code.notFound": "Resource not found",
+  "error.code.conflict": "A record with the same data already exists",
+  "error.code.invalidRequest": "Invalid request",
+  "error.code.requestFailed": "Request could not be processed",
+  "error.code.internalError": "Internal server error"
 }

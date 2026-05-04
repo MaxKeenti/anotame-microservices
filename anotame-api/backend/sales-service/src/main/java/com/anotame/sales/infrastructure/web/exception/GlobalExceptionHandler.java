@@ -27,21 +27,21 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                                         .toList();
                         log.warn("Validation failed for request: {}", details);
                         return Response.status(Response.Status.BAD_REQUEST)
-                                        .entity(new ErrorResponse("Validation failed", details))
+                                        .entity(new ErrorResponse("VALIDATION_FAILED", "Validation failed", details))
                                         .build();
                 }
                 // 2. Custom domain field validations (e.g., duplicate phone)
                 if (exception instanceof FieldValidationException fve) {
                         log.warn("Field validation failed: {} = {}", fve.getField(), fve.getMessage());
                         return Response.status(Response.Status.BAD_REQUEST)
-                                        .entity(new ErrorResponse("Invalid request data"))
+                                        .entity(new ErrorResponse("INVALID_REQUEST", "Invalid request data"))
                                         .build();
                 }
                 // 3. Standard HTTP errors (NotFoundException, etc.)
                 if (exception instanceof WebApplicationException wae) {
                         log.warn("Web application exception: {}", wae.getMessage());
                         return Response.status(wae.getResponse().getStatus())
-                                        .entity(new ErrorResponse("Request could not be processed"))
+                                        .entity(new ErrorResponse("REQUEST_FAILED", "Request could not be processed"))
                                         .build();
                 }
                 // 4. Database relational conflicts (FK constraint, Unique constraint)
@@ -49,14 +49,14 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                                 || exception.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                         log.error("Database conflict detected: ", exception);
                         return Response.status(Response.Status.CONFLICT)
-                                        .entity(new ErrorResponse(
+                                        .entity(new ErrorResponse("CONFLICT",
                                                         "Database conflict: unique constraint violation or record has associated data"))
                                         .build();
                 }
                 // 5. Catch-all
                 log.error("Unhandled exception", exception);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                                .entity(new ErrorResponse("Internal server error"))
+                                .entity(new ErrorResponse("INTERNAL_ERROR", "Internal server error"))
                                 .build();
         }
 }

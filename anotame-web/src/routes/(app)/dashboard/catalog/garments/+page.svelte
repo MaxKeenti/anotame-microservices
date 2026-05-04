@@ -11,7 +11,6 @@
   import type { ColumnDef } from '@tanstack/table-core';
 
   import GarmentDialog from '$lib/components/catalog/garment-dialog.svelte';
-  import * as m from '$lib/paraglide/messages';
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 

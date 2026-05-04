@@ -10,11 +10,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
+    private String errorCode;
     private String message;
     private List<String> details;
 
-    public ErrorResponse(String message) {
+    public ErrorResponse(String errorCode, String message) {
+        this.errorCode = errorCode;
         this.message = message;
         this.details = List.of();
     }
+
 }
