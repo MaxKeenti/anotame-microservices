@@ -46,6 +46,7 @@ public class SalesService {
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
     private final OrderAuditLogRepositoryPort auditLogRepositoryPort;
+    private final com.anotame.sales.application.port.output.OrderPaymentRepositoryPort paymentRepository;
 
     @ConfigProperty(name = "app.timezone", defaultValue = "America/Mexico_City")
     String appTimezone;
@@ -77,7 +78,8 @@ public class SalesService {
         order.setCreatedBy(userId);
         order.setCreatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
-        order.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
+        // amountPaid starts at 0; the ledger entry below drives the denormalized cache
+        order.setAmountPaid(BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());
         order.setPriceListId(request.getPriceListId());
         order.setPriceListName(request.getPriceListName());
@@ -131,7 +133,25 @@ public class SalesService {
         order.setTotalAmount(total);
         order.setTotalDurationMin(totalDuration);
 
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+
+        // If an initial payment was provided at order creation, create the ledger entry
+        BigDecimal initialPayment = request.getAmountPaid();
+        if (initialPayment != null && initialPayment.compareTo(BigDecimal.ZERO) > 0) {
+            OffsetDateTime now = OffsetDateTime.now();
+            com.anotame.sales.domain.model.OrderPayment payment = new com.anotame.sales.domain.model.OrderPayment();
+            payment.setOrderId(saved.getId());
+            payment.setAmount(initialPayment);
+            payment.setPaymentMethod(request.getPaymentMethod());
+            payment.setRecordedAt(now);
+            payment.setCreatedAt(now);
+            paymentRepository.save(payment);
+
+            saved.setAmountPaid(initialPayment);
+            saved = orderRepository.save(saved);
+        }
+
+        return saved;
     }
 
     @Transactional
@@ -248,17 +268,6 @@ public class SalesService {
                     request.getCommittedDeadline() != null ? request.getCommittedDeadline().toString() : null,
                     now));
         }
-        if (!Objects.equals(order.getAmountPaid(), request.getAmountPaid())) {
-            auditLogRepositoryPort.save(buildAuditEntry(id, userId, "amountPaid",
-                    order.getAmountPaid() != null ? order.getAmountPaid().toString() : null,
-                    request.getAmountPaid() != null ? request.getAmountPaid().toString() : null,
-                    now));
-        }
-        if (!Objects.equals(order.getPaymentMethod(), request.getPaymentMethod())) {
-            auditLogRepositoryPort.save(buildAuditEntry(id, userId, "paymentMethod",
-                    order.getPaymentMethod(), request.getPaymentMethod(), now));
-        }
-
         if ("ADMIN".equals(role)) {
             // ADMIN: apply all fields including customer/garment/service changes
             if (request.getNotes() != null) {
@@ -266,12 +275,6 @@ public class SalesService {
             }
             if (request.getCommittedDeadline() != null) {
                 order.setCommittedDeadline(request.getCommittedDeadline());
-            }
-            if (request.getAmountPaid() != null) {
-                order.setAmountPaid(request.getAmountPaid());
-            }
-            if (request.getPaymentMethod() != null) {
-                order.setPaymentMethod(request.getPaymentMethod());
             }
 
             // Replace items (full content update for ADMIN)
@@ -326,19 +329,13 @@ public class SalesService {
             order.setTotalDurationMin(totalDuration);
             }
         } else {
-            // EMPLOYEE (OPERATOR): only notes, committedDeadline, amountPaid, paymentMethod
-            // Garment/service/customer fields are silently ignored
+            // EMPLOYEE (OPERATOR): only notes, committedDeadline
+            // Payment fields are managed exclusively through POST /orders/{id}/payments
             if (request.getNotes() != null) {
                 order.setNotes(request.getNotes());
             }
             if (request.getCommittedDeadline() != null) {
                 order.setCommittedDeadline(request.getCommittedDeadline());
-            }
-            if (request.getAmountPaid() != null) {
-                order.setAmountPaid(request.getAmountPaid());
-            }
-            if (request.getPaymentMethod() != null) {
-                order.setPaymentMethod(request.getPaymentMethod());
             }
         }
 
