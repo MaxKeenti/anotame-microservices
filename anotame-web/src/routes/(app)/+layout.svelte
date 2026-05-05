@@ -9,7 +9,7 @@
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
-  import { menuItems } from '$lib/config/menu';
+  import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import LayoutGridIcon from 'lucide-svelte/icons/layout-grid';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -157,13 +157,13 @@
       <div class="shrink-0 w-full pt-4 pb-6 bg-transparent z-40 relative pointer-events-none">
         <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 mx-auto w-max max-w-[calc(100vw-2rem)] rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
           {#snippet dockIconWrapper(item: any)}
+            {@const Icon = item.icon}
             <a
               href={item.href}
-              class="relative group flex items-center justify-center w-[52px] h-[52px] transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
+              class="relative group flex items-center justify-center w-13 h-13 transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
               title={item.getName()}
             >
-              <div class="w-12 h-12 flex items-center justify-center rounded-[12px] bg-gradient-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md {page.url.pathname.startsWith(item.href) ? 'ring-2 ring-primary/50' : ''}">
-                {@const Icon = item.icon}
+              <div class="w-12 h-12 flex items-center justify-center rounded-[12px] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md {page.url.pathname.startsWith(item.href) ? 'ring-2 ring-primary/50' : ''}">
                 <Icon class="w-6 h-6 {page.url.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}" />
               </div>
               {#if page.url.pathname.startsWith(item.href)}
@@ -188,10 +188,10 @@
           <!-- Full Menu Button -->
           <button
             onclick={() => isMenuOpen = true}
-            class="relative group flex items-center justify-center w-[52px] h-[52px] transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
+            class="relative group flex items-center justify-center w-13 h-13 transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
             title={m["layout.menuButton"]()}
           >
-            <div class="w-12 h-12 flex items-center justify-center rounded-[12px] bg-gradient-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md">
+            <div class="w-12 h-12 flex items-center justify-center rounded-[12px] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md">
               <LayoutGridIcon class="w-6 h-6 text-muted-foreground group-hover:text-foreground" />
             </div>
           </button>
