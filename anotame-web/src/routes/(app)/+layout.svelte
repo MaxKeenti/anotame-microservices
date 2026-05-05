@@ -21,13 +21,59 @@
 
   const user = $derived(authService.user);
 
-  const dockItems = $derived.by(() => {
-    const baseKeys = ['orders', 'operations', 'customers', 'garments', 'services'];
-    const items = baseKeys.map(k => menuItems.find(m => m.key === k)!);
-    if (user?.role === 'ADMIN') {
-      items.push(menuItems.find(m => m.key === 'kpi')!);
-    }
-    return items;
+  let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  
+  $effect(() => {
+    const handleResize = () => { windowWidth = window.innerWidth; };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
+
+  let recentPaths = $state<string[]>([]);
+
+  // Track recent paths intelligently
+  $effect(() => {
+    const currentPath = page.url.pathname;
+    untrack(() => {
+      // Find the menu item matching the path
+      let matchedItem = menuItems.find(m => currentPath === m.href);
+      if (!matchedItem) {
+        matchedItem = menuItems.find(m => currentPath.startsWith(m.href) && m.href !== '/dashboard' && m.href !== '/');
+      }
+      
+      if (matchedItem) {
+        // Exclude specific items we might not want to track as "recent apps" (like home/preferences if we want them pinned, but it's okay)
+        const newPaths = recentPaths.filter(p => p !== matchedItem.key);
+        newPaths.unshift(matchedItem.key);
+        recentPaths = newPaths.slice(0, 10);
+      }
+    });
+  });
+
+  const maxRecents = $derived(windowWidth < 640 ? 1 : 3);
+  
+  // Icon takes ~56px. Padding is 24px, Menu Button is 56px, Dividers take 20px. 
+  // Formula for remaining width for standard apps:
+  const reservedWidth = $derived(24 + (maxRecents * 56) + 20 + 56);
+  const maxVisibleDockItems = $derived(Math.max(1, Math.floor((windowWidth - reservedWidth) / 56)));
+
+  const allAvailableItems = $derived.by(() => {
+    return menuItems.filter(item => {
+      // Exclude home or just include everything based on admin rights
+      if (item.key === 'home' || item.key === 'preferences') return false; 
+      const isAdmin = user?.role === 'ADMIN';
+      return adminOnlyItems.includes(item.key) ? isAdmin : true;
+    });
+  });
+
+  const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
+
+  const recentItems = $derived.by(() => {
+    const visibleDockKeys = new Set(dockItems.map(i => i.key));
+    const recents = recentPaths
+      .map(key => menuItems.find(m => m.key === key)!)
+      .filter(item => item && !visibleDockKeys.has(item.key));
+    return recents.slice(0, maxRecents);
   });
 
   // When profile is opened, set current user for editing
@@ -110,29 +156,44 @@
       <!-- Bottom Dock Section -->
       <div class="shrink-0 w-full pt-4 pb-6 bg-transparent z-40 relative pointer-events-none">
         <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 mx-auto w-max max-w-[calc(100vw-2rem)] rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
-          {#each dockItems as item, i}
-            {@const Icon = item.icon}
+          {#snippet dockIconWrapper(item: any)}
             <a
               href={item.href}
-              class="relative flex items-center justify-center p-3 rounded-2xl transition-all duration-200 origin-bottom hover:scale-125 hover:-translate-y-2 {i >= 3 ? 'hidden sm:flex' : 'flex'} {page.url.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
+              class="relative group flex items-center justify-center w-[52px] h-[52px] transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
               title={item.getName()}
             >
-              <Icon class="w-6 h-6" />
+              <div class="w-12 h-12 flex items-center justify-center rounded-[12px] bg-gradient-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md {page.url.pathname.startsWith(item.href) ? 'ring-2 ring-primary/50' : ''}">
+                {@const Icon = item.icon}
+                <Icon class="w-6 h-6 {page.url.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}" />
+              </div>
               {#if page.url.pathname.startsWith(item.href)}
-                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
+                <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
               {/if}
             </a>
+          {/snippet}
+
+          {#each dockItems as item (item.key)}
+            {@render dockIconWrapper(item)}
           {/each}
           
+          {#if recentItems.length > 0}
+            <div class="w-px h-8 bg-border/50 mx-1"></div>
+            {#each recentItems as item (item.key)}
+              {@render dockIconWrapper(item)}
+            {/each}
+          {/if}
+
           <div class="w-px h-8 bg-border/50 mx-1"></div>
 
           <!-- Full Menu Button -->
           <button
             onclick={() => isMenuOpen = true}
-            class="relative flex items-center justify-center p-3 rounded-2xl transition-all duration-200 origin-bottom hover:scale-125 hover:-translate-y-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            class="relative group flex items-center justify-center w-[52px] h-[52px] transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
             title={m["layout.menuButton"]()}
           >
-            <LayoutGridIcon class="w-6 h-6" />
+            <div class="w-12 h-12 flex items-center justify-center rounded-[12px] bg-gradient-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md">
+              <LayoutGridIcon class="w-6 h-6 text-muted-foreground group-hover:text-foreground" />
+            </div>
           </button>
         </div>
       </div>
