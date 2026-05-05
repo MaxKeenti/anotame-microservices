@@ -277,7 +277,8 @@
 			<div class="text-5xl font-bold font-mono mt-2">${total.toFixed(2)}</div>
 		</div>
 
-		<!-- Payment Method -->
+		{#if !draft?.isEditing}
+		<!-- Payment Method (new orders only) -->
 		<div class="space-y-4">
 			<label class="text-sm font-medium" for="payment-method">Método de Pago</label>
 			<div class="grid grid-cols-3 gap-4" id="payment-method">
@@ -317,7 +318,7 @@
 			</div>
 		</div>
 
-		<!-- Payment Amounts -->
+		<!-- Payment Amounts (new orders only) -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 			<Form.Field form={superform} name="amountPaid">
 				{#snippet children({ constraints })}
@@ -381,6 +382,12 @@
 				</div>
 			</div>
 		</div>
+		{:else}
+		<!-- Edit mode: payments managed via order detail page -->
+		<div class="bg-muted/30 border border-border rounded-xl px-5 py-4 text-sm text-muted-foreground">
+			{m['orders.payment.editModeInfo']()}
+		</div>
+		{/if}
 
 		<!-- Deadline & Notes -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">

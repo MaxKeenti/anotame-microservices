@@ -8,6 +8,8 @@
   import StatusBadge from "$lib/components/ui/StatusBadge.svelte";
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
+  import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
+  import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
   import * as Table from "$lib/components/ui/table";
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
@@ -20,6 +22,8 @@
   let loading = $state(true);
   let establishment = $state<any | null>(null);
   let auditLog = $state<any[]>([]);
+  let showPaymentModal = $state(false);
+  let paymentRefreshKey = $state(0);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -141,6 +145,16 @@
         newWindow.print();
         newWindow.close();
       }, 250);
+    }
+  }
+
+  async function handlePaymentSuccess() {
+    paymentRefreshKey += 1;
+    try {
+      const res = await apiService.request<any>(`${API_SALES}/orders/${id}`);
+      order = res;
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -270,6 +284,9 @@
       </div>
     {/if}
 
+    <!-- Payment History -->
+    <PaymentHistoryPanel orderId={order.id} refreshKey={paymentRefreshKey} />
+
     <!-- Items -->
     <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
       <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.garmentsAndServices"]()}</div>
@@ -352,6 +369,15 @@
       </div>
     {/if}
 
+    <AddPaymentModal
+      bind:open={showPaymentModal}
+      orderId={order.id}
+      orderTotal={order.totalAmount ?? 0}
+      amountPaid={order.amountPaid ?? 0}
+      onSuccess={handlePaymentSuccess}
+      onClose={() => showPaymentModal = false}
+    />
+
     <!-- Actions -->
     <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-border mt-8">
       <Button
@@ -372,6 +398,13 @@
           </Button>
         {/if}
         {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
+          <Button
+            onclick={() => showPaymentModal = true}
+            variant="outline"
+            class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
+          >
+            {m["orders.payment.recordPayment"]()}
+          </Button>
           <Button
             href={`/dashboard/orders/${order.id}/edit`}
             variant="outline"
