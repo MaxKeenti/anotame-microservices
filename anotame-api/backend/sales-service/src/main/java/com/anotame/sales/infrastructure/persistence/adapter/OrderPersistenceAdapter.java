@@ -169,6 +169,26 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         return String.format("ORD-%05d", next);
     }
 
+    @Override
+    public java.util.List<Object[]> getRevenueTimeSeries(java.time.OffsetDateTime start, String granularity, String zoneId) {
+        return orderRepository.getRevenueTimeSeries(start, granularity, zoneId);
+    }
+
+    @Override
+    public java.util.List<Object[]> getServiceTypeRevenue(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.getServiceTypeRevenue(start, end);
+    }
+
+    @Override
+    public java.util.List<Object[]> getTopCustomers(java.time.OffsetDateTime start, java.time.OffsetDateTime end, int limit) {
+        return orderRepository.getTopCustomers(start, end, limit);
+    }
+
+    @Override
+    public java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId) {
+        return orderRepository.getCalendarMonthData(monthStart, monthEnd, zoneId);
+    }
+
     private Order toDomain(OrderEntity entity) {
         Order o = new Order();
         o.setId(entity.getId());

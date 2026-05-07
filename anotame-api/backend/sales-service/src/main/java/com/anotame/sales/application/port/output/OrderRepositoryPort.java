@@ -36,4 +36,14 @@ public interface OrderRepositoryPort {
     java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start, String zoneId);
 
     java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end, String zoneId);
+
+    // Financial KPI queries
+    java.util.List<Object[]> getRevenueTimeSeries(java.time.OffsetDateTime start, String granularity, String zoneId);
+
+    java.util.List<Object[]> getServiceTypeRevenue(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+
+    java.util.List<Object[]> getTopCustomers(java.time.OffsetDateTime start, java.time.OffsetDateTime end, int limit);
+
+    // Calendar queries
+    java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId);
 }

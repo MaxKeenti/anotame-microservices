@@ -4,6 +4,7 @@
   import { formatCurrency } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
   import { TrendingUp, Activity, Truck, AlertCircle, Clock, Banknote, Calendar } from 'lucide-svelte';
+  import FinancialKpiPanel from '$lib/components/dashboard/FinancialKpiPanel.svelte';
   import WorkloadCalendar from '$lib/components/dashboard/WorkloadCalendar.svelte';
   import { API_OPERATIONS } from '$lib/services/api.svelte';
   import * as m from '$lib/paraglide/messages';
@@ -254,6 +255,11 @@
           </div>
         </Card.Content>
       </Card.Root>
+
+      <!-- Financial KPI Panel -->
+      <div class="mt-8">
+        <FinancialKpiPanel />
+      </div>
     </div>
   {/if}
 </div>

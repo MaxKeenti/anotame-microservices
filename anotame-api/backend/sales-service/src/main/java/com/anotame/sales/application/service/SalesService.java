@@ -34,6 +34,10 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
+import com.anotame.sales.application.dto.FinancialKpiResponse;
+import com.anotame.sales.application.dto.RevenueTrendPoint;
+import com.anotame.sales.application.dto.ServiceRevenueItem;
+import com.anotame.sales.application.dto.TopCustomerItem;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
@@ -519,6 +523,144 @@ public class SalesService {
                         .build())
                 .weeklyRevenueChart(chartData)
                 .dailyWorkload(dailyWorkload)
+                .build();
+    }
+
+    public FinancialKpiResponse getFinancialKpis(String granularity) {
+        ZoneId zone = ZoneId.of(appTimezone);
+        String zoneId = zone.getId();
+        LocalDate today = LocalDate.now(zone);
+        OffsetDateTime now = OffsetDateTime.now(zone);
+
+        // Determine date ranges based on granularity
+        OffsetDateTime start;
+        OffsetDateTime end = now;
+
+        if ("week".equals(granularity)) {
+            start = now.minusWeeks(12);
+        } else if ("month".equals(granularity)) {
+            start = now.minusMonths(12);
+        } else {
+            // Default to day (last 30 days)
+            start = now.minusDays(30);
+        }
+
+        // 1. Get Revenue Time Series
+        List<Object[]> rawTrendData = orderRepository.getRevenueTimeSeries(start, granularity, zoneId);
+        List<RevenueTrendPoint> revenueTrend = new ArrayList<>();
+
+        for (Object[] row : rawTrendData) {
+            revenueTrend.add(RevenueTrendPoint.builder()
+                    .period((String) row[0])
+                    .totalRevenue(row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO)
+                    .paymentCount(((Number) row[2]).longValue())
+                    .build());
+        }
+
+        // 2. Get Service Type Revenue (with percentage share calculation)
+        List<Object[]> rawServiceData = orderRepository.getServiceTypeRevenue(start, end);
+        BigDecimal totalServiceRevenue = BigDecimal.ZERO;
+
+        // First pass: sum total revenue
+        for (Object[] row : rawServiceData) {
+            totalServiceRevenue = totalServiceRevenue.add(
+                    row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO);
+        }
+
+        // Second pass: build service items with percentage share
+        List<ServiceRevenueItem> serviceBreakdown = new ArrayList<>();
+        for (Object[] row : rawServiceData) {
+            BigDecimal revenue = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
+            BigDecimal percentShare = totalServiceRevenue.compareTo(BigDecimal.ZERO) > 0
+                    ? revenue.divide(totalServiceRevenue, 4, java.math.RoundingMode.HALF_UP)
+                            .multiply(new BigDecimal("100"))
+                    : BigDecimal.ZERO;
+
+            serviceBreakdown.add(ServiceRevenueItem.builder()
+                    .serviceName((String) row[0])
+                    .totalRevenue(revenue)
+                    .orderCount(((Number) row[2]).longValue())
+                    .percentShare(percentShare)
+                    .build());
+        }
+
+        // 3. Get Top Customers
+        List<Object[]> rawCustomerData = orderRepository.getTopCustomers(start, end, 10);
+        List<TopCustomerItem> topCustomers = new ArrayList<>();
+
+        for (Object[] row : rawCustomerData) {
+            topCustomers.add(TopCustomerItem.builder()
+                    .customerId((UUID) row[0])
+                    .firstName((String) row[1])
+                    .lastName((String) row[2])
+                    .totalSpend(row[3] != null ? (BigDecimal) row[3] : BigDecimal.ZERO)
+                    .orderCount(((Number) row[4]).longValue())
+                    .lastOrderDate((String) row[5])
+                    .build());
+        }
+
+        return FinancialKpiResponse.builder()
+                .revenueTrend(revenueTrend)
+                .serviceBreakdown(serviceBreakdown)
+                .topCustomers(topCustomers)
+                .build();
+    }
+
+    public com.anotame.sales.application.dto.CalendarMonthResponse getCalendarData(String monthParam) {
+        ZoneId zone = ZoneId.of(appTimezone);
+        String zoneId = zone.getId();
+        LocalDate today = LocalDate.now(zone);
+
+        // Parse month parameter (YYYY-MM format)
+        LocalDate monthStart;
+        if (monthParam != null && !monthParam.isEmpty()) {
+            monthStart = LocalDate.parse(monthParam + "-01");
+        } else {
+            monthStart = today.withDayOfMonth(1);
+        }
+
+        // Calculate month boundaries
+        LocalDate monthEnd = monthStart.plusMonths(1);
+        OffsetDateTime monthStartOdt = monthStart.atStartOfDay(zone).toOffsetDateTime();
+        OffsetDateTime monthEndOdt = monthEnd.atStartOfDay(zone).toOffsetDateTime();
+
+        // Fetch daily aggregates from repository
+        List<Object[]> rawData = orderRepository.getCalendarMonthData(monthStartOdt, monthEndOdt, zoneId);
+        List<com.anotame.sales.application.dto.CalendarDayResponse> days = new ArrayList<>();
+
+        // Build complete month calendar (fill in missing days)
+        LocalDate current = monthStart;
+        while (current.isBefore(monthEnd)) {
+            final LocalDate day = current;
+
+            // Find data for this day
+            Object[] dayData = rawData.stream()
+                    .filter(row -> row[0].equals(day))
+                    .findFirst()
+                    .orElse(null);
+
+            Integer totalMinutes = dayData != null ? ((Number) dayData[1]).intValue() : 0;
+            Integer orderCount = dayData != null ? ((Number) dayData[2]).intValue() : 0;
+            BigDecimal scheduledRevenue = dayData != null ? (BigDecimal) dayData[3] : BigDecimal.ZERO;
+
+            // Calculate capacity percent (assuming 480 min daily capacity for now)
+            double capacityPercent = totalMinutes > 0 ? (totalMinutes * 100.0) / 480.0 : 0.0;
+
+            days.add(com.anotame.sales.application.dto.CalendarDayResponse.builder()
+                    .date(day)
+                    .totalMinutesUsed(totalMinutes)
+                    .orderCount(orderCount)
+                    .scheduledRevenue(scheduledRevenue)
+                    .capacityPercent(capacityPercent)
+                    .isHoliday(false) // TODO: integrate with operations-service
+                    .isOpen(true)      // TODO: integrate with operations-service
+                    .build());
+
+            current = current.plusDays(1);
+        }
+
+        return com.anotame.sales.application.dto.CalendarMonthResponse.builder()
+                .days(days)
                 .build();
     }
 }
