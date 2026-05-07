@@ -724,5 +724,6 @@
   "orders.payment.columnMethod": "Método",
   "orders.payment.columnNote": "Nota",
   "orders.payment.editModeInfo": "Los pagos se gestionan desde la página de detalle del pedido.",
-  "orders.payment.currentBalance": "Saldo Actual"
+  "orders.payment.currentBalance": "Saldo Actual",
+  "calendar.widget.title": "Carga próximos 7 días"
 }

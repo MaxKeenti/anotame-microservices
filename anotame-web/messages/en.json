@@ -724,5 +724,6 @@
   "orders.payment.columnMethod": "Method",
   "orders.payment.columnNote": "Note",
   "orders.payment.editModeInfo": "Payments are managed from the order detail page.",
-  "orders.payment.currentBalance": "Current Balance"
+  "orders.payment.currentBalance": "Current Balance",
+  "calendar.widget.title": "Workload – Next 7 Days"
 }

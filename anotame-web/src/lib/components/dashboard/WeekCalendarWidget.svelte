@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Calendar } from 'lucide-svelte';
+  import * as m from '$lib/paraglide/messages';
 
   interface DayLoad { date: string; totalMinutesUsed: number; }
 
@@ -43,7 +44,7 @@
 <div class="rounded-xl border border-border bg-card p-4">
   <div class="flex items-center gap-2 mb-3">
     <Calendar class="w-4 h-4 text-primary" />
-    <span class="text-sm font-semibold font-heading">Carga próximos 7 días</span>
+    <span class="text-sm font-semibold font-heading">{m["calendar.widget.title"]()}</span>
   </div>
   <div class="grid grid-cols-7 gap-1.5">
     {#each days as day}
