@@ -39,6 +39,14 @@ public class PaymentService {
                             .build());
         }
 
+        if (request.amount().compareTo(BigDecimal.ZERO) < 0
+                && (request.notes() == null || request.notes().isBlank())) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.fromStatusCode(422))
+                            .entity("REFUND_NOTE_REQUIRED")
+                            .build());
+        }
+
         BigDecimal newTotal = order.getAmountPaid().add(request.amount());
         if (newTotal.compareTo(order.getTotalAmount()) > 0) {
             throw new WebApplicationException(
