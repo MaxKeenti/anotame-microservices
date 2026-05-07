@@ -156,8 +156,9 @@ None.
 | 260418-bnd | Fix prod 502 connection refused by setting quarkus.http.host=0.0.0.0 and removing EXPOSE 8080 from Dockerfiles | 2026-04-18 | 053cc0e | COMPLETED | - |
 | 260418-sql | Fix SQLGrammarException in identity-service branchId lookup (isolated DB mode) | 2026-04-18 | 9da7b7d | COMPLETED | - |
 | 260418-prt | Fix Railway port mismatch heuristics by explicitly binding all prod profiles to 8080 and EXPOSING 8080 | 2026-04-18 | 1b2129f | COMPLETED | - |
+| 260506-uiv | Fix PAY-06 server-side validation and wire 7-day calendar widget to main dashboard | 2026-05-07 | 8d101f7 | - | [260506-uiv-fix-pay-06-server-side-validation-and-wi](./quick/260506-uiv-fix-pay-06-server-side-validation-and-wi/) |
 
-Last activity: 2026-04-18 - Completed quick task 260418-prt: Fix catalog 502 port heuristic mismatch
+Last activity: 2026-05-07 - Completed quick task 260506-uiv: Fix PAY-06 server-side validation and wire 7-day calendar widget to main dashboard
 
 ## Deferred Items
 
