@@ -2,6 +2,7 @@
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
+  import WeekCalendarWidget from '$lib/components/dashboard/WeekCalendarWidget.svelte';
 
   const userRole = $derived(authService.user?.role);
   const isAdmin = $derived(userRole === 'ADMIN');
@@ -17,6 +18,12 @@
      <h2 class="text-3xl sm:text-4xl font-bold font-heading">{m["dashboard.greeting"]({ name: authService.user?.username || m["common.user"]() })}</h2>
      <p class="text-muted-foreground mt-2 sm:text-lg">{m["dashboard.welcome"]()}</p>
   </div>
+
+  {#if isAdmin}
+    <div class="mb-2">
+      <WeekCalendarWidget />
+    </div>
+  {/if}
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
     {#each visibleItems as item (item.href)}
