@@ -86,4 +86,98 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .setParameter("end", end)
                 .getResultList();
     }
+
+    // Financial KPI Queries
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getRevenueTimeSeries(OffsetDateTime start, String granularity, String zoneId) {
+        String dateFormat = switch (granularity) {
+            case "week" -> "YYYY-IW";  // ISO week
+            case "month" -> "YYYY-MM";
+            default -> "YYYY-MM-DD";   // day
+        };
+
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT TO_CHAR((top.recorded_at AT TIME ZONE :zone), :dateFormat) AS period, " +
+                                "SUM(top.amount) AS totalRevenue, COUNT(*) AS paymentCount " +
+                                "FROM tco_order_payment top " +
+                                "WHERE top.recorded_at >= :start AND top.amount > 0 " +
+                                "GROUP BY period ORDER BY period")
+                .setParameter("zone", zoneId)
+                .setParameter("start", start)
+                .setParameter("dateFormat", dateFormat)
+                .getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getServiceTypeRevenue(OffsetDateTime start, OffsetDateTime end) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT " +
+                        "  ois.service_name, " +
+                        "  SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))) AS totalRevenue, " +
+                        "  COUNT(DISTINCT top.id_order) AS orderCount " +
+                        "FROM tco_order_payment top " +
+                        "JOIN tco_order o ON top.id_order = o.id_order " +
+                        "JOIN tco_order_item oi ON o.id_order = oi.id_order " +
+                        "JOIN tco_order_item_service ois ON oi.id_order_item = ois.id_order_item " +
+                        "WHERE top.recorded_at >= :start AND top.recorded_at < :end " +
+                        "  AND top.amount > 0 " +
+                        "  AND o.is_deleted = false " +
+                        "  AND oi.is_deleted = false " +
+                        "GROUP BY ois.service_name " +
+                        "ORDER BY totalRevenue DESC")
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getTopCustomers(OffsetDateTime start, OffsetDateTime end, int limit) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT " +
+                        "  c.id_customer, " +
+                        "  c.first_name, " +
+                        "  c.last_name, " +
+                        "  SUM(top.amount) AS totalSpend, " +
+                        "  COUNT(DISTINCT top.id_order) AS orderCount, " +
+                        "  MAX((o.created_at AT TIME ZONE 'UTC')::date)::text AS lastOrderDate " +
+                        "FROM tco_order_payment top " +
+                        "JOIN tco_order o ON top.id_order = o.id_order " +
+                        "JOIN tco_customer c ON o.id_customer = c.id_customer " +
+                        "WHERE top.recorded_at >= :start AND top.recorded_at < :end " +
+                        "  AND top.amount > 0 " +
+                        "  AND o.is_deleted = false " +
+                        "  AND c.is_deleted = false " +
+                        "GROUP BY c.id_customer, c.first_name, c.last_name " +
+                        "ORDER BY totalSpend DESC " +
+                        "LIMIT :limit")
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .setParameter("limit", limit)
+                .getResultList();
+    }
+
+    // Calendar
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getCalendarMonthData(OffsetDateTime monthStart, OffsetDateTime monthEnd, String zoneId) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT " +
+                        "  (o.committed_deadline AT TIME ZONE :zone)::date AS date, " +
+                        "  COALESCE(SUM(o.total_duration_min), 0) AS totalMinutesUsed, " +
+                        "  COUNT(DISTINCT o.id_order) AS orderCount, " +
+                        "  COALESCE(SUM(o.total_amount), 0) AS scheduledRevenue " +
+                        "FROM tco_order o " +
+                        "WHERE o.committed_deadline >= :start AND o.committed_deadline < :end " +
+                        "  AND o.status NOT IN ('DELIVERED', 'CANCELLED') " +
+                        "  AND o.is_deleted = false " +
+                        "GROUP BY date " +
+                        "ORDER BY date")
+                .setParameter("zone", zoneId)
+                .setParameter("start", monthStart)
+                .setParameter("end", monthEnd)
+                .getResultList();
+    }
 }
