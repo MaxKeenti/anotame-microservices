@@ -1,6 +1,7 @@
 package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CalendarMonthResponse;
+import com.anotame.sales.application.dto.FinancialKpiResponse;
 import com.anotame.sales.application.service.SalesService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -21,5 +22,12 @@ public class OrderKpiController {
     public CalendarMonthResponse getCalendarData(
             @QueryParam("month") String month) {
         return salesService.getCalendarData(month);
+    }
+
+    @GET
+    @Path("/financial")
+    public FinancialKpiResponse getFinancialKpis(
+            @QueryParam("granularity") @DefaultValue("day") String granularity) {
+        return salesService.getFinancialKpis(granularity);
     }
 }
