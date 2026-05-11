@@ -1,6 +1,7 @@
 package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CalendarMonthResponse;
+import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.FinancialKpiResponse;
 import com.anotame.sales.application.service.SalesService;
 import io.quarkus.security.Authenticated;
@@ -16,6 +17,12 @@ public class OrderKpiController {
 
     @Inject
     SalesService salesService;
+
+    @GET
+    @Path("/dashboard")
+    public DashboardMetricsResponse getDashboardMetrics() {
+        return salesService.getDashboardMetrics();
+    }
 
     @GET
     @Path("/calendar")
