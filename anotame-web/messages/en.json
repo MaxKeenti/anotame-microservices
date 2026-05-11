@@ -746,10 +746,5 @@
   "orders.payment.columnMethod": "Method",
   "orders.payment.columnNote": "Note",
   "orders.payment.editModeInfo": "Payments are managed from the order detail page.",
-  "orders.payment.currentBalance": "Current Balance",
-  "calendar.title": "Workload Calendar",
-  "calendar.description": "View daily workload and capacity",
-  "calendar.capacity.low": "< 50% Capacity",
-  "calendar.capacity.medium": "50-85% Capacity",
-  "calendar.capacity.high": "> 85% Capacity"
+  "orders.payment.currentBalance": "Current Balance"
 }

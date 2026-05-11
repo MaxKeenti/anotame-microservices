@@ -184,11 +184,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         return orderRepository.getTopCustomers(start, end, limit);
     }
 
-    @Override
-    public java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId) {
-        return orderRepository.getCalendarMonthData(monthStart, monthEnd, zoneId);
-    }
-
     private Order toDomain(OrderEntity entity) {
         Order o = new Order();
         o.setId(entity.getId());

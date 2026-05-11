@@ -158,26 +158,4 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .setParameter("limit", limit)
                 .getResultList();
     }
-
-    // Calendar
-    @SuppressWarnings("unchecked")
-    public List<Object[]> getCalendarMonthData(OffsetDateTime monthStart, OffsetDateTime monthEnd, String zoneId) {
-        return getEntityManager()
-                .createNativeQuery(
-                        "SELECT " +
-                        "  (o.committed_deadline AT TIME ZONE :zone)::date AS date, " +
-                        "  COALESCE(SUM(o.total_duration_min), 0) AS totalMinutesUsed, " +
-                        "  COUNT(DISTINCT o.id_order) AS orderCount, " +
-                        "  COALESCE(SUM(o.total_amount), 0) AS scheduledRevenue " +
-                        "FROM tco_order o " +
-                        "WHERE o.committed_deadline >= :start AND o.committed_deadline < :end " +
-                        "  AND o.status NOT IN ('DELIVERED', 'CANCELLED') " +
-                        "  AND o.is_deleted = false " +
-                        "GROUP BY date " +
-                        "ORDER BY date")
-                .setParameter("zone", zoneId)
-                .setParameter("start", monthStart)
-                .setParameter("end", monthEnd)
-                .getResultList();
-    }
 }

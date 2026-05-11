@@ -746,10 +746,5 @@
   "orders.payment.columnMethod": "Método",
   "orders.payment.columnNote": "Nota",
   "orders.payment.editModeInfo": "Los pagos se gestionan desde la página de detalle del pedido.",
-  "orders.payment.currentBalance": "Saldo Actual",
-  "calendar.title": "Calendario de Carga de Trabajo",
-  "calendar.description": "Ver carga de trabajo diaria y capacidad",
-  "calendar.capacity.low": "< 50% de Capacidad",
-  "calendar.capacity.medium": "50-85% de Capacidad",
-  "calendar.capacity.high": "> 85% de Capacidad"
+  "orders.payment.currentBalance": "Saldo Actual"
 }
