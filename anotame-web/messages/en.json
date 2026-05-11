@@ -751,5 +751,13 @@
   "calendar.description": "View daily workload and capacity",
   "calendar.capacity.low": "< 50% Capacity",
   "calendar.capacity.medium": "50-85% Capacity",
-  "calendar.capacity.high": "> 85% Capacity"
+  "calendar.capacity.high": "> 85% Capacity",
+  "calendar.widget.title": "Workload – Next 7 Days",
+  "calendar.day.orders": "{count} orders",
+  "calendar.day.revenue": "Revenue",
+  "calendar.day.capacity": "Capacity",
+  "calendar.day.minutes": "{used} / {total} min",
+  "calendar.day.holiday": "Holiday",
+  "calendar.day.closed": "Closed",
+  "calendar.agenda.title": "Agenda"
 }

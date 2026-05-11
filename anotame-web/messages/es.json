@@ -751,5 +751,13 @@
   "calendar.description": "Ver carga de trabajo diaria y capacidad",
   "calendar.capacity.low": "< 50% de Capacidad",
   "calendar.capacity.medium": "50-85% de Capacidad",
-  "calendar.capacity.high": "> 85% de Capacidad"
+  "calendar.capacity.high": "> 85% de Capacidad",
+  "calendar.widget.title": "Carga próximos 7 días",
+  "calendar.day.orders": "{count} pedidos",
+  "calendar.day.revenue": "Ingresos",
+  "calendar.day.capacity": "Capacidad",
+  "calendar.day.minutes": "{used} / {total} min",
+  "calendar.day.holiday": "Feriado",
+  "calendar.day.closed": "Cerrado",
+  "calendar.agenda.title": "Agenda"
 }
