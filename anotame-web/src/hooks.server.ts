@@ -79,10 +79,25 @@ export const handle: Handle = async ({ event, resolve }) => {
 			forwardedHeaders.set('Authorization', authorization);
 		}
 
-		// Forward cookies so HttpOnly session cookies reach the backend
+		// Forward cookies so HttpOnly session cookies reach the backend.
+		// Strip the jwt cookie on unauthenticated endpoints (/auth/login,
+		// /auth/register) — a stale JWT causes Quarkus SmallRye to reject
+		// with 401 even on paths marked "permit".
 		const cookie = request.headers.get('Cookie');
 		if (cookie) {
-			forwardedHeaders.set('Cookie', cookie);
+			const isPublicAuth = /\/(auth\/login|auth\/register)(\/|$|\?)/.test(apiPath);
+			if (isPublicAuth) {
+				const filtered = cookie
+					.split(';')
+					.map(c => c.trim())
+					.filter(c => !c.startsWith('jwt='))
+					.join('; ');
+				if (filtered) {
+					forwardedHeaders.set('Cookie', filtered);
+				}
+			} else {
+				forwardedHeaders.set('Cookie', cookie);
+			}
 		}
 
 		// Buffer the body — request.body is a ReadableStream and can only be

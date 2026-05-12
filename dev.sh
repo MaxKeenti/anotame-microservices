@@ -103,6 +103,37 @@ wait_for_dbs() {
 wait_for_dbs
 
 # ---------------------------------------------------------------------------
+# Step 2b: Load .env so all services share the same JWT keys
+# ---------------------------------------------------------------------------
+if [[ -f "${REPO_ROOT}/.env" ]]; then
+  echo "Loading .env ..."
+  set -a
+  # shellcheck disable=SC1091
+  . "${REPO_ROOT}/.env"
+  set +a
+fi
+
+# ---------------------------------------------------------------------------
+# Step 2c: Kill stale processes on service ports
+# ---------------------------------------------------------------------------
+echo ""
+echo "Checking for stale processes on service ports..."
+ALL_PORTS=()
+for entry in "${SERVICES[@]}"; do
+  ALL_PORTS+=("${entry##*:}")
+done
+ALL_PORTS+=("5173")
+
+for port in "${ALL_PORTS[@]}"; do
+  STALE_PIDS=$(lsof -ti :"${port}" 2>/dev/null || true)
+  if [[ -n "${STALE_PIDS}" ]]; then
+    echo "  Killing stale process(es) on port ${port}: ${STALE_PIDS}"
+    echo "${STALE_PIDS}" | xargs kill -9 2>/dev/null || true
+    sleep 0.5
+  fi
+done
+
+# ---------------------------------------------------------------------------
 # Step 3: Launch Quarkus services in background
 # ---------------------------------------------------------------------------
 echo ""
