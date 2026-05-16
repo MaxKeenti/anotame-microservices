@@ -22,7 +22,7 @@
   const user = $derived(authService.user);
 
   let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  
+
   $effect(() => {
     const handleResize = () => { windowWidth = window.innerWidth; };
     window.addEventListener('resize', handleResize);
@@ -35,14 +35,12 @@
   $effect(() => {
     const currentPath = page.url.pathname;
     untrack(() => {
-      // Find the menu item matching the path
       let matchedItem = menuItems.find(m => currentPath === m.href);
       if (!matchedItem) {
         matchedItem = menuItems.find(m => currentPath.startsWith(m.href) && m.href !== '/dashboard' && m.href !== '/');
       }
-      
+
       if (matchedItem) {
-        // Exclude specific items we might not want to track as "recent apps" (like home/preferences if we want them pinned, but it's okay)
         const newPaths = recentPaths.filter(p => p !== matchedItem.key);
         newPaths.unshift(matchedItem.key);
         recentPaths = newPaths.slice(0, 10);
@@ -50,21 +48,20 @@
     });
   });
 
-  const maxRecents = $derived(windowWidth < 640 ? 1 : 3);
-  
-  // Icon takes ~56px. Padding is 24px, Menu Button is 56px, Dividers take 20px. 
-  // Formula for remaining width for standard apps:
-  const reservedWidth = $derived(24 + (maxRecents * 56) + 20 + 56);
-  const maxVisibleDockItems = $derived(Math.max(1, Math.floor((windowWidth - reservedWidth) / 56)));
+  const isMobile = $derived(windowWidth < 640);
+  const maxRecents = $derived(isMobile ? 1 : 3);
 
   const allAvailableItems = $derived.by(() => {
     return menuItems.filter(item => {
-      // Exclude home or just include everything based on admin rights
-      if (item.key === 'home' || item.key === 'preferences') return false; 
+      if (item.key === 'home' || item.key === 'preferences') return false;
       const isAdmin = user?.role === 'ADMIN';
       return adminOnlyItems.includes(item.key) ? isAdmin : true;
     });
   });
+
+  // Mobile: 3 pinned icons + 1 recent. Desktop: dynamic based on available width.
+  const reservedWidth = $derived(24 + (maxRecents * 56) + 20 + 56);
+  const maxVisibleDockItems = $derived(isMobile ? 3 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 56)));
 
   const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
 
