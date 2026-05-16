@@ -21,14 +21,6 @@
 
   const user = $derived(authService.user);
 
-  let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  
-  $effect(() => {
-    const handleResize = () => { windowWidth = window.innerWidth; };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  });
-
   let recentPaths = $state<string[]>([]);
 
   // Track recent paths intelligently
@@ -50,30 +42,24 @@
     });
   });
 
-  const maxRecents = $derived(windowWidth < 640 ? 1 : 3);
-  
-  // Icon takes ~56px. Padding is 24px, Menu Button is 56px, Dividers take 20px. 
-  // Formula for remaining width for standard apps:
-  const reservedWidth = $derived(24 + (maxRecents * 56) + 20 + 56);
-  const maxVisibleDockItems = $derived(Math.max(1, Math.floor((windowWidth - reservedWidth) / 56)));
+  const PINNED_COUNT = 3;
 
   const allAvailableItems = $derived.by(() => {
     return menuItems.filter(item => {
-      // Exclude home or just include everything based on admin rights
-      if (item.key === 'home' || item.key === 'preferences') return false; 
+      if (item.key === 'home' || item.key === 'preferences') return false;
       const isAdmin = user?.role === 'ADMIN';
       return adminOnlyItems.includes(item.key) ? isAdmin : true;
     });
   });
 
-  const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
+  const dockItems = $derived(allAvailableItems.slice(0, PINNED_COUNT));
 
   const recentItems = $derived.by(() => {
     const visibleDockKeys = new Set(dockItems.map(i => i.key));
     const recents = recentPaths
       .map(key => menuItems.find(m => m.key === key)!)
       .filter(item => item && !visibleDockKeys.has(item.key));
-    return recents.slice(0, maxRecents);
+    return recents.slice(0, 1);
   });
 
   // When profile is opened, set current user for editing
