@@ -21,20 +21,26 @@
 
   const user = $derived(authService.user);
 
+  let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  $effect(() => {
+    const handleResize = () => { windowWidth = window.innerWidth; };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
+
   let recentPaths = $state<string[]>([]);
 
   // Track recent paths intelligently
   $effect(() => {
     const currentPath = page.url.pathname;
     untrack(() => {
-      // Find the menu item matching the path
       let matchedItem = menuItems.find(m => currentPath === m.href);
       if (!matchedItem) {
         matchedItem = menuItems.find(m => currentPath.startsWith(m.href) && m.href !== '/dashboard' && m.href !== '/');
       }
-      
+
       if (matchedItem) {
-        // Exclude specific items we might not want to track as "recent apps" (like home/preferences if we want them pinned, but it's okay)
         const newPaths = recentPaths.filter(p => p !== matchedItem.key);
         newPaths.unshift(matchedItem.key);
         recentPaths = newPaths.slice(0, 10);
@@ -42,7 +48,8 @@
     });
   });
 
-  const PINNED_COUNT = 3;
+  const isMobile = $derived(windowWidth < 640);
+  const maxRecents = $derived(isMobile ? 1 : 3);
 
   const allAvailableItems = $derived.by(() => {
     return menuItems.filter(item => {
@@ -52,14 +59,18 @@
     });
   });
 
-  const dockItems = $derived(allAvailableItems.slice(0, PINNED_COUNT));
+  // Mobile: 3 pinned icons + 1 recent. Desktop: dynamic based on available width.
+  const reservedWidth = $derived(24 + (maxRecents * 56) + 20 + 56);
+  const maxVisibleDockItems = $derived(isMobile ? 3 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 56)));
+
+  const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
 
   const recentItems = $derived.by(() => {
     const visibleDockKeys = new Set(dockItems.map(i => i.key));
     const recents = recentPaths
       .map(key => menuItems.find(m => m.key === key)!)
       .filter(item => item && !visibleDockKeys.has(item.key));
-    return recents.slice(0, 1);
+    return recents.slice(0, maxRecents);
   });
 
   // When profile is opened, set current user for editing
