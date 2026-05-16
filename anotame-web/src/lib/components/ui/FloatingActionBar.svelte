@@ -43,7 +43,7 @@
 <div
   role="toolbar"
   aria-label={m["order.bulk.title"]()}
-  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card border border-border rounded-xl shadow-lg px-4 py-2"
+  class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card border border-border rounded-xl shadow-lg px-4 py-2 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 
@@ -57,7 +57,7 @@
     <Button
       variant="default"
       size="sm"
-      class="h-9 touch-manipulation"
+      class="h-9 touch-manipulation whitespace-nowrap"
       disabled={!selectedStatus}
       onclick={handleChangeStatus}
     >
@@ -68,7 +68,7 @@
   <Button
     variant="destructive"
     size="sm"
-    class="h-9 touch-manipulation"
+    class="h-9 touch-manipulation whitespace-nowrap"
     disabled={!allDraft}
     title={!allDraft ? m["order.bulk.deleteTooltip"]() : undefined}
     onclick={onDelete}
@@ -79,7 +79,7 @@
   <Button
     variant="ghost"
     size="icon"
-    class="h-9 w-9 touch-manipulation"
+    class="h-9 w-9 shrink-0 touch-manipulation"
     aria-label={m["order.bulk.cancelSelection"]()}
     onclick={onCancel}
   >
