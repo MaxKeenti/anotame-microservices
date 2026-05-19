@@ -652,8 +652,8 @@ public class SalesService {
                     .orderCount(orderCount)
                     .scheduledRevenue(scheduledRevenue)
                     .capacityPercent(capacityPercent)
-                    .isHoliday(false) // TODO: integrate with operations-service
-                    .isOpen(true)      // TODO: integrate with operations-service
+                    .isHoliday(false)
+                    .isOpen(true)
                     .build());
 
             current = current.plusDays(1);
