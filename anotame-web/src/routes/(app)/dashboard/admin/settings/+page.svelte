@@ -6,7 +6,7 @@
   import * as Card from '$lib/components/ui/card';
   import * as Select from '$lib/components/ui/select';
   import { toast } from 'svelte-sonner';
-  import { Store, ReceiptText, Palette } from 'lucide-svelte';
+  import { Store, ReceiptText, Palette, Sliders } from 'lucide-svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
@@ -31,6 +31,9 @@
       .nullable()
       .optional()
       .or(z.literal('')),
+    capacityThresholdGreen: z.number().min(1).max(100).default(50),
+    capacityThresholdAmber: z.number().min(1).max(100).default(85),
+    atRiskDaysThreshold: z.number().min(1).default(60),
   });
 
   let isLoading = $state(true);
@@ -56,6 +59,9 @@
           }),
           primaryColor: f.data.primaryColor || null,
           fontFamily: f.data.fontFamily || null,
+          capacityThresholdGreen: f.data.capacityThresholdGreen,
+          capacityThresholdAmber: f.data.capacityThresholdAmber,
+          atRiskDaysThreshold: f.data.atRiskDaysThreshold,
         };
         await apiService.request(`${API_OPERATIONS}/establishment`, {
           method: 'PUT',
@@ -87,6 +93,9 @@
             contactPhone: taxData.contactPhone || '',
             primaryColor: data.primaryColor || '',
             fontFamily: data.fontFamily || '',
+            capacityThresholdGreen: data.capacityThresholdGreen ?? 50,
+            capacityThresholdAmber: data.capacityThresholdAmber ?? 85,
+            atRiskDaysThreshold: data.atRiskDaysThreshold ?? 60,
           },
         });
       }
@@ -273,6 +282,61 @@
               {#if $errors.fontFamily}
                 <span class="text-xs text-destructive">{$errors.fontFamily}</span>
               {/if}
+            </div>
+          </div>
+        </Card.Content>
+      </Card.Root>
+
+      <!-- Threshold Configuration -->
+      <Card.Root>
+        <Card.Header>
+          <div class="flex items-center gap-2">
+            <Sliders class="w-5 h-5 text-primary" />
+            <Card.Title>{m['adminSettings.threshold.title']()}</Card.Title>
+          </div>
+          <Card.Description>
+            {m['adminSettings.threshold.desc']()}
+          </Card.Description>
+        </Card.Header>
+        <Card.Content class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-2">
+              <label for="threshold-green" class="text-sm font-medium">{m['adminSettings.threshold.label.green']()}</label>
+              <Input
+                id="threshold-green"
+                type="number"
+                min="1"
+                max="100"
+                bind:value={$form.capacityThresholdGreen}
+                class="h-12 font-mono"
+              />
+              {#if $errors.capacityThresholdGreen}<span class="text-xs text-destructive">{$errors.capacityThresholdGreen}</span>{/if}
+              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.green']()}</p>
+            </div>
+            <div class="space-y-2">
+              <label for="threshold-amber" class="text-sm font-medium">{m['adminSettings.threshold.label.amber']()}</label>
+              <Input
+                id="threshold-amber"
+                type="number"
+                min="1"
+                max="100"
+                bind:value={$form.capacityThresholdAmber}
+                class="h-12 font-mono"
+              />
+              {#if $errors.capacityThresholdAmber}<span class="text-xs text-destructive">{$errors.capacityThresholdAmber}</span>{/if}
+              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.amber']()}</p>
+            </div>
+            <div class="space-y-2">
+              <label for="threshold-atrisk" class="text-sm font-medium">{m['adminSettings.threshold.label.atRisk']()}</label>
+              <Input
+                id="threshold-atrisk"
+                type="number"
+                min="1"
+                bind:value={$form.atRiskDaysThreshold}
+                class="h-12 font-mono"
+              />
+              {#if $errors.atRiskDaysThreshold}<span class="text-xs text-destructive">{$errors.atRiskDaysThreshold}</span>{/if}
+              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.atRisk']()}</p>
             </div>
           </div>
         </Card.Content>

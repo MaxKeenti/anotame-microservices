@@ -16,4 +16,7 @@ public class Establishment {
     private Integer dailyCapacityMinutes;
     private String primaryColor; // Hex format: "#FF6B6B", nullable
     private String fontFamily; // Font family name, nullable
+    private Integer capacityThresholdGreen = 50;
+    private Integer capacityThresholdAmber = 85;
+    private Integer atRiskDaysThreshold = 60;
 }

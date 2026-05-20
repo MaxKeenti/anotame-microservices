@@ -44,6 +44,15 @@ public class EstablishmentJpa {
     @Column(name = "font_family", length = 32, nullable = true)
     private String fontFamily; // Enum values: "Inter", "Outfit", "Merriweather", nullable
 
+    @Column(name = "capacity_threshold_green", columnDefinition = "INTEGER DEFAULT 50")
+    private Integer capacityThresholdGreen = 50;
+
+    @Column(name = "capacity_threshold_amber", columnDefinition = "INTEGER DEFAULT 85")
+    private Integer capacityThresholdAmber = 85;
+
+    @Column(name = "at_risk_days_threshold", columnDefinition = "INTEGER DEFAULT 60")
+    private Integer atRiskDaysThreshold = 60;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
