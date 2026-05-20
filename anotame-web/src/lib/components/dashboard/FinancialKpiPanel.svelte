@@ -4,7 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
-  import { TrendingUp } from 'lucide-svelte';
+  import { TrendingUp, AlertTriangle } from 'lucide-svelte';
 
   // TypeScript interfaces for API responses
   interface RevenueTrendPoint {
@@ -29,18 +29,28 @@
     lastOrderDate: string;
   }
 
+  interface AtRiskCustomerItem {
+    customerId: string;
+    firstName: string;
+    lastName: string;
+    lastOrderDate: string;
+    daysSinceLastOrder: number;
+  }
+
   interface FinancialKpiResponse {
     revenueTrend: RevenueTrendPoint[];
     serviceBreakdown: ServiceRevenueItem[];
     topCustomers: TopCustomerItem[];
+    atRiskCustomers: AtRiskCustomerItem[];
   }
 
   // Props
   type Props = {
     refreshKey?: number;
+    atRiskDaysThreshold?: number;
   };
 
-  let { refreshKey = 0 }: Props = $props();
+  let { refreshKey = 0, atRiskDaysThreshold = 60 }: Props = $props();
 
   // State
   let granularity = $state<'day' | 'week' | 'month'>('week');
@@ -62,13 +72,14 @@
   $effect(() => {
     void refreshKey;
     void granularity;
+    void atRiskDaysThreshold;
 
     let cancelled = false;
     loading = true;
     error = null;
 
     apiService.request<FinancialKpiResponse>(
-      `${API_SALES}/orders/kpi/financial?granularity=${granularity}`
+      `${API_SALES}/orders/kpi/financial?granularity=${granularity}&atRiskDays=${atRiskDaysThreshold}`
     )
       .then(res => {
         if (!cancelled) {
@@ -108,6 +119,10 @@
 
   // Get customer display name
   function getCustomerName(customer: TopCustomerItem): string {
+    return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
+  }
+
+  function getAtRiskName(customer: AtRiskCustomerItem): string {
     return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
   }
 </script>
@@ -341,6 +356,52 @@
         </Card.Content>
       </Card.Root>
     </div>
+
+    <!-- At-Risk Customers -->
+    <Card.Root class="border border-amber-500/30">
+      <Card.Header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <AlertTriangle class="w-4 h-4 text-amber-500" />
+            <Card.Title>{m['kpi.financial.atRisk.title']?.() ?? 'At-Risk Customers'}</Card.Title>
+          </div>
+          {#if data.atRiskCustomers && data.atRiskCustomers.length > 0}
+            <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-600 rounded-full">
+              {data.atRiskCustomers.length}
+            </span>
+          {/if}
+        </div>
+        <Card.Description>
+          {m['kpi.financial.atRisk.desc']?.() ?? `Customers with no orders in ${atRiskDaysThreshold}+ days`}
+        </Card.Description>
+      </Card.Header>
+      <Card.Content>
+        {#if !data.atRiskCustomers || data.atRiskCustomers.length === 0}
+          <div class="py-8 text-center text-muted-foreground text-sm">
+            {m['kpi.financial.atRisk.empty']?.() ?? 'No at-risk customers'}
+          </div>
+        {:else}
+          <div class="space-y-2">
+            {#each data.atRiskCustomers as customer}
+              <div class="p-3 bg-amber-500/5 rounded-lg border border-amber-500/20 hover:border-amber-500/40 transition-colors">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm font-semibold text-foreground truncate">
+                    {getAtRiskName(customer)}
+                  </p>
+                  <span class="text-xs font-mono font-bold text-amber-600 shrink-0">
+                    {customer.daysSinceLastOrder} {m['kpi.financial.atRisk.daysLabel']?.() ?? 'days'}
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-1">
+                  {m['kpi.financial.atRisk.lastOrder']?.() ?? 'Last order'}:
+                  <span class="font-mono">{formatDate(customer.lastOrderDate)}</span>
+                </p>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </Card.Content>
+    </Card.Root>
 
     <!-- Total Revenue Summary -->
     <Card.Root class="bg-gradient-to-br from-success/10 to-primary/10 border border-success/30">

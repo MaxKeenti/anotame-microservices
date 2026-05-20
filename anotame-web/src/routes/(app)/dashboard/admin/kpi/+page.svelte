@@ -36,6 +36,7 @@
   let capacity = $state(480);
   let thresholdGreen = $state(50);
   let thresholdAmber = $state(85);
+  let atRiskDaysThreshold = $state(60);
   let isLoading = $state(true);
   let activeBarIndex = $state<number | null>(null);
 
@@ -54,6 +55,7 @@
       if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
       if (estData?.capacityThresholdGreen != null) thresholdGreen = estData.capacityThresholdGreen;
       if (estData?.capacityThresholdAmber != null) thresholdAmber = estData.capacityThresholdAmber;
+      if (estData?.atRiskDaysThreshold != null) atRiskDaysThreshold = estData.atRiskDaysThreshold;
     } catch (e) {
       console.error("Error loading KPIs:", e);
     } finally {
@@ -262,7 +264,7 @@
 
       <!-- Financial KPI Panel -->
       <div class="mt-8">
-        <FinancialKpiPanel />
+        <FinancialKpiPanel {atRiskDaysThreshold} />
       </div>
     </div>
   {/if}
