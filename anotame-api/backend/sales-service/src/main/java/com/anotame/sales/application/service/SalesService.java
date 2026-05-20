@@ -573,6 +573,10 @@ public class SalesService {
         List<ServiceRevenueItem> serviceBreakdown = new ArrayList<>();
         for (Object[] row : rawServiceData) {
             BigDecimal revenue = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
+            long totalDurationMin = ((Number) row[3]).longValue();
+            BigDecimal revenuePerMinute = totalDurationMin > 0
+                    ? revenue.divide(BigDecimal.valueOf(totalDurationMin), 2, java.math.RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
             BigDecimal percentShare = totalServiceRevenue.compareTo(BigDecimal.ZERO) > 0
                     ? revenue.divide(totalServiceRevenue, 4, java.math.RoundingMode.HALF_UP)
                             .multiply(new BigDecimal("100"))
@@ -582,6 +586,8 @@ public class SalesService {
                     .serviceName((String) row[0])
                     .totalRevenue(revenue)
                     .orderCount(((Number) row[2]).longValue())
+                    .totalDurationMin(totalDurationMin)
+                    .revenuePerMinute(revenuePerMinute)
                     .percentShare(percentShare)
                     .build());
         }
@@ -623,11 +629,28 @@ public class SalesService {
                     .build());
         }
 
+        Object[] repeatRateRow = orderRepository.getRepeatRate(start, end);
+        long totalCustomersInPeriod = 0L;
+        long repeatCustomers = 0L;
+        BigDecimal repeatRate = BigDecimal.ZERO;
+        if (repeatRateRow != null && repeatRateRow.length >= 2) {
+            totalCustomersInPeriod = ((Number) repeatRateRow[0]).longValue();
+            repeatCustomers = ((Number) repeatRateRow[1]).longValue();
+            if (totalCustomersInPeriod > 0) {
+                repeatRate = BigDecimal.valueOf(repeatCustomers)
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(totalCustomersInPeriod), 2, java.math.RoundingMode.HALF_UP);
+            }
+        }
+
         return FinancialKpiResponse.builder()
                 .revenueTrend(revenueTrend)
                 .serviceBreakdown(serviceBreakdown)
                 .topCustomers(topCustomers)
                 .atRiskCustomers(atRiskCustomers)
+                .repeatRate(repeatRate)
+                .totalCustomersInPeriod(totalCustomersInPeriod)
+                .repeatCustomers(repeatCustomers)
                 .build();
     }
 

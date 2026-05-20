@@ -49,4 +49,7 @@ public interface OrderRepositoryPort {
 
     // Calendar queries
     java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId);
+
+    Object[] getRepeatRate(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+
 }

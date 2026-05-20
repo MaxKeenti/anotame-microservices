@@ -261,4 +261,10 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         }
         return o;
     }
+
+    @Override
+    public Object[] getRepeatRate(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.getRepeatRate(start, end);
+    }
+
 }

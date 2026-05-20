@@ -116,7 +116,8 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "SELECT " +
                         "  ois.service_name, " +
                         "  SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))) AS totalRevenue, " +
-                        "  COUNT(DISTINCT top.id_order) AS orderCount " +
+                        "  COUNT(DISTINCT top.id_order) AS orderCount, " +
+                        "  COALESCE(SUM(ois.duration_min * oi.quantity), 0) AS totalDurationMin " +
                         "FROM tco_order_payment top " +
                         "JOIN tco_order o ON top.id_order = o.id_order " +
                         "JOIN tco_order_item oi ON o.id_order = oi.id_order " +
@@ -130,6 +131,18 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
+    }
+
+    public Object[] getRepeatRate(OffsetDateTime start, OffsetDateTime end) {
+        return (Object[]) getEntityManager()
+                .createNativeQuery(
+                        "SELECT COUNT(DISTINCT id_customer) AS totalCustomers, " +
+                        "COUNT(DISTINCT CASE WHEN cnt >= 2 THEN id_customer END) AS repeatCustomers " +
+                        "FROM (SELECT id_customer, COUNT(*) AS cnt FROM tco_order WHERE created_at >= :start " +
+                        "AND created_at < :end AND is_deleted = false GROUP BY id_customer) sub")
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getSingleResult();
     }
 
     @SuppressWarnings("unchecked")
