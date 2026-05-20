@@ -4,7 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
-  import { TrendingUp, AlertTriangle } from 'lucide-svelte';
+  import { TrendingUp, AlertTriangle, Users } from 'lucide-svelte';
 
   // TypeScript interfaces for API responses
   interface RevenueTrendPoint {
@@ -18,6 +18,8 @@
     totalRevenue: number;
     orderCount: number;
     percentShare: number;
+    totalDurationMin: number;
+    revenuePerMinute: number;
   }
 
   interface TopCustomerItem {
@@ -42,6 +44,9 @@
     serviceBreakdown: ServiceRevenueItem[];
     topCustomers: TopCustomerItem[];
     atRiskCustomers: AtRiskCustomerItem[];
+    repeatRate: number;
+    totalCustomersInPeriod: number;
+    repeatCustomers: number;
   }
 
   // Props
@@ -276,6 +281,23 @@
                       <p class="text-xs text-muted-foreground">
                         {service.orderCount} {m['kpi.financial.services.orders']?.() ?? 'orders'}
                       </p>
+                      <p class="text-xs text-muted-foreground">
+                        {m['kpi.financial.services.revenuePerMin']?.() ?? 'Revenue/Min'}:
+                        {#if service.revenuePerMinute && service.revenuePerMinute > 0}
+                          <span class="font-mono text-foreground">
+                            {formatCurrency(service.revenuePerMinute)}{m['kpi.financial.services.perMin']?.() ?? '/min'}
+                          </span>
+                        {:else}
+                          <span class="font-mono text-muted-foreground">
+                            {m['common.notAvailable']?.() ?? 'N/A'}
+                          </span>
+                        {/if}
+                        <span class="mx-1">•</span>
+                        {m['kpi.financial.services.duration']?.() ?? 'Duration'}:
+                        <span class="font-mono text-foreground">
+                          {service.totalDurationMin} min
+                        </span>
+                      </p>
                     </div>
                     <span class="text-sm font-mono font-bold text-primary shrink-0 ml-4">
                       {formatCurrency(service.totalRevenue)}
@@ -356,6 +378,38 @@
         </Card.Content>
       </Card.Root>
     </div>
+
+    <!-- Repeat Rate -->
+    <Card.Root class="border border-border">
+      <Card.Header>
+        <div class="flex items-center gap-2">
+          <Users class="w-4 h-4 text-primary" />
+          <Card.Title>{m['kpi.financial.repeatRate.title']?.() ?? 'Repeat Rate'}</Card.Title>
+        </div>
+        <Card.Description>
+          {m['kpi.financial.repeatRate.desc']?.() ?? 'Customers with 2+ orders in period'}
+        </Card.Description>
+      </Card.Header>
+      <Card.Content>
+        {#if !data.totalCustomersInPeriod || data.totalCustomersInPeriod === 0}
+          <div class="py-8 text-center text-muted-foreground text-sm">
+            {m['kpi.financial.repeatRate.empty']?.() ?? 'No customer data for period'}
+          </div>
+        {:else}
+          <div class="space-y-2">
+            <p class="text-3xl font-bold font-mono text-primary">
+              {data.repeatRate?.toFixed(1) ?? '0.0'}%
+            </p>
+            <p class="text-sm text-muted-foreground">
+              <span class="font-semibold text-foreground">{data.repeatCustomers}</span>
+              <span class="mx-1">{m['kpi.financial.repeatRate.of']?.() ?? 'of'}</span>
+              <span class="font-semibold text-foreground">{data.totalCustomersInPeriod}</span>
+              <span class="ml-1">{m['kpi.financial.repeatRate.customers']?.() ?? 'repeat customers'}</span>
+            </p>
+          </div>
+        {/if}
+      </Card.Content>
+    </Card.Root>
 
     <!-- At-Risk Customers -->
     <Card.Root class="border border-amber-500/30">
