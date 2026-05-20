@@ -18,9 +18,11 @@
     month: number;
     days: CalendarDay[];
     dailyCapacity?: number;
+    thresholdGreen?: number;
+    thresholdAmber?: number;
   }
 
-  let { year, month, days, dailyCapacity = 480 }: Props = $props();
+  let { year, month, days, dailyCapacity = 480, thresholdGreen = 50, thresholdAmber = 85 }: Props = $props();
 
   const today = new Date();
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -58,8 +60,8 @@
   }
 
   function getCapacityBarColor(pct: number): string {
-    if (pct < 50) return 'bg-green-500';
-    if (pct < 85) return 'bg-amber-500';
+    if (pct < thresholdGreen) return 'bg-green-500';
+    if (pct < thresholdAmber) return 'bg-amber-500';
     return 'bg-red-500';
   }
 
@@ -100,6 +102,8 @@
             scheduledRevenue={cellData.scheduledRevenue}
             totalMinutesUsed={cellData.totalMinutesUsed}
             {dailyCapacity}
+            {thresholdGreen}
+            {thresholdAmber}
             isToday={isToday(dayNum)}
             isPast={isPastDay(dayNum)}
             isHoliday={cellData.isHoliday}
@@ -136,7 +140,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold">{formatAgendaDate(day.date)}</span>
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded {day.capacityPercent >= 85 ? 'bg-red-100 text-red-700' : day.capacityPercent >= 50 ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded {day.capacityPercent >= thresholdAmber ? 'bg-red-100 text-red-700' : day.capacityPercent >= thresholdGreen ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">
                 {day.capacityPercent.toFixed(0)}%
               </span>
             </div>

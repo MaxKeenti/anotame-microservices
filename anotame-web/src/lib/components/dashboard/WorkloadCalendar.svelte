@@ -1,17 +1,19 @@
 <script lang="ts">
     import { Calendar as CalendarIcon, Info } from 'lucide-svelte';
 
-    let { dailyWorkload = [], capacity = 480 } = $props<{
+    let { dailyWorkload = [], capacity = 480, thresholdGreen = 50, thresholdAmber = 85 } = $props<{
         dailyWorkload: any[],
-        capacity: number
+        capacity: number,
+        thresholdGreen?: number,
+        thresholdAmber?: number
     }>();
 
     let activeIndex = $state<number | null>(null);
 
     function getOccupancyColor(percentage: number) {
         if (percentage >= 100) return 'bg-destructive shadow-[0_0_8px_oklch(from_var(--destructive)_l_c_h_/_40%)]';
-        if (percentage >= 80) return 'bg-warning text-warning-foreground';
-        if (percentage >= 50) return 'bg-warning/60 text-warning-foreground';
+        if (percentage >= thresholdAmber) return 'bg-warning text-warning-foreground';
+        if (percentage >= thresholdGreen) return 'bg-warning/60 text-warning-foreground';
         if (percentage > 0) return 'bg-success text-success-foreground';
         return 'bg-secondary/40';
     }
@@ -95,7 +97,7 @@
                 <!-- Card Content -->
                 <div class="flex justify-between items-start z-10">
                     <span class="text-xs font-bold text-muted-foreground uppercase">{formatDate(day.date)}</span>
-                    {#if occupancy >= 80}
+                    {#if occupancy >= thresholdAmber}
                         <div class="flex gap-1 items-center">
                             <Info class="w-3.5 h-3.5 text-destructive animate-pulse" />
                         </div>

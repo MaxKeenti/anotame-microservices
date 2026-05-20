@@ -11,6 +11,8 @@
     scheduledRevenue?: number;
     totalMinutesUsed?: number;
     dailyCapacity?: number;
+    thresholdGreen?: number;
+    thresholdAmber?: number;
     isToday?: boolean;
     isPast?: boolean;
     isHoliday?: boolean;
@@ -24,6 +26,8 @@
     scheduledRevenue = 0,
     totalMinutesUsed = 0,
     dailyCapacity = 480,
+    thresholdGreen = 50,
+    thresholdAmber = 85,
     isToday = false,
     isPast = false,
     isHoliday = false,
@@ -33,21 +37,21 @@
   function getCapacityColor() {
     if (!isCurrentMonth) return 'bg-transparent';
     if (isHoliday) return 'bg-red-50 border-red-200';
-    if (capacityPercent < 50) return 'bg-green-50 border-green-200';
-    if (capacityPercent < 85) return 'bg-amber-50 border-amber-200';
+    if (capacityPercent < thresholdGreen) return 'bg-green-50 border-green-200';
+    if (capacityPercent < thresholdAmber) return 'bg-amber-50 border-amber-200';
     return 'bg-red-50 border-red-200';
   }
 
   function getCapacityBadgeColor() {
     if (isHoliday) return 'bg-red-200 text-red-900';
-    if (capacityPercent < 50) return 'bg-green-200 text-green-900';
-    if (capacityPercent < 85) return 'bg-amber-200 text-amber-900';
+    if (capacityPercent < thresholdGreen) return 'bg-green-200 text-green-900';
+    if (capacityPercent < thresholdAmber) return 'bg-amber-200 text-amber-900';
     return 'bg-red-200 text-red-900';
   }
 
   function getBarColor() {
-    if (capacityPercent < 50) return 'bg-green-500';
-    if (capacityPercent < 85) return 'bg-amber-500';
+    if (capacityPercent < thresholdGreen) return 'bg-green-500';
+    if (capacityPercent < thresholdAmber) return 'bg-amber-500';
     return 'bg-red-500';
   }
 </script>
