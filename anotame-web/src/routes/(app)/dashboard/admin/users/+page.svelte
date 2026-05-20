@@ -6,8 +6,12 @@
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
   import * as m from '$lib/paraglide/messages';
+
+  const mobile = useIsMobile();
 
   import UserDialog from '$lib/components/users/user-dialog.svelte';
 
@@ -18,11 +22,11 @@
   let editingUser = $state<any | null>(null);
 
   const columns: ColumnDef<any>[] = [
-    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["users.colName"](), enableSorting: true },
-    { accessorKey: 'username', header: m["users.colUsername"](), enableSorting: true },
-    { accessorKey: 'email', header: m["users.colEmail"](), enableSorting: false },
-    { id: 'role', accessorFn: (row) => row.role, header: m["users.colRole"](), enableSorting: true },
-    { id: 'actions', header: m["common.actions"](), enableSorting: false },
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["users.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'role', accessorFn: (row) => row.role, header: m["users.colRole"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { accessorKey: 'username', header: m["users.colUsername"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { accessorKey: 'email', header: m["users.colEmail"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   async function fetchUsers() {
@@ -85,36 +89,48 @@
     </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    <DataTableWrapper
-      {columns}
-      data={users}
-      {loading}
-      emptyMessage={m['common.noData']()}
-      filterPlaceholder={m['common.searchEllipsis']()}
-    >
-      {#snippet actionCell(row)}
-        <div class="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 touch-manipulation font-medium"
-            onclick={() => handleEditClick(row.original)}
-          >
-            <Edit class="w-4 h-4 mr-2" />
-            {m['common.edit']()}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-            onclick={() => handleDeleteClick(row.original)}
-          >
-            <Trash2 class="w-4 h-4 mr-2" />
-            {m['common.delete']()}
-          </Button>
-        </div>
-      {/snippet}
-    </DataTableWrapper>
+    {#snippet userActions(row)}
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 touch-manipulation font-medium"
+          onclick={() => handleEditClick(row.original)}
+        >
+          <Edit class="w-4 h-4 mr-2" />
+          {m['common.edit']()}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          onclick={() => handleDeleteClick(row.original)}
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          {m['common.delete']()}
+        </Button>
+      </div>
+    {/snippet}
+
+    {#if mobile.current}
+      <CardGridWrapper
+        {columns}
+        data={users}
+        {loading}
+        emptyMessage={m['common.noData']()}
+        filterPlaceholder={m['common.searchEllipsis']()}
+        actionCell={userActions}
+      />
+    {:else}
+      <DataTableWrapper
+        {columns}
+        data={users}
+        {loading}
+        emptyMessage={m['common.noData']()}
+        filterPlaceholder={m['common.searchEllipsis']()}
+        actionCell={userActions}
+      />
+    {/if}
   </div>
 
   <UserDialog

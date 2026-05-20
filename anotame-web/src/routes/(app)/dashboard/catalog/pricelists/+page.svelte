@@ -9,12 +9,16 @@
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
   import * as m from '$lib/paraglide/messages';
 
   // Guard: Protect this route, strictly checking 'ADMIN'
   const guard = useAuthGuard(true, '/dashboard');
-  
+
+  const mobile = useIsMobile();
+
   let lists = $state<any[]>([]);
   let isLoading = $state(true);
 
@@ -22,12 +26,12 @@
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
   const columns: ColumnDef<any>[] = [
-    { accessorKey: 'name', header: m["catalog.pricelists.colName"](), enableSorting: true },
-    { accessorKey: 'priority', header: m["catalog.pricelists.colPriority"](), enableSorting: true },
-    { id: 'validFrom', accessorFn: (row) => new Date(row.validFrom).toLocaleDateString('es-ES'), header: m["catalog.pricelists.colValidFrom"](), enableSorting: true },
-    { id: 'validTo', accessorFn: (row) => row.validTo ? new Date(row.validTo).toLocaleDateString('es-ES') : m["catalog.pricelists.colPermanent"](), header: m["catalog.pricelists.colValidTo"](), enableSorting: true },
-    { id: 'status', accessorFn: (row) => row.active ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"](), header: m["catalog.pricelists.colStatus"](), enableSorting: true },
-    { id: 'actions', header: m["common.actions"](), enableSorting: false },
+    { accessorKey: 'name', header: m["catalog.pricelists.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'status', accessorFn: (row) => row.active ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"](), header: m["catalog.pricelists.colStatus"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { accessorKey: 'priority', header: m["catalog.pricelists.colPriority"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'validFrom', accessorFn: (row) => new Date(row.validFrom).toLocaleDateString('es-ES'), header: m["catalog.pricelists.colValidFrom"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'validTo', accessorFn: (row) => row.validTo ? new Date(row.validTo).toLocaleDateString('es-ES') : m["catalog.pricelists.colPermanent"](), header: m["catalog.pricelists.colValidTo"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   async function loadLists() {
@@ -95,45 +99,57 @@
         <Card.Description>{m["catalog.pricelists.cardDescription"]()}</Card.Description>
       </Card.Header>
       <Card.Content>
-        <DataTableWrapper
-          {columns}
-          data={lists}
-          loading={isLoading}
-          emptyMessage={m["catalog.pricelists.emptyMessage"]()}
-          filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
-        >
-          {#snippet actionCell(row)}
-            <div class="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
-                onclick={() => handleClone(row.original.id)}
-              >
-                <Copy class="w-4 h-4 mr-2" />
-                {m["catalog.pricelists.cloneButton"]()}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                class="h-11 touch-manipulation"
-                href={`/dashboard/catalog/pricelists/${row.original.id}`}
-              >
-                <Eye class="w-4 h-4 mr-2" />
-                {m["catalog.pricelists.viewButton"]()}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
-                onclick={() => handleDelete(row.original.id, row.original.name)}
-              >
-                <Trash2 class="w-4 h-4 mr-2" />
-                {m["common.delete"]()}
-              </Button>
-            </div>
-          {/snippet}
-        </DataTableWrapper>
+        {#snippet pricelistActions(row)}
+          <div class="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
+              onclick={() => handleClone(row.original.id)}
+            >
+              <Copy class="w-4 h-4 mr-2" />
+              {m["catalog.pricelists.cloneButton"]()}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              class="h-11 touch-manipulation"
+              href={`/dashboard/catalog/pricelists/${row.original.id}`}
+            >
+              <Eye class="w-4 h-4 mr-2" />
+              {m["catalog.pricelists.viewButton"]()}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
+              onclick={() => handleDelete(row.original.id, row.original.name)}
+            >
+              <Trash2 class="w-4 h-4 mr-2" />
+              {m["common.delete"]()}
+            </Button>
+          </div>
+        {/snippet}
+
+        {#if mobile.current}
+          <CardGridWrapper
+            {columns}
+            data={lists}
+            loading={isLoading}
+            emptyMessage={m["catalog.pricelists.emptyMessage"]()}
+            filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
+            actionCell={pricelistActions}
+          />
+        {:else}
+          <DataTableWrapper
+            {columns}
+            data={lists}
+            loading={isLoading}
+            emptyMessage={m["catalog.pricelists.emptyMessage"]()}
+            filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
+            actionCell={pricelistActions}
+          />
+        {/if}
       </Card.Content>
     </Card.Root>
   </div>
