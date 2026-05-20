@@ -18,7 +18,8 @@ public class FinancialKpiResource {
 
     @GET
     public FinancialKpiResponse getFinancialKpis(
-            @QueryParam("granularity") @DefaultValue("day") String granularity) {
-        return salesService.getFinancialKpis(granularity);
+            @QueryParam("granularity") @DefaultValue("day") String granularity,
+            @QueryParam("atRiskDays") @DefaultValue("60") int atRiskDays) {
+        return salesService.getFinancialKpis(granularity, atRiskDays);
     }
 }

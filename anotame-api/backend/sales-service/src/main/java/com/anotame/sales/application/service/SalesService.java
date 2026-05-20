@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.anotame.sales.application.dto.AtRiskCustomerItem;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.FinancialKpiResponse;
 import com.anotame.sales.application.dto.RevenueTrendPoint;
@@ -526,7 +528,7 @@ public class SalesService {
                 .build();
     }
 
-    public FinancialKpiResponse getFinancialKpis(String granularity) {
+    public FinancialKpiResponse getFinancialKpis(String granularity, int atRiskDays) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
@@ -599,14 +601,37 @@ public class SalesService {
                     .build());
         }
 
+        // 4. Get At-Risk Customers (no order in atRiskDays+ days)
+        OffsetDateTime atRiskCutoff = now.minusDays(atRiskDays);
+        List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, 10);
+        List<AtRiskCustomerItem> atRiskCustomers = new ArrayList<>();
+        LocalDate todayForAtRisk = today;
+
+        for (Object[] row : rawAtRiskData) {
+            String lastOrderDateStr = (String) row[3];
+            long daysSince = 0;
+            if (lastOrderDateStr != null) {
+                LocalDate lastOrderDate = LocalDate.parse(lastOrderDateStr);
+                daysSince = ChronoUnit.DAYS.between(lastOrderDate, todayForAtRisk);
+            }
+            atRiskCustomers.add(AtRiskCustomerItem.builder()
+                    .customerId((UUID) row[0])
+                    .firstName((String) row[1])
+                    .lastName((String) row[2])
+                    .lastOrderDate(lastOrderDateStr)
+                    .daysSinceLastOrder(daysSince)
+                    .build());
+        }
+
         return FinancialKpiResponse.builder()
                 .revenueTrend(revenueTrend)
                 .serviceBreakdown(serviceBreakdown)
                 .topCustomers(topCustomers)
+                .atRiskCustomers(atRiskCustomers)
                 .build();
     }
 
-    public com.anotame.sales.application.dto.CalendarMonthResponse getCalendarData(String monthParam) {
+    public com.anotame.sales.application.dto.CalendarMonthResponse getCalendarData(String monthParam, int dailyCapacityMinutes) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
@@ -643,8 +668,7 @@ public class SalesService {
             Integer orderCount = dayData != null ? ((Number) dayData[2]).intValue() : 0;
             BigDecimal scheduledRevenue = dayData != null ? (BigDecimal) dayData[3] : BigDecimal.ZERO;
 
-            // Calculate capacity percent (assuming 480 min daily capacity for now)
-            double capacityPercent = totalMinutes > 0 ? (totalMinutes * 100.0) / 480.0 : 0.0;
+            double capacityPercent = totalMinutes > 0 ? (totalMinutes * 100.0) / dailyCapacityMinutes : 0.0;
 
             days.add(com.anotame.sales.application.dto.CalendarDayResponse.builder()
                     .date(day)

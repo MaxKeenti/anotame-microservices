@@ -159,6 +159,28 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .getResultList();
     }
 
+    // At-Risk Customers
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getAtRiskCustomers(OffsetDateTime cutoffDate, int limit) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT " +
+                        "  c.id_customer, " +
+                        "  c.first_name, " +
+                        "  c.last_name, " +
+                        "  MAX(o.created_at AT TIME ZONE 'UTC')::date::text AS last_order_date " +
+                        "FROM tco_order o " +
+                        "JOIN tco_customer c ON o.id_customer = c.id_customer " +
+                        "WHERE o.is_deleted = false AND c.is_deleted = false " +
+                        "GROUP BY c.id_customer, c.first_name, c.last_name " +
+                        "HAVING MAX(o.created_at) < :cutoffDate " +
+                        "ORDER BY last_order_date ASC " +
+                        "LIMIT :limit")
+                .setParameter("cutoffDate", cutoffDate)
+                .setParameter("limit", limit)
+                .getResultList();
+    }
+
     // Calendar
     @SuppressWarnings("unchecked")
     public List<Object[]> getCalendarMonthData(OffsetDateTime monthStart, OffsetDateTime monthEnd, String zoneId) {

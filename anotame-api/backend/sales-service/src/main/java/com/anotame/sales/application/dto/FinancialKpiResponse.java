@@ -10,4 +10,5 @@ public class FinancialKpiResponse {
     private List<RevenueTrendPoint> revenueTrend;
     private List<ServiceRevenueItem> serviceBreakdown;
     private List<TopCustomerItem> topCustomers;
+    private List<AtRiskCustomerItem> atRiskCustomers;
 }
