@@ -262,7 +262,7 @@
             }
           }}
         >
-          <option value="">Sort by…</option>
+          <option value="">{m['cardGrid.sortBy']()}</option>
           {#each sortableColumns as col (getColumnId(col))}
             <option value={getColumnId(col)}>{getColumnHeader(col)}</option>
           {/each}
@@ -272,7 +272,7 @@
             variant="outline"
             size="sm"
             class="h-12 w-12 p-0 touch-manipulation"
-            aria-label={currentSortDesc ? 'Sort ascending' : 'Sort descending'}
+            aria-label={currentSortDesc ? m['cardGrid.sortAscending']() : m['cardGrid.sortDescending']()}
             onclick={() => {
               if (sorting[0]) {
                 sorting = [{ id: sorting[0].id, desc: !sorting[0].desc }];
@@ -363,7 +363,7 @@
                   variant="ghost"
                   size="sm"
                   class="h-8 w-8 p-0 shrink-0 touch-manipulation"
-                  aria-label={isOpen ? 'Collapse details' : 'Expand details'}
+                  aria-label={isOpen ? m['cardGrid.collapseDetails']() : m['cardGrid.expandDetails']()}
                   onclick={() => toggleRow(row.id)}
                 >
                   {#if isOpen}

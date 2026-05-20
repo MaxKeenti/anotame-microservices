@@ -759,5 +759,14 @@
   "calendar.day.minutes": "{used} / {total} min",
   "calendar.day.holiday": "Holiday",
   "calendar.day.closed": "Closed",
-  "calendar.agenda.title": "Agenda"
+  "calendar.agenda.title": "Agenda",
+  "cardGrid.sortBy": "Sort by…",
+  "cardGrid.sortAscending": "Sort ascending",
+  "cardGrid.sortDescending": "Sort descending",
+  "cardGrid.expandDetails": "Expand details",
+  "cardGrid.collapseDetails": "Collapse details",
+  "cardGrid.selectCard": "Select card",
+  "cardGrid.emptyState": "No items to display",
+  "cardGrid.loadingState": "Loading cards...",
+  "cardGrid.bulkSelectAll": "Select all cards"
 }

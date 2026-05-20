@@ -13,7 +13,11 @@
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import { ApiError } from '$lib/services/ApiError';
+
+  const mobile = useIsMobile();
   import { toast } from 'svelte-sonner';
   import type { ColumnDef } from '@tanstack/table-core';
   import * as Tabs from '$lib/components/ui/tabs';
@@ -38,21 +42,21 @@
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
 
   const activeColumns: ColumnDef<any>[] = [
-    { accessorKey: 'ticketNumber', header: m["orders.column.ticket"](), enableSorting: true },
-    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m["orders.column.customer"](), enableSorting: true },
-    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: m["orders.column.garmentsSummary"](), enableSorting: false },
-    { id: 'status', accessorFn: (row) => row.status, header: m["orders.column.status"](), enableSorting: true },
-    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true },
-    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m["orders.column.total"](), enableSorting: true },
-    { id: 'actions', header: m["common.actions"](), enableSorting: false },
+    { accessorKey: 'ticketNumber', header: m["orders.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'status', accessorFn: (row) => row.status, header: m["orders.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   const draftsColumns: ColumnDef<any>[] = [
-    { id: 'draftId', accessorFn: (row) => row.id, header: m["orders.column.tempId"](), enableSorting: false },
-    { id: 'customer', accessorFn: (row) => row.customer?.firstName ? `${row.customer.firstName} ${row.customer.lastName ?? ''}` : m["orders.noName"](), header: m["orders.column.customer"](), enableSorting: true },
-    { id: 'garments', accessorFn: (row) => m["orders.garmentCount"]({ count: String(row.items?.length || 0) }), header: m["orders.column.garments"](), enableSorting: false },
-    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: m["orders.column.lastModified"](), enableSorting: true },
-    { id: 'actions', header: m["common.actions"](), enableSorting: false },
+    { id: 'draftId', accessorFn: (row) => row.id, header: m["orders.column.tempId"](), enableSorting: false, meta: { cardGroup: 'header' } },
+    { id: 'customer', accessorFn: (row) => row.customer?.firstName ? `${row.customer.firstName} ${row.customer.lastName ?? ''}` : m["orders.noName"](), header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'garments', accessorFn: (row) => m["orders.garmentCount"]({ count: String(row.items?.length || 0) }), header: m["orders.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: m["orders.column.lastModified"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   async function fetchData() {
@@ -246,39 +250,57 @@
         </div>
       {/if}
 
-      <!-- Active Orders Table -->
+      <!-- Active Orders Table / Card Grid -->
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
         {#snippet statusCell(row: any)}
           <StatusBadge status={row.original.status} />
         {/snippet}
 
-        <DataTableWrapper
-          columns={activeColumns}
-          data={filteredOrders}
-          loading={loading}
-          emptyMessage={m["orders.empty"]()}
-          filterPlaceholder={m["orders.searchPlaceholder"]()}
-          showFilter={false}
-          cellRenders={{
-            status: statusCell
-          }}
-          bulkActions={true}
-          bulkMode={true}
-          onSelectionChange={(rows) => { selectedOrders = rows; }}
-        >
-          {#snippet actionCell(row)}
-            <div class="flex justify-end gap-2">
-              <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
-                <Edit class="w-4 h-4 mr-2" />
-                {m["common.edit"]()}
-              </Button>
-              <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
-                <Eye class="w-4 h-4 mr-2" />
-                {m["orders.details"]()}
-              </Button>
-            </div>
-          {/snippet}
-        </DataTableWrapper>
+        {#snippet activeOrderActions(row: any)}
+          <div class="flex justify-end gap-2">
+            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+              <Edit class="w-4 h-4 mr-2" />
+              {m["common.edit"]()}
+            </Button>
+            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
+              <Eye class="w-4 h-4 mr-2" />
+              {m["orders.details"]()}
+            </Button>
+          </div>
+        {/snippet}
+
+        {#if mobile.current}
+          <CardGridWrapper
+            columns={activeColumns}
+            data={filteredOrders}
+            loading={loading}
+            emptyMessage={m["orders.empty"]()}
+            filterPlaceholder={m["orders.searchPlaceholder"]()}
+            showFilter={false}
+            cellRenders={{ status: statusCell }}
+            bulkActions={true}
+            bulkMode={true}
+            onSelectionChange={(rows) => { selectedOrders = rows; }}
+            actionCell={activeOrderActions}
+          />
+        {:else}
+          <DataTableWrapper
+            columns={activeColumns}
+            data={filteredOrders}
+            loading={loading}
+            emptyMessage={m["orders.empty"]()}
+            filterPlaceholder={m["orders.searchPlaceholder"]()}
+            showFilter={false}
+            cellRenders={{ status: statusCell }}
+            bulkActions={true}
+            bulkMode={true}
+            onSelectionChange={(rows) => { selectedOrders = rows; }}
+          >
+            {#snippet actionCell(row)}
+              {@render activeOrderActions(row)}
+            {/snippet}
+          </DataTableWrapper>
+        {/if}
       </div>
 
       <FloatingActionBar
@@ -293,26 +315,41 @@
 
     <Tabs.Content value="drafts" class="space-y-6">
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        <DataTableWrapper
-          columns={draftsColumns}
-          data={drafts}
-          emptyMessage={m["orders.drafts.empty"]()}
-          filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
-          showFilter={false}
-        >
-          {#snippet actionCell(row)}
-            <div class="flex justify-end gap-2">
-              <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
-                <Edit class="w-4 h-4 mr-2" />
-                <span>{m["orders.editDraft"]()}</span>
-              </Button>
-              <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
-                <Trash2 class="w-4 h-4 mr-2" />
-                <span>{m["common.delete"]()}</span>
-              </Button>
-            </div>
-          {/snippet}
-        </DataTableWrapper>
+        {#snippet draftActions(row: any)}
+          <div class="flex justify-end gap-2">
+            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
+              <Edit class="w-4 h-4 mr-2" />
+              <span>{m["orders.editDraft"]()}</span>
+            </Button>
+            <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
+              <Trash2 class="w-4 h-4 mr-2" />
+              <span>{m["common.delete"]()}</span>
+            </Button>
+          </div>
+        {/snippet}
+
+        {#if mobile.current}
+          <CardGridWrapper
+            columns={draftsColumns}
+            data={drafts}
+            emptyMessage={m["orders.drafts.empty"]()}
+            filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
+            showFilter={false}
+            actionCell={draftActions}
+          />
+        {:else}
+          <DataTableWrapper
+            columns={draftsColumns}
+            data={drafts}
+            emptyMessage={m["orders.drafts.empty"]()}
+            filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
+            showFilter={false}
+          >
+            {#snippet actionCell(row)}
+              {@render draftActions(row)}
+            {/snippet}
+          </DataTableWrapper>
+        {/if}
       </div>
     </Tabs.Content>
   </Tabs.Root>
