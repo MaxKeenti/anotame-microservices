@@ -32,7 +32,6 @@
   "common.pagination": "Página {current} de {total}",
   "common.searchEllipsis": "Buscar...",
   "common.user": "Usuario",
-  "cardGrid.sortBy": "Ordenar por...",
   "nav.menu.title": "Menú Principal",
   "nav.menu.subtitle": "Selecciona una opción para navegar",
   "nav.menu.logout": "Cerrar Sesión",
