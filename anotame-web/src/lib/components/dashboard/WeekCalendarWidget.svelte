@@ -14,9 +14,9 @@
 
   function getOccupancyColor(pct: number): string {
     if (pct >= 100) return 'bg-destructive';
-    if (pct >= thresholdAmber) return 'bg-warning';
-    if (pct >= thresholdGreen) return 'bg-warning/60';
-    if (pct > 0)    return 'bg-success';
+    if (pct >= thresholdAmber) return 'bg-red-500';
+    if (pct >= thresholdGreen) return 'bg-amber-500';
+    if (pct > 0)    return 'bg-green-500';
     return 'bg-secondary/40';
   }
 
@@ -58,7 +58,7 @@
         <div class="w-full h-10 rounded-md bg-muted/40 flex items-end overflow-hidden">
           <div class="w-full transition-all duration-700 {getOccupancyColor(pct)}" style="height: {pct}%"></div>
         </div>
-        <span class="text-[9px] font-mono font-bold {pct >= 100 ? 'text-destructive' : pct >= thresholdAmber ? 'text-warning-foreground' : 'text-muted-foreground'}">{pct}%</span>
+        <span class="text-[9px] font-mono font-bold {pct >= 100 ? 'text-red-500' : pct >= thresholdAmber ? 'text-amber-500' : pct >= thresholdGreen ? 'text-amber-500' : 'text-green-500'}">{pct}%</span>
       </div>
     {/each}
   </div>

@@ -12,9 +12,9 @@
 
     function getOccupancyColor(percentage: number) {
         if (percentage >= 100) return 'bg-destructive shadow-[0_0_8px_oklch(from_var(--destructive)_l_c_h_/_40%)]';
-        if (percentage >= thresholdAmber) return 'bg-warning text-warning-foreground';
-        if (percentage >= thresholdGreen) return 'bg-warning/60 text-warning-foreground';
-        if (percentage > 0) return 'bg-success text-success-foreground';
+        if (percentage >= thresholdAmber) return 'bg-red-500 text-red-900';
+        if (percentage >= thresholdGreen) return 'bg-amber-500 text-amber-900';
+        if (percentage > 0) return 'bg-green-500 text-green-900';
         return 'bg-secondary/40';
     }
 

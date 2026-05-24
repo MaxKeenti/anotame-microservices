@@ -291,6 +291,21 @@
   </div>
 
   <!-- Divider -->
+
+  {#if bulkActions && bulkMode && data.length > 0}
+    <div class="flex items-center gap-3 py-2 px-1">
+      <input
+        type="checkbox"
+        id="cgw-select-all"
+        class="h-5 w-5 cursor-pointer rounded"
+        aria-label={m['common.selectAll']()}
+        checked={table.getIsAllRowsSelected()}
+        onchange={table.getToggleAllRowsSelectedHandler()}
+      />
+      <label for="cgw-select-all" class="text-sm font-medium cursor-pointer select-none">{m['common.selectAll']()}</label>
+    </div>
+  {/if}
+
   <div class="border-t border-border"></div>
 
   <!-- Card Grid -->
