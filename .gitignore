@@ -11,6 +11,16 @@
 *.sln.docstates
 *.mcp.json
 
+# Local agent/GSD artifacts
+.agent/
+.agents/
+.claude/
+.codex/
+.gemini/
+.planning/
+.gsd
+.gsd-id
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
