@@ -32,7 +32,7 @@ The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns.
 - **State & Logic**: Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 - **Services**: Use a class-based singleton pattern leveraging `runed` (e.g., `PersistedState`) for stateful logic, placed in `src/lib/services/`.
 - **Auth Guards**: Protect client routes using guards (`useAuthGuard`, `useGuestGuard`) stored in `src/lib/guards/`.
-- **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components placed in `src/lib/components/ui/`. For forms/tables, strictly use `sveltekit-superforms` single-dialog pattern and `DataTableWrapper` with TanStack table.
+- **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components placed in `src/lib/components/ui/`. For forms, use the `sveltekit-superforms` single-dialog pattern. For data management pages, use `DataTableWrapper` on desktop and `CardGridWrapper` on mobile as described in `docs/adr/0004-responsive-data-grids.md`.
 - **i18n**: All text must be internationalized using Paraglide.
 
 ### UI/UX Rules & Accessibility
@@ -68,5 +68,6 @@ The project uses **adaptive wrapper components** that render styled shadcn-svelt
 - Always verify changes via `bun run build` (exit code 0) before committing.
 - Verify end-to-end via `docker compose up --build`.
 - Respect the existing module boundaries.
+- For documentation sources of truth, consult `docs/README.md`.
 - For current setup and service topology, consult `README.md` and the service-specific READMEs.
 - Historical GSD context is read-only and lives outside the repo; see `docs/workflow.md`.

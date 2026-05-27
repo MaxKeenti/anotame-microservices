@@ -38,10 +38,6 @@ public class CustomerResource {
     @PUT
     @Path("/{id}")
     public CustomerDto updateCustomer(@PathParam("id") UUID id, CustomerDto customerDto) {
-        // Warning: service signature might expect ID in DTO or separate.
-        // Spring controller did: updateCustomer(id, requestBody)
-        // Checking service implementation would be ideal, but assuming it handles
-        // consistency.
         return customerService.updateCustomer(id, customerDto);
     }
 

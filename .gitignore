@@ -355,8 +355,7 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# Created by https://www.toptal.com/developers/gitignore/api/nextjs,java,maven,macos
-# Edit at https://www.toptal.com/developers/gitignore?templates=nextjs,java,maven,macos
+# Derived from common Java, Maven, macOS, and JavaScript ignore templates.
 
 ### Java ###
 # Compiled class file
@@ -436,7 +435,7 @@ buildNumber.properties
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
-### NextJS ###
+### JavaScript / SvelteKit ###
 # dependencies
 /node_modules
 /.pnp
@@ -445,8 +444,7 @@ buildNumber.properties
 # testing
 /coverage
 
-# next.js
-/.next/
+# framework build output
 /out/
 
 # production
@@ -466,23 +464,13 @@ yarn-error.log*
 .env
 .env*.local
 
-# vercel
+# deployment tooling
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
-next-env.d.ts
 
-# End of https://www.toptal.com/developers/gitignore/api/nextjs,java,maven,macos
-
-# Legacy Next.js build artifacts (anotame-web-legacy is deprecated — block build dirs)
-anotame-web-legacy/node_modules/
-anotame-web-legacy/.next/
-
-# ── GSD baseline (auto-generated) ──
-.gsd
-.gsd-id
-.bg-shell/
+# Local/editor/runtime artifacts
 Thumbs.db
 *.swp
 *.swo
@@ -499,6 +487,3 @@ vendor/
 coverage/
 .cache/
 tmp/
-
-# ── GSD baseline (auto-generated) ──
-.mcp.json
