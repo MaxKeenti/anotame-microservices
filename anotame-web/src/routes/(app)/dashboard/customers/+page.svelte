@@ -7,9 +7,13 @@
   import { toast } from 'svelte-sonner';
   import type { ColumnDef } from '@tanstack/table-core';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import * as m from '$lib/paraglide/messages';
 
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
+
+  const mobile = useIsMobile();
 
   let customers = $state<any[]>([]);
   let loading = $state(true);
@@ -17,10 +21,10 @@
   let editingCustomer = $state<any | null>(null);
 
   const columns: ColumnDef<any>[] = [
-    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["customers.column.name"](), enableSorting: true },
-    { accessorKey: 'phoneNumber', header: m["customers.column.phone"](), enableSorting: false },
-    { accessorKey: 'email', header: m["customers.column.email"](), enableSorting: false },
-    { id: 'actions', header: m["customers.column.actions"](), enableSorting: false },
+    { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["customers.column.name"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { accessorKey: 'phoneNumber', header: m["customers.column.phone"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { accessorKey: 'email', header: m["customers.column.email"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["customers.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   async function fetchCustomers() {
@@ -79,37 +83,50 @@
   </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    <DataTableWrapper
-      {columns}
-      data={customers}
-      loading={loading}
-      emptyMessage={m["customers.empty"]()}
-      filterPlaceholder={m["customers.filter.placeholder"]()}
-      showFilter={true}
-    >
-      {#snippet actionCell(row)}
-        <div class="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 touch-manipulation font-medium"
-            onclick={() => handleEditClick(row.original)}
-          >
-            <Edit class="w-4 h-4 mr-2" />
-            {m["common.edit"]()}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-            onclick={() => row.original.id && handleDeleteClick(row.original.id)}
-          >
-            <Trash2 class="w-4 h-4 mr-2" />
-            {m["common.delete"]()}
-          </Button>
-        </div>
-      {/snippet}
-    </DataTableWrapper>
+    {#snippet customerActions(row)}
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 touch-manipulation font-medium"
+          onclick={() => handleEditClick(row.original)}
+        >
+          <Edit class="w-4 h-4 mr-2" />
+          {m["common.edit"]()}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          onclick={() => row.original.id && handleDeleteClick(row.original.id)}
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          {m["common.delete"]()}
+        </Button>
+      </div>
+    {/snippet}
+
+    {#if mobile.current}
+      <CardGridWrapper
+        {columns}
+        data={customers}
+        loading={loading}
+        emptyMessage={m["customers.empty"]()}
+        filterPlaceholder={m["customers.filter.placeholder"]()}
+        showFilter={true}
+        actionCell={customerActions}
+      />
+    {:else}
+      <DataTableWrapper
+        {columns}
+        data={customers}
+        loading={loading}
+        emptyMessage={m["customers.empty"]()}
+        filterPlaceholder={m["customers.filter.placeholder"]()}
+        showFilter={true}
+        actionCell={customerActions}
+      />
+    {/if}
   </div>
 
   <CustomerDialog item={editingCustomer} onClose={() => editingCustomer = null} onSuccess={handleFormSuccess} />

@@ -10,7 +10,11 @@
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
+
+  const mobile = useIsMobile();
 
   import ServiceDialog from '$lib/components/catalog/service-dialog.svelte';
 
@@ -42,11 +46,11 @@
   });
 
   let columns = $derived<ColumnDef<any>[]>([
-    { accessorKey: 'name', header: m["catalog.services.colName"](), enableSorting: true },
-    { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true },
-    { accessorKey: 'defaultDurationMin', header: m["catalog.services.colDuration"](), enableSorting: true },
-    { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true },
-    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false } as ColumnDef<any>] : []),
+    { accessorKey: 'name', header: m["catalog.services.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { accessorKey: 'defaultDurationMin', header: m["catalog.services.colDuration"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<any>] : []),
   ]);
 
   async function fetchData() {
@@ -150,39 +154,51 @@
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- Table / Cards -->
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    <DataTableWrapper
-      {columns}
-      data={filteredServices}
-      {loading}
-      showFilter={false}
-      emptyMessage={m["catalog.services.emptyMessage"]()}
-      filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
-    >
-      {#snippet actionCell(row)}
-        <div class="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 touch-manipulation font-medium"
-            onclick={() => handleEditClick(row.original)}
-          >
-            <Edit class="w-4 h-4 mr-2" />
-            {m["common.edit"]()}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-            onclick={() => handleDeleteClick(row.original)}
-          >
-            <Trash2 class="w-4 h-4 mr-2" />
-            {m["common.delete"]()}
-          </Button>
-        </div>
-      {/snippet}
-    </DataTableWrapper>
+    {#snippet serviceActions(row)}
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 touch-manipulation font-medium"
+          onclick={() => handleEditClick(row.original)}
+        >
+          <Edit class="w-4 h-4 mr-2" />
+          {m["common.edit"]()}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          onclick={() => handleDeleteClick(row.original)}
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          {m["common.delete"]()}
+        </Button>
+      </div>
+    {/snippet}
+
+    {#if mobile.current}
+      <CardGridWrapper
+        {columns}
+        data={filteredServices}
+        {loading}
+        showFilter={false}
+        emptyMessage={m["catalog.services.emptyMessage"]()}
+        actionCell={serviceActions}
+      />
+    {:else}
+      <DataTableWrapper
+        {columns}
+        data={filteredServices}
+        {loading}
+        showFilter={false}
+        emptyMessage={m["catalog.services.emptyMessage"]()}
+        filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
+        actionCell={serviceActions}
+      />
+    {/if}
   </div>
 
   <ServiceDialog

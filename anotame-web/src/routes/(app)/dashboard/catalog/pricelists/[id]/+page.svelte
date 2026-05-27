@@ -9,6 +9,8 @@
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
@@ -20,6 +22,8 @@
 
   // Derived ID
   let listId = $derived($page.params.id);
+
+  const mobile = useIsMobile();
 
   // State
   let isLoading = $state(true);
@@ -88,17 +92,20 @@
       accessorKey: 'name',
       header: 'Servicio',
       enableSorting: false,
+      meta: { cardGroup: 'header' },
     },
     {
       accessorKey: 'basePrice',
       header: 'Precio Base',
       enableSorting: false,
       accessorFn: (row) => `$${row.basePrice.toFixed(2)}`,
+      meta: { cardGroup: 'body' },
     },
     {
       id: 'override',
       header: 'Precio Override',
       enableSorting: false,
+      meta: { cardGroup: 'body' },
     },
   ];
 
@@ -282,14 +289,25 @@
 
           <!-- Overrides Table -->
           <div class="border rounded-md overflow-x-auto">
-            <DataTableWrapper
-              columns={overrideColumns}
-              data={services}
-              loading={false}
-              emptyMessage={m["catalog.pricelist.noServices"]()}
-              pageSize={100}
-              {cellRenders}
-            />
+            {#if mobile.current}
+              <CardGridWrapper
+                columns={overrideColumns}
+                data={services}
+                loading={false}
+                emptyMessage={m["catalog.pricelist.noServices"]()}
+                pageSize={100}
+                {cellRenders}
+              />
+            {:else}
+              <DataTableWrapper
+                columns={overrideColumns}
+                data={services}
+                loading={false}
+                emptyMessage={m["catalog.pricelist.noServices"]()}
+                pageSize={100}
+                {cellRenders}
+              />
+            {/if}
           </div>
         </Card.Content>
       </Card.Root>

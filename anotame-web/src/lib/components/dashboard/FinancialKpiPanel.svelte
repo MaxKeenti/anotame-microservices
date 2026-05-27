@@ -4,7 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
-  import { TrendingUp } from 'lucide-svelte';
+  import { TrendingUp, AlertTriangle, Users } from 'lucide-svelte';
 
   // TypeScript interfaces for API responses
   interface RevenueTrendPoint {
@@ -18,6 +18,8 @@
     totalRevenue: number;
     orderCount: number;
     percentShare: number;
+    totalDurationMin: number;
+    revenuePerMinute: number;
   }
 
   interface TopCustomerItem {
@@ -29,18 +31,31 @@
     lastOrderDate: string;
   }
 
+  interface AtRiskCustomerItem {
+    customerId: string;
+    firstName: string;
+    lastName: string;
+    lastOrderDate: string;
+    daysSinceLastOrder: number;
+  }
+
   interface FinancialKpiResponse {
     revenueTrend: RevenueTrendPoint[];
     serviceBreakdown: ServiceRevenueItem[];
     topCustomers: TopCustomerItem[];
+    atRiskCustomers: AtRiskCustomerItem[];
+    repeatRate: number;
+    totalCustomersInPeriod: number;
+    repeatCustomers: number;
   }
 
   // Props
   type Props = {
     refreshKey?: number;
+    atRiskDaysThreshold?: number;
   };
 
-  let { refreshKey = 0 }: Props = $props();
+  let { refreshKey = 0, atRiskDaysThreshold = 60 }: Props = $props();
 
   // State
   let granularity = $state<'day' | 'week' | 'month'>('week');
@@ -62,13 +77,14 @@
   $effect(() => {
     void refreshKey;
     void granularity;
+    void atRiskDaysThreshold;
 
     let cancelled = false;
     loading = true;
     error = null;
 
     apiService.request<FinancialKpiResponse>(
-      `${API_SALES}/orders/kpi/financial?granularity=${granularity}`
+      `${API_SALES}/orders/kpi/financial?granularity=${granularity}&atRiskDays=${atRiskDaysThreshold}`
     )
       .then(res => {
         if (!cancelled) {
@@ -108,6 +124,10 @@
 
   // Get customer display name
   function getCustomerName(customer: TopCustomerItem): string {
+    return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
+  }
+
+  function getAtRiskName(customer: AtRiskCustomerItem): string {
     return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
   }
 </script>
@@ -261,6 +281,23 @@
                       <p class="text-xs text-muted-foreground">
                         {service.orderCount} {m['kpi.financial.services.orders']?.() ?? 'orders'}
                       </p>
+                      <p class="text-xs text-muted-foreground">
+                        {m['kpi.financial.services.revenuePerMin']?.() ?? 'Revenue/Min'}:
+                        {#if service.revenuePerMinute && service.revenuePerMinute > 0}
+                          <span class="font-mono text-foreground">
+                            {formatCurrency(service.revenuePerMinute)}{m['kpi.financial.services.perMin']?.() ?? '/min'}
+                          </span>
+                        {:else}
+                          <span class="font-mono text-muted-foreground">
+                            {m['common.notAvailable']?.() ?? 'N/A'}
+                          </span>
+                        {/if}
+                        <span class="mx-1">•</span>
+                        {m['kpi.financial.services.duration']?.() ?? 'Duration'}:
+                        <span class="font-mono text-foreground">
+                          {service.totalDurationMin} min
+                        </span>
+                      </p>
                     </div>
                     <span class="text-sm font-mono font-bold text-primary shrink-0 ml-4">
                       {formatCurrency(service.totalRevenue)}
@@ -341,6 +378,84 @@
         </Card.Content>
       </Card.Root>
     </div>
+
+    <!-- Repeat Rate -->
+    <Card.Root class="border border-border">
+      <Card.Header>
+        <div class="flex items-center gap-2">
+          <Users class="w-4 h-4 text-primary" />
+          <Card.Title>{m['kpi.financial.repeatRate.title']?.() ?? 'Repeat Rate'}</Card.Title>
+        </div>
+        <Card.Description>
+          {m['kpi.financial.repeatRate.desc']?.() ?? 'Customers with 2+ orders in period'}
+        </Card.Description>
+      </Card.Header>
+      <Card.Content>
+        {#if !data.totalCustomersInPeriod || data.totalCustomersInPeriod === 0}
+          <div class="py-8 text-center text-muted-foreground text-sm">
+            {m['kpi.financial.repeatRate.empty']?.() ?? 'No customer data for period'}
+          </div>
+        {:else}
+          <div class="space-y-2">
+            <p class="text-3xl font-bold font-mono text-primary">
+              {data.repeatRate?.toFixed(1) ?? '0.0'}%
+            </p>
+            <p class="text-sm text-muted-foreground">
+              <span class="font-semibold text-foreground">{data.repeatCustomers}</span>
+              <span class="mx-1">{m['kpi.financial.repeatRate.of']?.() ?? 'of'}</span>
+              <span class="font-semibold text-foreground">{data.totalCustomersInPeriod}</span>
+              <span class="ml-1">{m['kpi.financial.repeatRate.customers']?.() ?? 'repeat customers'}</span>
+            </p>
+          </div>
+        {/if}
+      </Card.Content>
+    </Card.Root>
+
+    <!-- At-Risk Customers -->
+    <Card.Root class="border border-amber-500/30">
+      <Card.Header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <AlertTriangle class="w-4 h-4 text-amber-500" />
+            <Card.Title>{m['kpi.financial.atRisk.title']?.() ?? 'At-Risk Customers'}</Card.Title>
+          </div>
+          {#if data.atRiskCustomers && data.atRiskCustomers.length > 0}
+            <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-600 rounded-full">
+              {data.atRiskCustomers.length}
+            </span>
+          {/if}
+        </div>
+        <Card.Description>
+          {m['kpi.financial.atRisk.desc']?.() ?? `Customers with no orders in ${atRiskDaysThreshold}+ days`}
+        </Card.Description>
+      </Card.Header>
+      <Card.Content>
+        {#if !data.atRiskCustomers || data.atRiskCustomers.length === 0}
+          <div class="py-8 text-center text-muted-foreground text-sm">
+            {m['kpi.financial.atRisk.empty']?.() ?? 'No at-risk customers'}
+          </div>
+        {:else}
+          <div class="space-y-2">
+            {#each data.atRiskCustomers as customer}
+              <div class="p-3 bg-amber-500/5 rounded-lg border border-amber-500/20 hover:border-amber-500/40 transition-colors">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm font-semibold text-foreground truncate">
+                    {getAtRiskName(customer)}
+                  </p>
+                  <span class="text-xs font-mono font-bold text-amber-600 shrink-0">
+                    {customer.daysSinceLastOrder} {m['kpi.financial.atRisk.daysLabel']?.() ?? 'days'}
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-1">
+                  {m['kpi.financial.atRisk.lastOrder']?.() ?? 'Last order'}:
+                  <span class="font-mono">{formatDate(customer.lastOrderDate)}</span>
+                </p>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </Card.Content>
+    </Card.Root>
 
     <!-- Total Revenue Summary -->
     <Card.Root class="bg-gradient-to-br from-success/10 to-primary/10 border border-success/30">

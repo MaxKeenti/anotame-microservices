@@ -5,6 +5,7 @@
   import { Button } from '$lib/components/ui/button';
   import { ChevronLeft, ChevronRight } from 'lucide-svelte';
   import * as m from '$lib/paraglide/messages';
+  import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
 
   interface CalendarDay {
     date: string;
@@ -31,11 +32,25 @@
   let calendarData = $state<CalendarDay[]>(data.calendarData);
   let loading = $state(false);
   let error = $state<string | null>(data.error || null);
+  let thresholdGreen = $state(50);
+  let thresholdAmber = $state(85);
+
+  import { onMount } from 'svelte';
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
+
+  onMount(async () => {
+    try {
+      const estData = await apiService.request<any>(`${API_OPERATIONS}/establishment`);
+      if (estData?.capacityThresholdGreen != null) thresholdGreen = estData.capacityThresholdGreen;
+      if (estData?.capacityThresholdAmber != null) thresholdAmber = estData.capacityThresholdAmber;
+    } catch (err) {
+      console.error('Failed to load establishment thresholds:', err);
+    }
+  });
 
   async function handlePrevMonth() {
     if (month === 1) {
@@ -144,7 +159,7 @@
     <!-- Calendar Grid -->
     <Card.Root class="border border-border">
       <Card.Content class="pt-6">
-        <CalendarGrid {year} {month} days={calendarData} />
+        <CalendarGrid {year} {month} days={calendarData} {thresholdGreen} {thresholdAmber} />
       </Card.Content>
     </Card.Root>
 
@@ -153,19 +168,19 @@
       <div class="flex items-center gap-3">
         <div class="w-4 h-4 rounded bg-green-200"></div>
         <span class="text-sm text-muted-foreground">
-          {m['calendar.capacity.low']?.() ?? '< 50% Capacity'}
+          {m['calendar.capacity.low']?.({ green: String(thresholdGreen) }) ?? `< ${thresholdGreen}% Capacity`}
         </span>
       </div>
       <div class="flex items-center gap-3">
         <div class="w-4 h-4 rounded bg-amber-200"></div>
         <span class="text-sm text-muted-foreground">
-          {m['calendar.capacity.medium']?.() ?? '50-85% Capacity'}
+          {m['calendar.capacity.medium']?.({ green: String(thresholdGreen), amber: String(thresholdAmber) }) ?? `${thresholdGreen}-${thresholdAmber}% Capacity`}
         </span>
       </div>
       <div class="flex items-center gap-3">
         <div class="w-4 h-4 rounded bg-red-200"></div>
         <span class="text-sm text-muted-foreground">
-          {m['calendar.capacity.high']?.() ?? '> 85% Capacity'}
+          {m['calendar.capacity.high']?.({ amber: String(thresholdAmber) }) ?? `> ${thresholdAmber}% Capacity`}
         </span>
       </div>
     </div>

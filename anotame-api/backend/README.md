@@ -1,33 +1,29 @@
-# Anotame API Microservices
+# Anotame Backend
 
-This project consists of a set of microservices for the Anotame application, built with Spring Boot and following Hexagonal Architecture.
+Java 21 Quarkus microservices for Anotame. Each service owns its own PostgreSQL database and follows the project hexagonal architecture conventions in `../../AI_RULES.md`.
 
 ## Services
 
-- **identity-service** (Port 8081): Handles authentication and user management.
-- **catalog-service** (Port 8082): Manages products and services catalog.
-- **sales-service** (Port 8083): Manages customer orders.
-- **operations-service** (Port 8084): Manages order fulfillment and work orders.
-- **Operations Service**: Handles `WorkOrder` tracking and processing.
+- `identity-service` on port `8081`: authentication and user management
+- `catalog-service` on port `8082`: garments, services, and price lists
+- `sales-service` on port `8083`: customers, orders, payments, and receipts
+- `operations-service` on port `8084`: shifts, thresholds, and work orders
 
-## Running with Docker
+## Local Development
 
-The project supports Docker Compose for running the infrastructure and services.
+Start the database containers from the repository root:
 
-### Prerequisites
-- Docker
-- Java 21 (for local dev)
-- Maven
+```bash
+docker compose up -d
+```
 
-### Steps
-1. Build the project:
-   ```bash
-   mvn clean package
-   ```
-2. Run with Docker Compose:
-   ```bash
-   docker-compose up --build
-   ```
+Run a service in Quarkus dev mode from this directory:
 
-## Architecture
-Each service follows the Hexagonal Architecture (Ports & Adapters) to ensure separation of concerns and testability.
+```bash
+./mvnw quarkus:dev -pl identity-service
+./mvnw quarkus:dev -pl catalog-service
+./mvnw quarkus:dev -pl sales-service
+./mvnw quarkus:dev -pl operations-service
+```
+
+Flyway migrations run at service startup. Do not apply manual SQL seed scripts for normal local development.

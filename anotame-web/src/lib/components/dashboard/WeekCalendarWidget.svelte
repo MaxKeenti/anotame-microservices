@@ -8,13 +8,15 @@
 
   let days = $state<DayLoad[]>([]);
   let capacity = $state(480);
+  let thresholdGreen = $state(50);
+  let thresholdAmber = $state(85);
   let loading = $state(true);
 
   function getOccupancyColor(pct: number): string {
     if (pct >= 100) return 'bg-destructive';
-    if (pct >= 80)  return 'bg-warning';
-    if (pct >= 50)  return 'bg-warning/60';
-    if (pct > 0)    return 'bg-success';
+    if (pct >= thresholdAmber) return 'bg-red-500';
+    if (pct >= thresholdGreen) return 'bg-amber-500';
+    if (pct > 0)    return 'bg-green-500';
     return 'bg-secondary/40';
   }
 
@@ -30,6 +32,8 @@
         apiService.request<{ dailyCapacityMinutes?: number }>(`${API_OPERATIONS}/establishment`)
       ]);
       if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
+      if (estData?.capacityThresholdGreen != null) thresholdGreen = estData.capacityThresholdGreen;
+      if (estData?.capacityThresholdAmber != null) thresholdAmber = estData.capacityThresholdAmber;
       // Take first 7 future days
       days = (kpiData?.dailyWorkload ?? []).slice(0, 7);
     } catch {
@@ -54,7 +58,7 @@
         <div class="w-full h-10 rounded-md bg-muted/40 flex items-end overflow-hidden">
           <div class="w-full transition-all duration-700 {getOccupancyColor(pct)}" style="height: {pct}%"></div>
         </div>
-        <span class="text-[9px] font-mono font-bold {pct >= 100 ? 'text-destructive' : pct >= 80 ? 'text-warning-foreground' : 'text-muted-foreground'}">{pct}%</span>
+        <span class="text-[9px] font-mono font-bold {pct >= 100 ? 'text-red-500' : pct >= thresholdAmber ? 'text-amber-500' : pct >= thresholdGreen ? 'text-amber-500' : 'text-green-500'}">{pct}%</span>
       </div>
     {/each}
   </div>

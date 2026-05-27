@@ -45,6 +45,9 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         entity.setDailyCapacityMinutes(establishment.getDailyCapacityMinutes());
         entity.setPrimaryColor(establishment.getPrimaryColor());
         entity.setFontFamily(establishment.getFontFamily());
+        entity.setCapacityThresholdGreen(establishment.getCapacityThresholdGreen());
+        entity.setCapacityThresholdAmber(establishment.getCapacityThresholdAmber());
+        entity.setAtRiskDaysThreshold(establishment.getAtRiskDaysThreshold());
 
         repository.persist(entity);
         return toDomain(entity);
@@ -60,6 +63,9 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         domain.setDailyCapacityMinutes(entity.getDailyCapacityMinutes());
         domain.setPrimaryColor(entity.getPrimaryColor());
         domain.setFontFamily(entity.getFontFamily());
+        domain.setCapacityThresholdGreen(entity.getCapacityThresholdGreen());
+        domain.setCapacityThresholdAmber(entity.getCapacityThresholdAmber());
+        domain.setAtRiskDaysThreshold(entity.getAtRiskDaysThreshold());
         return domain;
     }
 }

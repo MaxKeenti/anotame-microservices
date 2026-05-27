@@ -185,6 +185,11 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
+    public java.util.List<Object[]> getAtRiskCustomers(java.time.OffsetDateTime cutoffDate, int limit) {
+        return orderRepository.getAtRiskCustomers(cutoffDate, limit);
+    }
+
+    @Override
     public java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId) {
         return orderRepository.getCalendarMonthData(monthStart, monthEnd, zoneId);
     }
@@ -256,4 +261,10 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         }
         return o;
     }
+
+    @Override
+    public Object[] getRepeatRate(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.getRepeatRate(start, end);
+    }
+
 }

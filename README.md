@@ -20,7 +20,7 @@ Each service owns its own PostgreSQL database — no shared database, no cross-s
 
 - Docker Desktop (for local database containers)
 - Java 21
-- Maven (or use the `./mvnw` wrapper in each service directory)
+- Maven (or use the `./mvnw` wrapper in `anotame-api/backend`)
 
 ## Local Development
 
@@ -47,11 +47,11 @@ PgAdmin is also available at http://localhost:5050 (login: admin@anotame.com / a
 
 ### 2. Start a service in dev mode
 
-Navigate to the service directory and run:
+Run a service from the backend directory:
 
 ```bash
-cd anotame-api/backend/identity-service
-./mvnw quarkus:dev
+cd anotame-api/backend
+./mvnw quarkus:dev -pl identity-service
 ```
 
 On first start, Flyway automatically creates the schema in the service's database container. No manual SQL execution is needed.
@@ -59,9 +59,9 @@ On first start, Flyway automatically creates the schema in the service's databas
 Repeat for each service you need running:
 
 ```bash
-cd anotame-api/backend/catalog-service && ./mvnw quarkus:dev
-cd anotame-api/backend/sales-service && ./mvnw quarkus:dev
-cd anotame-api/backend/operations-service && ./mvnw quarkus:dev
+./mvnw quarkus:dev -pl catalog-service
+./mvnw quarkus:dev -pl sales-service
+./mvnw quarkus:dev -pl operations-service
 ```
 
 ### 3. Start the frontend
@@ -76,7 +76,7 @@ The frontend is available at http://localhost:3000.
 
 ### One-time migration from the old setup
 
-If you previously ran `docker compose up` with the old shared `anotame-db` container, a `postgres_data` volume may still exist. Remove it with:
+If you previously ran `docker compose up` with the old shared database container, a `postgres_data` volume may still exist. Remove it with:
 
 ```bash
 docker volume rm anotame-microservices_postgres_data
@@ -99,7 +99,7 @@ docker-compose.yml      Local dev database containers (4 PostgreSQL)
 
 ## Environment Variables
 
-Copy `.env` to a local `.env` file and populate the JWT key pair. The JWT keys are already populated in `.env` for local development.
+Copy `.env.example` to a local `.env` file and populate the JWT key pair.
 
 When running `quarkus:dev`, each service reads its datasource URL from its `%dev` profile in `application.properties` — no `QUARKUS_DATASOURCE_JDBC_URL` env var is needed locally.
 

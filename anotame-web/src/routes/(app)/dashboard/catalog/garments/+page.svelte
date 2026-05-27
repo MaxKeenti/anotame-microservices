@@ -8,7 +8,11 @@
   import { Button } from '$lib/components/ui/button';
   import { Edit, Trash2 } from 'lucide-svelte';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
+
+  const mobile = useIsMobile();
 
   import GarmentDialog from '$lib/components/catalog/garment-dialog.svelte';
 
@@ -21,9 +25,9 @@
   let editingGarment = $state<any | null>(null);
 
   let columns = $derived<ColumnDef<any>[]>([
-    { accessorKey: 'name', header: m["catalog.garments.colName"](), enableSorting: true },
-    { id: 'description', accessorFn: (row: any) => row.description || '-', header: m["catalog.garments.colDescription"](), enableSorting: false },
-    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false } as ColumnDef<any>] : []),
+    { accessorKey: 'name', header: m["catalog.garments.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'description', accessorFn: (row: any) => row.description || '-', header: m["catalog.garments.colDescription"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<any>] : []),
   ]);
 
   async function fetchGarments() {
@@ -82,36 +86,48 @@
   </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    <DataTableWrapper
-      {columns}
-      data={garments}
-      {loading}
-      emptyMessage={m["catalog.garments.emptyMessage"]()}
-      filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
-    >
-      {#snippet actionCell(row)}
-        <div class="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 touch-manipulation font-medium"
-            onclick={() => handleEditClick(row.original)}
-          >
-            <Edit class="w-4 h-4 mr-2" />
-            {m["common.edit"]()}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-            onclick={() => handleDeleteClick(row.original)}
-          >
-            <Trash2 class="w-4 h-4 mr-2" />
-            {m["common.delete"]()}
-          </Button>
-        </div>
-      {/snippet}
-    </DataTableWrapper>
+    {#snippet garmentActions(row)}
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 touch-manipulation font-medium"
+          onclick={() => handleEditClick(row.original)}
+        >
+          <Edit class="w-4 h-4 mr-2" />
+          {m["common.edit"]()}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          onclick={() => handleDeleteClick(row.original)}
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          {m["common.delete"]()}
+        </Button>
+      </div>
+    {/snippet}
+
+    {#if mobile.current}
+      <CardGridWrapper
+        {columns}
+        data={garments}
+        {loading}
+        emptyMessage={m["catalog.garments.emptyMessage"]()}
+        filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
+        actionCell={garmentActions}
+      />
+    {:else}
+      <DataTableWrapper
+        {columns}
+        data={garments}
+        {loading}
+        emptyMessage={m["catalog.garments.emptyMessage"]()}
+        filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
+        actionCell={garmentActions}
+      />
+    {/if}
   </div>
 
   <GarmentDialog item={editingGarment} onClose={() => editingGarment = null} onSuccess={handleFormSuccess} />

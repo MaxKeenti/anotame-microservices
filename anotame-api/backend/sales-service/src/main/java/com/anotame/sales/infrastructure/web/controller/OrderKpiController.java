@@ -27,14 +27,16 @@ public class OrderKpiController {
     @GET
     @Path("/calendar")
     public CalendarMonthResponse getCalendarData(
-            @QueryParam("month") String month) {
-        return salesService.getCalendarData(month);
+            @QueryParam("month") String month,
+            @QueryParam("dailyCapacityMinutes") @DefaultValue("480") int dailyCapacityMinutes) {
+        return salesService.getCalendarData(month, dailyCapacityMinutes);
     }
 
     @GET
     @Path("/financial")
     public FinancialKpiResponse getFinancialKpis(
-            @QueryParam("granularity") @DefaultValue("day") String granularity) {
-        return salesService.getFinancialKpis(granularity);
+            @QueryParam("granularity") @DefaultValue("day") String granularity,
+            @QueryParam("atRiskDays") @DefaultValue("60") int atRiskDays) {
+        return salesService.getFinancialKpis(granularity, atRiskDays);
     }
 }

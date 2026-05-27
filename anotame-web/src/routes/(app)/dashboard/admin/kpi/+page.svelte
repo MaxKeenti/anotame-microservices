@@ -34,6 +34,9 @@
 
   let metrics = $state<DashboardMetrics | null>(null);
   let capacity = $state(480);
+  let thresholdGreen = $state(50);
+  let thresholdAmber = $state(85);
+  let atRiskDaysThreshold = $state(60);
   let isLoading = $state(true);
   let activeBarIndex = $state<number | null>(null);
 
@@ -50,6 +53,9 @@
       ]);
       metrics = metricsData;
       if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
+      if (estData?.capacityThresholdGreen != null) thresholdGreen = estData.capacityThresholdGreen;
+      if (estData?.capacityThresholdAmber != null) thresholdAmber = estData.capacityThresholdAmber;
+      if (estData?.atRiskDaysThreshold != null) atRiskDaysThreshold = estData.atRiskDaysThreshold;
     } catch (e) {
       console.error("Error loading KPIs:", e);
     } finally {
@@ -164,7 +170,7 @@
 
       <!-- Workload Calendar -->
       <div class="mt-8">
-        <WorkloadCalendar dailyWorkload={metrics.dailyWorkload} {capacity} />
+        <WorkloadCalendar dailyWorkload={metrics.dailyWorkload} {capacity} {thresholdGreen} {thresholdAmber} />
       </div>
     </div>
 
@@ -258,7 +264,7 @@
 
       <!-- Financial KPI Panel -->
       <div class="mt-8">
-        <FinancialKpiPanel />
+        <FinancialKpiPanel {atRiskDaysThreshold} />
       </div>
     </div>
   {/if}

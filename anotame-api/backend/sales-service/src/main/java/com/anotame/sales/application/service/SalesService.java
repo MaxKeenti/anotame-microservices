@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.anotame.sales.application.dto.AtRiskCustomerItem;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.FinancialKpiResponse;
 import com.anotame.sales.application.dto.RevenueTrendPoint;
@@ -526,7 +528,7 @@ public class SalesService {
                 .build();
     }
 
-    public FinancialKpiResponse getFinancialKpis(String granularity) {
+    public FinancialKpiResponse getFinancialKpis(String granularity, int atRiskDays) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
@@ -571,6 +573,10 @@ public class SalesService {
         List<ServiceRevenueItem> serviceBreakdown = new ArrayList<>();
         for (Object[] row : rawServiceData) {
             BigDecimal revenue = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
+            long totalDurationMin = ((Number) row[3]).longValue();
+            BigDecimal revenuePerMinute = totalDurationMin > 0
+                    ? revenue.divide(BigDecimal.valueOf(totalDurationMin), 2, java.math.RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
             BigDecimal percentShare = totalServiceRevenue.compareTo(BigDecimal.ZERO) > 0
                     ? revenue.divide(totalServiceRevenue, 4, java.math.RoundingMode.HALF_UP)
                             .multiply(new BigDecimal("100"))
@@ -580,6 +586,8 @@ public class SalesService {
                     .serviceName((String) row[0])
                     .totalRevenue(revenue)
                     .orderCount(((Number) row[2]).longValue())
+                    .totalDurationMin(totalDurationMin)
+                    .revenuePerMinute(revenuePerMinute)
                     .percentShare(percentShare)
                     .build());
         }
@@ -599,14 +607,54 @@ public class SalesService {
                     .build());
         }
 
+        // 4. Get At-Risk Customers (no order in atRiskDays+ days)
+        OffsetDateTime atRiskCutoff = now.minusDays(atRiskDays);
+        List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, 10);
+        List<AtRiskCustomerItem> atRiskCustomers = new ArrayList<>();
+        LocalDate todayForAtRisk = today;
+
+        for (Object[] row : rawAtRiskData) {
+            String lastOrderDateStr = (String) row[3];
+            long daysSince = 0;
+            if (lastOrderDateStr != null) {
+                LocalDate lastOrderDate = LocalDate.parse(lastOrderDateStr);
+                daysSince = ChronoUnit.DAYS.between(lastOrderDate, todayForAtRisk);
+            }
+            atRiskCustomers.add(AtRiskCustomerItem.builder()
+                    .customerId((UUID) row[0])
+                    .firstName((String) row[1])
+                    .lastName((String) row[2])
+                    .lastOrderDate(lastOrderDateStr)
+                    .daysSinceLastOrder(daysSince)
+                    .build());
+        }
+
+        Object[] repeatRateRow = orderRepository.getRepeatRate(start, end);
+        long totalCustomersInPeriod = 0L;
+        long repeatCustomers = 0L;
+        BigDecimal repeatRate = BigDecimal.ZERO;
+        if (repeatRateRow != null && repeatRateRow.length >= 2) {
+            totalCustomersInPeriod = ((Number) repeatRateRow[0]).longValue();
+            repeatCustomers = ((Number) repeatRateRow[1]).longValue();
+            if (totalCustomersInPeriod > 0) {
+                repeatRate = BigDecimal.valueOf(repeatCustomers)
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(totalCustomersInPeriod), 2, java.math.RoundingMode.HALF_UP);
+            }
+        }
+
         return FinancialKpiResponse.builder()
                 .revenueTrend(revenueTrend)
                 .serviceBreakdown(serviceBreakdown)
                 .topCustomers(topCustomers)
+                .atRiskCustomers(atRiskCustomers)
+                .repeatRate(repeatRate)
+                .totalCustomersInPeriod(totalCustomersInPeriod)
+                .repeatCustomers(repeatCustomers)
                 .build();
     }
 
-    public com.anotame.sales.application.dto.CalendarMonthResponse getCalendarData(String monthParam) {
+    public com.anotame.sales.application.dto.CalendarMonthResponse getCalendarData(String monthParam, int dailyCapacityMinutes) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
@@ -643,8 +691,7 @@ public class SalesService {
             Integer orderCount = dayData != null ? ((Number) dayData[2]).intValue() : 0;
             BigDecimal scheduledRevenue = dayData != null ? (BigDecimal) dayData[3] : BigDecimal.ZERO;
 
-            // Calculate capacity percent (assuming 480 min daily capacity for now)
-            double capacityPercent = totalMinutes > 0 ? (totalMinutes * 100.0) / 480.0 : 0.0;
+            double capacityPercent = totalMinutes > 0 ? (totalMinutes * 100.0) / dailyCapacityMinutes : 0.0;
 
             days.add(com.anotame.sales.application.dto.CalendarDayResponse.builder()
                     .date(day)
