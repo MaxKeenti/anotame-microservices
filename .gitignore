@@ -12,6 +12,7 @@
 *.mcp.json
 
 # Local agent/GSD artifacts
+.bg-shell/
 .agent/
 .agents/
 .claude/
@@ -20,6 +21,10 @@
 .planning/
 .gsd
 .gsd-id
+.github/agents/
+.github/get-shit-done/
+.github/skills/
+.github/gsd-file-manifest.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

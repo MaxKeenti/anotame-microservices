@@ -3,7 +3,7 @@
 This document outlines the architectural, structural, and coding standards for the Anotame Microservices project. All AI assistants and developers must adhere to these guidelines to ensure consistency across the codebase.
 
 ## 1. Architecture Overview
-- **Monorepo Structure**: Contains `anotame-api` (Backend), `anotame-web` (Frontend), `anotame-web-legacy` (deprecated Next.js), and `anotame-db` (Database).
+- **Monorepo Structure**: Contains `anotame-api` (Backend), `anotame-web` (Frontend), and `docker-compose.yml` for local PostgreSQL databases.
 - **Backend**: Java Quarkus Microservices (Identity, Catalog, Sales, Operations).
 - **Frontend**: Svelte 5 + SvelteKit.
 - **Database**: PostgreSQL.
@@ -68,5 +68,5 @@ The project uses **adaptive wrapper components** that render styled shadcn-svelt
 - Always verify changes via `bun run build` (exit code 0) before committing.
 - Verify end-to-end via `docker compose up --build`.
 - Respect the existing module boundaries.
-- For new features, always consult `docs/implementation_plan.md` to align with the roadmap.
-- For migration status, consult `docs/migration_gap_analysis.md`.
+- For current setup and service topology, consult `README.md` and the service-specific READMEs.
+- Historical GSD context is read-only and lives outside the repo; see `docs/workflow.md`.

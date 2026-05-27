@@ -1,7 +1,0 @@
-name,description,default_duration_min,base_price,garment_type_name
-Bastilla,"Acortar largo de prenda",15,12.00,Pantalón
-Entallado,"Ajustar para un corte más delgado",30,25.00,Pantalón
-Cambio de Cierre,"Instalación de cierre nuevo",45,20.00,Chamarra
-Parche,"Reparar agujero o rasgadura",20,10.00,Pantalón
-Cambio de Botón,"Coser botón nuevo",5,2.00,Camisa
-Lavado en Seco,"Lavado en seco estándar",1440,8.00,Traje

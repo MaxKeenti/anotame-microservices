@@ -1,42 +1,21 @@
-# sv
+# Anotame Web
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Svelte 5 + SvelteKit frontend for the Anotame microservices stack.
 
-## Creating a project
+## Development
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
+```bash
+bun install
+bun run dev
 ```
 
-To recreate this project with the same configuration:
+The dev server runs at http://localhost:3000 when started through the root `dev.sh` helper, or at Vite's default port when started directly.
 
-```sh
-# recreate this project
-bun x sv@0.12.8 create --template minimal --types ts --install bun anotame-web
+## Checks
+
+```bash
+bun run check
+bun run build
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Follow the shared UI, i18n, and adaptive component conventions in `../AI_RULES.md`.
