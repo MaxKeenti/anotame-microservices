@@ -1,7 +1,6 @@
 -- V4__complement_catalog_services.sql
--- Complements V2 catalog with additional services from the historical
--- consolidated price sheet. This Flyway migration is the canonical source
--- for those catalog rows.
+-- Complements V2 catalog with additional services from the consolidated
+-- price sheet (scripts/data-migration/consolidated_services_filled.csv).
 --
 -- Source rows total:        370
 -- After normalization:      380 priced + 0 unpriced
@@ -11,8 +10,9 @@
 -- Idempotent: ON CONFLICT (name, id_garment_type) DO NOTHING relies on the
 -- composite unique constraint added by V2. Re-running this migration is safe.
 --
--- Unpriced rows (~0) are intentionally excluded. Add them in a follow-up
--- migration if new prices are confirmed by the business.
+-- Unpriced rows (~0) are intentionally excluded — see
+-- scripts/data-migration/services_missing_price.csv. Add them in a follow-up
+-- migration once prices are confirmed by the business.
 
 BEGIN;
 
