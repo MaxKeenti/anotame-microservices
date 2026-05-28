@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capacitor Integration — Anotame Staff App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.147 0.004 49.3);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.147 0.004 49.3);
+  --primary: oklch(0.553 0.195 38.402);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --muted: oklch(0.96 0.002 17.2);
+  --muted-foreground: oklch(0.547 0.021 43.1);
+  --accent: oklch(0.553 0.195 38.402);
+  --accent-foreground: oklch(0.98 0.016 73.684);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-muted: oklch(0.95 0.04 25);
+  --destructive-text: oklch(0.4 0.15 25);
+  --success: oklch(0.696 0.17 162);
+  --success-muted: oklch(0.948 0.052 162);
+  --success-text: oklch(0.37 0.12 162);
+  --warning: oklch(0.75 0.15 75);
+  --warning-muted: oklch(0.97 0.05 90);
+  --warning-text: oklch(0.40 0.13 75);
+  --info: oklch(0.65 0.15 250);
+  --info-muted: oklch(0.94 0.04 250);
+  --info-text: oklch(0.4 0.12 250);
+  --border: oklch(0.922 0.005 34.3);
+  --radius: 0.875rem;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Merriweather', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.147 0.004 49.3);
+    --foreground: oklch(0.986 0.002 67.8);
+    --card: oklch(0.214 0.009 43.1);
+    --card-foreground: oklch(0.986 0.002 67.8);
+    --primary: oklch(0.47 0.157 37.304);
+    --primary-foreground: oklch(0.98 0.016 73.684);
+    --muted: oklch(0.268 0.011 36.5);
+    --muted-foreground: oklch(0.714 0.014 41.2);
+    --accent: oklch(0.47 0.157 37.304);
+    --accent-foreground: oklch(0.98 0.016 73.684);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-muted: oklch(0.26 0.05 25);
+    --destructive-text: oklch(0.85 0.12 25);
+    --success: oklch(0.75 0.16 162);
+    --success-muted: oklch(0.25 0.06 162);
+    --success-text: oklch(0.85 0.12 162);
+    --warning: oklch(0.80 0.14 75);
+    --warning-muted: oklch(0.26 0.05 90);
+    --warning-text: oklch(0.88 0.10 75);
+    --info: oklch(0.70 0.14 250);
+    --info-muted: oklch(0.24 0.05 250);
+    --info-text: oklch(0.82 0.10 250);
+    --border: oklch(1 0 0 / 10%);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+}
+
+header.hero {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+header.hero .eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 2.4rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+  color: var(--foreground);
+}
+
+header.hero .subtitle {
+  font-size: 1.05rem;
+  color: var(--muted-foreground);
+  max-width: 56ch;
+  margin: 0;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  margin: 3rem 0 1rem;
+  color: var(--foreground);
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+h2 .section-num {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 10%, transparent);
+  border-radius: calc(var(--radius) * 0.6);
+  padding: 0.25rem 0.6rem;
+  position: relative;
+  top: -0.1em;
+}
+
+h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--foreground);
+}
+
+h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin: 1rem 0 0.4rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+p { margin: 0 0 1rem; }
+
+code, kbd, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+p code, li code, td code, h3 code {
+  background: var(--muted);
+  color: var(--foreground);
+  border-radius: calc(var(--radius) * 0.4);
+  padding: 0.12em 0.45em;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1rem 0 1.5rem;
+  line-height: 1.55;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--foreground);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in oklch, var(--primary) 40%, transparent);
+  transition: border-color 120ms ease, color 120ms ease;
+}
+a:hover { border-bottom-color: var(--primary); }
+
+ul, ol { padding-left: 1.4rem; margin: 0 0 1rem; }
+li { margin-bottom: 0.4rem; }
+
+.card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.6rem;
+  margin: 0 0 1.25rem;
+  box-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.03);
+}
+
+.card.muted { background: var(--muted); }
+.card.warn  { border-color: color-mix(in oklch, var(--warning) 35%, var(--border)); background: var(--warning-muted); }
+.card.info  { border-color: color-mix(in oklch, var(--info) 35%, var(--border)); background: var(--info-muted); }
+.card.danger{ border-color: color-mix(in oklch, var(--destructive) 35%, var(--border)); background: var(--destructive-muted); }
+
+.card.warn h3, .card.warn p { color: var(--warning-text); }
+.card.info h3, .card.info p { color: var(--info-text); }
+.card.danger h3, .card.danger p { color: var(--destructive-text); }
+
+.card > :first-child { margin-top: 0; }
+.card > :last-child { margin-bottom: 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.92rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: color-mix(in oklch, var(--muted) 50%, transparent); }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.status-badge.new      { background: var(--success-muted); color: var(--success-text); border-color: color-mix(in oklch, var(--success) 25%, var(--border)); }
+.status-badge.modify   { background: var(--info-muted);    color: var(--info-text);    border-color: color-mix(in oklch, var(--info) 25%, var(--border)); }
+.status-badge.delete   { background: var(--destructive-muted); color: var(--destructive-text); border-color: color-mix(in oklch, var(--destructive) 25%, var(--border)); }
+.status-badge.rename   { background: var(--warning-muted); color: var(--warning-text); border-color: color-mix(in oklch, var(--warning) 25%, var(--border)); }
+.status-badge.done     { background: var(--success-muted); color: var(--success-text); border-color: color-mix(in oklch, var(--success) 25%, var(--border)); }
+
+.decision-grid {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.5rem;
+}
+
+.decision-grid .q-id {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 8%, transparent);
+  border-radius: calc(var(--radius) * 0.5);
+  padding: 0.3rem 0.6rem;
+  text-align: center;
+  border: 1px solid color-mix(in oklch, var(--primary) 20%, transparent);
+  height: fit-content;
+}
+
+.decision-grid .q-text { padding: 0.25rem 0; }
+.decision-grid .q-text strong { color: var(--foreground); }
+
+.callout {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 0 0 1.25rem;
+}
+
+.callout .marker {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  align-self: flex-start;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.callout.note   { background: color-mix(in oklch, var(--info) 5%, var(--card)); border-color: color-mix(in oklch, var(--info) 25%, var(--border)); }
+.callout.note .marker   { background: var(--info-muted); color: var(--info-text); }
+.callout.warn   { background: color-mix(in oklch, var(--warning) 5%, var(--card)); border-color: color-mix(in oklch, var(--warning) 25%, var(--border)); }
+.callout.warn .marker   { background: var(--warning-muted); color: var(--warning-text); }
+.callout.danger { background: color-mix(in oklch, var(--destructive) 5%, var(--card)); border-color: color-mix(in oklch, var(--destructive) 25%, var(--border)); }
+.callout.danger .marker { background: var(--destructive-muted); color: var(--destructive-text); }
+
+.callout p:last-child { margin-bottom: 0; }
+
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+.checklist li {
+  padding-left: 1.6rem;
+  position: relative;
+  margin-bottom: 0.55rem;
+}
+.checklist li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 9999px;
+  background: var(--success);
+  color: var(--success-foreground, white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toc {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 2.5rem;
+}
+.toc h4 { margin-top: 0; }
+.toc ol { margin-bottom: 0; padding-left: 1.2rem; }
+.toc a { border-bottom: none; }
+.toc a:hover { border-bottom: 1px solid var(--primary); }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+footer.foot {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .container { padding: 2rem 1rem 4rem; }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.25rem; }
+  table { font-size: 0.85rem; }
+  th, td { padding: 0.55rem 0.65rem; }
+  .decision-grid { grid-template-columns: 1fr; gap: 0.3rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="hero">
+  <span class="eyebrow">Implementation Plan</span>
+  <h1>Capacitor Integration for the Anotame Staff App</h1>
+  <p class="subtitle">Add Capacitor to <code>anotame-web</code> so the existing SvelteKit dashboard can be packaged as native iOS and Android apps for shop staff — without breaking the Railway-deployed web build.</p>
+</header>
+
+<nav class="toc">
+  <h4>Contents</h4>
+  <ol>
+    <li><a href="#context">Context</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#backend">Backend Changes</a></li>
+    <li><a href="#frontend">Frontend Changes</a></li>
+    <li><a href="#docs">Documentation</a></li>
+    <li><a href="#native">Native Scaffolding</a></li>
+    <li><a href="#files">Files Touched</a></li>
+    <li><a href="#verify">Verification</a></li>
+  </ol>
+</nav>
+
+<section id="context">
+<h2><span class="section-num">01</span>Context</h2>
+
+<p>The original markdown plan proposed a dual-build strategy (keep <code>adapter-node</code> for Docker, add <code>adapter-static</code> for Capacitor). After a grilling session that walked the design tree, several load-bearing gaps in the original draft surfaced — addressed here.</p>
+
+<div class="callout danger">
+  <span class="marker">Blocker</span>
+  <div>
+    <p><strong>HttpOnly cookie auth is structurally incompatible with a cross-origin Capacitor WebView.</strong></p>
+    <p><code>auth.svelte.ts</code> stores user state and relies on the backend's <code>jwt</code> cookie; <code>apiService</code> sends <code>credentials: "include"</code>. In a Capacitor WebView the origin is <code>capacitor://localhost</code> (iOS) or <code>https://localhost</code> (Android). WKWebView's ITP and SameSite rules will silently drop the cookie. Native must move to Bearer-token + secure storage.</p>
+  </div>
+</div>
+
+<div class="callout warn">
+  <span class="marker">Drift</span>
+  <div>
+    <p><strong>Env-var mechanism mismatch.</strong> The codebase reads backend URLs via <code>$env/dynamic/public</code> (runtime). The original plan used Vite's <code>import.meta.env.PUBLIC_*</code>. Under <code>adapter-static</code> there is no Node runtime, so only <code>$env/static/public</code> (baked at build time) works consistently.</p>
+  </div>
+</div>
+
+<div class="callout warn">
+  <span class="marker">Drift</span>
+  <div>
+    <p><strong>The proposed <code>SVELTE_CONFIG=svelte.config.mobile.js</code> switch isn't real.</strong> SvelteKit always loads <code>svelte.config.js</code>. The original plan's <code>build:mobile</code> would silently produce the wrong (Node) adapter output.</p>
+  </div>
+</div>
+
+<div class="callout note">
+  <span class="marker">Tradeoff</span>
+  <div>
+    <p>Setting <code>ssr = false</code> in a shared <code>+layout.ts</code> would regress the Docker web build (theme FOUC, weaker admin guard, broken <code>%lang%</code> substitution). The fix is a build-time file swap that scopes <code>ssr = false</code> to the mobile bundle only.</p>
+  </div>
+</div>
+
+<div class="callout note">
+  <span class="marker">Strategy</span>
+  <div>
+    <p>Apple App Store guideline <strong>4.2</strong> rejects pure WebView wrappers. The plan now ships <strong>Camera</strong> (garment intake photos) and <strong>Biometric login</strong> as v1 native capabilities. Push notifications and barcode scanning are deferred.</p>
+  </div>
+</div>
+</section>
+
+<section id="decisions">
+<h2><span class="section-num">02</span>Decisions</h2>
+
+<div class="decision-grid">
+  <div class="q-id">Q1</div>
+  <div class="q-text"><strong>Target audience:</strong> Staff Member (the person operating the shop). The mobile bundle wraps the existing dashboard; no new customer surface is built.</div>
+
+  <div class="q-id">Q2</div>
+  <div class="q-text"><strong>Auth model:</strong> Bearer token in the <code>Authorization</code> header, stored via <code>@capacitor/preferences</code>, for native. Web stays on HttpOnly cookies. <strong>Backend must return the JWT in the login response body</strong> — currently <code>AuthController.createCookieResponse</code> drops it.</div>
+
+  <div class="q-id">Q3</div>
+  <div class="q-text"><strong>Env strategy:</strong> Backend URLs baked at build time via <code>$env/static/public</code>. The mobile build runs on dev/CI (not Railway), so the pipeline mirrors Railway's env values locally.</div>
+
+  <div class="q-id">Q4</div>
+  <div class="q-text"><strong>Build switch:</strong> One <code>svelte.config.js</code>, branching on <code>process.env.MOBILE === '1'</code>. <code>cross-env</code> added for Windows.</div>
+
+  <div class="q-id">Q5</div>
+  <div class="q-text"><strong>SSR scope:</strong> <code>ssr = false</code> applies only to the mobile bundle, via a script-based file swap of <code>+layout.mobile.ts</code> over <code>+layout.ts</code> during <code>build:mobile</code>.</div>
+
+  <div class="q-id">Q6</div>
+  <div class="q-text"><strong>Locale:</strong> Paraglide's client runtime; static <code>index.html</code> ships with <code>lang="es"</code> and strings swap on hydration based on the <code>PARAGLIDE_LOCALE</code> cookie.</div>
+
+  <div class="q-id">Q7</div>
+  <div class="q-text"><strong>CORS:</strong> All four Quarkus services move <code>cors.origins</code> to an env-driven <code>ANOTAME_CORS_ORIGINS</code> property, defaulting to dev origins plus Capacitor schemes.</div>
+
+  <div class="q-id">Q8</div>
+  <div class="q-text"><strong>Native capabilities (v1):</strong> Camera (garment intake) and Biometric login. Push notifications and barcode scanner deferred.</div>
+
+  <div class="q-id">Q9</div>
+  <div class="q-text"><strong>Wrap-up:</strong> Add ADR-0005; delete the redundant <code>routes/api/[...path]/+server.ts</code> proxy; verify Capacitor version via <code>npm view</code> before pinning.</div>
+</div>
+</section>
+
+<section id="backend">
+<h2><span class="section-num">03</span>Backend Changes (Quarkus)</h2>
+
+<div class="card">
+<h3>B-A1 · Return JWT in login response body</h3>
+<p>File: <code>anotame-api/backend/identity-service/src/main/java/com/anotame/identity/infrastructure/web/controller/AuthController.java</code></p>
+<p>Replace the body of <code>createCookieResponse</code> so it returns the full <code>AuthResponse</code>:</p>
+<pre><code>return Response.ok(authResponse).cookie(cookie).build();</code></pre>
+<p>Web still uses the HttpOnly cookie (it ignores the body's <code>token</code>). Native reads and stores it. No new endpoint needed.</p>
+</div>
+
+<div class="card">
+<h3>B-A2 · Env-driven CORS on all four services</h3>
+<p>Files: <code>identity-service</code>, <code>catalog-service</code>, <code>sales-service</code>, <code>operations-service</code> — each <code>application.properties</code>.</p>
+<p>Replace the literal origins line with:</p>
+<pre><code>quarkus.http.cors.origins=${ANOTAME_CORS_ORIGINS:http://localhost:3000,capacitor://localhost,https://localhost,http://localhost}</code></pre>
+<p>Set <code>ANOTAME_CORS_ORIGINS</code> per environment in Railway (prod web origin + Capacitor schemes; staging adds the staging web origin). The default covers local Docker plus the Capacitor WebView origins.</p>
+</div>
+</section>
+
+<section id="frontend">
+<h2><span class="section-num">04</span>Frontend Changes (anotame-web)</h2>
+
+<div class="card">
+<h3>B-B1 · Dependencies &amp; scripts — <code>package.json</code></h3>
+<p>Verify versions before pinning: <code>npm view @capacitor/core versions</code>.</p>
+<p>Add:</p>
+<ul>
+  <li><code>@capacitor/core</code>, <code>@capacitor/cli</code>, <code>@capacitor/ios</code>, <code>@capacitor/android</code> (latest GA)</li>
+  <li><code>@capacitor/preferences</code> — token storage</li>
+  <li><code>@capacitor/camera</code> — garment intake</li>
+  <li>A biometric plugin (e.g. <code>@capgo/capacitor-native-biometric</code> or <code>@aparajita/capacitor-biometric-auth</code>) — picked at execution time</li>
+  <li><code>@sveltejs/adapter-static</code></li>
+  <li><code>cross-env</code> — Windows compatibility for the <code>MOBILE=1</code> flag</li>
+</ul>
+<p>Scripts:</p>
+<pre><code>"build:mobile": "cross-env MOBILE=1 node scripts/swap-mobile-layout.mjs &amp;&amp; cross-env MOBILE=1 vite build &amp;&amp; node scripts/restore-mobile-layout.mjs",
+"cap:sync": "npm run build:mobile &amp;&amp; npx cap sync",
+"cap:ios": "npx cap open ios",
+"cap:android": "npx cap open android"</code></pre>
+</div>
+
+<div class="card">
+<h3>B-B2 · Dual-adapter — <code>svelte.config.js</code></h3>
+<p>One config, branched on the build env:</p>
+<pre><code>import nodeAdapter from '@sveltejs/adapter-node';
+import staticAdapter from '@sveltejs/adapter-static';
+
+const isMobile = process.env.MOBILE === '1';
+
+const config = {
+  kit: {
+    adapter: isMobile
+      ? staticAdapter({ pages: 'build', assets: 'build', fallback: 'index.html', strict: false })
+      : nodeAdapter(),
+    paths: { relative: false }
+  },
+  vitePlugin: {
+    dynamicCompileOptions: ({ filename }) =>
+      filename.includes('node_modules') ? undefined : { runes: true }
+  }
+};
+
+export default config;</code></pre>
+</div>
+
+<div class="card">
+<h3>B-B3 · Capacitor project config — <code>capacitor.config.ts</code> <span class="status-badge new">new</span></h3>
+<pre><code>import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.anotame.staff',
+  appName: 'Anotame Staff',
+  webDir: 'build'
+};
+
+export default config;</code></pre>
+<p>Bundle ID can be revised during execution; <code>com.anotame.staff</code> reflects the audience decision (Q1) and leaves room for a future <code>com.anotame.customer</code>.</p>
+</div>
+
+<div class="card">
+<h3>B-B4 · Runtime detection + API base — <code>src/lib/capacitor.ts</code> <span class="status-badge new">new</span></h3>
+<pre><code>import { Capacitor } from '@capacitor/core';
+import {
+  PUBLIC_IDENTITY_URL,
+  PUBLIC_CATALOG_URL,
+  PUBLIC_SALES_URL,
+  PUBLIC_OPERATIONS_URL
+} from '$env/static/public';
+
+export function isNativeApp(): boolean {
+  return Capacitor.isNativePlatform();
+}
+
+const NATIVE_BASES = {
+  identity: PUBLIC_IDENTITY_URL,
+  catalog: PUBLIC_CATALOG_URL,
+  sales: PUBLIC_SALES_URL,
+  operations: PUBLIC_OPERATIONS_URL
+} as const;
+
+export function getApiBase(service: keyof typeof NATIVE_BASES): string {
+  return isNativeApp() ? NATIVE_BASES[service] : `/api/${service}`;
+}</code></pre>
+<p>Web never reads <code>NATIVE_BASES</code> (the <code>isNativeApp()</code> branch is always <code>false</code>), so empty values in the web build's <code>.env</code> are fine.</p>
+</div>
+
+<div class="card">
+<h3>B-B5 · Native token store — <code>src/lib/services/native/tokenStore.ts</code> <span class="status-badge new">new</span></h3>
+<pre><code>import { Preferences } from '@capacitor/preferences';
+
+const KEY = 'anotame_jwt';
+
+export const tokenStore = {
+  async get():   Promise&lt;string | null&gt; { const { value } = await Preferences.get({ key: KEY }); return value; },
+  async set(token: string): Promise&lt;void&gt; { await Preferences.set({ key: KEY, value: token }); },
+  async clear():            Promise&lt;void&gt; { await Preferences.remove({ key: KEY }); }
+};</code></pre>
+</div>
+
+<div class="card">
+<h3>B-B6 · Platform-aware <code>ApiService</code> — <code>src/lib/services/api.svelte.ts</code> <span class="status-badge modify">modify</span></h3>
+<ul>
+  <li>Replace the four hard-coded <code>/api/...</code> constants with <code>getApiBase(...)</code>.</li>
+  <li>In <code>request()</code>: when native, read <code>tokenStore.get()</code> and set <code>Authorization: Bearer ${token}</code>; omit <code>credentials: 'include'</code>.</li>
+  <li>Web path: untouched.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>B-B7 · Auth service hook into token store — <code>src/lib/services/auth.svelte.ts</code> <span class="status-badge modify">modify</span></h3>
+<ul>
+  <li>After successful <code>login()</code>, on native: <code>await tokenStore.set(response.token)</code>.</li>
+  <li>In <code>logout()</code> and <code>clearLocalSession()</code>, on native: <code>await tokenStore.clear()</code>.</li>
+  <li><code>setLocaleCookie</code> works unchanged — WebViews accept same-origin cookie writes.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>B-B8 · Convert server loads to universal loads <span class="status-badge rename">rename</span></h3>
+<ul>
+  <li><code>src/routes/(app)/+layout.server.ts</code> → <code>+layout.ts</code> · <code>LayoutServerLoad</code> → <code>LayoutLoad</code>. The theme fetch already used SvelteKit <code>fetch</code>; only the file name and import type change.</li>
+  <li><code>src/routes/(app)/dashboard/admin/+layout.server.ts</code> → <code>+layout.ts</code> · same conversion. Backend already enforces <code>ADMIN</code> role on every protected endpoint — this layout was defense-in-depth only.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>B-B9 · Mobile-only SSR override — <code>src/routes/+layout.mobile.ts</code> <span class="status-badge new">new</span></h3>
+<pre><code>export const ssr = false;
+export const prerender = false;</code></pre>
+<p>Plus two Node scripts:</p>
+<ul>
+  <li><code>scripts/swap-mobile-layout.mjs</code> — copies <code>+layout.mobile.ts</code> → <code>+layout.ts</code> before <code>vite build</code>.</li>
+  <li><code>scripts/restore-mobile-layout.mjs</code> — removes the generated <code>+layout.ts</code> after the build.</li>
+</ul>
+<p>The runtime <code>+layout.ts</code> is gitignored.</p>
+</div>
+
+<div class="card">
+<h3>B-B10 · Locale placeholder in static build</h3>
+<p>When <code>MOBILE=1</code>, replace <code>%lang%</code> in <code>build/index.html</code> with <code>es</code> (ADR-0003 designates Spanish as authoritative). Implementation: a small post-build <code>scripts/finalize-mobile-build.mjs</code>, or a Vite <code>transformIndexHtml</code> plugin — equivalent.</p>
+</div>
+
+<div class="card danger">
+<h3>B-B11 · Delete redundant proxy <span class="status-badge delete">delete</span></h3>
+<p>File: <code>src/routes/api/[...path]/+server.ts</code></p>
+<p><code>hooks.server.ts</code> is the canonical proxy and handles JWT-stripping on public auth endpoints. The duplicate <code>[...path]/+server.ts</code> lacks that safety. Removing it keeps one source of truth.</p>
+</div>
+
+<div class="card">
+<h3>B-B12 · <code>.gitignore</code> updates</h3>
+<pre><code># Capacitor native projects
+/ios
+/android
+
+# Runtime layout file generated by build:mobile
+src/routes/+layout.ts</code></pre>
+</div>
+</section>
+
+<section id="docs">
+<h2><span class="section-num">05</span>Documentation</h2>
+
+<div class="card">
+<h3>C1 · ADR-0005 — Dual-Build Web + Capacitor with Platform-Aware Auth <span class="status-badge new">new</span></h3>
+<p>File: <code>docs/adr/0005-dual-build-web-and-capacitor.md</code></p>
+<p>Captures the four-pillar decision: dual adapter via <code>MOBILE=1</code>, Bearer-for-native vs. cookie-for-web, Capacitor origin in CORS, native plugins (Camera + Biometric) as the App Store 4.2 justification. Follows the existing ADR shape (short narrative · considered options · consequences).</p>
+</div>
+
+<div class="card">
+<h3>C2 · <code>AI_RULES.md</code> — Mobile build subsection <span class="status-badge modify">modify</span></h3>
+<p>Under section 3, document:</p>
+<ul>
+  <li>Use <code>bun run build:mobile</code> for the Capacitor bundle, <code>bun run build</code> for Docker.</li>
+  <li>Native code branches on <code>isNativeApp()</code>.</li>
+  <li>API base URLs always go through <code>getApiBase()</code> — never hard-code <code>/api/...</code> or full backend URLs.</li>
+</ul>
+</div>
+
+<div class="card muted">
+<h3>C3 · <code>CONTEXT.md</code> — no change</h3>
+<p>The mobile app introduces no new domain terms; it operates on the same Establishment, Branch, Order, Staff Member, and Customer concepts already defined.</p>
+</div>
+</section>
+
+<section id="native">
+<h2><span class="section-num">06</span>Native Scaffolding</h2>
+
+<p>After dependencies install:</p>
+<pre><code>cd anotame-web
+npx cap init "Anotame Staff" "com.anotame.staff" --web-dir build
+bun run build:mobile
+npx cap add ios
+npx cap add android</code></pre>
+</section>
+
+<section id="files">
+<h2><span class="section-num">07</span>Files Touched</h2>
+
+<table>
+<thead><tr><th>Path</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><code>anotame-api/.../identity/.../AuthController.java</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-api/backend/{identity,catalog,sales,operations}-service/.../application.properties</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-web/package.json</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-web/svelte.config.js</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-web/.gitignore</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-web/capacitor.config.ts</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/src/lib/capacitor.ts</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/src/lib/services/native/tokenStore.ts</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/src/lib/services/api.svelte.ts</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-web/src/lib/services/auth.svelte.ts</code></td><td><span class="status-badge modify">modify</span></td></tr>
+<tr><td><code>anotame-web/src/routes/(app)/+layout.server.ts</code></td><td><span class="status-badge rename">rename → .ts</span></td></tr>
+<tr><td><code>anotame-web/src/routes/(app)/dashboard/admin/+layout.server.ts</code></td><td><span class="status-badge rename">rename → .ts</span></td></tr>
+<tr><td><code>anotame-web/src/routes/+layout.mobile.ts</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/scripts/swap-mobile-layout.mjs</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/scripts/restore-mobile-layout.mjs</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/scripts/finalize-mobile-build.mjs</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>anotame-web/src/routes/api/[...path]/+server.ts</code></td><td><span class="status-badge delete">delete</span></td></tr>
+<tr><td><code>docs/adr/0005-dual-build-web-and-capacitor.md</code></td><td><span class="status-badge new">new</span></td></tr>
+<tr><td><code>AI_RULES.md</code></td><td><span class="status-badge modify">modify</span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="verify">
+<h2><span class="section-num">08</span>Verification</h2>
+
+<h3>Build-time</h3>
+<ul class="checklist">
+  <li><code>cd anotame-web &amp;&amp; bun run build</code> exits 0 with <code>adapter-node</code> output (web).</li>
+  <li><code>cd anotame-web &amp;&amp; bun run build:mobile</code> exits 0 with <code>adapter-static</code> output (no <code>index.js</code> server in <code>build/</code>).</li>
+  <li><code>npx cap sync</code> updates <code>ios/</code> and <code>android/</code> without errors.</li>
+  <li><code>mvn -pl identity-service compile</code> (and the other three) succeeds with the env-driven CORS line.</li>
+</ul>
+
+<h3>Web (regression)</h3>
+<ul class="checklist">
+  <li><code>docker compose up --build</code> — login flow unchanged; HttpOnly <code>jwt</code> cookie set; theme loads server-side (no FOUC); admin route blocked for <code>EMPLOYEE</code>.</li>
+  <li>UI locale switch updates <code>&lt;html lang="..."&gt;</code> on next navigation.</li>
+</ul>
+
+<h3>iOS</h3>
+<ul class="checklist">
+  <li><code>npx cap open ios</code>, run in Xcode simulator.</li>
+  <li>Log in; verify <code>tokenStore</code> contains the JWT (Capacitor storage inspector or debug log).</li>
+  <li>Hit an authenticated endpoint; confirm <code>Authorization: Bearer ...</code> header in Charles/Proxyman.</li>
+  <li>Quit and reopen the app; session restores from <code>Preferences</code>.</li>
+  <li>Trigger camera-based garment intake on a test order; photo upload succeeds.</li>
+  <li>Trigger biometric login on a second open; Face ID prompt and successful re-auth.</li>
+</ul>
+
+<h3>Android</h3>
+<ul class="checklist">
+  <li><code>npx cap open android</code>, run in emulator. Same six steps as iOS.</li>
+</ul>
+
+<h3>CORS</h3>
+<ul class="checklist">
+  <li>From the iOS simulator, hit <code>/auth/me</code> against the staging Railway backend — expect 200, not a CORS-blocked preflight.</li>
+  <li>Confirm staging's <code>ANOTAME_CORS_ORIGINS</code> includes <code>capacitor://localhost</code>.</li>
+</ul>
+
+<h3>Out of scope (deferred)</h3>
+<ul>
+  <li>Push notifications.</li>
+  <li>Barcode / QR scanner.</li>
+  <li>Offline-first order capture with sync.</li>
+  <li>App Store / Play Store submission, code signing, provisioning profiles.</li>
+</ul>
+</section>
+
+<footer class="foot">
+  <span>Anotame · Capacitor Integration Plan</span>
+  <span class="mono">implementation_plan.html</span>
+</footer>
+
+</div>
+</body>
+</html>
