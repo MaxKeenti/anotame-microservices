@@ -1,14 +1,13 @@
-import type { LayoutServerLoad } from './$types';
+import type { LayoutLoad } from './$types';
+import { API_OPERATIONS } from '$lib/services/api.svelte';
 
-export const load: LayoutServerLoad = async ({ fetch, depends }) => {
-	// Register dependency so invalidateAll() works if needed
+export const load: LayoutLoad = async ({ fetch, depends }) => {
 	depends('establishment:theme');
 
-	// ADD THEME LOADING:
 	let establishmentTheme = { primaryColor: null, fontFamily: null };
 
 	try {
-		const res = await fetch('/api/operations/establishment', {
+		const res = await fetch(`${API_OPERATIONS}/establishment`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
 		});
@@ -24,7 +23,6 @@ export const load: LayoutServerLoad = async ({ fetch, depends }) => {
 		}
 	} catch (err) {
 		console.error('Failed to load tenant theme:', err);
-		// Return default theme on error (app still loads with Anotame defaults)
 	}
 
 	return {

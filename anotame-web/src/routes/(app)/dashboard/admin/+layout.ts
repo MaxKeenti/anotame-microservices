@@ -1,17 +1,17 @@
-import type { LayoutServerLoad } from './$types';
+import type { LayoutLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import { API_IDENTITY } from '$lib/services/api.svelte';
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
-	// Verify user is authenticated and has ADMIN role at server level
-	// This provides defense-in-depth against direct URL access
+export const load: LayoutLoad = async ({ fetch }) => {
+	// Defense-in-depth check — backend enforces ADMIN role on every
+	// protected endpoint, this guards the dashboard against direct navigation.
 	try {
-		const response = await fetch('/api/identity/auth/me', {
+		const response = await fetch(`${API_IDENTITY}/auth/me`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
 		});
 
 		if (!response.ok) {
-			// Not authenticated or session expired
 			throw error(403, {
 				message: 'Not authorized to access admin section',
 			});
@@ -19,24 +19,20 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 
 		const user = await response.json();
 
-		// Check if user has ADMIN role
 		if (!user || user.role !== 'ADMIN') {
 			throw error(403, {
 				message: 'Admin access required',
 			});
 		}
 
-		// User is authorized, return their data for child pages
 		return {
 			user,
 		};
 	} catch (err: any) {
-		// If it's already a SvelteKit error, re-throw it
 		if (err.status) {
 			throw err;
 		}
 
-		// Network or other errors → deny access
 		throw error(403, {
 			message: 'Unable to verify authorization',
 		});
