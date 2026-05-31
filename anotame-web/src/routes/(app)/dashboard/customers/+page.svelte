@@ -5,7 +5,8 @@
   import { Edit, Trash2 } from 'lucide-svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { CustomerDto } from '$lib/types/dtos';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
@@ -15,12 +16,14 @@
 
   const mobile = useIsMobile();
 
-  let customers = $state<any[]>([]);
+  type CustomerEditorItem = Omit<Partial<CustomerDto>, 'id'> & { id?: string | null };
+
+  let customers = $state<CustomerDto[]>([]);
   let loading = $state(true);
 
-  let editingCustomer = $state<any | null>(null);
+  let editingCustomer = $state<CustomerEditorItem | null>(null);
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<CustomerDto>[] = [
     { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["customers.column.name"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { accessorKey: 'phoneNumber', header: m["customers.column.phone"](), enableSorting: false, meta: { cardGroup: 'body' } },
     { accessorKey: 'email', header: m["customers.column.email"](), enableSorting: false, meta: { cardGroup: 'body' } },
@@ -30,7 +33,7 @@
   async function fetchCustomers() {
     loading = true;
     try {
-      const response = await apiService.request<any[]>(`${API_SALES}/api/customers/search`);
+      const response = await apiService.request<CustomerDto[]>(`${API_SALES}/api/customers/search`);
       customers = response || [];
     } catch {
       customers = [];
@@ -47,7 +50,7 @@
     editingCustomer = { id: null, firstName: '', lastName: '', email: '', phoneNumber: '' };
   }
 
-  function handleEditClick(customer: any) {
+  function handleEditClick(customer: CustomerDto) {
     editingCustomer = customer;
   }
 
@@ -83,7 +86,7 @@
   </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet customerActions(row)}
+    {#snippet customerActions(row: Row<CustomerDto>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"

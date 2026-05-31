@@ -1,39 +1,51 @@
 <script lang="ts">
   import CalendarCell from './CalendarCell.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
+  import { getLocale } from '$lib/paraglide/runtime';
+  import type { CalendarDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
-
-  interface CalendarDay {
-    date: string;
-    totalMinutesUsed: number;
-    orderCount: number;
-    scheduledRevenue: number;
-    capacityPercent: number;
-    isHoliday: boolean;
-    isOpen: boolean;
-  }
 
   interface Props {
     year: number;
     month: number;
-    days: CalendarDay[];
+    days: CalendarDayResponse[];
     dailyCapacity?: number;
     thresholdGreen?: number;
     thresholdAmber?: number;
+    showHeader?: boolean;
   }
 
-  let { year, month, days, dailyCapacity = 480, thresholdGreen = 50, thresholdAmber = 85 }: Props = $props();
+  let {
+    year,
+    month,
+    days,
+    dailyCapacity = 480,
+    thresholdGreen = 50,
+    thresholdAmber = 85,
+    showHeader = true
+  }: Props = $props();
 
   const today = new Date();
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monday = new Date(2024, 0, 1);
 
-  const firstDay = new Date(year, month - 1, 1).getDay();
-  const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
-  const daysInMonth = new Date(year, month, 0).getDate();
+  let activeLocale = $derived(getLocale());
+  let monthLabel = $derived(
+    new Intl.DateTimeFormat(activeLocale, { month: 'long', year: 'numeric' }).format(new Date(year, month - 1, 1))
+  );
+  let dayNames = $derived(
+    Array.from({ length: 7 }, (_, index) =>
+      new Intl.DateTimeFormat(activeLocale, { weekday: 'short' }).format(
+        new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index)
+      )
+    )
+  );
 
-  let calendarDays: (CalendarDay | null)[] = $derived.by(() => {
-    const grid: (CalendarDay | null)[] = [];
+  let firstDay = $derived(new Date(year, month - 1, 1).getDay());
+  let adjustedFirstDay = $derived(firstDay === 0 ? 6 : firstDay - 1);
+  let daysInMonth = $derived(new Date(year, month, 0).getDate());
+
+  let calendarDays: (CalendarDayResponse | null)[] = $derived.by(() => {
+    const grid: (CalendarDayResponse | null)[] = [];
     for (let i = 0; i < adjustedFirstDay; i++) {
       grid.push(null);
     }
@@ -45,7 +57,7 @@
     return grid;
   });
 
-  let agendaDays: CalendarDay[] = $derived(
+  let agendaDays: CalendarDayResponse[] = $derived(
     days.filter(d => d.orderCount > 0 || d.isHoliday).sort((a, b) => a.date.localeCompare(b.date))
   );
 
@@ -67,17 +79,27 @@
 
   function formatAgendaDate(dateStr: string): string {
     const d = new Date(dateStr + 'T12:00:00');
-    return new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).format(d);
+    return new Intl.DateTimeFormat(activeLocale, { weekday: 'short', month: 'short', day: 'numeric' }).format(d);
+  }
+
+  function formatCellDate(dateStr: string): string {
+    const d = new Date(dateStr + 'T12:00:00');
+    return new Intl.DateTimeFormat(activeLocale, { weekday: 'short', day: 'numeric', month: 'short' })
+      .format(d)
+      .replace('.', '')
+      .toUpperCase();
   }
 </script>
 
 <div class="space-y-6">
   <!-- Month Header -->
-  <div class="flex items-center justify-between">
-    <h2 class="text-2xl font-bold">
-      {monthNames[month - 1]} {year}
-    </h2>
-  </div>
+  {#if showHeader}
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold capitalize">
+        {monthLabel}
+      </h2>
+    </div>
+  {/if}
 
   <!-- Desktop: Calendar Grid (hidden below sm) -->
   <div class="hidden sm:block">
@@ -97,6 +119,7 @@
         {#if isInMonth && cellData}
           <CalendarCell
             day={dayNum}
+            dateLabel={formatCellDate(cellData.date)}
             capacityPercent={cellData.capacityPercent}
             orderCount={cellData.orderCount}
             scheduledRevenue={cellData.scheduledRevenue}
@@ -123,7 +146,7 @@
     </h3>
 
     {#if agendaDays.length === 0}
-      <p class="text-sm text-muted-foreground py-4 text-center">No scheduled work this month.</p>
+      <p class="text-sm text-muted-foreground py-4 text-center">{m["common.noData"]()}</p>
     {:else}
       {#each agendaDays as day}
         {@const isTodayDate = day.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`}

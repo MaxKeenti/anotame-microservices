@@ -78,6 +78,25 @@ export interface OrderResponse {
   priceListName?: string | null;
 }
 
+export interface WorkloadDayResponse {
+  date: string;
+  totalMinutesUsed: number;
+}
+
+export interface CalendarDayResponse {
+  date: string;
+  totalMinutesUsed: number;
+  orderCount: number;
+  scheduledRevenue: number;
+  capacityPercent: number;
+  isHoliday: boolean;
+  isOpen: boolean;
+}
+
+export interface CalendarMonthResponse {
+  days: CalendarDayResponse[];
+}
+
 export interface GarmentTypeRequest {
   name: string;
   description: string;
@@ -154,6 +173,12 @@ export interface Establishment {
   ownerName?: string;
   taxInfo?: string; // JSON
   active: boolean;
+  dailyCapacityMinutes?: number;
+  capacityThresholdGreen?: number;
+  capacityThresholdAmber?: number;
+  atRiskDaysThreshold?: number;
+  primaryColor?: string | null;
+  fontFamily?: string | null;
 }
 
 export interface UserResponse {
