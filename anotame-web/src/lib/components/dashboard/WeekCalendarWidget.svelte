@@ -2,11 +2,14 @@
   import { onMount } from 'svelte';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Calendar } from 'lucide-svelte';
+  import type { Establishment, WorkloadDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
-  interface DayLoad { date: string; totalMinutesUsed: number; }
+  let { href = '/dashboard/admin/kpi#workload-calendar' } = $props<{
+    href?: string;
+  }>();
 
-  let days = $state<DayLoad[]>([]);
+  let days = $state<WorkloadDayResponse[]>([]);
   let capacity = $state(480);
   let thresholdGreen = $state(50);
   let thresholdAmber = $state(85);
@@ -28,8 +31,8 @@
   onMount(async () => {
     try {
       const [kpiData, estData] = await Promise.all([
-        apiService.request<{ dailyWorkload: DayLoad[] }>(`${API_SALES}/orders/kpi/dashboard`),
-        apiService.request<{ dailyCapacityMinutes?: number }>(`${API_OPERATIONS}/establishment`)
+        apiService.request<{ dailyWorkload: WorkloadDayResponse[] }>(`${API_SALES}/orders/kpi/dashboard`),
+        apiService.request<Establishment>(`${API_OPERATIONS}/establishment`)
       ]);
       if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
       if (estData?.capacityThresholdGreen != null) thresholdGreen = estData.capacityThresholdGreen;
@@ -45,7 +48,11 @@
 </script>
 
 {#if !loading && days.length > 0}
-<div class="rounded-xl border border-border bg-card p-4">
+<a
+  {href}
+  aria-label={m["calendar.title"]()}
+  class="block rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+>
   <div class="flex items-center gap-2 mb-3">
     <Calendar class="w-4 h-4 text-primary" />
     <span class="text-sm font-semibold font-heading">{m["calendar.widget.title"]()}</span>
@@ -62,5 +69,5 @@
       </div>
     {/each}
   </div>
-</div>
+</a>
 {/if}

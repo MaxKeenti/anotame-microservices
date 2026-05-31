@@ -59,29 +59,32 @@
 {#if day}
   <Popover.Root>
     <Popover.Trigger>
-      <div
-        class="relative p-2 min-h-24 border rounded-lg transition-all cursor-pointer hover:shadow-md {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
-      >
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-semibold">{day}</span>
-            {#if isHoliday}
-              <AlertCircle class="w-4 h-4 text-red-500" />
+      {#snippet child({ props })}
+        <div
+          {...props}
+          class="relative p-2 min-h-24 border rounded-lg transition-all cursor-pointer hover:shadow-md {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold">{day}</span>
+              {#if isHoliday}
+                <AlertCircle class="w-4 h-4 text-red-500" />
+              {/if}
+            </div>
+            {#if capacityPercent !== undefined}
+              <span class="text-xs font-bold px-2 py-0.5 rounded {getCapacityBadgeColor()}">
+                {capacityPercent.toFixed(0)}%
+              </span>
             {/if}
           </div>
-          {#if capacityPercent !== undefined}
-            <span class="text-xs font-bold px-2 py-0.5 rounded {getCapacityBadgeColor()}">
-              {capacityPercent.toFixed(0)}%
-            </span>
+
+          {#if orderCount > 0}
+            <div class="text-xs text-gray-600 mt-1">
+              {m["calendar.day.orders"]({ count: orderCount })}
+            </div>
           {/if}
         </div>
-
-        {#if orderCount > 0}
-          <div class="text-xs text-gray-600 mt-1">
-            {orderCount} {orderCount === 1 ? 'order' : 'orders'}
-          </div>
-        {/if}
-      </div>
+      {/snippet}
     </Popover.Trigger>
 
     <Popover.Content side="top" class="w-64">

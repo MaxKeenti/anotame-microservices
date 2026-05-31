@@ -10,7 +10,8 @@
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { GarmentTypeResponse } from '$lib/types/dtos';
 
   const mobile = useIsMobile();
 
@@ -18,22 +19,24 @@
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
-  let garments = $state<any[]>([]);
+  type GarmentEditorItem = Omit<Partial<GarmentTypeResponse>, 'id'> & { id?: string | null };
+
+  let garments = $state<GarmentTypeResponse[]>([]);
   let loading = $state(true);
 
   // Single dialog state
-  let editingGarment = $state<any | null>(null);
+  let editingGarment = $state<GarmentEditorItem | null>(null);
 
-  let columns = $derived<ColumnDef<any>[]>([
+  let columns = $derived<ColumnDef<GarmentTypeResponse>[]>([
     { accessorKey: 'name', header: m["catalog.garments.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'description', accessorFn: (row: any) => row.description || '-', header: m["catalog.garments.colDescription"](), enableSorting: false, meta: { cardGroup: 'body' } },
-    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<any>] : []),
+    { id: 'description', accessorFn: (row) => row.description || '-', header: m["catalog.garments.colDescription"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<GarmentTypeResponse>] : []),
   ]);
 
   async function fetchGarments() {
     loading = true;
     try {
-      const response = await apiService.request<any[]>(`${API_CATALOG}/catalog/garments`);
+      const response = await apiService.request<GarmentTypeResponse[]>(`${API_CATALOG}/catalog/garments`);
       garments = response || [];
     } catch (e: any) {
       toast.error(e.message || m["catalog.garments.loadError"]());
@@ -51,11 +54,11 @@
     editingGarment = { id: null, name: '', description: '' };
   }
 
-  function handleEditClick(garment: any) {
+  function handleEditClick(garment: GarmentTypeResponse) {
     editingGarment = garment;
   }
 
-  async function handleDeleteClick(garment: any) {
+  async function handleDeleteClick(garment: GarmentTypeResponse) {
     const ok = await adaptiveConfirm({ title: m['garments.delete.title'](), description: m['garments.delete.desc']({ name: garment.name }) });
     if (ok) {
       try {
@@ -86,7 +89,7 @@
   </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet garmentActions(row)}
+    {#snippet garmentActions(row: Row<GarmentTypeResponse>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"

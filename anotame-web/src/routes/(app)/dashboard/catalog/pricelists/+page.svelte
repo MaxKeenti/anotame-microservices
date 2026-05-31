@@ -11,7 +11,8 @@
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
   // Guard: Protect this route, strictly checking 'ADMIN'
@@ -19,13 +20,13 @@
 
   const mobile = useIsMobile();
 
-  let lists = $state<any[]>([]);
+  let lists = $state<PriceListResponse[]>([]);
   let isLoading = $state(true);
 
   // Computed state for derived logic (though guard.allowed handles fast redirects)
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<PriceListResponse>[] = [
     { accessorKey: 'name', header: m["catalog.pricelists.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.active ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"](), header: m["catalog.pricelists.colStatus"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { accessorKey: 'priority', header: m["catalog.pricelists.colPriority"](), enableSorting: true, meta: { cardGroup: 'body' } },
@@ -38,7 +39,7 @@
     isLoading = true;
     try {
       if (!isAdmin) return;
-      const data = await apiService.request<any[]>(`${API_CATALOG}/pricelists`);
+      const data = await apiService.request<PriceListResponse[]>(`${API_CATALOG}/pricelists`);
       lists = data || [];
     } catch (err: any) {
       console.error(err);
@@ -93,44 +94,44 @@
       </Button>
     </div>
 
+    {#snippet pricelistActions(row: Row<PriceListResponse>)}
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
+          onclick={() => handleClone(row.original.id)}
+        >
+          <Copy class="w-4 h-4 mr-2" />
+          {m["catalog.pricelists.cloneButton"]()}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-11 touch-manipulation"
+          href={`/dashboard/catalog/pricelists/${row.original.id}`}
+        >
+          <Eye class="w-4 h-4 mr-2" />
+          {m["catalog.pricelists.viewButton"]()}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
+          onclick={() => handleDelete(row.original.id, row.original.name)}
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          {m["common.delete"]()}
+        </Button>
+      </div>
+    {/snippet}
+
     <Card.Root>
       <Card.Header>
         <Card.Title>{m["catalog.pricelists.cardTitle"]()}</Card.Title>
         <Card.Description>{m["catalog.pricelists.cardDescription"]()}</Card.Description>
       </Card.Header>
       <Card.Content>
-        {#snippet pricelistActions(row)}
-          <div class="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
-              onclick={() => handleClone(row.original.id)}
-            >
-              <Copy class="w-4 h-4 mr-2" />
-              {m["catalog.pricelists.cloneButton"]()}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              class="h-11 touch-manipulation"
-              href={`/dashboard/catalog/pricelists/${row.original.id}`}
-            >
-              <Eye class="w-4 h-4 mr-2" />
-              {m["catalog.pricelists.viewButton"]()}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
-              onclick={() => handleDelete(row.original.id, row.original.name)}
-            >
-              <Trash2 class="w-4 h-4 mr-2" />
-              {m["common.delete"]()}
-            </Button>
-          </div>
-        {/snippet}
-
         {#if mobile.current}
           <CardGridWrapper
             {columns}

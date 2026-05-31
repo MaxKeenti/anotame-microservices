@@ -8,20 +8,21 @@
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { UserResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
   const mobile = useIsMobile();
 
   import UserDialog from '$lib/components/users/user-dialog.svelte';
 
-  let users = $state<any[]>([]);
+  let users = $state<UserResponse[]>([]);
   let loading = $state(true);
 
   // Single dialog state
-  let editingUser = $state<any | null>(null);
+  let editingUser = $state<(Partial<UserResponse> & { isNew?: boolean }) | null>(null);
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<UserResponse>[] = [
     { id: 'nombre', accessorFn: (row) => `${row.firstName} ${row.lastName}`, header: m["users.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'role', accessorFn: (row) => row.role, header: m["users.colRole"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { accessorKey: 'username', header: m["users.colUsername"](), enableSorting: true, meta: { cardGroup: 'body' } },
@@ -32,7 +33,7 @@
   async function fetchUsers() {
     loading = true;
     try {
-      const data = await apiService.request<any[]>(`${API_IDENTITY}/users`);
+      const data = await apiService.request<UserResponse[]>(`${API_IDENTITY}/users`);
       users = data || [];
     } catch (e: any) {
       console.error('Failed to fetch users', e);
@@ -51,11 +52,11 @@
     editingUser = { isNew: true };
   }
 
-  function handleEditClick(user: any) {
+  function handleEditClick(user: UserResponse) {
     editingUser = user;
   }
 
-  async function handleDeleteClick(user: any) {
+  async function handleDeleteClick(user: UserResponse) {
     const ok = await adaptiveConfirm({
       title: m['users.delete.title'](),
       description: m['users.delete.desc']({ username: user.username })
@@ -89,7 +90,7 @@
     </div>
 
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet userActions(row)}
+    {#snippet userActions(row: Row<UserResponse>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
