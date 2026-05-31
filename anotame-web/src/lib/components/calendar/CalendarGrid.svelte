@@ -79,7 +79,15 @@
 
   function formatAgendaDate(dateStr: string): string {
     const d = new Date(dateStr + 'T12:00:00');
-    return new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).format(d);
+    return new Intl.DateTimeFormat(activeLocale, { weekday: 'short', month: 'short', day: 'numeric' }).format(d);
+  }
+
+  function formatCellDate(dateStr: string): string {
+    const d = new Date(dateStr + 'T12:00:00');
+    return new Intl.DateTimeFormat(activeLocale, { weekday: 'short', day: 'numeric', month: 'short' })
+      .format(d)
+      .replace('.', '')
+      .toUpperCase();
   }
 </script>
 
@@ -111,6 +119,7 @@
         {#if isInMonth && cellData}
           <CalendarCell
             day={dayNum}
+            dateLabel={formatCellDate(cellData.date)}
             capacityPercent={cellData.capacityPercent}
             orderCount={cellData.orderCount}
             scheduledRevenue={cellData.scheduledRevenue}

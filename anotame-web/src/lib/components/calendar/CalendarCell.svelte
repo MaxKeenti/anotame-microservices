@@ -6,6 +6,7 @@
 
   interface Props {
     day?: number;
+    dateLabel?: string;
     capacityPercent?: number;
     orderCount?: number;
     scheduledRevenue?: number;
@@ -21,6 +22,7 @@
 
   let {
     day,
+    dateLabel,
     capacityPercent = 0,
     orderCount = 0,
     scheduledRevenue = 0,
@@ -42,17 +44,17 @@
     return 'bg-red-50 border-red-200';
   }
 
-  function getCapacityBadgeColor() {
-    if (isHoliday) return 'bg-red-200 text-red-900';
-    if (capacityPercent < thresholdGreen) return 'bg-green-200 text-green-900';
-    if (capacityPercent < thresholdAmber) return 'bg-amber-200 text-amber-900';
-    return 'bg-red-200 text-red-900';
-  }
-
   function getBarColor() {
     if (capacityPercent < thresholdGreen) return 'bg-green-500';
     if (capacityPercent < thresholdAmber) return 'bg-amber-500';
     return 'bg-red-500';
+  }
+
+  function getPercentTextColor() {
+    if (capacityPercent >= thresholdAmber) return 'text-red-600';
+    if (capacityPercent >= thresholdGreen) return 'text-amber-600';
+    if (capacityPercent > 0) return 'text-green-600';
+    return 'text-muted-foreground';
   }
 </script>
 
@@ -62,27 +64,38 @@
       {#snippet child({ props })}
         <div
           {...props}
-          class="relative p-2 min-h-24 border rounded-lg transition-all cursor-pointer hover:shadow-md {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
+          class="relative p-3 min-h-28 border rounded-lg transition-all cursor-pointer hover:shadow-md flex flex-col justify-between {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold">{day}</span>
-              {#if isHoliday}
+              <span class="text-xs font-bold uppercase text-muted-foreground">{dateLabel ?? day}</span>
+              {#if isHoliday || capacityPercent >= thresholdAmber}
                 <AlertCircle class="w-4 h-4 text-red-500" />
               {/if}
             </div>
-            {#if capacityPercent !== undefined}
-              <span class="text-xs font-bold px-2 py-0.5 rounded {getCapacityBadgeColor()}">
-                {capacityPercent.toFixed(0)}%
-              </span>
-            {/if}
           </div>
 
-          {#if orderCount > 0}
-            <div class="text-xs text-gray-600 mt-1">
-              {m["calendar.day.orders"]({ count: orderCount })}
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-mono text-sm font-bold text-foreground">
+                {totalMinutesUsed} <span class="text-[10px] font-semibold text-muted-foreground">min</span>
+              </span>
+              <span class="text-sm font-black {getPercentTextColor()}">{capacityPercent.toFixed(0)}%</span>
             </div>
-          {/if}
+
+            <div class="h-2 w-full rounded-full bg-background/80 shadow-inner overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all {getBarColor()}"
+                style="width: {Math.min(100, capacityPercent)}%"
+              ></div>
+            </div>
+
+            {#if orderCount > 0}
+              <div class="text-xs text-muted-foreground">
+                {m["calendar.day.orders"]({ count: orderCount })}
+              </div>
+            {/if}
+          </div>
         </div>
       {/snippet}
     </Popover.Trigger>
