@@ -4,6 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
+  import { tablePreferences } from '$lib/stores/table-preferences.svelte';
   import { getFinancialKpiPeriodLabel } from '$lib/utils/kpiPeriodLabel';
   import { TrendingUp, AlertTriangle, Users } from 'lucide-svelte';
 
@@ -64,8 +65,12 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
   let activeBarIndex = $state<number | null>(null);
+  let servicePageIndex = $state(0);
+  let topCustomerPageIndex = $state(0);
 
   // Derived state
+  let pageSize = $derived(tablePreferences.pageSize);
+
   let chartMax = $derived(
     data?.revenueTrend.reduce((max, point) => Math.max(max, point.totalRevenue), 0) || 100
   );
@@ -73,6 +78,36 @@
   let totalRevenue = $derived(
     data?.revenueTrend.reduce((sum, point) => sum + point.totalRevenue, 0) || 0
   );
+
+  let rankedServices = $derived.by(() => {
+    return (data?.serviceBreakdown ?? [])
+      .filter((service) => toFiniteNumber(service.totalRevenue) > 0)
+      .slice()
+      .sort((a, b) => {
+        const revenueDelta = toFiniteNumber(b.totalRevenue) - toFiniteNumber(a.totalRevenue);
+        if (revenueDelta !== 0) return revenueDelta;
+        const orderDelta = b.orderCount - a.orderCount;
+        if (orderDelta !== 0) return orderDelta;
+        return a.serviceName.localeCompare(b.serviceName);
+      });
+  });
+
+  let rankedTopCustomers = $derived.by(() => {
+    return (data?.topCustomers ?? [])
+      .slice()
+      .sort((a, b) => {
+        const spendDelta = toFiniteNumber(b.totalSpend) - toFiniteNumber(a.totalSpend);
+        if (spendDelta !== 0) return spendDelta;
+        const orderDelta = b.orderCount - a.orderCount;
+        if (orderDelta !== 0) return orderDelta;
+        return getCustomerName(a).localeCompare(getCustomerName(b));
+      });
+  });
+
+  let servicePageCount = $derived(getPageCount(rankedServices.length, pageSize));
+  let topCustomerPageCount = $derived(getPageCount(rankedTopCustomers.length, pageSize));
+  let pagedServices = $derived(rankedServices.slice(servicePageIndex * pageSize, (servicePageIndex + 1) * pageSize));
+  let pagedTopCustomers = $derived(rankedTopCustomers.slice(topCustomerPageIndex * pageSize, (topCustomerPageIndex + 1) * pageSize));
 
   // Fetch data
   $effect(() => {
@@ -108,6 +143,47 @@
 
   const getPeriodLabel = (period: string) => getFinancialKpiPeriodLabel(period, granularity);
 
+  $effect(() => {
+    if (servicePageIndex >= servicePageCount) {
+      servicePageIndex = servicePageCount - 1;
+    }
+    if (topCustomerPageIndex >= topCustomerPageCount) {
+      topCustomerPageIndex = topCustomerPageCount - 1;
+    }
+  });
+
+  function getPageCount(totalItems: number, perPage: number): number {
+    return Math.max(1, Math.ceil(totalItems / perPage));
+  }
+
+  function toFiniteNumber(value: number | string | null | undefined): number {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function setGranularity(nextGranularity: 'day' | 'week' | 'month') {
+    granularity = nextGranularity;
+    activeBarIndex = null;
+    servicePageIndex = 0;
+    topCustomerPageIndex = 0;
+  }
+
+  function previousServicePage() {
+    servicePageIndex = Math.max(0, servicePageIndex - 1);
+  }
+
+  function nextServicePage() {
+    servicePageIndex = Math.min(servicePageCount - 1, servicePageIndex + 1);
+  }
+
+  function previousTopCustomerPage() {
+    topCustomerPageIndex = Math.max(0, topCustomerPageIndex - 1);
+  }
+
+  function nextTopCustomerPage() {
+    topCustomerPageIndex = Math.min(topCustomerPageCount - 1, topCustomerPageIndex + 1);
+  }
+
   // Get customer display name
   function getCustomerName(customer: TopCustomerItem): string {
     return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
@@ -140,7 +216,7 @@
       <Button
         variant={granularity === 'day' ? 'default' : 'outline'}
         size="sm"
-        onclick={() => { granularity = 'day'; activeBarIndex = null; }}
+        onclick={() => setGranularity('day')}
         aria-label={m['kpi.financial.granularity.day']?.() ?? 'Daily'}
       >
         {m['kpi.financial.granularity.day']?.() ?? 'Daily'}
@@ -148,7 +224,7 @@
       <Button
         variant={granularity === 'week' ? 'default' : 'outline'}
         size="sm"
-        onclick={() => { granularity = 'week'; activeBarIndex = null; }}
+        onclick={() => setGranularity('week')}
         aria-label={m['kpi.financial.granularity.week']?.() ?? 'Weekly'}
       >
         {m['kpi.financial.granularity.week']?.() ?? 'Weekly'}
@@ -156,7 +232,7 @@
       <Button
         variant={granularity === 'month' ? 'default' : 'outline'}
         size="sm"
-        onclick={() => { granularity = 'month'; activeBarIndex = null; }}
+        onclick={() => setGranularity('month')}
         aria-label={m['kpi.financial.granularity.month']?.() ?? 'Monthly'}
       >
         {m['kpi.financial.granularity.month']?.() ?? 'Monthly'}
@@ -250,19 +326,19 @@
           </Card.Description>
         </Card.Header>
         <Card.Content>
-          {#if data.serviceBreakdown.length === 0}
+          {#if rankedServices.length === 0}
             <div class="py-8 text-center text-muted-foreground text-sm">
               {m['kpi.financial.services.empty']?.() ?? 'No service data available'}
             </div>
           {:else}
             <div class="space-y-4">
-              {#each data.serviceBreakdown as service, i}
+              {#each pagedServices as service, i}
                 <div class="space-y-1.5">
                   <!-- Service Header -->
                   <div class="flex items-center justify-between">
                     <div class="flex-1">
                       <p class="text-sm font-semibold text-foreground truncate">
-                        {i + 1}. {service.serviceName}
+                        {servicePageIndex * pageSize + i + 1}. {service.serviceName}
                       </p>
                       <p class="text-xs text-muted-foreground">
                         {service.orderCount} {m['kpi.financial.services.orders']?.() ?? 'orders'}
@@ -310,6 +386,30 @@
                 </div>
               {/each}
             </div>
+
+            {#if servicePageCount > 1}
+              <div class="flex items-center justify-between px-2 pt-4">
+                <Button
+                  variant="outline"
+                  class="h-10 touch-manipulation"
+                  disabled={servicePageIndex === 0}
+                  onclick={previousServicePage}
+                >
+                  {m["common.previous"]()}
+                </Button>
+                <span class="text-sm text-muted-foreground">
+                  {m["common.pagination"]({ current: String(servicePageIndex + 1), total: String(servicePageCount) })}
+                </span>
+                <Button
+                  variant="outline"
+                  class="h-10 touch-manipulation"
+                  disabled={servicePageIndex >= servicePageCount - 1}
+                  onclick={nextServicePage}
+                >
+                  {m["common.next"]()}
+                </Button>
+              </div>
+            {/if}
           {/if}
         </Card.Content>
       </Card.Root>
@@ -323,20 +423,20 @@
           </Card.Description>
         </Card.Header>
         <Card.Content>
-          {#if data.topCustomers.length === 0}
+          {#if rankedTopCustomers.length === 0}
             <div class="py-8 text-center text-muted-foreground text-sm">
               {m['kpi.financial.topCustomers.empty']?.() ?? 'No customer data available'}
             </div>
           {:else}
             <div class="space-y-3">
-              {#each data.topCustomers as customer, i}
+              {#each pagedTopCustomers as customer, i}
                 <div class="p-3 bg-secondary/30 rounded-lg border border-secondary/50 hover:border-secondary transition-colors">
                   <!-- Customer Header -->
                   <div class="flex items-start justify-between gap-2 mb-2">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2">
                         <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded min-w-[20px] text-center">
-                          {i + 1}
+                          {topCustomerPageIndex * pageSize + i + 1}
                         </span>
                         <p class="text-sm font-semibold text-foreground truncate">
                           {getCustomerName(customer)}
@@ -360,6 +460,30 @@
                 </div>
               {/each}
             </div>
+
+            {#if topCustomerPageCount > 1}
+              <div class="flex items-center justify-between px-2 pt-4">
+                <Button
+                  variant="outline"
+                  class="h-10 touch-manipulation"
+                  disabled={topCustomerPageIndex === 0}
+                  onclick={previousTopCustomerPage}
+                >
+                  {m["common.previous"]()}
+                </Button>
+                <span class="text-sm text-muted-foreground">
+                  {m["common.pagination"]({ current: String(topCustomerPageIndex + 1), total: String(topCustomerPageCount) })}
+                </span>
+                <Button
+                  variant="outline"
+                  class="h-10 touch-manipulation"
+                  disabled={topCustomerPageIndex >= topCustomerPageCount - 1}
+                  onclick={nextTopCustomerPage}
+                >
+                  {m["common.next"]()}
+                </Button>
+              </div>
+            {/if}
           {/if}
         </Card.Content>
       </Card.Root>

@@ -115,7 +115,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .createNativeQuery(
                         "SELECT " +
                         "  ois.service_name, " +
-                        "  SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))) AS totalRevenue, " +
+                        "  COALESCE(SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))), 0) AS totalRevenue, " +
                         "  COUNT(DISTINCT top.id_order) AS orderCount, " +
                         "  COALESCE(SUM(ois.duration_min * oi.quantity), 0) AS totalDurationMin " +
                         "FROM tco_order_payment top " +
@@ -126,8 +126,9 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "  AND top.amount > 0 " +
                         "  AND o.is_deleted = false " +
                         "  AND oi.is_deleted = false " +
+                        "  AND oi.subtotal > 0 " +
                         "GROUP BY ois.service_name " +
-                        "ORDER BY totalRevenue DESC")
+                        "ORDER BY totalRevenue DESC NULLS LAST, ois.service_name ASC")
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
