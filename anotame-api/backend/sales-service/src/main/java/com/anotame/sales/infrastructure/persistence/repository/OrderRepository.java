@@ -91,7 +91,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
     @SuppressWarnings("unchecked")
     public List<Object[]> getRevenueTimeSeries(OffsetDateTime start, String granularity, String zoneId) {
         String dateFormat = switch (granularity) {
-            case "week" -> "YYYY-IW";  // ISO week
+            case "week" -> "IYYY-IW";  // ISO week-year and week
             case "month" -> "YYYY-MM";
             default -> "YYYY-MM-DD";   // day
         };

@@ -4,6 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
+  import { getFinancialKpiPeriodLabel } from '$lib/utils/kpiPeriodLabel';
   import { TrendingUp, AlertTriangle, Users } from 'lucide-svelte';
 
   // TypeScript interfaces for API responses
@@ -105,22 +106,7 @@
     };
   });
 
-  // Helper function to format period label
-  function getPeriodLabel(period: string): string {
-    try {
-      const date = new Date(period);
-      if (granularity === 'day') {
-        return date.toLocaleDateString('es-MX', { weekday: 'short', month: 'numeric', day: 'numeric' });
-      } else if (granularity === 'week') {
-        const weekNum = Math.ceil((date.getDate() - date.getDay() + 1) / 7);
-        return `W${weekNum}`;
-      } else {
-        return date.toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
-      }
-    } catch {
-      return period;
-    }
-  }
+  const getPeriodLabel = (period: string) => getFinancialKpiPeriodLabel(period, granularity);
 
   // Get customer display name
   function getCustomerName(customer: TopCustomerItem): string {
