@@ -185,8 +185,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.util.List<Object[]> getAtRiskCustomers(java.time.OffsetDateTime cutoffDate, int limit) {
-        return orderRepository.getAtRiskCustomers(cutoffDate, limit);
+    public java.util.List<Object[]> getAtRiskCustomers(java.time.LocalDate cutoffDate, String zoneId, int limit) {
+        return orderRepository.getAtRiskCustomers(cutoffDate, zoneId, limit);
     }
 
     @Override

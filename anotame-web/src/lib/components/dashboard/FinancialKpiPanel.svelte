@@ -37,8 +37,8 @@
     customerId: string;
     firstName: string;
     lastName: string;
-    lastOrderDate: string;
-    daysSinceLastOrder: number;
+    lastOrderDate: string | null;
+    daysSinceLastOrder: number | null;
   }
 
   interface FinancialKpiResponse {
@@ -191,6 +191,26 @@
 
   function getAtRiskName(customer: AtRiskCustomerItem): string {
     return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
+  }
+
+  function getAtRiskDayCount(): number {
+    return Math.max(1, Math.trunc(toFiniteNumber(atRiskDaysThreshold)));
+  }
+
+  function getAtRiskAgeLabel(customer: AtRiskCustomerItem): string {
+    if (customer.daysSinceLastOrder == null) {
+      return m['kpi.atRiskNeverOrdered']();
+    }
+
+    return `${customer.daysSinceLastOrder} ${m['kpi.financial.atRisk.daysLabel']?.() ?? 'days'}`;
+  }
+
+  function getLastOrderLabel(customer: AtRiskCustomerItem): string {
+    if (!customer.lastOrderDate) {
+      return m['kpi.atRiskNeverOrdered']();
+    }
+
+    return formatDate(customer.lastOrderDate);
   }
 </script>
 
@@ -536,7 +556,7 @@
           {/if}
         </div>
         <Card.Description>
-          {m['kpi.financial.atRisk.desc']?.() ?? `Customers with no orders in ${atRiskDaysThreshold}+ days`}
+          {m['kpi.financial.atRisk.desc']({ days: String(getAtRiskDayCount()) })}
         </Card.Description>
       </Card.Header>
       <Card.Content>
@@ -553,12 +573,12 @@
                     {getAtRiskName(customer)}
                   </p>
                   <span class="text-xs font-mono font-bold text-amber-600 shrink-0">
-                    {customer.daysSinceLastOrder} {m['kpi.financial.atRisk.daysLabel']?.() ?? 'days'}
+                    {getAtRiskAgeLabel(customer)}
                   </span>
                 </div>
                 <p class="text-xs text-muted-foreground mt-1">
                   {m['kpi.financial.atRisk.lastOrder']?.() ?? 'Last order'}:
-                  <span class="font-mono">{formatDate(customer.lastOrderDate)}</span>
+                  <span class="font-mono">{getLastOrderLabel(customer)}</span>
                 </p>
               </div>
             {/each}

@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -175,21 +176,27 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
 
     // At-Risk Customers
     @SuppressWarnings("unchecked")
-    public List<Object[]> getAtRiskCustomers(OffsetDateTime cutoffDate, int limit) {
+    public List<Object[]> getAtRiskCustomers(LocalDate cutoffDate, String zoneId, int limit) {
         return getEntityManager()
                 .createNativeQuery(
                         "SELECT " +
                         "  c.id_customer, " +
                         "  c.first_name, " +
                         "  c.last_name, " +
-                        "  MAX(o.created_at AT TIME ZONE 'UTC')::date::text AS last_order_date " +
-                        "FROM tco_order o " +
-                        "JOIN tco_customer c ON o.id_customer = c.id_customer " +
-                        "WHERE o.is_deleted = false AND c.is_deleted = false " +
+                        "  MAX((o.created_at AT TIME ZONE :zone)::date)::text AS last_order_date " +
+                        "FROM tco_customer c " +
+                        "LEFT JOIN tco_order o ON o.id_customer = c.id_customer " +
+                        "  AND o.is_deleted = false " +
+                        "WHERE c.is_deleted = false " +
                         "GROUP BY c.id_customer, c.first_name, c.last_name " +
-                        "HAVING MAX(o.created_at) < :cutoffDate " +
-                        "ORDER BY last_order_date ASC " +
+                        "HAVING MAX((o.created_at AT TIME ZONE :zone)::date) <= :cutoffDate " +
+                        "  OR (MAX((o.created_at AT TIME ZONE :zone)::date) IS NULL " +
+                        "    AND MIN((c.created_at AT TIME ZONE :zone)::date) <= :cutoffDate) " +
+                        "ORDER BY COALESCE(MAX((o.created_at AT TIME ZONE :zone)::date), " +
+                        "  MIN((c.created_at AT TIME ZONE :zone)::date)) ASC, " +
+                        "  c.first_name ASC, c.last_name ASC " +
                         "LIMIT :limit")
+                .setParameter("zone", zoneId)
                 .setParameter("cutoffDate", cutoffDate)
                 .setParameter("limit", limit)
                 .getResultList();

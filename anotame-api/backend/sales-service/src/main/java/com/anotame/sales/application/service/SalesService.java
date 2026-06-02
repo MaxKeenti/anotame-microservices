@@ -662,14 +662,15 @@ public class SalesService {
         }
 
         // 4. Get At-Risk Customers (no order in atRiskDays+ days)
-        OffsetDateTime atRiskCutoff = now.minusDays(atRiskDays);
-        List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, 10);
+        int safeAtRiskDays = Math.max(1, atRiskDays);
+        LocalDate atRiskCutoff = today.minusDays(safeAtRiskDays);
+        List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, zoneId, 10);
         List<AtRiskCustomerItem> atRiskCustomers = new ArrayList<>();
         LocalDate todayForAtRisk = today;
 
         for (Object[] row : rawAtRiskData) {
             String lastOrderDateStr = (String) row[3];
-            long daysSince = 0;
+            Long daysSince = null;
             if (lastOrderDateStr != null) {
                 LocalDate lastOrderDate = LocalDate.parse(lastOrderDateStr);
                 daysSince = ChronoUnit.DAYS.between(lastOrderDate, todayForAtRisk);
