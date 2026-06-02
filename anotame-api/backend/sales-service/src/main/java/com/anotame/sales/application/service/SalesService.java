@@ -8,6 +8,7 @@ import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
+import com.anotame.sales.domain.model.OrderPayment;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import com.anotame.sales.application.port.output.AuditLogEntry;
@@ -48,6 +49,9 @@ public class SalesService {
 
     private static final Set<String> VALID_STATUSES = Set.of(
             "RECEIVED", "IN_PROGRESS", "READY", "DELIVERED", "CANCELLED");
+    private static final Set<String> VALID_PAYMENT_METHODS = Set.of("CASH", "CARD", "TRANSFER");
+    private static final String DEFAULT_PAYMENT_METHOD = "CASH";
+    private static final String DELIVERY_SETTLEMENT_NOTE = "DELIVERY_SETTLEMENT";
 
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
@@ -372,7 +376,8 @@ public class SalesService {
     }
 
     @Transactional
-    public void deliverOrder(UUID orderId, String pickupCode, UUID userId) {
+    public void deliverOrder(UUID orderId, String pickupCode, UUID userId, boolean markFullyPaid,
+                             String paymentMethod) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new WebApplicationException(
                         Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()));
@@ -401,16 +406,65 @@ public class SalesService {
                             .build());
         }
 
-        OffsetDateTime deliveredAt = OffsetDateTime.now();
+        OffsetDateTime deliveredAt = OffsetDateTime.now(ZoneId.systemDefault());
+        if (markFullyPaid) {
+            settleRemainingBalance(order, orderId, paymentMethod, deliveredAt);
+        }
+
         order.setStatus("DELIVERED");
         order.setDeliveredAt(deliveredAt);
-        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
+        order.setUpdatedAt(deliveredAt);
         orderRepository.save(order);
 
         auditLogRepositoryPort.save(buildAuditEntry(
                 orderId, userId, "status",
                 "READY", "DELIVERED",
                 deliveredAt));
+    }
+
+    private void settleRemainingBalance(Order order, UUID orderId, String requestedPaymentMethod,
+                                        OffsetDateTime recordedAt) {
+        BigDecimal totalAmount = order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO;
+        BigDecimal amountPaid = paymentRepository.sumByOrderId(orderId);
+        BigDecimal remainingBalance = totalAmount.subtract(amountPaid);
+
+        if (remainingBalance.compareTo(BigDecimal.ZERO) <= 0) {
+            order.setAmountPaid(amountPaid);
+            return;
+        }
+
+        OrderPayment payment = new OrderPayment();
+        payment.setOrderId(orderId);
+        payment.setAmount(remainingBalance);
+        payment.setPaymentMethod(resolvePaymentMethod(requestedPaymentMethod, order.getPaymentMethod()));
+        payment.setNotes(DELIVERY_SETTLEMENT_NOTE);
+        payment.setRecordedAt(recordedAt);
+        payment.setCreatedAt(recordedAt);
+        paymentRepository.save(payment);
+
+        order.setAmountPaid(amountPaid.add(remainingBalance));
+    }
+
+    private String resolvePaymentMethod(String requestedPaymentMethod, String orderPaymentMethod) {
+        if (requestedPaymentMethod != null && !requestedPaymentMethod.isBlank()) {
+            String normalized = requestedPaymentMethod.trim().toUpperCase();
+            if (VALID_PAYMENT_METHODS.contains(normalized)) {
+                return normalized;
+            }
+            throw new WebApplicationException(
+                    Response.status(400)
+                            .entity(Map.of("error", "Método de pago inválido: " + requestedPaymentMethod))
+                            .build());
+        }
+
+        if (orderPaymentMethod != null && !orderPaymentMethod.isBlank()) {
+            String normalized = orderPaymentMethod.trim().toUpperCase();
+            if (VALID_PAYMENT_METHODS.contains(normalized)) {
+                return normalized;
+            }
+        }
+
+        return DEFAULT_PAYMENT_METHOD;
     }
 
     private Customer resolveCustomer(CustomerDto dto) {

@@ -23,7 +23,12 @@
   let readyOrders = $state<any[]>([]);
   let loading = $state(true);
   let deliverDialogOpen = $state(false);
-  let deliverTarget = $state<{ id: string; ticketNumber: string } | null>(null);
+  let deliverTarget = $state<{
+    id: string;
+    ticketNumber: string;
+    totalAmount: number;
+    amountPaid: number;
+  } | null>(null);
 
   async function fetchWorkOrders() {
     loading = true;
@@ -89,7 +94,12 @@
   }
 
   function openDeliverDialog(order: any) {
-    deliverTarget = { id: order.id, ticketNumber: order.ticketNumber };
+    deliverTarget = {
+      id: order.id,
+      ticketNumber: order.ticketNumber,
+      totalAmount: Number(order.totalAmount ?? 0),
+      amountPaid: Number(order.amountPaid ?? 0)
+    };
     deliverDialogOpen = true;
   }
 
@@ -256,6 +266,8 @@
     bind:open={deliverDialogOpen}
     orderId={deliverTarget.id}
     ticketNumber={deliverTarget.ticketNumber}
+    orderTotal={deliverTarget.totalAmount}
+    amountPaid={deliverTarget.amountPaid}
     onDelivered={handleDelivered}
     onClose={() => { deliverDialogOpen = false; deliverTarget = null; }}
   />
