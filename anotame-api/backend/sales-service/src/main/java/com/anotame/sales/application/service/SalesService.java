@@ -16,6 +16,7 @@ import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -23,8 +24,10 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -494,12 +497,18 @@ public class SalesService {
 
     @Transactional
     public DashboardMetricsResponse getDashboardMetrics() {
+        return getDashboardMetrics(null);
+    }
+
+    @Transactional
+    public DashboardMetricsResponse getDashboardMetrics(String monthParam) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
+        YearMonth selectedMonth = parseMonthParam(monthParam, today);
         OffsetDateTime startOfDay = today.atStartOfDay(zone).toOffsetDateTime();
         OffsetDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(zone).toOffsetDateTime();
-        OffsetDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(zone).toOffsetDateTime();
+        OffsetDateTime startOfMonth = selectedMonth.atDay(1).atStartOfDay(zone).toOffsetDateTime();
         OffsetDateTime startOfNextMonth = startOfMonth.plusMonths(1);
         OffsetDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay(zone).toOffsetDateTime();
 
@@ -713,14 +722,7 @@ public class SalesService {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
-
-        // Parse month parameter (YYYY-MM format)
-        LocalDate monthStart;
-        if (monthParam != null && !monthParam.isEmpty()) {
-            monthStart = LocalDate.parse(monthParam + "-01");
-        } else {
-            monthStart = today.withDayOfMonth(1);
-        }
+        LocalDate monthStart = parseMonthParam(monthParam, today).atDay(1);
 
         // Calculate month boundaries
         LocalDate monthEnd = monthStart.plusMonths(1);
@@ -764,5 +766,17 @@ public class SalesService {
         return com.anotame.sales.application.dto.CalendarMonthResponse.builder()
                 .days(days)
                 .build();
+    }
+
+    private YearMonth parseMonthParam(String monthParam, LocalDate fallbackDate) {
+        if (monthParam == null || monthParam.isBlank()) {
+            return YearMonth.from(fallbackDate);
+        }
+
+        try {
+            return YearMonth.parse(monthParam);
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("month must use YYYY-MM format");
+        }
     }
 }
