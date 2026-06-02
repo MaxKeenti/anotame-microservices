@@ -131,7 +131,7 @@
       .catch(err => {
         if (!cancelled) {
           console.error('Error loading financial KPI:', err);
-          error = m['kpi.financial.error']?.() ?? 'Failed to load financial data';
+          error = m['kpi.financial.error']();
           loading = false;
         }
       });
@@ -186,11 +186,17 @@
 
   // Get customer display name
   function getCustomerName(customer: TopCustomerItem): string {
-    return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
+    return `${customer.firstName} ${customer.lastName}`.trim() || m['kpi.unknownCustomer']();
   }
 
   function getAtRiskName(customer: AtRiskCustomerItem): string {
-    return `${customer.firstName} ${customer.lastName}`.trim() || 'Anonymous';
+    return `${customer.firstName} ${customer.lastName}`.trim() || m['kpi.unknownCustomer']();
+  }
+
+  function getGranularityLabel(): string {
+    if (granularity === 'day') return m['kpi.financial.granularity.day']();
+    if (granularity === 'month') return m['kpi.financial.granularity.month']();
+    return m['kpi.financial.granularity.week']();
   }
 
   function getAtRiskDayCount(): number {
@@ -202,7 +208,7 @@
       return m['kpi.atRiskNeverOrdered']();
     }
 
-    return `${customer.daysSinceLastOrder} ${m['kpi.financial.atRisk.daysLabel']?.() ?? 'days'}`;
+    return `${customer.daysSinceLastOrder} ${m['kpi.financial.atRisk.daysLabel']()}`;
   }
 
   function getLastOrderLabel(customer: AtRiskCustomerItem): string {
@@ -223,10 +229,10 @@
       </div>
       <div>
         <h2 class="text-2xl font-bold font-heading text-foreground">
-          {m['kpi.financial.title']?.() ?? 'Financial KPIs'}
+          {m['kpi.financial.title']()}
         </h2>
         <p class="text-sm text-muted-foreground mt-1">
-          Revenue trends, service breakdown, and top customers
+          {m['kpi.financialDescription']()}
         </p>
       </div>
     </div>
@@ -237,25 +243,25 @@
         variant={granularity === 'day' ? 'default' : 'outline'}
         size="sm"
         onclick={() => setGranularity('day')}
-        aria-label={m['kpi.financial.granularity.day']?.() ?? 'Daily'}
+        aria-label={m['kpi.financial.granularity.day']()}
       >
-        {m['kpi.financial.granularity.day']?.() ?? 'Daily'}
+        {m['kpi.financial.granularity.day']()}
       </Button>
       <Button
         variant={granularity === 'week' ? 'default' : 'outline'}
         size="sm"
         onclick={() => setGranularity('week')}
-        aria-label={m['kpi.financial.granularity.week']?.() ?? 'Weekly'}
+        aria-label={m['kpi.financial.granularity.week']()}
       >
-        {m['kpi.financial.granularity.week']?.() ?? 'Weekly'}
+        {m['kpi.financial.granularity.week']()}
       </Button>
       <Button
         variant={granularity === 'month' ? 'default' : 'outline'}
         size="sm"
         onclick={() => setGranularity('month')}
-        aria-label={m['kpi.financial.granularity.month']?.() ?? 'Monthly'}
+        aria-label={m['kpi.financial.granularity.month']()}
       >
-        {m['kpi.financial.granularity.month']?.() ?? 'Monthly'}
+        {m['kpi.financial.granularity.month']()}
       </Button>
     </div>
   </div>
@@ -275,7 +281,7 @@
           <span class="text-destructive font-bold text-sm">!</span>
         </div>
         <div>
-          <p class="font-medium text-destructive">{m['kpi.financial.error']?.() ?? 'Error'}</p>
+          <p class="font-medium text-destructive">{m['kpi.financial.error']()}</p>
           <p class="text-sm text-muted-foreground mt-1">{error}</p>
         </div>
       </div>
@@ -287,9 +293,9 @@
           <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
             <TrendingUp class="w-8 h-8 text-muted-foreground" />
           </div>
-          <p class="text-base font-medium text-foreground">{m['kpi.financial.revenue.empty']?.() ?? 'No Data Available'}</p>
+          <p class="text-base font-medium text-foreground">{m['kpi.financial.revenue.empty']()}</p>
           <p class="text-sm text-muted-foreground mt-2 text-center">
-            No financial data available for the selected period
+            {m['kpi.emptyDescription']()}
           </p>
         </div>
       </Card.Content>
@@ -298,9 +304,9 @@
     <!-- Revenue Trend Chart -->
     <Card.Root class="border border-border">
       <Card.Header>
-        <Card.Title>{m['kpi.financial.revenue.title']?.() ?? 'Revenue Trend'}</Card.Title>
+        <Card.Title>{m['kpi.financial.revenue.title']()}</Card.Title>
         <Card.Description>
-          Total revenue by period
+          {m['kpi.revenueDescription']()}
         </Card.Description>
       </Card.Header>
       <Card.Content>
@@ -340,15 +346,15 @@
       <!-- Service Revenue Breakdown -->
       <Card.Root class="border border-border">
         <Card.Header>
-          <Card.Title>{m['kpi.financial.services.title']?.() ?? 'Service Revenue'}</Card.Title>
+          <Card.Title>{m['kpi.financial.services.title']()}</Card.Title>
           <Card.Description>
-            Revenue by service type
+            {m['kpi.servicesDescription']()}
           </Card.Description>
         </Card.Header>
         <Card.Content>
           {#if rankedServices.length === 0}
             <div class="py-8 text-center text-muted-foreground text-sm">
-              {m['kpi.financial.services.empty']?.() ?? 'No service data available'}
+              {m['kpi.financial.services.empty']()}
             </div>
           {:else}
             <div class="space-y-4">
@@ -361,23 +367,23 @@
                         {servicePageIndex * pageSize + i + 1}. {service.serviceName}
                       </p>
                       <p class="text-xs text-muted-foreground">
-                        {service.orderCount} {m['kpi.financial.services.orders']?.() ?? 'orders'}
+                        {service.orderCount} {m['kpi.financial.services.orders']()}
                       </p>
                       <p class="text-xs text-muted-foreground">
-                        {m['kpi.financial.services.revenuePerMin']?.() ?? 'Revenue/Min'}:
+                        {m['kpi.financial.services.revenuePerMin']()}:
                         {#if service.revenuePerMinute && service.revenuePerMinute > 0}
                           <span class="font-mono text-foreground">
-                            {formatCurrency(service.revenuePerMinute)}{m['kpi.financial.services.perMin']?.() ?? '/min'}
+                            {formatCurrency(service.revenuePerMinute)}{m['kpi.financial.services.perMin']()}
                           </span>
                         {:else}
                           <span class="font-mono text-muted-foreground">
-                            {m['common.notAvailable']?.() ?? 'N/A'}
+                            {m['common.notAvailable']()}
                           </span>
                         {/if}
                         <span class="mx-1">•</span>
-                        {m['kpi.financial.services.duration']?.() ?? 'Duration'}:
+                        {m['kpi.financial.services.duration']()}:
                         <span class="font-mono text-foreground">
-                          {service.totalDurationMin} min
+                          {m['kpi.minuteUnit']({ minutes: String(service.totalDurationMin) })}
                         </span>
                       </p>
                     </div>
@@ -437,15 +443,15 @@
       <!-- Top Customers -->
       <Card.Root class="border border-border">
         <Card.Header>
-          <Card.Title>{m['kpi.financial.topCustomers.title']?.() ?? 'Top Customers'}</Card.Title>
+          <Card.Title>{m['kpi.financial.topCustomers.title']()}</Card.Title>
           <Card.Description>
-            Highest spending customers
+            {m['kpi.topCustomersDescription']()}
           </Card.Description>
         </Card.Header>
         <Card.Content>
           {#if rankedTopCustomers.length === 0}
             <div class="py-8 text-center text-muted-foreground text-sm">
-              {m['kpi.financial.topCustomers.empty']?.() ?? 'No customer data available'}
+              {m['kpi.financial.topCustomers.empty']()}
             </div>
           {:else}
             <div class="space-y-3">
@@ -463,7 +469,7 @@
                         </p>
                       </div>
                       <p class="text-xs text-muted-foreground mt-1">
-                        {customer.orderCount} {m['kpi.financial.topCustomers.orders']?.() ?? 'orders'}
+                        {customer.orderCount} {m['kpi.financial.topCustomers.orders']()}
                       </p>
                     </div>
                     <span class="text-sm font-mono font-bold text-success shrink-0">
@@ -472,7 +478,7 @@
                   </div>
                   <!-- Last Order Date -->
                   <div class="text-xs text-muted-foreground">
-                    {m['kpi.financial.topCustomers.lastOrder']?.() ?? 'Last order'}:
+                    {m['kpi.financial.topCustomers.lastOrder']()}:
                     <span class="font-mono">
                       {formatDate(customer.lastOrderDate)}
                     </span>
@@ -514,16 +520,16 @@
       <Card.Header>
         <div class="flex items-center gap-2">
           <Users class="w-4 h-4 text-primary" />
-          <Card.Title>{m['kpi.financial.repeatRate.title']?.() ?? 'Repeat Rate'}</Card.Title>
+          <Card.Title>{m['kpi.financial.repeatRate.title']()}</Card.Title>
         </div>
         <Card.Description>
-          {m['kpi.financial.repeatRate.desc']?.() ?? 'Customers with 2+ orders in period'}
+          {m['kpi.financial.repeatRate.desc']()}
         </Card.Description>
       </Card.Header>
       <Card.Content>
         {#if !data.totalCustomersInPeriod || data.totalCustomersInPeriod === 0}
           <div class="py-8 text-center text-muted-foreground text-sm">
-            {m['kpi.financial.repeatRate.empty']?.() ?? 'No customer data for period'}
+            {m['kpi.financial.repeatRate.empty']()}
           </div>
         {:else}
           <div class="space-y-2">
@@ -532,9 +538,9 @@
             </p>
             <p class="text-sm text-muted-foreground">
               <span class="font-semibold text-foreground">{data.repeatCustomers}</span>
-              <span class="mx-1">{m['kpi.financial.repeatRate.of']?.() ?? 'of'}</span>
+              <span class="mx-1">{m['kpi.financial.repeatRate.of']()}</span>
               <span class="font-semibold text-foreground">{data.totalCustomersInPeriod}</span>
-              <span class="ml-1">{m['kpi.financial.repeatRate.customers']?.() ?? 'repeat customers'}</span>
+              <span class="ml-1">{m['kpi.financial.repeatRate.customers']()}</span>
             </p>
           </div>
         {/if}
@@ -547,7 +553,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <AlertTriangle class="w-4 h-4 text-amber-500" />
-            <Card.Title>{m['kpi.financial.atRisk.title']?.() ?? 'At-Risk Customers'}</Card.Title>
+            <Card.Title>{m['kpi.financial.atRisk.title']()}</Card.Title>
           </div>
           {#if data.atRiskCustomers && data.atRiskCustomers.length > 0}
             <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-600 rounded-full">
@@ -562,7 +568,7 @@
       <Card.Content>
         {#if !data.atRiskCustomers || data.atRiskCustomers.length === 0}
           <div class="py-8 text-center text-muted-foreground text-sm">
-            {m['kpi.financial.atRisk.empty']?.() ?? 'No at-risk customers'}
+            {m['kpi.financial.atRisk.empty']()}
           </div>
         {:else}
           <div class="space-y-2">
@@ -577,7 +583,7 @@
                   </span>
                 </div>
                 <p class="text-xs text-muted-foreground mt-1">
-                  {m['kpi.financial.atRisk.lastOrder']?.() ?? 'Last order'}:
+                  {m['kpi.financial.atRisk.lastOrder']()}:
                   <span class="font-mono">{getLastOrderLabel(customer)}</span>
                 </p>
               </div>
@@ -593,7 +599,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-              {m['kpi.financial.summary.total']?.() ?? 'Total Revenue'}
+              {m['kpi.financial.summary.total']()}
             </p>
             <p class="text-2xl font-bold font-mono text-success mt-2">
               {formatCurrency(totalRevenue)}
@@ -601,15 +607,15 @@
           </div>
           <div>
             <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-              Period
+              {m['kpi.summaryPeriod']()}
             </p>
-            <p class="text-lg font-bold text-foreground mt-2 capitalize">
-              {granularity}
+            <p class="text-lg font-bold text-foreground mt-2">
+              {getGranularityLabel()}
             </p>
           </div>
           <div class="col-span-2 sm:col-span-1">
             <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-              {m['kpi.financial.summary.average']?.() ?? 'Avg per Period'}
+              {m['kpi.financial.summary.average']()}
             </p>
             <p class="text-lg font-bold font-mono text-primary mt-2">
               {formatCurrency(totalRevenue / (data.revenueTrend.length || 1))}
