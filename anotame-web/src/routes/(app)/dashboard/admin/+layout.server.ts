@@ -1,7 +1,7 @@
 import type { LayoutServerLoad } from './$types';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
+export const load: LayoutServerLoad = async ({ fetch, url }) => {
 	// Verify user is authenticated and has ADMIN role at server level
 	// This provides defense-in-depth against direct URL access
 	try {
@@ -10,10 +10,15 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 			headers: { 'Content-Type': 'application/json' },
 		});
 
-		if (!response.ok) {
+		if (response.status === 401 || response.status === 403) {
 			// Not authenticated or session expired
+			const next = encodeURIComponent(`${url.pathname}${url.search}`);
+			throw redirect(303, `/login?sessionExpired=1&next=${next}`);
+		}
+
+		if (!response.ok) {
 			throw error(403, {
-				message: 'Not authorized to access admin section',
+				message: 'Unable to verify authorization',
 			});
 		}
 
