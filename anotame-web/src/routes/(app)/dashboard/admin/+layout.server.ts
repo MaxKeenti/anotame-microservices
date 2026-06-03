@@ -1,5 +1,16 @@
 import type { LayoutServerLoad } from './$types';
-import { error, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
+
+function redirectToLogin(url: URL, reason: string, details: Record<string, unknown> = {}) {
+	const next = encodeURIComponent(`${url.pathname}${url.search}`);
+	console.warn('[admin-auth] Redirecting to login', {
+		reason,
+		path: `${url.pathname}${url.search}`,
+		...details,
+	});
+
+	throw redirect(303, `/login?sessionExpired=1&next=${next}`);
+}
 
 export const load: LayoutServerLoad = async ({ fetch, url }) => {
 	// Verify user is authenticated and has ADMIN role at server level
@@ -12,23 +23,18 @@ export const load: LayoutServerLoad = async ({ fetch, url }) => {
 
 		if (response.status === 401 || response.status === 403) {
 			// Not authenticated or session expired
-			const next = encodeURIComponent(`${url.pathname}${url.search}`);
-			throw redirect(303, `/login?sessionExpired=1&next=${next}`);
+			redirectToLogin(url, 'auth-me-denied', { status: response.status });
 		}
 
 		if (!response.ok) {
-			throw error(403, {
-				message: 'Unable to verify authorization',
-			});
+			redirectToLogin(url, 'auth-me-unexpected-status', { status: response.status });
 		}
 
 		const user = await response.json();
 
 		// Check if user has ADMIN role
 		if (!user || user.role !== 'ADMIN') {
-			throw error(403, {
-				message: 'Admin access required',
-			});
+			redirectToLogin(url, 'admin-role-required', { role: user?.role ?? null });
 		}
 
 		// User is authorized, return their data for child pages
@@ -41,9 +47,8 @@ export const load: LayoutServerLoad = async ({ fetch, url }) => {
 			throw err;
 		}
 
-		// Network or other errors → deny access
-		throw error(403, {
-			message: 'Unable to verify authorization',
+		redirectToLogin(url, 'auth-me-verification-error', {
+			error: err instanceof Error ? err.message : String(err),
 		});
 	}
 };
