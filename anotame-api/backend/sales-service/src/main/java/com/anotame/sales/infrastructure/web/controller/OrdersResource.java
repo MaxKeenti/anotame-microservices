@@ -110,7 +110,12 @@ public class OrdersResource {
                     e.getMessage(), e);
             throw new jakarta.ws.rs.BadRequestException("Invalid request format");
         }
-        salesService.deliverOrder(id, body.getPickupCode(), userId);
+        salesService.deliverOrder(
+                id,
+                body.getPickupCode(),
+                userId,
+                Boolean.TRUE.equals(body.getMarkFullyPaid()),
+                body.getPaymentMethod());
         return jakarta.ws.rs.core.Response.ok().build();
     }
 

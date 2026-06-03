@@ -11,5 +11,5 @@ public class AtRiskCustomerItem {
     private String firstName;
     private String lastName;
     private String lastOrderDate;
-    private long daysSinceLastOrder;
+    private Long daysSinceLastOrder;
 }

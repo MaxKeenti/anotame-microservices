@@ -6,8 +6,10 @@
   type Payment = {
     id: string;
     amount: number;
-    method: string;
-    note: string | null;
+    paymentMethod?: string | null;
+    notes?: string | null;
+    method?: string | null;
+    note?: string | null;
     recordedAt: string;
   };
 
@@ -21,11 +23,24 @@
   let payments = $state<Payment[]>([]);
   let loading = $state(true);
 
-  function methodLabel(method: string): string {
+  function methodLabel(method: string | null | undefined): string {
     if (method === 'CASH') return m['orders.detail.paymentCash']();
     if (method === 'CARD') return m['orders.detail.paymentCard']();
     if (method === 'TRANSFER') return m['orders.detail.paymentTransfer']();
-    return method;
+    return method || '-';
+  }
+
+  function getPaymentMethod(payment: Payment): string | null | undefined {
+    return payment.paymentMethod ?? payment.method;
+  }
+
+  function noteLabel(payment: Payment): string | null {
+    const note = payment.notes ?? payment.note ?? null;
+    if (note === 'DELIVERY_SETTLEMENT') {
+      return m['orders.payment.deliverySettlementNote']();
+    }
+
+    return note;
   }
 
   $effect(() => {
@@ -68,12 +83,12 @@
 
           <!-- Method badge -->
           <span class="bg-secondary/50 text-secondary-foreground text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
-            {methodLabel(payment.method)}
+            {methodLabel(getPaymentMethod(payment))}
           </span>
 
           <!-- Note -->
-          {#if payment.note}
-            <span class="text-muted-foreground italic flex-1 truncate">{payment.note}</span>
+          {#if noteLabel(payment)}
+            <span class="text-muted-foreground italic flex-1 truncate">{noteLabel(payment)}</span>
           {:else}
             <span class="flex-1"></span>
           {/if}

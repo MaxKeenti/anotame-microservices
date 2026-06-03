@@ -8,6 +8,7 @@ import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
+import com.anotame.sales.domain.model.OrderPayment;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import com.anotame.sales.application.port.output.AuditLogEntry;
@@ -15,6 +16,7 @@ import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -22,8 +24,10 @@ import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +52,9 @@ public class SalesService {
 
     private static final Set<String> VALID_STATUSES = Set.of(
             "RECEIVED", "IN_PROGRESS", "READY", "DELIVERED", "CANCELLED");
+    private static final Set<String> VALID_PAYMENT_METHODS = Set.of("CASH", "CARD", "TRANSFER");
+    private static final String DEFAULT_PAYMENT_METHOD = "CASH";
+    private static final String DELIVERY_SETTLEMENT_NOTE = "DELIVERY_SETTLEMENT";
 
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
@@ -372,7 +379,8 @@ public class SalesService {
     }
 
     @Transactional
-    public void deliverOrder(UUID orderId, String pickupCode, UUID userId) {
+    public void deliverOrder(UUID orderId, String pickupCode, UUID userId, boolean markFullyPaid,
+                             String paymentMethod) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new WebApplicationException(
                         Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()));
@@ -401,16 +409,65 @@ public class SalesService {
                             .build());
         }
 
-        OffsetDateTime deliveredAt = OffsetDateTime.now();
+        OffsetDateTime deliveredAt = OffsetDateTime.now(ZoneId.systemDefault());
+        if (markFullyPaid) {
+            settleRemainingBalance(order, orderId, paymentMethod, deliveredAt);
+        }
+
         order.setStatus("DELIVERED");
         order.setDeliveredAt(deliveredAt);
-        order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
+        order.setUpdatedAt(deliveredAt);
         orderRepository.save(order);
 
         auditLogRepositoryPort.save(buildAuditEntry(
                 orderId, userId, "status",
                 "READY", "DELIVERED",
                 deliveredAt));
+    }
+
+    private void settleRemainingBalance(Order order, UUID orderId, String requestedPaymentMethod,
+                                        OffsetDateTime recordedAt) {
+        BigDecimal totalAmount = order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO;
+        BigDecimal amountPaid = paymentRepository.sumByOrderId(orderId);
+        BigDecimal remainingBalance = totalAmount.subtract(amountPaid);
+
+        if (remainingBalance.compareTo(BigDecimal.ZERO) <= 0) {
+            order.setAmountPaid(amountPaid);
+            return;
+        }
+
+        OrderPayment payment = new OrderPayment();
+        payment.setOrderId(orderId);
+        payment.setAmount(remainingBalance);
+        payment.setPaymentMethod(resolvePaymentMethod(requestedPaymentMethod, order.getPaymentMethod()));
+        payment.setNotes(DELIVERY_SETTLEMENT_NOTE);
+        payment.setRecordedAt(recordedAt);
+        payment.setCreatedAt(recordedAt);
+        paymentRepository.save(payment);
+
+        order.setAmountPaid(amountPaid.add(remainingBalance));
+    }
+
+    private String resolvePaymentMethod(String requestedPaymentMethod, String orderPaymentMethod) {
+        if (requestedPaymentMethod != null && !requestedPaymentMethod.isBlank()) {
+            String normalized = requestedPaymentMethod.trim().toUpperCase();
+            if (VALID_PAYMENT_METHODS.contains(normalized)) {
+                return normalized;
+            }
+            throw new WebApplicationException(
+                    Response.status(400)
+                            .entity(Map.of("error", "Método de pago inválido: " + requestedPaymentMethod))
+                            .build());
+        }
+
+        if (orderPaymentMethod != null && !orderPaymentMethod.isBlank()) {
+            String normalized = orderPaymentMethod.trim().toUpperCase();
+            if (VALID_PAYMENT_METHODS.contains(normalized)) {
+                return normalized;
+            }
+        }
+
+        return DEFAULT_PAYMENT_METHOD;
     }
 
     private Customer resolveCustomer(CustomerDto dto) {
@@ -440,12 +497,18 @@ public class SalesService {
 
     @Transactional
     public DashboardMetricsResponse getDashboardMetrics() {
+        return getDashboardMetrics(null);
+    }
+
+    @Transactional
+    public DashboardMetricsResponse getDashboardMetrics(String monthParam) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
+        YearMonth selectedMonth = parseMonthParam(monthParam, today);
         OffsetDateTime startOfDay = today.atStartOfDay(zone).toOffsetDateTime();
         OffsetDateTime startOfTomorrow = today.plusDays(1).atStartOfDay(zone).toOffsetDateTime();
-        OffsetDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay(zone).toOffsetDateTime();
+        OffsetDateTime startOfMonth = selectedMonth.atDay(1).atStartOfDay(zone).toOffsetDateTime();
         OffsetDateTime startOfNextMonth = startOfMonth.plusMonths(1);
         OffsetDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay(zone).toOffsetDateTime();
 
@@ -608,14 +671,15 @@ public class SalesService {
         }
 
         // 4. Get At-Risk Customers (no order in atRiskDays+ days)
-        OffsetDateTime atRiskCutoff = now.minusDays(atRiskDays);
-        List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, 10);
+        int safeAtRiskDays = Math.max(1, atRiskDays);
+        LocalDate atRiskCutoff = today.minusDays(safeAtRiskDays);
+        List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, zoneId, 10);
         List<AtRiskCustomerItem> atRiskCustomers = new ArrayList<>();
         LocalDate todayForAtRisk = today;
 
         for (Object[] row : rawAtRiskData) {
             String lastOrderDateStr = (String) row[3];
-            long daysSince = 0;
+            Long daysSince = null;
             if (lastOrderDateStr != null) {
                 LocalDate lastOrderDate = LocalDate.parse(lastOrderDateStr);
                 daysSince = ChronoUnit.DAYS.between(lastOrderDate, todayForAtRisk);
@@ -658,14 +722,7 @@ public class SalesService {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
-
-        // Parse month parameter (YYYY-MM format)
-        LocalDate monthStart;
-        if (monthParam != null && !monthParam.isEmpty()) {
-            monthStart = LocalDate.parse(monthParam + "-01");
-        } else {
-            monthStart = today.withDayOfMonth(1);
-        }
+        LocalDate monthStart = parseMonthParam(monthParam, today).atDay(1);
 
         // Calculate month boundaries
         LocalDate monthEnd = monthStart.plusMonths(1);
@@ -709,5 +766,17 @@ public class SalesService {
         return com.anotame.sales.application.dto.CalendarMonthResponse.builder()
                 .days(days)
                 .build();
+    }
+
+    private YearMonth parseMonthParam(String monthParam, LocalDate fallbackDate) {
+        if (monthParam == null || monthParam.isBlank()) {
+            return YearMonth.from(fallbackDate);
+        }
+
+        try {
+            return YearMonth.parse(monthParam);
+        } catch (DateTimeParseException e) {
+            throw new BadRequestException("month must use YYYY-MM format");
+        }
     }
 }

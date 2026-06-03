@@ -20,8 +20,8 @@ public class OrderKpiController {
 
     @GET
     @Path("/dashboard")
-    public DashboardMetricsResponse getDashboardMetrics() {
-        return salesService.getDashboardMetrics();
+    public DashboardMetricsResponse getDashboardMetrics(@QueryParam("month") String month) {
+        return salesService.getDashboardMetrics(month);
     }
 
     @GET

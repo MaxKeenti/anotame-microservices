@@ -45,7 +45,7 @@ public interface OrderRepositoryPort {
     java.util.List<Object[]> getTopCustomers(java.time.OffsetDateTime start, java.time.OffsetDateTime end, int limit);
 
     // At-risk customer query
-    java.util.List<Object[]> getAtRiskCustomers(java.time.OffsetDateTime cutoffDate, int limit);
+    java.util.List<Object[]> getAtRiskCustomers(java.time.LocalDate cutoffDate, String zoneId, int limit);
 
     // Calendar queries
     java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId);
