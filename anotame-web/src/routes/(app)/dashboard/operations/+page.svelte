@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
-  import { ApiError } from '$lib/services/ApiError';
   import { Button, buttonVariants } from '$lib/components/ui/button';
   import * as Tabs from '$lib/components/ui/tabs';
   import * as Popover from '$lib/components/ui/popover';
@@ -19,7 +18,7 @@
 
   const mobile = useIsMobile();
 
-  let workOrders = $state<any[]>([]);
+  let inProgressOrders = $state<any[]>([]);
   let readyOrders = $state<any[]>([]);
   let loading = $state(true);
   let deliverDialogOpen = $state(false);
@@ -30,16 +29,16 @@
     amountPaid: number;
   } | null>(null);
 
-  async function fetchWorkOrders() {
+  async function fetchOperationOrders() {
     loading = true;
     try {
       const allOrders = await apiService.request<any[]>(`${API_SALES}/orders`);
-      workOrders = (allOrders || []).filter((o: any) => o.status === 'IN_PROGRESS');
+      inProgressOrders = (allOrders || []).filter((o: any) => o.status === 'IN_PROGRESS');
       readyOrders = (allOrders || []).filter((o: any) => o.status === 'READY');
     } catch (e: any) {
       console.error(e);
       toast.error(m["operations.toast.loadError"]());
-      workOrders = [];
+      inProgressOrders = [];
       readyOrders = [];
     } finally {
       loading = false;
@@ -47,7 +46,7 @@
   }
 
   onMount(() => {
-    fetchWorkOrders();
+    fetchOperationOrders();
   });
 
   async function handleComplete(order: any) {
@@ -63,14 +62,14 @@
         body: JSON.stringify({ status: 'READY' })
       });
       toast.success(m["operations.toast.markedReady"](), { description: order.ticketNumber });
-      fetchWorkOrders();
+      fetchOperationOrders();
     } catch (e: any) {
       console.error(e);
       toast.error(m["operations.toast.updateError"](), { description: e.message });
     }
   }
 
-  async function handleCancelWorkOrder(order: any) {
+  async function handleCancelOrder(order: any) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmCancelTitle"](),
       description: m["operations.confirmCancelDesc"]({ ticket: order.ticketNumber })
@@ -80,16 +79,10 @@
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
       toast.success(m["operations.toast.cancelSuccess"](), { description: order.ticketNumber });
-      fetchWorkOrders();
+      fetchOperationOrders();
     } catch (e: any) {
       console.error(e);
-      if (e instanceof ApiError && e.status === 409) {
-        toast.error(m["operations.toast.cannotCancel"](), {
-          description: m["operations.toast.cannotCancelDesc"]()
-        });
-      } else {
-        toast.error(m["operations.toast.cancelError"](), { description: e?.message });
-      }
+      toast.error(m["operations.toast.cancelError"](), { description: e?.message });
     }
   }
 
@@ -106,7 +99,7 @@
   function handleDelivered() {
     deliverDialogOpen = false;
     deliverTarget = null;
-    fetchWorkOrders();
+    fetchOperationOrders();
   }
 
   function getServicesSummary(items: any[]): string {
@@ -142,9 +135,9 @@
       <p class="text-muted-foreground">{m["operations.page.subtitle"]()}</p>
     </div>
     <div class="text-sm text-muted-foreground bg-card border border-border px-4 py-2 rounded-lg">
-      {workOrders.length === 1
-        ? m["operations.count.single"]({ count: workOrders.length })
-        : m["operations.count.plural"]({ count: workOrders.length })}
+      {inProgressOrders.length === 1
+        ? m["operations.count.single"]({ count: inProgressOrders.length })
+        : m["operations.count.plural"]({ count: inProgressOrders.length })}
     </div>
   </div>
 
@@ -188,7 +181,7 @@
                 <button
                   type="button"
                   class="flex w-full items-center gap-2 px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10"
-                  onclick={() => handleCancelWorkOrder(row.original)}
+                  onclick={() => handleCancelOrder(row.original)}
                 >
                   <XCircle class="w-4 h-4" />
                   {m["operations.button.cancel"]()}
@@ -201,7 +194,7 @@
         {#if mobile.current}
           <CardGridWrapper
             columns={inProgressColumns}
-            data={workOrders}
+            data={inProgressOrders}
             loading={loading}
             emptyMessage={m["operations.empty.inProgress"]()}
             cellRenders={{ status: statusCell }}
@@ -210,7 +203,7 @@
         {:else}
           <DataTableWrapper
             columns={inProgressColumns}
-            data={workOrders}
+            data={inProgressOrders}
             loading={loading}
             emptyMessage={m["operations.empty.inProgress"]()}
             cellRenders={{ status: statusCell }}

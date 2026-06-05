@@ -110,23 +110,6 @@ export interface ServiceRequest {
   garmentTypeId?: string;
 }
 
-export interface WorkOrderItem {
-  id: string;
-  salesOrderItemId: string;
-  serviceName: string;
-  currentStage: string;
-  notes: string;
-}
-
-export interface WorkOrder {
-  id: string;
-  salesOrderId: string;
-  status: string; // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
-  items: WorkOrderItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface PriceListItemDto {
   serviceId: string;
   serviceName: string;

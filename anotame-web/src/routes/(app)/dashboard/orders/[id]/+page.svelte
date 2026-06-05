@@ -3,7 +3,6 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
-  import { ApiError } from "$lib/services/ApiError";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
   import StatusBadge from "$lib/components/ui/StatusBadge.svelte";
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
@@ -90,13 +89,7 @@
       goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
-      if (e instanceof ApiError && e.status === 409) {
-        toast.error(m["orders.detail.cannotDelete"](), {
-          description: m["orders.detail.hasLinkedWorkOrders"]()
-        });
-      } else {
-        toast.error(m["orders.detail.cancelError"](), { description: e?.message });
-      }
+      toast.error(m["orders.detail.cancelError"](), { description: e?.message });
     }
   }
 
