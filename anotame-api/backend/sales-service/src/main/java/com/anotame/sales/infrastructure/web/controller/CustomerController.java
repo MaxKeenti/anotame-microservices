@@ -1,7 +1,7 @@
 package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CustomerDto;
-import com.anotame.sales.application.service.CustomerServiceImpl;
+import com.anotame.sales.application.service.CustomerService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -13,10 +13,10 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @io.quarkus.security.Authenticated
-public class CustomerResource {
+public class CustomerController {
 
     @Inject
-    CustomerServiceImpl customerService;
+    CustomerService customerService;
 
     @POST
     public CustomerDto createCustomer(CustomerDto customerDto) {

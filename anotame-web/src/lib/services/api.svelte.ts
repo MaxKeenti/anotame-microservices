@@ -1,4 +1,5 @@
 import { ApiError } from './ApiError';
+import type { OrderResponse, CreateOrderRequest } from '$lib/types/dtos';
 
 export const API_IDENTITY = "/api/identity";
 export const API_CATALOG = "/api/catalog";
@@ -111,12 +112,12 @@ class ApiService {
   }
 
   // Example methods mapped from legacy
-  async getOrder(id: string): Promise<any> {
-    return this.request<any>(`${API_SALES}/orders/${id}`);
+  async getOrder(id: string): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`${API_SALES}/orders/${id}`);
   }
 
-  async updateOrder(id: string, data: any): Promise<any> {
-    return this.request<any>(`${API_SALES}/orders/${id}`, {
+  async updateOrder(id: string, data: CreateOrderRequest): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`${API_SALES}/orders/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });

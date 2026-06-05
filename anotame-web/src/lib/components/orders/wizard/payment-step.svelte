@@ -280,7 +280,7 @@
 		{#if !draft?.isEditing}
 		<!-- Payment Method (new orders only) -->
 		<div class="space-y-4">
-			<label class="text-sm font-medium" for="payment-method">Método de Pago</label>
+			<label class="text-sm font-medium" for="payment-method">{m['orders.wizard.paymentMethod']()}</label>
 			<div class="grid grid-cols-3 gap-4" id="payment-method">
 				<Button
 					type="button"
@@ -291,7 +291,7 @@
 					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CASH' || !$form.paymentMethod ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
 				>
 					<DollarSign class="w-8 h-8 mb-2" />
-					<span class="font-semibold">Efectivo</span>
+					<span class="font-semibold">{m['orders.wizard.cash']()}</span>
 				</Button>
 				<Button
 					type="button"
@@ -302,7 +302,7 @@
 					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
 				>
 					<CreditCard class="w-8 h-8 mb-2" />
-					<span class="font-semibold">Tarjeta</span>
+					<span class="font-semibold">{m['orders.wizard.card']()}</span>
 				</Button>
 				<Button
 					type="button"
@@ -313,7 +313,7 @@
 					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
 				>
 					<Wallet class="w-8 h-8 mb-2" />
-					<span class="font-semibold">Transf.</span>
+					<span class="font-semibold">{m['orders.wizard.transfer']()}</span>
 				</Button>
 			</div>
 		</div>
@@ -324,7 +324,7 @@
 				{#snippet children({ constraints })}
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Monto Recibido</Form.Label>
+							<Form.Label>{m['orders.wizard.amountReceived']()}</Form.Label>
 							<div class="relative">
 								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
 									>$</span
@@ -351,7 +351,7 @@
 							size="sm"
 							onclick={() => {
 								$form.amountPaid = total;
-							}}>Total</Button
+							}}>{m['orders.wizard.total']()}</Button
 						>
 						<Button
 							type="button"
@@ -376,7 +376,7 @@
 			<div
 				class="bg-card border border-border p-4 rounded-xl flex flex-col justify-center items-center shadow-sm"
 			>
-				<div class="text-sm text-muted-foreground">Saldo Pendiente</div>
+				<div class="text-sm text-muted-foreground">{m['orders.wizard.balanceDue']()}</div>
 				<div class={`text-4xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-primary'}`}>
 					${balance.toFixed(2)}
 				</div>
@@ -393,7 +393,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
 			<Form.Field form={superform} name="committedDeadline">
 				{#snippet children({ constraints })}
-					<Form.Label>Fecha de Entrega</Form.Label>
+					<Form.Label>{m['orders.wizard.deliveryDate']()}</Form.Label>
 					<!-- Adaptive: Calendar + Time popover on desktop, native datetime-local on mobile -->
 					<AdaptiveDateTimePicker
 						id="delivery-date"
@@ -402,7 +402,7 @@
 						onValueChange={(v) => {
 							$form.committedDeadline = v;
 						}}
-						placeholder="Seleccionar fecha y hora..."
+						placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
 						class="rounded-xl text-lg"
 					/>
 					<Form.FieldErrors />
@@ -412,12 +412,12 @@
 				{#snippet children({ constraints })}
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Notas Generales de Nota</Form.Label>
+							<Form.Label>{m['orders.wizard.orderNotes']()}</Form.Label>
 							<Input
 								{...props}
 								{...constraints}
 								id="order-notes"
-								placeholder="Detalles sobre entrega, atención, etc."
+								placeholder={m['orders.wizard.orderNotesPlaceholder']()}
 								class="h-12 rounded-xl text-lg"
 								bind:value={$form.notes}
 							/>

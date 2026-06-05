@@ -17,7 +17,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
-public class OrderPaymentResource {
+public class OrderPaymentController {
 
     @Inject
     PaymentService paymentService;

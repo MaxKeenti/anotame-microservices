@@ -121,8 +121,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 			}
 		}
 
-		console.log(`[proxy] ${request.method} ${url.pathname} → ${fullTargetUrl}`);
-
 		let backendResponse: Response;
 		try {
 			backendResponse = await fetch(fullTargetUrl, {
@@ -139,8 +137,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 				{ status: 502, headers: { 'Content-Type': 'application/json' } },
 			);
 		}
-
-		console.log(`[proxy] ← ${backendResponse.status} from ${fullTargetUrl}`);
 
 		// Forward the response back to the browser. Set-Cookie must be propagated
 		// so HttpOnly auth cookies are set correctly on the client.

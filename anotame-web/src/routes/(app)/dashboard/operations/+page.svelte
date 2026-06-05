@@ -13,13 +13,14 @@
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import { CheckCircle2, Eye, XCircle, MoreVertical } from 'lucide-svelte';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { OrderResponse, OrderItemResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
   const mobile = useIsMobile();
 
-  let inProgressOrders = $state<any[]>([]);
-  let readyOrders = $state<any[]>([]);
+  let inProgressOrders = $state<OrderResponse[]>([]);
+  let readyOrders = $state<OrderResponse[]>([]);
   let loading = $state(true);
   let deliverDialogOpen = $state(false);
   let deliverTarget = $state<{
@@ -32,9 +33,9 @@
   async function fetchOperationOrders() {
     loading = true;
     try {
-      const allOrders = await apiService.request<any[]>(`${API_SALES}/orders`);
-      inProgressOrders = (allOrders || []).filter((o: any) => o.status === 'IN_PROGRESS');
-      readyOrders = (allOrders || []).filter((o: any) => o.status === 'READY');
+      const allOrders = await apiService.request<OrderResponse[]>(`${API_SALES}/orders`);
+      inProgressOrders = (allOrders || []).filter((o) => o.status === 'IN_PROGRESS');
+      readyOrders = (allOrders || []).filter((o) => o.status === 'READY');
     } catch (e: any) {
       console.error(e);
       toast.error(m["operations.toast.loadError"]());
@@ -49,7 +50,7 @@
     fetchOperationOrders();
   });
 
-  async function handleComplete(order: any) {
+  async function handleComplete(order: OrderResponse) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmMarkReadyTitle"](),
       description: m["operations.confirmMarkReadyDesc"]({ ticket: order.ticketNumber })
@@ -69,7 +70,7 @@
     }
   }
 
-  async function handleCancelOrder(order: any) {
+  async function handleCancelOrder(order: OrderResponse) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmCancelTitle"](),
       description: m["operations.confirmCancelDesc"]({ ticket: order.ticketNumber })
@@ -86,7 +87,7 @@
     }
   }
 
-  function openDeliverDialog(order: any) {
+  function openDeliverDialog(order: OrderResponse) {
     deliverTarget = {
       id: order.id,
       ticketNumber: order.ticketNumber,
@@ -102,15 +103,15 @@
     fetchOperationOrders();
   }
 
-  function getServicesSummary(items: any[]): string {
-    return items?.map((i: any) => i.services?.map((s: any) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-';
+  function getServicesSummary(items: OrderItemResponse[]): string {
+    return items?.map((i) => i.services?.map((s) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-';
   }
 
-  function getGarmentsSummary(items: any[]): string {
-    return items?.map((i: any) => i.garmentName).filter(Boolean).join(', ') || '-';
+  function getGarmentsSummary(items: OrderItemResponse[]): string {
+    return items?.map((i) => i.garmentName).filter(Boolean).join(', ') || '-';
   }
 
-  const inProgressColumns: ColumnDef<any>[] = [
+  const inProgressColumns: ColumnDef<OrderResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["operations.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
@@ -119,7 +120,7 @@
     { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
-  const readyColumns: ColumnDef<any>[] = [
+  const readyColumns: ColumnDef<OrderResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garments', accessorFn: (row) => getGarmentsSummary(row.items), header: m["operations.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
@@ -149,11 +150,11 @@
 
     <Tabs.Content value="in-progress">
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet statusCell(row: any)}
+        {#snippet statusCell(row: Row<OrderResponse>)}
           <StatusBadge status={row.original.status} />
         {/snippet}
 
-        {#snippet inProgressActions(row: any)}
+        {#snippet inProgressActions(row: Row<OrderResponse>)}
           <div class="flex justify-end items-center gap-2">
             <Button
               size="sm"
@@ -218,7 +219,7 @@
 
     <Tabs.Content value="ready">
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet readyActions(row: any)}
+        {#snippet readyActions(row: Row<OrderResponse>)}
           <div class="flex justify-end">
             <Button
               class="h-12 px-4 touch-manipulation font-medium"

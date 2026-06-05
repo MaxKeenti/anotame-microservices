@@ -67,6 +67,7 @@ export interface OrderResponse {
   committedDeadline: string;
   status: string;
   totalAmount: number;
+  totalDurationMin?: number;
   amountPaid: number;
   paymentMethod: string;
   notes: string;

@@ -14,6 +14,7 @@
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
   import * as Tabs from '$lib/components/ui/tabs';
+  import type { WorkDay, Holiday } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
   let activeTab = $state<'weekly' | 'holidays'>('weekly');
@@ -22,8 +23,8 @@
   let isHolidaySubmitting = $state(false);
 
   // Data
-  let workDays = $state<any[]>([]);
-  let holidays = $state<any[]>([]);
+  let workDays = $state<WorkDay[]>([]);
+  let holidays = $state<Holiday[]>([]);
 
   const DAY_KEYS = [
     'schedule.day.monday',
@@ -78,8 +79,8 @@
     isLoading = true;
     try {
       const [daysData, holsData] = await Promise.all([
-        apiService.request<any[]>(`${API_OPERATIONS}/schedule/config`),
-        apiService.request<any[]>(`${API_OPERATIONS}/schedule/holidays`)
+        apiService.request<WorkDay[]>(`${API_OPERATIONS}/schedule/config`),
+        apiService.request<Holiday[]>(`${API_OPERATIONS}/schedule/holidays`)
       ]);
 
       workDays = (daysData || []).sort((a, b) => a.dayOfWeek - b.dayOfWeek);

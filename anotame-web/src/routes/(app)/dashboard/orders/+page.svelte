@@ -19,17 +19,18 @@
 
   const mobile = useIsMobile();
   import { toast } from 'svelte-sonner';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { OrderResponse, OrderItemResponse, GarmentTypeResponse } from '$lib/types/dtos';
   import * as Tabs from '$lib/components/ui/tabs';
   import * as m from '$lib/paraglide/messages';
 
   let view = $state<'active' | 'drafts'>('active');
-  let orders = $state<any[]>([]);
-  let garments = $state<any[]>([]);
+  let orders = $state<OrderResponse[]>([]);
+  let garments = $state<GarmentTypeResponse[]>([]);
   let loading = $state(true);
 
   // Bulk selection state
-  let selectedOrders = $state<any[]>([]);
+  let selectedOrders = $state<OrderResponse[]>([]);
 
   // Filters
   let searchQuery = $state("");
@@ -41,11 +42,11 @@
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
 
-  const activeColumns: ColumnDef<any>[] = [
+  const activeColumns: ColumnDef<OrderResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["orders.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["orders.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'garments', accessorFn: (row) => row.items?.map((i: OrderItemResponse) => i.garmentName).join(', '), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
     { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
@@ -63,8 +64,8 @@
     loading = true;
     try {
       const [ordersData, garmentsData] = await Promise.all([
-        apiService.request<any[]>(`${API_SALES}/orders`),
-        apiService.request<any[]>(`${API_CATALOG}/catalog/garments`)
+        apiService.request<OrderResponse[]>(`${API_SALES}/orders`),
+        apiService.request<GarmentTypeResponse[]>(`${API_CATALOG}/catalog/garments`)
       ]);
       orders = ordersData || [];
       garments = garmentsData || [];
@@ -165,7 +166,7 @@
       if (garmentFilter) {
         const selectedGarment = garments.find(g => g.id === garmentFilter);
         if (selectedGarment) {
-          const hasGarment = order.items?.some((item: any) =>
+          const hasGarment = order.items?.some((item: OrderItemResponse) =>
             item.garmentName === selectedGarment.name
           );
           if (!hasGarment) return false;
@@ -252,11 +253,11 @@
 
       <!-- Active Orders Table / Card Grid -->
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet statusCell(row: any)}
+        {#snippet statusCell(row: Row<OrderResponse>)}
           <StatusBadge status={row.original.status} />
         {/snippet}
 
-        {#snippet activeOrderActions(row: any)}
+        {#snippet activeOrderActions(row: Row<OrderResponse>)}
           <div class="flex justify-end gap-2">
             <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
               <Edit class="w-4 h-4 mr-2" />

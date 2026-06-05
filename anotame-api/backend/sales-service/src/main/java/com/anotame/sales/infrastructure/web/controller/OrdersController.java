@@ -19,7 +19,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @io.quarkus.security.Authenticated
-public class OrdersResource {
+public class OrdersController {
 
     @Inject
     SalesService salesService;
@@ -45,7 +45,7 @@ public class OrdersResource {
                     ? UUID.fromString(branchIdClaim)
                     : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
         } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersResource.class).error("Invalid branch_id format in JWT token: {}",
+            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid branch_id format in JWT token: {}",
                     e.getMessage(), e);
             throw new jakarta.ws.rs.BadRequestException("Invalid request format");
         }
@@ -54,7 +54,7 @@ public class OrdersResource {
         try {
             userId = UUID.fromString(userIdClaim);
         } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersResource.class).error("Invalid user_id format in JWT token: {}",
+            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid user_id format in JWT token: {}",
                     e.getMessage(), e);
             throw new jakarta.ws.rs.BadRequestException("Invalid request format");
         }
@@ -84,7 +84,7 @@ public class OrdersResource {
         try {
             userId = UUID.fromString(userIdClaim);
         } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersResource.class).error("Invalid user_id format in JWT token: {}",
+            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid user_id format in JWT token: {}",
                     e.getMessage(), e);
             throw new jakarta.ws.rs.BadRequestException("Invalid request format");
         }
@@ -106,7 +106,7 @@ public class OrdersResource {
         try {
             userId = UUID.fromString(userIdClaim);
         } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersResource.class).error("Invalid user_id format in JWT token: {}",
+            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid user_id format in JWT token: {}",
                     e.getMessage(), e);
             throw new jakarta.ws.rs.BadRequestException("Invalid request format");
         }

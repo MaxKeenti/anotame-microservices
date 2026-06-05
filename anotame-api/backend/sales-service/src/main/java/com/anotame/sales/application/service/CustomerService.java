@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 @RequiredArgsConstructor
-public class CustomerServiceImpl {
+public class CustomerService {
 
     private final CustomerRepositoryPort customerRepository;
 

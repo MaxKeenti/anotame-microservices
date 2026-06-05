@@ -212,12 +212,12 @@
                 </Button>
             {/if}
             <h3 class="text-xl font-bold truncate">
-                {#if step === 0} Selecciona Prenda
-                {:else if step === 1} Agregar Servicios
-                {:else if step === 2} Configurar Servicio
-                {:else} Notas de la Prenda {/if}
+                {#if step === 0} {m['orders.wizard.stepSelectGarment']()}
+                {:else if step === 1} {m['orders.wizard.stepAddServices']()}
+                {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
+                {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
             </h3>
-            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-10 px-4 touch-manipulation" onclick={props.onCancel}>Cancelar</Button>
+            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-10 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
@@ -254,14 +254,14 @@
 
                     {#if addedServices.length > 0}
                         <div class="space-y-3">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Servicios Agregados</h4>
+                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.servicesAdded']()}</h4>
                             {#each addedServices as s, idx}
                                 <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
                                     <div>
                                         <div class="font-medium text-lg">{s.serviceName}</div>
                                         <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
                                             {#if s.adjustmentReason}
-                                                <span>Adj: {s.adjustmentReason}</span>
+                                                <span>{m['orders.wizard.adjustmentShort']()} {s.adjustmentReason}</span>
                                             {/if}
                                             <span>⏱️ {s.durationMin} min</span>
                                         </div>
@@ -280,26 +280,26 @@
                                 </div>
                             {/each}
                             <div class="text-right font-bold pt-3 border-t text-xl">
-                                Total: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
                             </div>
                         </div>
                     {/if}
 
                     <div class="space-y-4 pt-4">
                         <div class="flex justify-between items-center">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Agregar Servicio</h4>
+                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.addService']()}</h4>
                             <Button
                                 variant="ghost"
                                 class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
                                 onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
                             >
-                                {showAllServices ? "Ver recomendados" : "Ver todos"}
+                                {showAllServices ? m['orders.wizard.viewRecommended']() : m['orders.wizard.viewAll']()}
                             </Button>
                         </div>
 
                         <Input
                             type="search"
-                            placeholder="Buscar servicio..."
+                            placeholder={m['orders.wizard.searchServicePlaceholder']()}
                             class="h-11 rounded-xl"
                             bind:value={serviceFilter}
                         />
@@ -334,7 +334,7 @@
                             {/each}
                             {#if visibleServices.length === 0}
                                 <div class="col-span-full text-center py-8 text-muted-foreground text-lg">
-                                    {serviceFilter ? "Sin resultados para tu búsqueda." : "No hay servicios recomendados."}
+                                    {serviceFilter ? m['orders.wizard.noSearchResults']() : m['orders.wizard.noRecommendedServices']()}
                                 </div>
                             {/if}
                         </div>
@@ -375,11 +375,11 @@
                             />
                         </div>
                         <div class="space-y-3">
-                            <label class="text-base font-medium" for="razon-ajuste">Razón Ajuste</label>
+                            <label class="text-base font-medium" for="razon-ajuste">{m['orders.wizard.adjustmentReason']()}</label>
                             <Input
                                 id="razon-ajuste"
                                 class="h-16 text-lg rounded-xl"
-                                placeholder="Motivo..."
+                                placeholder={m['orders.wizard.reasonPlaceholder']()}
                                 bind:value={adjReason}
                             />
                         </div>
@@ -420,7 +420,7 @@
                         </ul>
                         <div class="mt-4 pt-4 border-t border-dashed border-foreground/20 flex flex-col items-end gap-3">
                             <div class="font-bold text-xl">
-                                Total: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
                             </div>
                             <Button
                                 variant="outline"
@@ -428,13 +428,13 @@
                                 onclick={() => step = 1}
                             >
                                 <Plus class="w-4 h-4 mr-2" />
-                                Agregar otro servicio
+                                {m['orders.wizard.addAnotherService']()}
                             </Button>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <label class="text-base font-medium" for="notas-prenda">Notas Generales de la Prenda</label>
+                        <label class="text-base font-medium" for="notas-prenda">{m['orders.wizard.garmentNotes']()}</label>
                         <Textarea
                             id="notas-prenda"
                             class="min-h-[160px] resize-none text-lg p-4 rounded-xl"

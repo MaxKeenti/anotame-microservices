@@ -12,6 +12,7 @@
   import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+  import type { GarmentTypeResponse } from '$lib/types/dtos';
 
   const serviceSchema = z.object({
     id: z.string().nullable().optional(),
@@ -24,7 +25,7 @@
 
   let { item, garments = [], onClose, onSuccess } = $props<{
     item: any | null;
-    garments?: any[];
+    garments?: GarmentTypeResponse[];
     onClose: () => void;
     onSuccess?: () => void;
   }>();
@@ -33,7 +34,7 @@
   let isSubmitting = $state(false);
 
   const garmentItems = $derived(
-    garments.map((g: any) => ({ value: g.id, label: g.name }))
+    garments.map((g: GarmentTypeResponse) => ({ value: g.id, label: g.name }))
   );
 
   const superform = superForm(defaults(zod4(serviceSchema)), {
