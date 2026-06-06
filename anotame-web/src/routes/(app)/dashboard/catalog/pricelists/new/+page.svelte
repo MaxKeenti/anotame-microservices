@@ -15,12 +15,13 @@
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+  import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
 
   // State
   let isLoading = $state(false);
   let isFetchingBase = $state(false);
-  let services = $state<any[]>([]);
-  let availableLists = $state<any[]>([]);
+  let services = $state<ServiceResponse[]>([]);
+  let availableLists = $state<PriceListResponse[]>([]);
   
   // Clone parameter
   let cloneFromId = $derived($page.url.searchParams.get('cloneFrom'));
@@ -82,8 +83,8 @@
   onMount(async () => {
     try {
       const [svcRes, listsRes] = await Promise.all([
-        apiService.request<any[]>(`${API_CATALOG}/catalog/services`),
-        apiService.request<any[]>(`${API_CATALOG}/pricelists`)
+        apiService.request<ServiceResponse[]>(`${API_CATALOG}/catalog/services`),
+        apiService.request<PriceListResponse[]>(`${API_CATALOG}/pricelists`)
       ]);
       services = svcRes || [];
       availableLists = listsRes || [];
@@ -114,7 +115,7 @@
     const items = [{ value: '', label: m["catalog.pricelist.baseListFromScratch"]() }, ...availableLists.map(l => ({ value: l.id, label: l.name }))];
     // If baseListId is set but not in the items, add a temporary placeholder
     if ($form.baseListId && !items.find(i => i.value === $form.baseListId)) {
-      items.unshift({ value: $form.baseListId, label: 'Cargando...' });
+      items.unshift({ value: $form.baseListId, label: m["common.loading"]() });
     }
     return items;
   });
@@ -131,7 +132,7 @@
     }
     isFetchingBase = true;
     try {
-      const list = await apiService.request<any>(`${API_CATALOG}/pricelists/${listId}`);
+      const list = await apiService.request<PriceListResponse>(`${API_CATALOG}/pricelists/${listId}`);
         if (list) {
         // If cloning, we also pre-fill the name and priority
         if (isFromCloneParam) {
@@ -161,7 +162,7 @@
         });
         
         if (list.items) {
-          list.items.forEach((item: any) => {
+          list.items.forEach((item: PriceListItemDto) => {
             newOverrides[item.serviceId] = String(item.price);
           });
         }

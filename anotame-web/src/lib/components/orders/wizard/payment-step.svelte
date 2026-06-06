@@ -18,6 +18,7 @@
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
 	import * as m from '$lib/paraglide/messages';
+	import type { OrderResponse } from '$lib/types/dtos';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 
@@ -40,16 +41,16 @@
 
 	const paymentSchema = z.object({
 		paymentMethod: z.enum(['CASH', 'CARD', 'TRANSFER']).default('CASH'),
-		amountPaid: z.number().min(0, 'El monto no puede ser negativo').default(0),
+		amountPaid: z.number().min(0, m['orders.wizard.zod.amountNotNegative']()).default(0),
 		committedDeadline: z
 			.string()
-			.min(1, 'La fecha de entrega es obligatoria')
+			.min(1, m['orders.wizard.zod.deadlineRequired']())
 			.refine((v) => {
 				const selected = new Date(v);
 				const now = new Date();
 				// 5 minute grace period to account for clock drift
 				return selected >= new Date(now.getTime() - 5 * 60 * 1000);
-			}, 'La fecha de entrega debe ser hoy o en el futuro'),
+			}, m['orders.wizard.zod.deadlineFuture']()),
 		notes: z.string().optional().or(z.literal(''))
 	});
 
@@ -60,7 +61,7 @@
 		async onUpdate({ form: f }) {
 			if (!f.valid) return;
 			if (!draft?.customer || !draft?.items || draft?.items.length === 0) {
-				error = 'Faltan datos requeridos (Cliente o Prendas)';
+				error = m['orders.wizard.missingData']();
 				return;
 			}
 			error = null;
@@ -119,14 +120,14 @@
 					const targetId = draft?.id;
 					// Clear draft before navigation to avoid UI "blink" back to Step 1
 					orderWizardState.clearActiveDraft();
-					toast.success('Pedido guardado correctamente.');
+					toast.success(m['orders.wizard.saveSuccess']());
 					await goto(`/dashboard/orders/${targetId}`);
 				} else {
-					const res = await apiService.request<any>(`${API_SALES}/orders`, {
+					const res = await apiService.request<OrderResponse>(`${API_SALES}/orders`, {
 						method: 'POST',
 						body: JSON.stringify(payload)
 					});
-					toast.success('Nota confirmada exitosamente');
+					toast.success(m['orders.wizard.confirmSuccess']());
 					const targetId = res?.id;
 
 					// Navigate first, then cleanup to avoid UI "blink" to Step 1
@@ -149,18 +150,18 @@
 						.map(([field, msg]) => `${field}: ${msg}`)
 						.join(', ');
 					toast.error(m['orders.wizard.validationError'](), {
-						description: errorMessages || 'Hay errores en los campos marcados'
+						description: errorMessages || m['orders.wizard.validationErrorDesc']()
 					});
 				} else if (e instanceof ApiError && e.status === 409) {
 					if (draft?.isEditing) {
-						toast.error('No es posible editar este pedido.');
+						toast.error(m['orders.wizard.cannotEdit']());
 					} else {
 						error = m['orders.wizard.dbConflict']();
-						toast.error('Error al procesar la orden', { description: e.message });
+						toast.error(m['orders.wizard.processOrderError'](), { description: e.message });
 					}
 				} else {
 					error = `Error: ${e.message}`;
-					toast.error('Error al procesar la nota', { description: e.message });
+					toast.error(m['orders.wizard.processNoteError'](), { description: e.message });
 				}
 			} finally {
 				isSubmitting = false;

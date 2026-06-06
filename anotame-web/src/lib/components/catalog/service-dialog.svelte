@@ -16,11 +16,11 @@
 
   const serviceSchema = z.object({
     id: z.string().nullable().optional(),
-    name: z.string().min(2, 'El nombre es obligatorio'),
+    name: z.string().min(2, m['serviceDialog.zod.nameRequired']()),
     description: z.string().optional().or(z.literal('')),
-    basePrice: z.number().min(0, 'El precio debe ser mayor o igual a 0'),
+    basePrice: z.number().min(0, m['serviceDialog.zod.priceMin']()),
     defaultDurationMin: z.number().min(1, m['serviceDialog.zod.minDuration']()),
-    garmentTypeId: z.string().min(1, 'Selecciona una prenda'),
+    garmentTypeId: z.string().min(1, m['serviceDialog.zod.garmentRequired']()),
   });
 
   let { item, garments = [], onClose, onSuccess } = $props<{
@@ -58,13 +58,13 @@
             method: 'PUT',
             body: JSON.stringify(payload)
           });
-          toast.success("Servicio actualizado exitosamente");
+          toast.success(m['serviceDialog.toast.updateSuccess']());
         } else {
           await apiService.request(`${API_CATALOG}/catalog/services`, {
             method: 'POST',
             body: JSON.stringify(payload)
           });
-          toast.success("Servicio creado exitosamente");
+          toast.success(m['serviceDialog.toast.createSuccess']());
         }
         onClose();
         onSuccess?.();
@@ -73,9 +73,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al guardar the servicio.");
+          toast.error(e.message || m['serviceDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -108,7 +108,7 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-lg">
     <Dialog.Header>
-      <Dialog.Title>{item?.id ? 'Editar Servicio' : 'Nuevo Servicio'}</Dialog.Title>
+      <Dialog.Title>{item?.id ? m['serviceDialog.title.edit']() : m['serviceDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
         Configura los detalles del servicio ofrecido.
       </Dialog.Description>

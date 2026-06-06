@@ -13,7 +13,7 @@
 
   const customerSchema = z.object({
     id: z.string().nullable().optional(),
-    firstName: z.string().min(2, 'El nombre es obligatorio'),
+    firstName: z.string().min(2, m['customerDialog.zod.nameRequired']()),
     lastName: z.string().optional().or(z.literal('')),
     phoneNumber: z.string().regex(/^\d{10}$/, m['customerDialog.zod.phoneFormat']()),
     email: z.string().email(m['customerDialog.zod.emailInvalid']()).optional().or(z.literal(''))
@@ -38,10 +38,10 @@
       try {
         if (form.data.id) {
           await apiService.request(`${API_SALES}/api/customers/${form.data.id}`, { method: 'PUT', body: JSON.stringify(form.data) });
-          toast.success("Cliente actualizado exitosamente");
+          toast.success(m['customerDialog.toast.updateSuccess']());
         } else {
           await apiService.request(`${API_SALES}/api/customers`, { method: 'POST', body: JSON.stringify(form.data) });
-          toast.success("Cliente creado exitosamente");
+          toast.success(m['customerDialog.toast.createSuccess']());
         }
 
         onClose();
@@ -51,9 +51,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al guardar el cliente.");
+          toast.error(e.message || m['customerDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -87,7 +87,7 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-md sm:max-w-lg">
     <Dialog.Header>
-      <Dialog.Title>{item?.id ? 'Editar Cliente' : 'Nuevo Cliente'}</Dialog.Title>
+      <Dialog.Title>{item?.id ? m['customerDialog.title.edit']() : m['customerDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
         {m['customerDialog.description']()}
       </Dialog.Description>

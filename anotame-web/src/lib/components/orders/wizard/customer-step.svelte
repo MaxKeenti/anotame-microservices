@@ -32,7 +32,7 @@
 
    function selectCustomer(c: any) {
        orderWizardState.updateActiveDraft({ customer: c });
-       toast.success("Cliente seleccionado", { description: `${c.firstName} ${c.lastName}` });
+       toast.success(m['customerStep.toast.selected'](), { description: `${c.firstName} ${c.lastName}` });
        query = '';
        results = [];
    }

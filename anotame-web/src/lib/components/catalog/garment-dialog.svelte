@@ -14,7 +14,7 @@
 
   const garmentSchema = z.object({
     id: z.string().nullable().optional(),
-    name: z.string().min(2, 'El nombre es obligatorio'),
+    name: z.string().min(2, m['garmentDialog.zod.nameRequired']()),
     description: z.string().optional().or(z.literal(''))
   });
 
@@ -40,13 +40,13 @@
             method: 'PUT',
             body: JSON.stringify(form.data)
           });
-          toast.success("Prenda actualizada exitosamente");
+          toast.success(m['garmentDialog.toast.updateSuccess']());
         } else {
           await apiService.request(`${API_CATALOG}/catalog/garments`, {
             method: 'POST',
             body: JSON.stringify(form.data)
           });
-          toast.success("Prenda creada exitosamente");
+          toast.success(m['garmentDialog.toast.createSuccess']());
         }
         onClose();
         onSuccess?.();
@@ -55,9 +55,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al guardar la prenda.");
+          toast.error(e.message || m['garmentDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -87,7 +87,7 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-md">
     <Dialog.Header>
-      <Dialog.Title>{item?.id ? 'Editar Prenda' : 'Nueva Prenda'}</Dialog.Title>
+      <Dialog.Title>{item?.id ? m['garmentDialog.title.edit']() : m['garmentDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
         Configura los detalles del tipo de prenda.
       </Dialog.Description>

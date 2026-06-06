@@ -19,8 +19,8 @@
     username: z.string().optional().or(z.literal('')),
     password: z.string().optional().or(z.literal('')),
     role: z.string().default('EMPLOYEE'),
-    firstName: z.string().min(1, 'El nombre es obligatorio'),
-    lastName: z.string().min(1, 'El apellido es obligatorio'),
+    firstName: z.string().min(1, m['userDialog.zod.nameRequired']()),
+    lastName: z.string().min(1, m['userDialog.zod.lastNameRequired']()),
     email: z.string().email(m['userDialog.zod.emailInvalid']()),
   });
 
@@ -44,7 +44,7 @@
       const isEdit = !!form.data.id;
       if (!isEdit) {
         if (!form.data.username) {
-            setError(form, 'username', 'El nombre de usuario es obligatorio');
+            setError(form, 'username', m['userDialog.zod.usernameRequired']());
             return;
         }
         if (!form.data.password || form.data.password.length < 6) {
@@ -64,7 +64,7 @@
                 email: form.data.email,
               })
             });
-            toast.success("Usuario actualizado exitosamente");
+            toast.success(m['userDialog.toast.updateSuccess']());
         } else {
             await apiService.request(`${API_IDENTITY}/users`, {
               method: 'POST',
@@ -77,7 +77,7 @@
                 email: form.data.email,
               })
             });
-            toast.success("Usuario creado exitosamente");
+            toast.success(m['userDialog.toast.createSuccess']());
         }
         
         onClose();
@@ -87,9 +87,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al actualizar el usuario.");
+          toast.error(e.message || m['userDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -126,7 +126,7 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-md">
     <Dialog.Header>
-      <Dialog.Title>{$form.id ? 'Editar Usuario' : 'Nuevo Usuario'}</Dialog.Title>
+      <Dialog.Title>{$form.id ? m['userDialog.title.edit']() : m['userDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
         {$form.id ? 'Actualiza los datos del usuario.' : 'Crea un nuevo acceso al sistema.'}
       </Dialog.Description>

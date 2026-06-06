@@ -34,8 +34,8 @@
 		} catch (e) {
 			console.error('Failed to load price lists:', e);
 			hasError = true;
-			toast.error('No se pudieron cargar las listas de precios', {
-				description: 'Puedes continuar sin seleccionar una lista.'
+			toast.error(m['priceListStep.toast.loadListsError'](), {
+				description: m['priceListStep.toast.loadListsErrorDesc']()
 			});
 		} finally {
 			isLoading = false;
@@ -81,7 +81,7 @@
 			}
 		} catch (e) {
 			console.error('Failed to load price list details:', e);
-			toast.error('Error al cargar la lista de precios');
+			toast.error(m['priceListStep.toast.loadListError']());
 		}
 	}
 
