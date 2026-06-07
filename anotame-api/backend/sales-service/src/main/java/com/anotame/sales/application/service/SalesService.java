@@ -13,6 +13,8 @@ import com.anotame.sales.application.dto.CalendarMonthResponse;
 import com.anotame.sales.application.dto.OrderItemResponse;
 import com.anotame.sales.application.dto.OrderItemServiceDto;
 import com.anotame.sales.application.dto.OrderResponse;
+import com.anotame.sales.application.dto.OrderSummaryPageResponse;
+import com.anotame.sales.application.dto.OrderSummaryResponse;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
@@ -23,6 +25,9 @@ import com.anotame.sales.application.port.output.OrderPaymentRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import com.anotame.sales.application.port.output.AuditLogEntry;
 import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
+import com.anotame.sales.application.port.output.OrderSummaryCriteria;
+import com.anotame.sales.application.port.output.OrderSummaryProjection;
+import com.anotame.sales.application.port.output.OrderSummaryResult;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -41,6 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -148,6 +154,98 @@ public class SalesService {
         return orderRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Transactional
+    public OrderSummaryPageResponse getOrderSummaries(
+            int page,
+            int size,
+            String search,
+            UUID garmentTypeId,
+            LocalDate deadline,
+            List<String> statuses) {
+        int normalizedPage = Math.max(page, 0);
+        int normalizedSize = Math.min(Math.max(size, 1), 100);
+        String normalizedSearch = search == null || search.isBlank() ? null : search.trim();
+        List<String> normalizedStatuses = normalizeStatuses(statuses);
+
+        OffsetDateTime deadlineStart = null;
+        OffsetDateTime deadlineEnd = null;
+        if (deadline != null) {
+            ZoneId zone = ZoneId.of(appTimezone);
+            deadlineStart = deadline.atStartOfDay(zone).toOffsetDateTime();
+            deadlineEnd = deadline.plusDays(1).atStartOfDay(zone).toOffsetDateTime();
+        }
+
+        OrderSummaryResult result = orderRepository.findSummaries(
+                normalizedPage,
+                normalizedSize,
+                new OrderSummaryCriteria(
+                        normalizedSearch,
+                        garmentTypeId,
+                        deadlineStart,
+                        deadlineEnd,
+                        normalizedStatuses));
+        List<OrderSummaryResponse> items = result.items().stream()
+                .map(this::mapToSummaryResponse)
+                .toList();
+        int totalPages = result.total() == 0
+                ? 0
+                : (int) Math.ceil((double) result.total() / normalizedSize);
+
+        return OrderSummaryPageResponse.builder()
+                .items(items)
+                .page(normalizedPage)
+                .size(normalizedSize)
+                .total(result.total())
+                .totalPages(totalPages)
+                .build();
+    }
+
+    private List<String> normalizeStatuses(List<String> statuses) {
+        if (statuses == null || statuses.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> normalized = statuses.stream()
+                .filter(Objects::nonNull)
+                .flatMap(status -> Arrays.stream(status.split(",")))
+                .map(String::trim)
+                .filter(status -> !status.isBlank())
+                .map(status -> status.toUpperCase(Locale.ROOT))
+                .distinct()
+                .toList();
+
+        for (String status : normalized) {
+            if (!VALID_STATUSES.contains(status)) {
+                throw new SalesValidationException("Invalid order status: " + status);
+            }
+        }
+        return normalized;
+    }
+
+    private OrderSummaryResponse mapToSummaryResponse(OrderSummaryProjection order) {
+        CustomerDto custDto = new CustomerDto();
+        custDto.setId(order.customerId());
+        custDto.setFirstName(order.customerFirstName());
+        custDto.setLastName(order.customerLastName());
+        custDto.setEmail(order.customerEmail());
+        custDto.setPhoneNumber(order.customerPhoneNumber());
+
+        return OrderSummaryResponse.builder()
+                .id(order.id())
+                .ticketNumber(order.ticketNumber())
+                .customer(custDto)
+                .committedDeadline(order.committedDeadline())
+                .status(order.status())
+                .totalAmount(order.totalAmount())
+                .amountPaid(order.amountPaid())
+                .totalDurationMin(order.totalDurationMin())
+                .createdAt(order.createdAt())
+                .deliveredAt(order.deliveredAt())
+                .garmentNames(order.garmentNames())
+                .serviceNames(order.serviceNames())
+                .build();
     }
 
     private OrderResponse mapToResponse(Order order) {

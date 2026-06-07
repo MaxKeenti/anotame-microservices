@@ -1,16 +1,17 @@
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   let {
     value = $bindable(''),
     onValueChange,
-    placeholder = 'Seleccionar...',
+    placeholder = m['common.select'](),
     items = [],
     id = '',
     class: className = '',
     allowClear = false,
-    clearText = 'Ninguno'
+    clearText = m['common.none']()
   }: {
     value?: string;
     onValueChange?: (value: string) => void;

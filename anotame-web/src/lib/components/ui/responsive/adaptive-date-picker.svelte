@@ -9,13 +9,14 @@
     CalendarDate,
     type DateValue,
   } from '@internationalized/date';
+  import * as m from '$lib/paraglide/messages';
 
   let {
     value = $bindable(''),
     min = '',
     max = '',
     onValueChange,
-    placeholder = 'Seleccionar fecha...',
+    placeholder = m['common.selectDate'](),
     id = '',
     class: className = '',
   }: {

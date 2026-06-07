@@ -1,5 +1,6 @@
 import { PersistedState } from 'runed';
 import type { CreateOrderRequest, OrderItemDto } from '$lib/types/dtos';
+import * as m from '$lib/paraglide/messages';
 
 export interface DraftOrderItem extends Partial<OrderItemDto> {
     garmentId?: string; // Used in wizard before mapping to garmentTypeId
@@ -159,7 +160,7 @@ class OrderWizardState {
         }
         return {
             id: this.activeDraft.priceListId,
-            name: this.activeDraft.priceListName || 'Sin nombre',
+            name: this.activeDraft.priceListName || m['orders.noName'](),
             items: this.activeDraft.priceListItems || []
         };
     }

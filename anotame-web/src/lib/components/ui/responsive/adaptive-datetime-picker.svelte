@@ -9,13 +9,14 @@
     CalendarDate,
     type DateValue,
   } from '@internationalized/date';
+  import * as m from '$lib/paraglide/messages';
 
   let {
     value = $bindable(''),
     min = '',
     max = '',
     onValueChange,
-    placeholder = 'Seleccionar fecha y hora...',
+    placeholder = m['common.selectDateTime'](),
     id = '',
     class: className = '',
   }: {
@@ -147,7 +148,7 @@
       />
       <div class="border-t border-border p-3 flex items-center gap-2">
         <Clock class="h-4 w-4 text-muted-foreground shrink-0" />
-        <span class="text-sm text-muted-foreground font-medium">Hora:</span>
+        <span class="text-sm text-muted-foreground font-medium">{m['common.time']()}</span>
         <input
           type="time"
           value={timePart}

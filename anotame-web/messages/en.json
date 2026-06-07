@@ -733,5 +733,10 @@
   "paymentStep.dayFullHint": "This date is already heavily loaded. Consider another date to ensure on-time delivery.",
   "paymentStep.processing": "Processing...",
   "paymentStep.button.update": "Update Order",
-  "paymentStep.button.confirm": "Confirm Order"
+  "paymentStep.button.confirm": "Confirm Order",
+  "common.select": "Select...",
+  "common.none": "None",
+  "common.selectDate": "Select date...",
+  "common.selectDateTime": "Select date and time...",
+  "common.time": "Time:"
 }
