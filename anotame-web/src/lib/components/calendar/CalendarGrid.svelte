@@ -105,7 +105,7 @@
   <div class="hidden sm:block">
     <div class="grid grid-cols-7 gap-2 mb-2">
       {#each dayNames as day}
-        <div class="text-xs font-semibold text-center text-gray-600 py-2">
+        <div class="text-xs font-semibold text-center text-muted-foreground py-2">
           {day}
         </div>
       {/each}
@@ -150,7 +150,7 @@
     {:else}
       {#each agendaDays as day}
         {@const isTodayDate = day.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`}
-        <div class="flex items-center gap-3 p-3 rounded-lg border {isTodayDate ? 'ring-2 ring-blue-500 border-blue-200 bg-blue-50/50' : 'bg-card'}">
+        <div class="flex items-center gap-3 p-3 rounded-lg border {isTodayDate ? 'ring-2 ring-blue-500 border-blue-200 bg-blue-50/50 dark:border-blue-500/30 dark:bg-blue-500/10' : 'bg-card'}">
           <!-- Capacity indicator -->
           <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-end overflow-hidden">
             <div
@@ -163,7 +163,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold">{formatAgendaDate(day.date)}</span>
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded {day.capacityPercent >= thresholdAmber ? 'bg-red-100 text-red-700' : day.capacityPercent >= thresholdGreen ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded {day.capacityPercent >= thresholdAmber ? 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400' : day.capacityPercent >= thresholdGreen ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400' : 'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400'}">
                 {day.capacityPercent.toFixed(0)}%
               </span>
             </div>
