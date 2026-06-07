@@ -8,11 +8,18 @@ import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.domain.exception.SalesConflictException;
 import com.anotame.sales.domain.exception.SalesNotFoundException;
 import com.anotame.sales.domain.exception.SalesValidationException;
+import com.anotame.sales.application.dto.CalendarDayResponse;
+import com.anotame.sales.application.dto.CalendarMonthResponse;
+import com.anotame.sales.application.dto.OrderItemResponse;
+import com.anotame.sales.application.dto.OrderItemServiceDto;
+import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
+import com.anotame.sales.domain.model.OrderItemService;
 import com.anotame.sales.domain.model.OrderPayment;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
+import com.anotame.sales.application.port.output.OrderPaymentRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import com.anotame.sales.application.port.output.AuditLogEntry;
 import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
@@ -29,13 +36,17 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import com.anotame.sales.application.dto.AtRiskCustomerItem;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
@@ -58,20 +69,19 @@ public class SalesService {
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
     private final OrderAuditLogRepositoryPort auditLogRepositoryPort;
-    private final com.anotame.sales.application.port.output.OrderPaymentRepositoryPort paymentRepository;
+    private final OrderPaymentRepositoryPort paymentRepository;
 
     @ConfigProperty(name = "app.timezone", defaultValue = "America/Mexico_City")
     String appTimezone;
 
     @Transactional
-    public com.anotame.sales.application.dto.OrderResponse createOrderDTO(CreateOrderRequest request, UUID userId,
+    public OrderResponse createOrderDTO(CreateOrderRequest request, UUID userId,
             UUID branchId) {
         Order saved = createOrder(request, userId, branchId);
         return mapToResponse(saved);
     }
 
-    @Transactional
-    public Order createOrder(CreateOrderRequest request, UUID userId, UUID branchId) {
+    private Order createOrder(CreateOrderRequest request, UUID userId, UUID branchId) {
         // 1. Resolve or Create Customer
         Customer customer = resolveCustomer(request.getCustomer());
 
@@ -102,48 +112,14 @@ public class SalesService {
 
         // 3. Add Items & Calculate Total
         BigDecimal total = BigDecimal.ZERO;
-        int totalDuration = 0;
-
         for (OrderItemDto itemDto : request.getItems()) {
-            OrderItem item = new OrderItem();
-            item.setGarmentTypeId(itemDto.getGarmentTypeId());
-            item.setGarmentName(itemDto.getGarmentName());
-            item.setQuantity(itemDto.getQuantity());
-            item.setNotes(itemDto.getNotes());
-
-            BigDecimal itemSubtotal = BigDecimal.ZERO;
-
-            if (itemDto.getServices() != null) {
-                for (com.anotame.sales.application.dto.OrderItemServiceDto serviceDto : itemDto.getServices()) {
-                    com.anotame.sales.domain.model.OrderItemService service = new com.anotame.sales.domain.model.OrderItemService();
-                    service.setServiceId(serviceDto.getServiceId());
-                    service.setServiceName(serviceDto.getServiceName());
-                    service.setUnitPrice(serviceDto.getUnitPrice());
-                    service.setAdjustmentAmount(
-                            serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
-                                    : BigDecimal.ZERO);
-                    service.setAdjustmentReason(serviceDto.getAdjustmentReason());
-                    service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
-
-                    item.addService(service);
-
-                    BigDecimal serviceTotal = service.getUnitPrice().add(service.getAdjustmentAmount());
-                    itemSubtotal = itemSubtotal.add(serviceTotal);
-                    totalDuration += (service.getDurationMin() * item.getQuantity());
-                }
-            }
-
-            // Subtotal = (Sum(Service Prices + Adjustments)) * Quantity
-            item.setUnitPrice(itemSubtotal); // Set unit price (per item subtotal)
-            BigDecimal lineTotal = itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity()));
-            item.setSubtotal(lineTotal);
-
+            OrderItem item = buildOrderItem(itemDto);
             order.addItem(item); // bi-directional setting
-            total = total.add(lineTotal);
+            total = total.add(item.getSubtotal());
         }
 
         order.setTotalAmount(total);
-        order.setTotalDurationMin(totalDuration);
+        order.setTotalDurationMin(calculateTotalDuration(order));
 
         Order saved = orderRepository.save(order);
 
@@ -151,7 +127,7 @@ public class SalesService {
         BigDecimal initialPayment = request.getAmountPaid();
         if (initialPayment != null && initialPayment.compareTo(BigDecimal.ZERO) > 0) {
             OffsetDateTime now = OffsetDateTime.now();
-            com.anotame.sales.domain.model.OrderPayment payment = new com.anotame.sales.domain.model.OrderPayment();
+            OrderPayment payment = new OrderPayment();
             payment.setOrderId(saved.getId());
             payment.setAmount(initialPayment);
             payment.setPaymentMethod(request.getPaymentMethod());
@@ -167,13 +143,13 @@ public class SalesService {
     }
 
     @Transactional
-    public java.util.List<com.anotame.sales.application.dto.OrderResponse> getAllOrders() {
+    public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(this::mapToResponse)
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
     }
 
-    private com.anotame.sales.application.dto.OrderResponse mapToResponse(Order order) {
+    private OrderResponse mapToResponse(Order order) {
         if (order.getCustomer() == null) {
             throw new IllegalStateException("Order customer cannot be null");
         }
@@ -184,12 +160,12 @@ public class SalesService {
         custDto.setEmail(order.getCustomer().getEmail());
         custDto.setPhoneNumber(order.getCustomer().getPhoneNumber());
 
-        java.util.List<com.anotame.sales.application.dto.OrderItemResponse> items = order.getItems().stream()
+        List<OrderItemResponse> items = order.getItems().stream()
                 .map(item -> {
-                    java.util.List<com.anotame.sales.application.dto.OrderItemServiceDto> serviceDtos = new java.util.ArrayList<>();
+                    List<OrderItemServiceDto> serviceDtos = new ArrayList<>();
                     if (item.getServices() != null) {
                         serviceDtos = item.getServices().stream().map(s -> {
-                            com.anotame.sales.application.dto.OrderItemServiceDto dto = new com.anotame.sales.application.dto.OrderItemServiceDto();
+                            OrderItemServiceDto dto = new OrderItemServiceDto();
                             dto.setServiceId(s.getServiceId());
                             dto.setServiceName(s.getServiceName());
                             dto.setUnitPrice(s.getUnitPrice());
@@ -197,10 +173,10 @@ public class SalesService {
                             dto.setAdjustmentReason(s.getAdjustmentReason());
                             dto.setDurationMin(s.getDurationMin()); // Map duration to DTO
                             return dto;
-                        }).collect(java.util.stream.Collectors.toList());
+                        }).toList();
                     }
 
-                    return com.anotame.sales.application.dto.OrderItemResponse.builder()
+                    return OrderItemResponse.builder()
                             .id(item.getId())
                             .garmentTypeId(item.getGarmentTypeId())
                             .garmentName(item.getGarmentName())
@@ -211,9 +187,9 @@ public class SalesService {
                             .notes(item.getNotes())
                             .build();
                 })
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
 
-        return com.anotame.sales.application.dto.OrderResponse.builder()
+        return OrderResponse.builder()
                 .id(order.getId())
                 .ticketNumber(order.getTicketNumber())
                 .customer(custDto)
@@ -234,7 +210,7 @@ public class SalesService {
     }
 
     @Transactional
-    public com.anotame.sales.application.dto.OrderResponse getOrder(UUID id) {
+    public OrderResponse getOrder(UUID id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new SalesNotFoundException("Order not found"));
         return mapToResponse(order);
@@ -248,11 +224,11 @@ public class SalesService {
     public List<AuditLogResponse> getAuditLog(UUID orderId) {
         return auditLogRepositoryPort.findByOrderId(orderId).stream()
                 .map(e -> new AuditLogResponse(e.userId(), e.fieldName(), e.oldValue(), e.newValue(), e.changedAt()))
-                .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+                .toList();
     }
 
     @Transactional
-    public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, UpdateOrderRequest request, UUID userId,
+    public OrderResponse updateOrder(UUID id, UpdateOrderRequest request, UUID userId,
             String role) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new SalesNotFoundException("Pedido no encontrado"));
@@ -289,52 +265,13 @@ public class SalesService {
             if (request.getItems() != null) {
                 order.getItems().clear();
                 BigDecimal total = BigDecimal.ZERO;
-
                 for (OrderItemDto itemDto : request.getItems()) {
-                OrderItem item = new OrderItem();
-                item.setGarmentTypeId(itemDto.getGarmentTypeId());
-                item.setGarmentName(itemDto.getGarmentName());
-                item.setQuantity(itemDto.getQuantity());
-                item.setNotes(itemDto.getNotes());
-
-                BigDecimal itemSubtotal = BigDecimal.ZERO;
-
-                if (itemDto.getServices() != null) {
-                    for (com.anotame.sales.application.dto.OrderItemServiceDto serviceDto : itemDto.getServices()) {
-                        com.anotame.sales.domain.model.OrderItemService service = new com.anotame.sales.domain.model.OrderItemService();
-                        service.setServiceId(serviceDto.getServiceId());
-                        service.setServiceName(serviceDto.getServiceName());
-                        service.setUnitPrice(serviceDto.getUnitPrice());
-                        service.setAdjustmentAmount(
-                                serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount()
-                                        : BigDecimal.ZERO);
-                        service.setAdjustmentReason(serviceDto.getAdjustmentReason());
-                        service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
-
-                        item.addService(service);
-
-                        BigDecimal serviceTotal = service.getUnitPrice().add(service.getAdjustmentAmount());
-                        itemSubtotal = itemSubtotal.add(serviceTotal);
-                    }
+                    OrderItem item = buildOrderItem(itemDto);
+                    order.addItem(item);
+                    total = total.add(item.getSubtotal());
                 }
-
-                BigDecimal lineTotal = itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity()));
-                item.setUnitPrice(itemSubtotal);
-                item.setSubtotal(lineTotal);
-
-                order.addItem(item);
-                total = total.add(lineTotal);
-            }
-            order.setTotalAmount(total);
-
-            // Recalculate total duration
-            int totalDuration = order.getItems().stream()
-                    .filter(item -> !item.isDeleted())
-                    .mapToInt(item -> item.getServices().stream()
-                            .mapToInt(s -> s.getDurationMin() != null ? s.getDurationMin() : 0)
-                            .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
-                    .sum();
-            order.setTotalDurationMin(totalDuration);
+                order.setTotalAmount(total);
+                order.setTotalDurationMin(calculateTotalDuration(order));
             }
         } else {
             // EMPLOYEE (OPERATOR): only notes, committedDeadline
@@ -385,8 +322,8 @@ public class SalesService {
         }
 
         boolean valid = MessageDigest.isEqual(
-                order.getPickupCode().getBytes(java.nio.charset.StandardCharsets.UTF_8),
-                pickupCode.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                order.getPickupCode().getBytes(StandardCharsets.UTF_8),
+                pickupCode.getBytes(StandardCharsets.UTF_8));
         if (!valid) {
             throw new SalesValidationException("Código de recogida incorrecto");
         }
@@ -449,6 +386,49 @@ public class SalesService {
         return DEFAULT_PAYMENT_METHOD;
     }
 
+    /**
+     * Builds a persistent-ready {@link OrderItem} from its DTO, attaching services and computing
+     * the per-item unit price (sum of service prices + adjustments) and line subtotal (× quantity).
+     */
+    private OrderItem buildOrderItem(OrderItemDto itemDto) {
+        OrderItem item = new OrderItem();
+        item.setGarmentTypeId(itemDto.getGarmentTypeId());
+        item.setGarmentName(itemDto.getGarmentName());
+        item.setQuantity(itemDto.getQuantity());
+        item.setNotes(itemDto.getNotes());
+
+        BigDecimal itemSubtotal = BigDecimal.ZERO;
+        if (itemDto.getServices() != null) {
+            for (OrderItemServiceDto serviceDto : itemDto.getServices()) {
+                OrderItemService service = new OrderItemService();
+                service.setServiceId(serviceDto.getServiceId());
+                service.setServiceName(serviceDto.getServiceName());
+                service.setUnitPrice(serviceDto.getUnitPrice());
+                service.setAdjustmentAmount(
+                        serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount() : BigDecimal.ZERO);
+                service.setAdjustmentReason(serviceDto.getAdjustmentReason());
+                service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
+
+                item.addService(service);
+                itemSubtotal = itemSubtotal.add(service.getUnitPrice().add(service.getAdjustmentAmount()));
+            }
+        }
+
+        item.setUnitPrice(itemSubtotal);
+        item.setSubtotal(itemSubtotal.multiply(BigDecimal.valueOf(item.getQuantity())));
+        return item;
+    }
+
+    /** Sums duration across all non-deleted items: Σ(service minutes) × item quantity. */
+    private int calculateTotalDuration(Order order) {
+        return order.getItems().stream()
+                .filter(item -> !item.isDeleted())
+                .mapToInt(item -> item.getServices().stream()
+                        .mapToInt(s -> s.getDurationMin() != null ? s.getDurationMin() : 0)
+                        .sum() * (item.getQuantity() != null ? item.getQuantity() : 1))
+                .sum();
+    }
+
     private Customer resolveCustomer(CustomerDto dto) {
         UUID customerId = dto.getId();
         if (customerId != null) {
@@ -458,7 +438,7 @@ public class SalesService {
 
         // Check by existing unique fields
         if (dto.getPhoneNumber() != null) {
-            var existing = customerRepository.findByPhoneNumber(dto.getPhoneNumber()); // Assuming port has this
+            var existing = customerRepository.findByPhoneNumber(dto.getPhoneNumber());
             if (existing.isPresent())
                 return existing.get();
         }
@@ -505,26 +485,19 @@ public class SalesService {
         BigDecimal monthlyRevenue = orderRepository.sumPaidAmountInRange(startOfMonth, startOfNextMonth);
         BigDecimal pendingDebt = orderRepository.sumPendingDebt();
 
-        // Chart Data
+        // Chart Data — index raw rows by date (row[0]) for O(1) lookup while filling every day.
+        // row[0] is Date (java.sql.Date) or LocalDate, row[1] is BigDecimal.
         List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo, zoneId);
+        Map<String, Object[]> chartByDate = rawChartData.stream()
+                .collect(Collectors.toMap(row -> row[0].toString(), row -> row, (a, b) -> a));
         List<DashboardMetricsResponse.WeeklyChartPoint> chartData = new ArrayList<>();
 
         // Ensure all 7 days are populated even if empty
         DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
         for (int i = 6; i >= 0; i--) {
-            LocalDate d = today.minusDays(i);
-            String dateStr = d.format(dtf);
-
-            BigDecimal amount = BigDecimal.ZERO;
-            for (Object[] row : rawChartData) {
-                // row[0] is Date (java.sql.Date) or LocalDate, row[1] is BigDecimal
-                String rowDate = row[0].toString();
-                if (rowDate.equals(dateStr)) {
-                    amount = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
-                    break;
-                }
-            }
-
+            String dateStr = today.minusDays(i).format(dtf);
+            Object[] row = chartByDate.get(dateStr);
+            BigDecimal amount = row != null && row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
             chartData.add(DashboardMetricsResponse.WeeklyChartPoint.builder()
                     .date(dateStr)
                     .totalPaid(amount)
@@ -534,18 +507,14 @@ public class SalesService {
         // Daily Workload (Next 30 days) — dates grouped in local timezone so calendar labels match user expectations
         OffsetDateTime endOfWorkloadRange = startOfDay.plusDays(30);
         List<Object[]> rawWorkloadData = orderRepository.getDailyWorkload(startOfDay, endOfWorkloadRange, zoneId);
+        Map<String, Object[]> workloadByDate = rawWorkloadData.stream()
+                .collect(Collectors.toMap(row -> row[0].toString(), row -> row, (a, b) -> a));
         List<DashboardMetricsResponse.WorkloadDayPoint> dailyWorkload = new ArrayList<>();
 
         for (int i = 0; i < 30; i++) {
-            LocalDate d = today.plusDays(i);
-            String dateStr = d.format(dtf);
-            long mins = 0;
-            for (Object[] row : rawWorkloadData) {
-                if (row[0].toString().equals(dateStr)) {
-                    mins = row[1] != null ? ((Number) row[1]).longValue() : 0;
-                    break;
-                }
-            }
+            String dateStr = today.plusDays(i).format(dtf);
+            Object[] row = workloadByDate.get(dateStr);
+            long mins = row != null && row[1] != null ? ((Number) row[1]).longValue() : 0;
             dailyWorkload.add(DashboardMetricsResponse.WorkloadDayPoint.builder()
                     .date(dateStr)
                     .totalMinutesUsed(mins)
@@ -617,10 +586,10 @@ public class SalesService {
             BigDecimal revenue = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
             long totalDurationMin = ((Number) row[3]).longValue();
             BigDecimal revenuePerMinute = totalDurationMin > 0
-                    ? revenue.divide(BigDecimal.valueOf(totalDurationMin), 2, java.math.RoundingMode.HALF_UP)
+                    ? revenue.divide(BigDecimal.valueOf(totalDurationMin), 2, RoundingMode.HALF_UP)
                     : BigDecimal.ZERO;
             BigDecimal percentShare = totalServiceRevenue.compareTo(BigDecimal.ZERO) > 0
-                    ? revenue.divide(totalServiceRevenue, 4, java.math.RoundingMode.HALF_UP)
+                    ? revenue.divide(totalServiceRevenue, 4, RoundingMode.HALF_UP)
                             .multiply(new BigDecimal("100"))
                     : BigDecimal.ZERO;
 
@@ -654,14 +623,13 @@ public class SalesService {
         LocalDate atRiskCutoff = today.minusDays(safeAtRiskDays);
         List<Object[]> rawAtRiskData = orderRepository.getAtRiskCustomers(atRiskCutoff, zoneId, 10);
         List<AtRiskCustomerItem> atRiskCustomers = new ArrayList<>();
-        LocalDate todayForAtRisk = today;
 
         for (Object[] row : rawAtRiskData) {
             String lastOrderDateStr = (String) row[3];
             Long daysSince = null;
             if (lastOrderDateStr != null) {
                 LocalDate lastOrderDate = LocalDate.parse(lastOrderDateStr);
-                daysSince = ChronoUnit.DAYS.between(lastOrderDate, todayForAtRisk);
+                daysSince = ChronoUnit.DAYS.between(lastOrderDate, today);
             }
             atRiskCustomers.add(AtRiskCustomerItem.builder()
                     .customerId((UUID) row[0])
@@ -682,7 +650,7 @@ public class SalesService {
             if (totalCustomersInPeriod > 0) {
                 repeatRate = BigDecimal.valueOf(repeatCustomers)
                         .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(totalCustomersInPeriod), 2, java.math.RoundingMode.HALF_UP);
+                        .divide(BigDecimal.valueOf(totalCustomersInPeriod), 2, RoundingMode.HALF_UP);
             }
         }
 
@@ -697,7 +665,7 @@ public class SalesService {
                 .build();
     }
 
-    public com.anotame.sales.application.dto.CalendarMonthResponse getCalendarData(String monthParam, int dailyCapacityMinutes) {
+    public CalendarMonthResponse getCalendarData(String monthParam, int dailyCapacityMinutes) {
         ZoneId zone = ZoneId.of(appTimezone);
         String zoneId = zone.getId();
         LocalDate today = LocalDate.now(zone);
@@ -708,28 +676,25 @@ public class SalesService {
         OffsetDateTime monthStartOdt = monthStart.atStartOfDay(zone).toOffsetDateTime();
         OffsetDateTime monthEndOdt = monthEnd.atStartOfDay(zone).toOffsetDateTime();
 
-        // Fetch daily aggregates from repository
+        // Fetch daily aggregates from repository, indexed by date (row[0]) for O(1) lookup.
         List<Object[]> rawData = orderRepository.getCalendarMonthData(monthStartOdt, monthEndOdt, zoneId);
-        List<com.anotame.sales.application.dto.CalendarDayResponse> days = new ArrayList<>();
+        Map<Object, Object[]> dataByDate = rawData.stream()
+                .collect(Collectors.toMap(row -> row[0], row -> row, (a, b) -> a));
+        List<CalendarDayResponse> days = new ArrayList<>();
 
         // Build complete month calendar (fill in missing days)
         LocalDate current = monthStart;
         while (current.isBefore(monthEnd)) {
             final LocalDate day = current;
 
-            // Find data for this day
-            Object[] dayData = rawData.stream()
-                    .filter(row -> row[0].equals(day))
-                    .findFirst()
-                    .orElse(null);
-
+            Object[] dayData = dataByDate.get(day);
             Integer totalMinutes = dayData != null ? ((Number) dayData[1]).intValue() : 0;
             Integer orderCount = dayData != null ? ((Number) dayData[2]).intValue() : 0;
             BigDecimal scheduledRevenue = dayData != null ? (BigDecimal) dayData[3] : BigDecimal.ZERO;
 
             double capacityPercent = totalMinutes > 0 ? (totalMinutes * 100.0) / dailyCapacityMinutes : 0.0;
 
-            days.add(com.anotame.sales.application.dto.CalendarDayResponse.builder()
+            days.add(CalendarDayResponse.builder()
                     .date(day)
                     .totalMinutesUsed(totalMinutes)
                     .orderCount(orderCount)
@@ -742,7 +707,7 @@ public class SalesService {
             current = current.plusDays(1);
         }
 
-        return com.anotame.sales.application.dto.CalendarMonthResponse.builder()
+        return CalendarMonthResponse.builder()
                 .days(days)
                 .build();
     }
