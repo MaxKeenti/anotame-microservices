@@ -7,6 +7,8 @@ public interface OrderRepositoryPort {
 
     java.util.List<Order> findAll();
 
+    OrderSummaryResult findSummaries(int page, int size, OrderSummaryCriteria criteria);
+
     java.util.Optional<Order> findById(java.util.UUID id);
 
     void delete(java.util.UUID id);

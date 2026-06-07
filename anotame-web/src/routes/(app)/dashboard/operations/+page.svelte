@@ -14,14 +14,20 @@
   import { toast } from 'svelte-sonner';
   import { CheckCircle2, Eye, XCircle, MoreVertical } from 'lucide-svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
-  import type { OrderResponse, OrderItemResponse } from '$lib/types/dtos';
+  import type { OrderSummaryResponse, PageResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
   const mobile = useIsMobile();
 
-  let inProgressOrders = $state<OrderResponse[]>([]);
-  let readyOrders = $state<OrderResponse[]>([]);
-  let loading = $state(true);
+  let inProgressOrders = $state<OrderSummaryResponse[]>([]);
+  let readyOrders = $state<OrderSummaryResponse[]>([]);
+  let inProgressLoading = $state(true);
+  let readyLoading = $state(true);
+  let inProgressPageIndex = $state(0);
+  let readyPageIndex = $state(0);
+  let inProgressTotalPages = $state(0);
+  let readyTotalPages = $state(0);
+  let inProgressTotal = $state(0);
   let deliverDialogOpen = $state(false);
   let deliverTarget = $state<{
     id: string;
@@ -30,27 +36,111 @@
     amountPaid: number;
   } | null>(null);
 
-  async function fetchOperationOrders() {
-    loading = true;
+  let operationPageSize = $derived(mobile.current ? 12 : 20);
+
+  function buildSummaryUrl(status: string, pageIndex: number, pageSize: number): string {
+    const params = new URLSearchParams({
+      status,
+      page: String(pageIndex),
+      size: String(pageSize)
+    });
+    return `${API_SALES}/orders/summary?${params.toString()}`;
+  }
+
+  let inProgressRequestId = 0;
+  let readyRequestId = 0;
+
+  async function fetchStatusPage(status: 'IN_PROGRESS' | 'READY', pageIndex: number, pageSize: number) {
+    const requestId = status === 'IN_PROGRESS'
+      ? ++inProgressRequestId
+      : ++readyRequestId;
+    if (status === 'IN_PROGRESS') {
+      inProgressLoading = true;
+    } else {
+      readyLoading = true;
+    }
     try {
-      const allOrders = await apiService.request<OrderResponse[]>(`${API_SALES}/orders`);
-      inProgressOrders = (allOrders || []).filter((o) => o.status === 'IN_PROGRESS');
-      readyOrders = (allOrders || []).filter((o) => o.status === 'READY');
+      const page = await apiService.request<PageResponse<OrderSummaryResponse>>(
+        buildSummaryUrl(status, pageIndex, pageSize)
+      );
+      if (status === 'IN_PROGRESS') {
+        if (requestId !== inProgressRequestId) return;
+        inProgressOrders = page.items || [];
+        inProgressTotalPages = page.totalPages;
+        inProgressTotal = page.total;
+      } else {
+        if (requestId !== readyRequestId) return;
+        readyOrders = page.items || [];
+        readyTotalPages = page.totalPages;
+      }
     } catch (e: any) {
+      if (
+        (status === 'IN_PROGRESS' && requestId !== inProgressRequestId) ||
+        (status === 'READY' && requestId !== readyRequestId)
+      ) return;
       console.error(e);
       toast.error(m["operations.toast.loadError"]());
-      inProgressOrders = [];
-      readyOrders = [];
+      if (status === 'IN_PROGRESS') {
+        inProgressOrders = [];
+        inProgressTotalPages = 0;
+        inProgressTotal = 0;
+      } else {
+        readyOrders = [];
+        readyTotalPages = 0;
+      }
     } finally {
-      loading = false;
+      if (status === 'IN_PROGRESS') {
+        if (requestId === inProgressRequestId) {
+          inProgressLoading = false;
+        }
+      } else {
+        if (requestId === readyRequestId) {
+          readyLoading = false;
+        }
+      }
     }
   }
 
+  function refreshOperationOrders() {
+    fetchStatusPage('IN_PROGRESS', inProgressPageIndex, operationPageSize);
+    fetchStatusPage('READY', readyPageIndex, operationPageSize);
+  }
+
+  let mounted = $state(false);
+  let lastInProgressPageSize = 0;
+  let lastReadyPageSize = 0;
+
   onMount(() => {
-    fetchOperationOrders();
+    mounted = true;
   });
 
-  async function handleComplete(order: OrderResponse) {
+  $effect(() => {
+    if (!mounted) return;
+    const pageSize = operationPageSize;
+    if (pageSize !== lastInProgressPageSize) {
+      lastInProgressPageSize = pageSize;
+      if (inProgressPageIndex !== 0) {
+        inProgressPageIndex = 0;
+        return;
+      }
+    }
+    fetchStatusPage('IN_PROGRESS', inProgressPageIndex, pageSize);
+  });
+
+  $effect(() => {
+    if (!mounted) return;
+    const pageSize = operationPageSize;
+    if (pageSize !== lastReadyPageSize) {
+      lastReadyPageSize = pageSize;
+      if (readyPageIndex !== 0) {
+        readyPageIndex = 0;
+        return;
+      }
+    }
+    fetchStatusPage('READY', readyPageIndex, pageSize);
+  });
+
+  async function handleComplete(order: OrderSummaryResponse) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmMarkReadyTitle"](),
       description: m["operations.confirmMarkReadyDesc"]({ ticket: order.ticketNumber })
@@ -63,14 +153,14 @@
         body: JSON.stringify({ status: 'READY' })
       });
       toast.success(m["operations.toast.markedReady"](), { description: order.ticketNumber });
-      fetchOperationOrders();
+      refreshOperationOrders();
     } catch (e: any) {
       console.error(e);
       toast.error(m["operations.toast.updateError"](), { description: e.message });
     }
   }
 
-  async function handleCancelOrder(order: OrderResponse) {
+  async function handleCancelOrder(order: OrderSummaryResponse) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmCancelTitle"](),
       description: m["operations.confirmCancelDesc"]({ ticket: order.ticketNumber })
@@ -80,14 +170,14 @@
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
       toast.success(m["operations.toast.cancelSuccess"](), { description: order.ticketNumber });
-      fetchOperationOrders();
+      refreshOperationOrders();
     } catch (e: any) {
       console.error(e);
       toast.error(m["operations.toast.cancelError"](), { description: e?.message });
     }
   }
 
-  function openDeliverDialog(order: OrderResponse) {
+  function openDeliverDialog(order: OrderSummaryResponse) {
     deliverTarget = {
       id: order.id,
       ticketNumber: order.ticketNumber,
@@ -100,30 +190,26 @@
   function handleDelivered() {
     deliverDialogOpen = false;
     deliverTarget = null;
-    fetchOperationOrders();
+    refreshOperationOrders();
   }
 
-  function getServicesSummary(items: OrderItemResponse[]): string {
-    return items?.map((i) => i.services?.map((s) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-';
+  function getNamesSummary(names: string[] | undefined): string {
+    return names?.filter(Boolean).join(', ') || '-';
   }
 
-  function getGarmentsSummary(items: OrderItemResponse[]): string {
-    return items?.map((i) => i.garmentName).filter(Boolean).join(', ') || '-';
-  }
-
-  const inProgressColumns: ColumnDef<OrderResponse>[] = [
+  const inProgressColumns: ColumnDef<OrderSummaryResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["operations.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'services', accessorFn: (row) => getServicesSummary(row.items), header: m["operations.column.services"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'services', accessorFn: (row) => getNamesSummary(row.serviceNames), header: m["operations.column.services"](), enableSorting: false, meta: { cardGroup: 'body' } },
     { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["operations.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
-  const readyColumns: ColumnDef<OrderResponse>[] = [
+  const readyColumns: ColumnDef<OrderSummaryResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'garments', accessorFn: (row) => getGarmentsSummary(row.items), header: m["operations.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'garments', accessorFn: (row) => getNamesSummary(row.garmentNames), header: m["operations.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
     { id: 'deliveryPromised', accessorFn: (row) => formatDate(row.committedDeadline), header: m["operations.column.deliveryPromised"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
@@ -136,9 +222,9 @@
       <p class="text-muted-foreground">{m["operations.page.subtitle"]()}</p>
     </div>
     <div class="text-sm text-muted-foreground bg-card border border-border px-4 py-2 rounded-lg">
-      {inProgressOrders.length === 1
-        ? m["operations.count.single"]({ count: inProgressOrders.length })
-        : m["operations.count.plural"]({ count: inProgressOrders.length })}
+      {inProgressTotal === 1
+        ? m["operations.count.single"]({ count: inProgressTotal })
+        : m["operations.count.plural"]({ count: inProgressTotal })}
     </div>
   </div>
 
@@ -150,11 +236,11 @@
 
     <Tabs.Content value="in-progress">
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet statusCell(row: Row<OrderResponse>)}
+        {#snippet statusCell(row: Row<OrderSummaryResponse>)}
           <StatusBadge status={row.original.status} />
         {/snippet}
 
-        {#snippet inProgressActions(row: Row<OrderResponse>)}
+        {#snippet inProgressActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end items-center gap-2">
             <Button
               size="sm"
@@ -196,18 +282,28 @@
           <CardGridWrapper
             columns={inProgressColumns}
             data={inProgressOrders}
-            loading={loading}
+            loading={inProgressLoading}
             emptyMessage={m["operations.empty.inProgress"]()}
             cellRenders={{ status: statusCell }}
+            manualPagination={true}
+            pageIndex={inProgressPageIndex}
+            pageCount={inProgressTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { inProgressPageIndex = page; }}
             actionCell={inProgressActions}
           />
         {:else}
           <DataTableWrapper
             columns={inProgressColumns}
             data={inProgressOrders}
-            loading={loading}
+            loading={inProgressLoading}
             emptyMessage={m["operations.empty.inProgress"]()}
             cellRenders={{ status: statusCell }}
+            manualPagination={true}
+            pageIndex={inProgressPageIndex}
+            pageCount={inProgressTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { inProgressPageIndex = page; }}
           >
             {#snippet actionCell(row)}
               {@render inProgressActions(row)}
@@ -219,7 +315,7 @@
 
     <Tabs.Content value="ready">
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet readyActions(row: Row<OrderResponse>)}
+        {#snippet readyActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end">
             <Button
               class="h-12 px-4 touch-manipulation font-medium"
@@ -234,16 +330,26 @@
           <CardGridWrapper
             columns={readyColumns}
             data={readyOrders}
-            loading={loading}
+            loading={readyLoading}
             emptyMessage={m["operations.emptyReadyTitle"]()}
+            manualPagination={true}
+            pageIndex={readyPageIndex}
+            pageCount={readyTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { readyPageIndex = page; }}
             actionCell={readyActions}
           />
         {:else}
           <DataTableWrapper
             columns={readyColumns}
             data={readyOrders}
-            loading={loading}
+            loading={readyLoading}
             emptyMessage={m["operations.emptyReadyTitle"]()}
+            manualPagination={true}
+            pageIndex={readyPageIndex}
+            pageCount={readyTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { readyPageIndex = page; }}
           >
             {#snippet actionCell(row)}
               {@render readyActions(row)}

@@ -79,6 +79,29 @@ export interface OrderResponse {
   priceListName?: string | null;
 }
 
+export interface OrderSummaryResponse {
+  id: string;
+  ticketNumber: string;
+  customer: CustomerDto;
+  committedDeadline?: string | null;
+  status: string;
+  totalAmount: number;
+  totalDurationMin?: number;
+  amountPaid: number;
+  createdAt?: string;
+  deliveredAt?: string | null;
+  garmentNames: string[];
+  serviceNames: string[];
+}
+
+export interface PageResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface WorkloadDayResponse {
   date: string;
   totalMinutesUsed: number;

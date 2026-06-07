@@ -1,6 +1,9 @@
 package com.anotame.sales.infrastructure.persistence.adapter;
 
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
+import com.anotame.sales.application.port.output.OrderSummaryCriteria;
+import com.anotame.sales.application.port.output.OrderSummaryProjection;
+import com.anotame.sales.application.port.output.OrderSummaryResult;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
 import com.anotame.sales.infrastructure.persistence.entity.CustomerEntity;
@@ -10,10 +13,18 @@ import com.anotame.sales.infrastructure.persistence.repository.CustomerRepositor
 import com.anotame.sales.infrastructure.persistence.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -100,6 +111,58 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     @Override
     public List<Order> findAll() {
         return orderRepository.listAll().stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public OrderSummaryResult findSummaries(int page, int size, OrderSummaryCriteria criteria) {
+        String fromClause = buildSummaryFromClause(criteria);
+
+        TypedQuery<Long> countQuery = em.createQuery("select count(o.id)" + fromClause, Long.class);
+        bindSummaryParameters(countQuery, criteria);
+        long total = countQuery.getSingleResult();
+
+        TypedQuery<Object[]> dataQuery = em.createQuery(
+                "select o.id, o.ticketNumber, c.id, c.firstName, c.lastName, c.email, c.phoneNumber, " +
+                        "o.committedDeadline, o.status, o.totalAmount, o.amountPaid, o.totalDurationMin, " +
+                        "o.createdAt, o.deliveredAt" +
+                        fromClause +
+                        " order by o.createdAt desc, o.ticketNumber desc",
+                Object[].class);
+        bindSummaryParameters(dataQuery, criteria);
+        dataQuery.setFirstResult(page * size);
+        dataQuery.setMaxResults(size);
+
+        List<Object[]> rows = dataQuery.getResultList();
+        List<UUID> orderIds = rows.stream()
+                .map(row -> (UUID) row[0])
+                .toList();
+        Map<UUID, List<String>> garmentNames = findGarmentNames(orderIds);
+        Map<UUID, List<String>> serviceNames = findServiceNames(orderIds);
+
+        List<OrderSummaryProjection> items = rows.stream()
+                .map(row -> {
+                    UUID orderId = (UUID) row[0];
+                    return new OrderSummaryProjection(
+                            orderId,
+                            (String) row[1],
+                            (UUID) row[2],
+                            (String) row[3],
+                            (String) row[4],
+                            (String) row[5],
+                            (String) row[6],
+                            (OffsetDateTime) row[7],
+                            (String) row[8],
+                            (BigDecimal) row[9],
+                            (BigDecimal) row[10],
+                            (Integer) row[11],
+                            (OffsetDateTime) row[12],
+                            (OffsetDateTime) row[13],
+                            garmentNames.getOrDefault(orderId, List.of()),
+                            serviceNames.getOrDefault(orderId, List.of()));
+                })
+                .toList();
+
+        return new OrderSummaryResult(items, total);
     }
 
     @Override
@@ -254,6 +317,93 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     @Override
     public Object[] getRepeatRate(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
         return orderRepository.getRepeatRate(start, end);
+    }
+
+    private String buildSummaryFromClause(OrderSummaryCriteria criteria) {
+        List<String> predicates = new ArrayList<>();
+        if (criteria.search() != null) {
+            predicates.add("(" +
+                    "lower(o.ticketNumber) like :search or " +
+                    "lower(c.firstName) like :search or " +
+                    "lower(coalesce(c.lastName, '')) like :search or " +
+                    "lower(coalesce(c.phoneNumber, '')) like :search" +
+                    ")");
+        }
+        if (criteria.garmentTypeId() != null) {
+            predicates.add("exists (" +
+                    "select i.id from OrderItemEntity i " +
+                    "where i.order = o and i.garmentTypeId = :garmentTypeId" +
+                    ")");
+        }
+        if (criteria.deadlineStart() != null && criteria.deadlineEnd() != null) {
+            predicates.add("o.committedDeadline >= :deadlineStart and o.committedDeadline < :deadlineEnd");
+        }
+        if (criteria.statuses() != null && !criteria.statuses().isEmpty()) {
+            predicates.add("o.status in :statuses");
+        }
+
+        if (predicates.isEmpty()) {
+            return " from OrderEntity o join o.customer c";
+        }
+        return " from OrderEntity o join o.customer c where " + String.join(" and ", predicates);
+    }
+
+    private void bindSummaryParameters(Query query, OrderSummaryCriteria criteria) {
+        if (criteria.search() != null) {
+            query.setParameter("search", "%" + criteria.search().toLowerCase(Locale.ROOT) + "%");
+        }
+        if (criteria.garmentTypeId() != null) {
+            query.setParameter("garmentTypeId", criteria.garmentTypeId());
+        }
+        if (criteria.deadlineStart() != null && criteria.deadlineEnd() != null) {
+            query.setParameter("deadlineStart", criteria.deadlineStart());
+            query.setParameter("deadlineEnd", criteria.deadlineEnd());
+        }
+        if (criteria.statuses() != null && !criteria.statuses().isEmpty()) {
+            query.setParameter("statuses", criteria.statuses());
+        }
+    }
+
+    private Map<UUID, List<String>> findGarmentNames(List<UUID> orderIds) {
+        if (orderIds.isEmpty()) {
+            return Map.of();
+        }
+        List<Object[]> rows = em.createQuery(
+                "select i.order.id, i.garmentName " +
+                        "from OrderItemEntity i " +
+                        "where i.order.id in :orderIds " +
+                        "order by i.order.id, i.id",
+                Object[].class)
+                .setParameter("orderIds", orderIds)
+                .getResultList();
+        return groupNamesByOrder(rows);
+    }
+
+    private Map<UUID, List<String>> findServiceNames(List<UUID> orderIds) {
+        if (orderIds.isEmpty()) {
+            return Map.of();
+        }
+        List<Object[]> rows = em.createQuery(
+                "select s.orderItem.order.id, s.serviceName " +
+                        "from OrderItemServiceEntity s " +
+                        "where s.orderItem.order.id in :orderIds and s.orderItem.deleted = false " +
+                        "order by s.orderItem.order.id, s.orderItem.id, s.id",
+                Object[].class)
+                .setParameter("orderIds", orderIds)
+                .getResultList();
+        return groupNamesByOrder(rows);
+    }
+
+    private Map<UUID, List<String>> groupNamesByOrder(List<Object[]> rows) {
+        Map<UUID, List<String>> grouped = new HashMap<>();
+        for (Object[] row : rows) {
+            String name = (String) row[1];
+            if (name == null || name.isBlank()) {
+                continue;
+            }
+            grouped.computeIfAbsent((UUID) row[0], ignored -> new ArrayList<>()).add(name);
+        }
+        return grouped;
     }
 
 }

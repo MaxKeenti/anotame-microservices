@@ -32,6 +32,10 @@
     bulkActions?: boolean;
     bulkMode?: boolean;
     onSelectionChange?: (selectedRows: TData[]) => void;
+    manualPagination?: boolean;
+    pageIndex?: number;
+    pageCount?: number;
+    onPageChange?: (pageIndex: number) => void;
   };
 
   let {
@@ -47,6 +51,10 @@
     bulkActions = false,
     bulkMode = $bindable(false),
     onSelectionChange,
+    manualPagination = false,
+    pageIndex = 0,
+    pageCount,
+    onPageChange,
   }: Props = $props();
 
   let resolvedEmptyMessage = $derived(emptyMessage ?? m['common.noData']());
@@ -115,13 +123,22 @@
   let globalFilter = $state('');
   let initialPageSize = untrack(() => pageSizeProp);
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
+  let effectivePagination = $derived(
+    manualPagination
+      ? { pageIndex, pageSize: pageSizeProp }
+      : pagination
+  );
   let rowSelection = $state<RowSelectionState>({});
 
   // Reset pagination on filter change
   $effect(() => {
     void globalFilter;
     untrack(() => {
-      pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+      if (manualPagination) {
+        onPageChange?.(0);
+      } else {
+        pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+      }
     });
   });
 
@@ -129,6 +146,15 @@
   $effect(() => {
     if (!bulkMode) {
       rowSelection = {};
+    }
+  });
+
+  $effect(() => {
+    void data;
+    if (bulkActions) {
+      untrack(() => {
+        rowSelection = {};
+      });
     }
   });
 
@@ -154,9 +180,11 @@
       state: {
         sorting,
         globalFilter,
-        pagination,
+        pagination: effectivePagination,
         ...(bulkActions ? { rowSelection } : {}),
       },
+      manualPagination,
+      pageCount: manualPagination ? pageCount : undefined,
       onStateChange: () => {},
       onSortingChange: (updater) => {
         sorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -166,8 +194,13 @@
           typeof updater === 'function' ? updater(globalFilter) : updater;
       },
       onPaginationChange: (updater) => {
-        pagination =
-          typeof updater === 'function' ? updater(pagination) : updater;
+        const nextPagination =
+          typeof updater === 'function' ? updater(effectivePagination) : updater;
+        if (manualPagination) {
+          onPageChange?.(nextPagination.pageIndex);
+        } else {
+          pagination = nextPagination;
+        }
       },
       ...(bulkActions
         ? {

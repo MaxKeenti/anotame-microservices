@@ -5,6 +5,7 @@ import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.DeliverOrderRequest;
 import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.application.dto.OrderResponse;
+import com.anotame.sales.application.dto.OrderSummaryPageResponse;
 import com.anotame.sales.application.service.SalesService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +14,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -37,6 +39,18 @@ public class OrdersController {
     @GET
     public List<OrderResponse> getOrders() {
         return salesService.getAllOrders();
+    }
+
+    @GET
+    @Path("/summary")
+    public OrderSummaryPageResponse getOrderSummaries(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size,
+            @QueryParam("search") String search,
+            @QueryParam("garmentId") UUID garmentId,
+            @QueryParam("deadline") LocalDate deadline,
+            @QueryParam("status") List<String> statuses) {
+        return salesService.getOrderSummaries(page, size, search, garmentId, deadline, statuses);
     }
 
     @GET

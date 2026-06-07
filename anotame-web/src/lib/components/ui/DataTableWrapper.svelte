@@ -32,6 +32,10 @@
     bulkActions?: boolean;
     bulkMode?: boolean;
     onSelectionChange?: (selectedRows: TData[]) => void;
+    manualPagination?: boolean;
+    pageIndex?: number;
+    pageCount?: number;
+    onPageChange?: (pageIndex: number) => void;
   };
 
   let {
@@ -47,6 +51,10 @@
     bulkActions = false,
     bulkMode = $bindable(false),
     onSelectionChange,
+    manualPagination = false,
+    pageIndex = 0,
+    pageCount,
+    onPageChange,
   }: Props = $props();
 
   let resolvedEmptyMessage = $derived(emptyMessage ?? m["common.noData"]());
@@ -72,6 +80,11 @@
   );
   let globalFilter = $state('');
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
+  let effectivePagination = $derived(
+    manualPagination
+      ? { pageIndex, pageSize: pageSizeProp }
+      : pagination
+  );
   // Initialize columnPinning to prevent undefined state errors
   let columnPinning = $state<ColumnPinningState>({ left: [], right: [] });
   let rowSelection = $state<RowSelectionState>({});
@@ -80,7 +93,11 @@
   $effect(() => {
     void globalFilter;
     untrack(() => {
-      pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+      if (manualPagination) {
+        onPageChange?.(0);
+      } else {
+        pagination = { pageIndex: 0, pageSize: pagination.pageSize };
+      }
     });
   });
 
@@ -88,6 +105,15 @@
   $effect(() => {
     if (!bulkMode) {
       rowSelection = {};
+    }
+  });
+
+  $effect(() => {
+    void data;
+    if (bulkActions) {
+      untrack(() => {
+        rowSelection = {};
+      });
     }
   });
 
@@ -114,10 +140,12 @@
       state: {
         sorting,
         globalFilter,
-        pagination,
+        pagination: effectivePagination,
         columnPinning,
         ...(bulkActions ? { rowSelection } : {}),
       },
+      manualPagination,
+      pageCount: manualPagination ? pageCount : undefined,
       onStateChange: () => {},
       onSortingChange: (updater) => {
         if (typeof updater === 'function') {
@@ -134,10 +162,13 @@
         }
       },
       onPaginationChange: (updater) => {
-        if (typeof updater === 'function') {
-          pagination = updater(pagination);
+        const nextPagination = typeof updater === 'function'
+          ? updater(effectivePagination)
+          : updater;
+        if (manualPagination) {
+          onPageChange?.(nextPagination.pageIndex);
         } else {
-          pagination = updater;
+          pagination = nextPagination;
         }
       },
       onColumnPinningChange: (updater) => {
