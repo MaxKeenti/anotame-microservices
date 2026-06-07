@@ -1,5 +1,6 @@
 package com.anotame.catalog.infrastructure.web.exception;
 
+import com.anotame.catalog.domain.exception.CatalogNotFoundException;
 import com.anotame.catalog.infrastructure.web.dto.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
@@ -29,6 +30,11 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
         if (hasCause(exception, org.hibernate.exception.ConstraintViolationException.class)) {
             return Response.status(Response.Status.CONFLICT)
                     .entity(new ErrorResponse("CONFLICT", "A record with the same name already exists"))
+                    .build();
+        }
+        if (exception instanceof CatalogNotFoundException) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse("NOT_FOUND", exception.getMessage()))
                     .build();
         }
         if (exception instanceof WebApplicationException wae) {
