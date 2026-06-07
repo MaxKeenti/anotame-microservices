@@ -5,18 +5,18 @@ import com.anotame.sales.application.dto.DashboardMetricsResponse;
 import com.anotame.sales.application.dto.FinancialKpiResponse;
 import com.anotame.sales.application.service.SalesService;
 import io.quarkus.security.Authenticated;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
 
 @Path("/orders/kpi")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
+@RequiredArgsConstructor
 public class OrderKpiController {
 
-    @Inject
-    SalesService salesService;
+    private final SalesService salesService;
 
     @GET
     @Path("/dashboard")

@@ -3,9 +3,10 @@ package com.anotame.catalog.infrastructure.web.controller;
 import com.anotame.catalog.application.service.PriceListService;
 import com.anotame.catalog.application.dto.PriceListRequest;
 import com.anotame.catalog.application.dto.PriceListResponse;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -13,10 +14,10 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @io.quarkus.security.Authenticated
+@RequiredArgsConstructor
 public class PriceListController {
 
-    @Inject
-    PriceListService priceListService;
+    private final PriceListService priceListService;
 
     @POST
     public PriceListResponse create(PriceListRequest request) {

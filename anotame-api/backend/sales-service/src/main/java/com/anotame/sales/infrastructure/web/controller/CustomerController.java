@@ -2,9 +2,9 @@ package com.anotame.sales.infrastructure.web.controller;
 
 import com.anotame.sales.application.dto.CustomerDto;
 import com.anotame.sales.application.service.CustomerService;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,10 +13,10 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @io.quarkus.security.Authenticated
+@RequiredArgsConstructor
 public class CustomerController {
 
-    @Inject
-    CustomerService customerService;
+    private final CustomerService customerService;
 
     @POST
     public CustomerDto createCustomer(CustomerDto customerDto) {

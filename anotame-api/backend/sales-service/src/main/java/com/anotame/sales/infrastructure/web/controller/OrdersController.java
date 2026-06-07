@@ -6,9 +6,9 @@ import com.anotame.sales.application.dto.DeliverOrderRequest;
 import com.anotame.sales.application.dto.UpdateOrderRequest;
 import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.application.service.SalesService;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
@@ -19,13 +19,11 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @io.quarkus.security.Authenticated
+@RequiredArgsConstructor
 public class OrdersController {
 
-    @Inject
-    SalesService salesService;
-
-    @Inject
-    JsonWebToken jwt;
+    private final SalesService salesService;
+    private final JsonWebToken jwt;
 
     @POST
     public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {

@@ -3,17 +3,17 @@ package com.anotame.identity.infrastructure.persistence.repository;
 import com.anotame.identity.infrastructure.persistence.entity.UserEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
+@RequiredArgsConstructor
 public class UserRepository implements PanacheRepositoryBase<UserEntity, UUID> {
 
-    @Inject
-    EntityManager em;
+    private final EntityManager em;
 
     public Optional<UserEntity> findByUsername(String username) {
         return find("username", username).firstResultOptional();

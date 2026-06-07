@@ -4,11 +4,11 @@ import com.anotame.sales.application.dto.AddPaymentRequest;
 import com.anotame.sales.application.dto.PaymentResponse;
 import com.anotame.sales.application.service.PaymentService;
 import io.quarkus.security.Authenticated;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,10 +17,10 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
+@RequiredArgsConstructor
 public class OrderPaymentController {
 
-    @Inject
-    PaymentService paymentService;
+    private final PaymentService paymentService;
 
     @POST
     public Response addPayment(@PathParam("orderId") UUID orderId,
