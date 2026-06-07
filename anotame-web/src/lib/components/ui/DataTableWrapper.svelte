@@ -1,42 +1,11 @@
 <script lang="ts" generics="TData">
   import { untrack } from 'svelte';
   import { tablePreferences } from '$lib/stores/table-preferences.svelte';
-  import {
-    createTable,
-    getCoreRowModel,
-    getSortedRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    type ColumnDef,
-    type SortingState,
-    type PaginationState,
-    type ColumnPinningState,
-    type RowSelectionState,
-    type Row,
-  } from '@tanstack/table-core';
+  import { createResponsiveTable, type ResponsiveTableProps } from './responsive-table.svelte';
   import * as Table from '$lib/components/ui/table';
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
-
-  type Props = {
-    columns: ColumnDef<TData>[];
-    data: TData[];
-    pageSize?: number;
-    loading?: boolean;
-    emptyMessage?: string;
-    filterPlaceholder?: string;
-    showFilter?: boolean;
-    actionCell?: import('svelte').Snippet<[Row<TData>]>;
-    cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
-    bulkActions?: boolean;
-    bulkMode?: boolean;
-    onSelectionChange?: (selectedRows: TData[]) => void;
-    manualPagination?: boolean;
-    pageIndex?: number;
-    pageCount?: number;
-    onPageChange?: (pageIndex: number) => void;
-  };
 
   let {
     columns,
@@ -55,148 +24,25 @@
     pageIndex = 0,
     pageCount,
     onPageChange,
-  }: Props = $props();
+  }: ResponsiveTableProps<TData> = $props();
 
   let resolvedEmptyMessage = $derived(emptyMessage ?? m["common.noData"]());
   let resolvedFilterPlaceholder = $derived(filterPlaceholder ?? m["common.searchEllipsis"]());
 
-  // Intercept pattern — avoid hydration warning from $props directly into $state
-  let initialPageSize = untrack(() => tablePreferences.pageSize);
-
-  let sorting = $state<SortingState>(
-    (() => {
-      const sortableCols = columns.filter(c => c.enableSorting !== false && c.id !== '__select__');
-      const nameCol = sortableCols.find(c => {
-        const id = c.id as string | undefined;
-        const accessor = (c as any).accessorKey as string | undefined;
-        return ['name', 'title', 'customer', 'ticketNumber'].includes(id || accessor || '');
-      });
-      const targetCol = nameCol || sortableCols[0];
-      if (targetCol) {
-        return [{ id: targetCol.id as string || (targetCol as any).accessorKey as string, desc: false }];
-      }
-      return [];
-    })()
-  );
-  let globalFilter = $state('');
-  let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: initialPageSize });
-  let effectivePagination = $derived(
-    manualPagination
-      ? { pageIndex, pageSize: pageSizeProp }
-      : pagination
-  );
-  // Initialize columnPinning to prevent undefined state errors
-  let columnPinning = $state<ColumnPinningState>({ left: [], right: [] });
-  let rowSelection = $state<RowSelectionState>({});
-
-  // Reset pagination on filter change
-  $effect(() => {
-    void globalFilter;
-    untrack(() => {
-      if (manualPagination) {
-        onPageChange?.(0);
-      } else {
-        pagination = { pageIndex: 0, pageSize: pagination.pageSize };
-      }
-    });
-  });
-
-  // Reset rowSelection when bulkMode is toggled off
-  $effect(() => {
-    if (!bulkMode) {
-      rowSelection = {};
-    }
-  });
-
-  $effect(() => {
-    void data;
-    if (bulkActions) {
-      untrack(() => {
-        rowSelection = {};
-      });
-    }
-  });
-
-  // Selection column definition — only used when bulkActions && bulkMode
-  const selectionColumn: ColumnDef<TData> = {
-    id: '__select__',
-    size: 48,
-    enableSorting: false,
-    header: '__select__' as any,
-    cell: '__select__' as any,
-  };
-
-  let effectiveColumns = $derived(
-    bulkActions && bulkMode
-      ? [selectionColumn as ColumnDef<TData>, ...columns]
-      : columns
-  );
-
-  // Recreate full table on every state change via $derived
-  let table = $derived(
-    createTable<TData>({
-      data,
-      columns: effectiveColumns,
-      state: {
-        sorting,
-        globalFilter,
-        pagination: effectivePagination,
-        columnPinning,
-        ...(bulkActions ? { rowSelection } : {}),
-      },
-      manualPagination,
-      pageCount: manualPagination ? pageCount : undefined,
-      onStateChange: () => {},
-      onSortingChange: (updater) => {
-        if (typeof updater === 'function') {
-          sorting = updater(sorting);
-        } else {
-          sorting = updater;
-        }
-      },
-      onGlobalFilterChange: (updater) => {
-        if (typeof updater === 'function') {
-          globalFilter = updater(globalFilter);
-        } else {
-          globalFilter = updater;
-        }
-      },
-      onPaginationChange: (updater) => {
-        const nextPagination = typeof updater === 'function'
-          ? updater(effectivePagination)
-          : updater;
-        if (manualPagination) {
-          onPageChange?.(nextPagination.pageIndex);
-        } else {
-          pagination = nextPagination;
-        }
-      },
-      onColumnPinningChange: (updater) => {
-        if (typeof updater === 'function') {
-          columnPinning = updater(columnPinning);
-        } else {
-          columnPinning = updater;
-        }
-      },
-      ...(bulkActions ? {
-        enableRowSelection: true,
-        onRowSelectionChange: (updater: any) => {
-          rowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
-        },
-      } : {}),
-      getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      renderFallbackValue: null,
-    })
-  );
-
-  // Fire onSelectionChange when rowSelection changes
-  $effect(() => {
-    if (!bulkActions || !onSelectionChange) return;
-    const selected = table.getSelectedRowModel().rows.map((r: any) => r.original as TData);
-    untrack(() => onSelectionChange(selected));
+  const state = createResponsiveTable<TData>({
+    columns: () => columns,
+    data: () => data,
+    pageSize: () => pageSizeProp,
+    // Intercept pattern — avoid hydration warning from $props directly into $state
+    initialPageSize: untrack(() => tablePreferences.pageSize),
+    bulkActions: () => bulkActions,
+    bulkMode: () => bulkMode,
+    manualPagination: () => manualPagination,
+    pageIndex: () => pageIndex,
+    pageCount: () => pageCount,
+    enableColumnPinning: true,
+    onPageChange: () => onPageChange,
+    onSelectionChange: () => onSelectionChange,
   });
 </script>
 
@@ -208,7 +54,7 @@
       <Input
         id="dt-filter"
         placeholder={resolvedFilterPlaceholder}
-        bind:value={globalFilter}
+        bind:value={state.globalFilter}
         class="h-12 touch-manipulation"
       />
     </div>
@@ -221,7 +67,7 @@
   <div class="overflow-x-auto">
     <Table.Root class="w-full text-sm text-left align-middle">
       <Table.Header class="bg-muted/30">
-        {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+        {#each state.table.getHeaderGroups() as headerGroup (headerGroup.id)}
           <Table.Row class="hover:bg-transparent">
             {#each headerGroup.headers as header (header.id)}
               <Table.Head
@@ -234,8 +80,8 @@
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
                         aria-label={m["common.selectAll"]()}
-                        checked={table.getIsAllRowsSelected()}
-                        onchange={table.getToggleAllRowsSelectedHandler()}
+                        checked={state.table.getIsAllRowsSelected()}
+                        onchange={state.table.getToggleAllRowsSelectedHandler()}
                       />
                     </div>
                   {:else if header.column.getCanSort()}
@@ -268,18 +114,18 @@
       <Table.Body class="divide-y divide-border">
         {#if loading}
           <Table.Row>
-            <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
+            <Table.Cell colspan={state.effectiveColumns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
               {m["common.loading"]()}
             </Table.Cell>
           </Table.Row>
-        {:else if table.getRowModel().rows.length === 0}
+        {:else if state.table.getRowModel().rows.length === 0}
           <Table.Row>
-            <Table.Cell colspan={effectiveColumns.length} class="h-32 text-center text-muted-foreground font-medium text-base">
+            <Table.Cell colspan={state.effectiveColumns.length} class="h-32 text-center text-muted-foreground font-medium text-base">
               {resolvedEmptyMessage}
             </Table.Cell>
           </Table.Row>
         {:else}
-          {#each table.getRowModel().rows as row (row.id)}
+          {#each state.table.getRowModel().rows as row (row.id)}
             <Table.Row class="hover:bg-muted/10 transition-colors">
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell class="py-4 {cell.column.id === '__select__' ? 'px-0' : 'px-6'}">
@@ -314,19 +160,19 @@
     <Button
       variant="outline"
       class="h-10 touch-manipulation"
-      disabled={!table.getCanPreviousPage()}
-      onclick={() => table.previousPage()}
+      disabled={!state.table.getCanPreviousPage()}
+      onclick={() => state.table.previousPage()}
     >
       {m["common.previous"]()}
     </Button>
     <span class="text-sm text-muted-foreground">
-      {m["common.pagination"]({ current: String(table.getState().pagination.pageIndex + 1), total: String(table.getPageCount() || 1) })}
+      {m["common.pagination"]({ current: String(state.table.getState().pagination.pageIndex + 1), total: String(state.table.getPageCount() || 1) })}
     </span>
     <Button
       variant="outline"
       class="h-10 touch-manipulation"
-      disabled={!table.getCanNextPage()}
-      onclick={() => table.nextPage()}
+      disabled={!state.table.getCanNextPage()}
+      onclick={() => state.table.nextPage()}
     >
       {m["common.next"]()}
     </Button>

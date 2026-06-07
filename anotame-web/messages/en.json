@@ -584,6 +584,7 @@
   "calendar.day.holiday": "Holiday",
   "calendar.agenda.title": "Agenda",
   "cardGrid.sortBy": "Sort by…",
+  "cardGrid.sortByLabel": "Sort by",
   "cardGrid.sortAscending": "Sort ascending",
   "cardGrid.sortDescending": "Sort descending",
   "cardGrid.expandDetails": "Expand details",

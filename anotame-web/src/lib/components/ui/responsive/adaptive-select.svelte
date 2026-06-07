@@ -9,6 +9,7 @@
     placeholder = m['common.select'](),
     items = [],
     id = '',
+    ariaLabel,
     class: className = '',
     allowClear = false,
     clearText = m['common.none']()
@@ -18,6 +19,7 @@
     placeholder?: string;
     items: { value: string; label: string }[];
     id?: string;
+    ariaLabel?: string;
     class?: string;
     allowClear?: boolean;
     clearText?: string;
@@ -43,6 +45,7 @@
   <!-- Mobile: Native <select> for OS wheel picker -->
   <select
     {id}
+    aria-label={ariaLabel}
     bind:value
     onchange={handleNativeChange}
     class="flex h-12! w-full items-center justify-between rounded-md border border-input px-3 py-2 text-base shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation bg-background {className}"
@@ -58,7 +61,7 @@
 {:else}
   <!-- Desktop: Styled shadcn Select -->
   <Select.Root type="single" value={value} onValueChange={handleSelectChange}>
-    <Select.Trigger {id} class="flex h-12! w-full text-base font-normal {className}">
+    <Select.Trigger {id} aria-label={ariaLabel} class="flex h-12! w-full text-base font-normal {className}">
       {#if value}
         {@const selected = sortedItems.find(i => i.value === value)}
         {selected?.label ?? placeholder}
