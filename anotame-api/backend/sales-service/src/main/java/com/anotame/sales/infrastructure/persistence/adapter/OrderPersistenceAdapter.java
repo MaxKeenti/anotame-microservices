@@ -14,7 +14,6 @@ import com.anotame.sales.infrastructure.persistence.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -117,11 +116,11 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     public OrderSummaryResult findSummaries(int page, int size, OrderSummaryCriteria criteria) {
         String fromClause = buildSummaryFromClause(criteria);
 
-        TypedQuery<Long> countQuery = em.createQuery("select count(o.id)" + fromClause, Long.class);
+        Query countQuery = em.createQuery("select count(o.id)" + fromClause);
         bindSummaryParameters(countQuery, criteria);
-        long total = countQuery.getSingleResult();
+        long total = ((Number) countQuery.getSingleResult()).longValue();
 
-        TypedQuery<Object[]> dataQuery = em.createQuery(
+        var dataQuery = em.createQuery(
                 "select o.id, o.ticketNumber, c.id, c.firstName, c.lastName, c.email, c.phoneNumber, " +
                         "o.committedDeadline, o.status, o.totalAmount, o.amountPaid, o.totalDurationMin, " +
                         "o.createdAt, o.deliveredAt" +
@@ -132,35 +131,35 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         dataQuery.setFirstResult(page * size);
         dataQuery.setMaxResults(size);
 
-        List<Object[]> rows = dataQuery.getResultList();
-        List<UUID> orderIds = rows.stream()
-                .map(row -> (UUID) row[0])
-                .toList();
+        var rows = dataQuery.getResultList();
+        List<UUID> orderIds = new ArrayList<>(rows.size());
+        for (var row : rows) {
+            orderIds.add((UUID) row[0]);
+        }
         Map<UUID, List<String>> garmentNames = findGarmentNames(orderIds);
         Map<UUID, List<String>> serviceNames = findServiceNames(orderIds);
 
-        List<OrderSummaryProjection> items = rows.stream()
-                .map(row -> {
-                    UUID orderId = (UUID) row[0];
-                    return new OrderSummaryProjection(
-                            orderId,
-                            (String) row[1],
-                            (UUID) row[2],
-                            (String) row[3],
-                            (String) row[4],
-                            (String) row[5],
-                            (String) row[6],
-                            (OffsetDateTime) row[7],
-                            (String) row[8],
-                            (BigDecimal) row[9],
-                            (BigDecimal) row[10],
-                            (Integer) row[11],
-                            (OffsetDateTime) row[12],
-                            (OffsetDateTime) row[13],
-                            garmentNames.getOrDefault(orderId, List.of()),
-                            serviceNames.getOrDefault(orderId, List.of()));
-                })
-                .toList();
+        List<OrderSummaryProjection> items = new ArrayList<>(rows.size());
+        for (var row : rows) {
+            UUID orderId = (UUID) row[0];
+            items.add(new OrderSummaryProjection(
+                    orderId,
+                    (String) row[1],
+                    (UUID) row[2],
+                    (String) row[3],
+                    (String) row[4],
+                    (String) row[5],
+                    (String) row[6],
+                    (OffsetDateTime) row[7],
+                    (String) row[8],
+                    (BigDecimal) row[9],
+                    (BigDecimal) row[10],
+                    (Integer) row[11],
+                    (OffsetDateTime) row[12],
+                    (OffsetDateTime) row[13],
+                    garmentNames.getOrDefault(orderId, List.of()),
+                    serviceNames.getOrDefault(orderId, List.of())));
+        }
 
         return new OrderSummaryResult(items, total);
     }

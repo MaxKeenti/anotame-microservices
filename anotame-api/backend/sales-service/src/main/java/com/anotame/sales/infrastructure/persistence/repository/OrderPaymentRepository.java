@@ -15,13 +15,16 @@ public class OrderPaymentRepository implements PanacheRepositoryBase<OrderPaymen
         return list("orderId = ?1 ORDER BY recordedAt ASC", orderId);
     }
 
+    @SuppressWarnings("null")
     public BigDecimal sumByOrderId(UUID orderId) {
-        BigDecimal result = getEntityManager()
+        return getEntityManager()
                 .createQuery(
                         "SELECT COALESCE(SUM(p.amount), 0) FROM OrderPaymentEntity p WHERE p.orderId = :orderId",
                         BigDecimal.class)
                 .setParameter("orderId", orderId)
-                .getSingleResult();
-        return result != null ? result : BigDecimal.ZERO;
+                .getResultStream()
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
     }
 }

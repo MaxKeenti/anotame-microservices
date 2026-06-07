@@ -321,9 +321,16 @@ public class SalesService {
     }
 
     public List<AuditLogResponse> getAuditLog(UUID orderId) {
-        return auditLogRepositoryPort.findByOrderId(orderId).stream()
-                .map(e -> new AuditLogResponse(e.userId(), e.fieldName(), e.oldValue(), e.newValue(), e.changedAt()))
-                .toList();
+        List<AuditLogResponse> entries = new ArrayList<>();
+        for (var entry : auditLogRepositoryPort.findByOrderId(orderId)) {
+            entries.add(new AuditLogResponse(
+                    entry.userId(),
+                    entry.fieldName(),
+                    entry.oldValue(),
+                    entry.newValue(),
+                    entry.changedAt()));
+        }
+        return entries;
     }
 
     @Transactional
