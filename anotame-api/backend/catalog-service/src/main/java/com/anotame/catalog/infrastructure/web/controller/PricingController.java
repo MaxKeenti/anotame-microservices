@@ -1,8 +1,8 @@
 package com.anotame.catalog.infrastructure.web.controller;
 
 import com.anotame.catalog.application.service.PriceListService;
-import com.anotame.catalog.dto.PricingCalculationRequest;
-import com.anotame.catalog.dto.PricingCalculationResponse;
+import com.anotame.catalog.application.dto.PricingCalculationRequest;
+import com.anotame.catalog.application.dto.PricingCalculationResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

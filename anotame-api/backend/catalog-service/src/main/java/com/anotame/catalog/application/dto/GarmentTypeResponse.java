@@ -1,4 +1,4 @@
-package com.anotame.catalog.dto;
+package com.anotame.catalog.application.dto;
 
 import lombok.Data;
 import java.util.UUID;

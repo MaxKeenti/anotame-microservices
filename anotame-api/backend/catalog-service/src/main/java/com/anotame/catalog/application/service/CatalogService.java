@@ -4,8 +4,8 @@ import com.anotame.catalog.application.port.output.GarmentRepositoryPort;
 import com.anotame.catalog.application.port.output.ServiceRepositoryPort;
 import com.anotame.catalog.domain.exception.CatalogNotFoundException;
 import com.anotame.catalog.domain.model.GarmentType;
-import com.anotame.catalog.dto.GarmentTypeRequest;
-import com.anotame.catalog.dto.ServiceRequest;
+import com.anotame.catalog.application.dto.GarmentTypeRequest;
+import com.anotame.catalog.application.dto.ServiceRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 

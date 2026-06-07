@@ -1,10 +1,13 @@
 package com.anotame.catalog.infrastructure.web.controller;
 
-import com.anotame.catalog.dto.GarmentTypeResponse;
-import com.anotame.catalog.dto.ServiceResponse;
+import com.anotame.catalog.application.dto.GarmentTypeRequest;
+import com.anotame.catalog.application.dto.GarmentTypeResponse;
+import com.anotame.catalog.application.dto.ServiceRequest;
+import com.anotame.catalog.application.dto.ServiceResponse;
 import com.anotame.catalog.application.service.CatalogService;
 import com.anotame.catalog.application.service.PriceListService;
 import com.anotame.catalog.domain.model.GarmentType;
+import com.anotame.catalog.domain.model.PriceListItem;
 import com.anotame.catalog.domain.model.Service;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -41,12 +44,12 @@ public class CatalogController {
                 .collect(Collectors.toList());
 
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        List<com.anotame.catalog.domain.model.PriceListItem> overrides = priceListService.getActiveOverrides(now);
+        List<PriceListItem> overrides = priceListService.getActiveOverrides(now);
 
         for (ServiceResponse service : services) {
             service.setEffectivePrice(service.getBasePrice());
 
-            for (com.anotame.catalog.domain.model.PriceListItem item : overrides) {
+            for (PriceListItem item : overrides) {
                 if (item.getService().getId().equals(service.getId())) {
                     service.setEffectivePrice(item.getPrice());
                     break;
@@ -61,7 +64,7 @@ public class CatalogController {
 
     @POST
     @Path("/garments")
-    public GarmentTypeResponse createGarment(com.anotame.catalog.dto.GarmentTypeRequest request) {
+    public GarmentTypeResponse createGarment(GarmentTypeRequest request) {
         GarmentType created = catalogService.createGarment(request);
         return mapToGarmentDto(created);
     }
@@ -69,7 +72,7 @@ public class CatalogController {
     @PUT
     @Path("/garments/{id}")
     public GarmentTypeResponse updateGarment(@PathParam("id") java.util.UUID id,
-            com.anotame.catalog.dto.GarmentTypeRequest request) {
+            GarmentTypeRequest request) {
         GarmentType updated = catalogService.updateGarment(id, request);
         return mapToGarmentDto(updated);
     }
@@ -84,7 +87,7 @@ public class CatalogController {
 
     @POST
     @Path("/services")
-    public ServiceResponse createService(com.anotame.catalog.dto.ServiceRequest request) {
+    public ServiceResponse createService(ServiceRequest request) {
         Service created = catalogService.createService(request);
         return mapToServiceDto(created);
     }
@@ -92,7 +95,7 @@ public class CatalogController {
     @PUT
     @Path("/services/{id}")
     public ServiceResponse updateService(@PathParam("id") java.util.UUID id,
-            com.anotame.catalog.dto.ServiceRequest request) {
+            ServiceRequest request) {
         Service updated = catalogService.updateService(id, request);
         return mapToServiceDto(updated);
     }
