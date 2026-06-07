@@ -5,7 +5,7 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  import { CreditCard, DollarSign, Wallet, Loader2 } from 'lucide-svelte';
+  import { CreditCard, DollarSign, Wallet, Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 

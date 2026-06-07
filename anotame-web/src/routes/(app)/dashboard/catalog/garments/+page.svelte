@@ -6,7 +6,7 @@
   import { toast } from 'svelte-sonner';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from 'lucide-svelte';
+  import { Edit, Trash2 } from '@lucide/svelte';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';

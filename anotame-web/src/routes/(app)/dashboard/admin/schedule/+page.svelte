@@ -9,7 +9,7 @@
   import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { CalendarDays, AlertTriangle, Trash2, Loader2 } from 'lucide-svelte';
+  import { CalendarDays, AlertTriangle, Trash2, Loader2 } from '@lucide/svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';

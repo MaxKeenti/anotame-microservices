@@ -12,7 +12,7 @@
   import { formatDate } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { CheckCircle2, Eye, XCircle, MoreVertical } from 'lucide-svelte';
+  import { CheckCircle2, Eye, XCircle, MoreVertical } from '@lucide/svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { OrderSummaryResponse, PageResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';

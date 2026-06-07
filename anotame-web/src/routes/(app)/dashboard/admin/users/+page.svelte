@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { apiService, API_IDENTITY } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from 'lucide-svelte';
+  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';

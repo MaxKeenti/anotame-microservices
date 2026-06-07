@@ -5,7 +5,7 @@
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import * as Popover from '$lib/components/ui/popover';
-  import { TrendingUp, Activity, Truck, AlertCircle, Clock, Banknote, Calendar, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-svelte';
+  import { TrendingUp, Activity, Truck, AlertCircle, Clock, Banknote, Calendar, ChevronLeft, ChevronRight, Check, Loader2 } from '@lucide/svelte';
   import FinancialKpiPanel from '$lib/components/dashboard/FinancialKpiPanel.svelte';
   import CalendarGrid from '$lib/components/calendar/CalendarGrid.svelte';
   import { getLocale } from '$lib/paraglide/runtime';

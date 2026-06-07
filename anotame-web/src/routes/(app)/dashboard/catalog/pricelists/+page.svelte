@@ -5,7 +5,7 @@
   import * as Card from '$lib/components/ui/card';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { Eye, Trash2, Copy } from 'lucide-svelte';
+  import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertCircle } from 'lucide-svelte';
+  import { AlertCircle } from '@lucide/svelte';
   import * as Popover from '$lib/components/ui/popover';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';

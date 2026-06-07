@@ -4,7 +4,7 @@
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import { apiService, API_IDENTITY, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
 

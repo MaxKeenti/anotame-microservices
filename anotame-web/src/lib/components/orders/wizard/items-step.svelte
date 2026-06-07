@@ -2,7 +2,7 @@
    import { orderWizardState, type DraftOrderItem, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
    import ItemSubWizard from './item-sub-wizard.svelte';
    import { Button } from '$lib/components/ui/button';
-   import { Plus, Trash2, Edit, Copy } from 'lucide-svelte';
+   import { Plus, Trash2, Edit, Copy } from '@lucide/svelte';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
 

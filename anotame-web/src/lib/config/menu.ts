@@ -1,15 +1,15 @@
-import HomeIcon from "lucide-svelte/icons/home";
-import ClipboardListIcon from "lucide-svelte/icons/clipboard-list";
-import ActivityIcon from "lucide-svelte/icons/activity";
-import ShirtIcon from "lucide-svelte/icons/shirt";
-import TagIcon from "lucide-svelte/icons/tag";
-import DollarSignIcon from "lucide-svelte/icons/dollar-sign";
-import CalendarIcon from "lucide-svelte/icons/calendar";
-import SettingsIcon from "lucide-svelte/icons/settings";
-import UsersIcon from "lucide-svelte/icons/users";
-import UserIcon from "lucide-svelte/icons/user";
-import StoreIcon from "lucide-svelte/icons/store";
-import TrendingUpIcon from "lucide-svelte/icons/trending-up";
+import HomeIcon from "@lucide/svelte/icons/home";
+import ClipboardListIcon from "@lucide/svelte/icons/clipboard-list";
+import ActivityIcon from "@lucide/svelte/icons/activity";
+import ShirtIcon from "@lucide/svelte/icons/shirt";
+import TagIcon from "@lucide/svelte/icons/tag";
+import DollarSignIcon from "@lucide/svelte/icons/dollar-sign";
+import CalendarIcon from "@lucide/svelte/icons/calendar";
+import SettingsIcon from "@lucide/svelte/icons/settings";
+import UsersIcon from "@lucide/svelte/icons/users";
+import UserIcon from "@lucide/svelte/icons/user";
+import StoreIcon from "@lucide/svelte/icons/store";
+import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
 import * as m from '$lib/paraglide/messages';
 
 type MenuItem = {

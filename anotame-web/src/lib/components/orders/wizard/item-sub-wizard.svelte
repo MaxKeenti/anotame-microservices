@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from 'lucide-svelte';
+	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
 	import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';

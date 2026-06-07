@@ -3,7 +3,7 @@
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
-  import { Calendar } from 'lucide-svelte';
+  import { Calendar } from '@lucide/svelte';
   import type { Establishment, WorkloadDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 

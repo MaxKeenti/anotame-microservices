@@ -13,7 +13,7 @@
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
-  import { ChevronDown, ChevronUp } from 'lucide-svelte';
+  import { ChevronDown, ChevronUp } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   let {

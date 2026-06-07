@@ -6,7 +6,7 @@
   import * as m from '$lib/paraglide/messages';
   import { tablePreferences } from '$lib/stores/table-preferences.svelte';
   import { getFinancialKpiPeriodLabel } from '$lib/utils/kpiPeriodLabel';
-  import { TrendingUp, AlertTriangle, Users } from 'lucide-svelte';
+  import { TrendingUp, AlertTriangle, Users } from '@lucide/svelte';
 
   // TypeScript interfaces for API responses
   interface RevenueTrendPoint {

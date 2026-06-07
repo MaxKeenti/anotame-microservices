@@ -4,7 +4,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import { CalendarIcon, Clock } from 'lucide-svelte';
+  import { CalendarIcon, Clock } from '@lucide/svelte';
   import {
     CalendarDate,
     type DateValue,

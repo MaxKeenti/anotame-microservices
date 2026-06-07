@@ -3,7 +3,7 @@
    import { apiService, API_SALES } from '$lib/services/api.svelte';
    import { Button } from '$lib/components/ui/button';
    import { Input } from '$lib/components/ui/input';
-   import { Search, User, Plus } from 'lucide-svelte';
+   import { Search, User, Plus } from '@lucide/svelte';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
    import type { CustomerDto } from '$lib/types/dtos';

@@ -4,7 +4,7 @@
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
 	import { AdaptiveSelect } from '$lib/components/ui/responsive';
 	import { Button } from '$lib/components/ui/button';
-	import { Tag, Loader2, AlertTriangle } from 'lucide-svelte';
+	import { Tag, Loader2, AlertTriangle } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
 	import * as m from '$lib/paraglide/messages';

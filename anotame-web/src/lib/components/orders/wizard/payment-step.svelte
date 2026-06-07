@@ -14,7 +14,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from 'lucide-svelte';
+	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';

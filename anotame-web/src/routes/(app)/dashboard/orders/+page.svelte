@@ -8,7 +8,7 @@
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import FloatingActionBar from '$lib/components/ui/FloatingActionBar.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
-  import { Edit, Trash2, Eye } from 'lucide-svelte';
+  import { Edit, Trash2, Eye } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
