@@ -269,14 +269,14 @@
 
 <form method="POST" use:enhance class="flex flex-col h-full gap-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">Paso 3: Pago y Confirmación</h2>
+		<h2 class="text-xl font-semibold">{m['paymentStep.title']()}</h2>
 	</div>
 
 	<div class="flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
 		<!-- Total Section -->
 		<div class="text-center py-6 bg-muted/20 rounded-xl">
 			<div class="text-muted-foreground uppercase text-sm font-semibold tracking-wider">
-				Total a Pagar
+				{m['paymentStep.totalToPay']()}
 			</div>
 			<div class="text-5xl font-bold font-mono mt-2">${total.toFixed(2)}</div>
 		</div>
@@ -436,7 +436,7 @@
 					class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
 				>
 					<div class="flex justify-between items-center text-sm">
-						<span class="font-medium">Ocupación para este día:</span>
+						<span class="font-medium">{m['paymentStep.occupancyForDay']()}</span>
 						<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
 							{projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
 						</span>
@@ -456,10 +456,9 @@
 						>
 							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
 							<div>
-								<h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
+								<h5 class="text-xs font-bold text-destructive">{m['paymentStep.dayFull']()}</h5>
 								<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
-									Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la
-									entrega a tiempo.
+									{m['paymentStep.dayFullHint']()}
 								</p>
 							</div>
 						</div>
@@ -494,9 +493,9 @@
 		>
 			{#if isSubmitting}
 				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
-				Procesando...
+				{m['paymentStep.processing']()}
 			{:else}
-				{draft?.isEditing ? 'Actualizar Nota' : 'Confirmar Nota'}
+				{draft?.isEditing ? m['paymentStep.button.update']() : m['paymentStep.button.confirm']()}
 			{/if}
 		</Button>
 	</div>

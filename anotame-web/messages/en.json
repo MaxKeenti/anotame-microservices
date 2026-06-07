@@ -725,5 +725,13 @@
   "itemSubWizard.toast.serviceNotInListDesc": "Enter the price manually",
   "itemSubWizard.toast.serviceUpdated": "Service updated",
   "itemSubWizard.toast.serviceAdded": "Service added",
-  "itemSubWizard.toast.serviceRemoved": "Service removed"
+  "itemSubWizard.toast.serviceRemoved": "Service removed",
+  "paymentStep.title": "Step 3: Payment and Confirmation",
+  "paymentStep.totalToPay": "Total to Pay",
+  "paymentStep.occupancyForDay": "Occupancy for this day:",
+  "paymentStep.dayFull": "Day Full!",
+  "paymentStep.dayFullHint": "This date is already heavily loaded. Consider another date to ensure on-time delivery.",
+  "paymentStep.processing": "Processing...",
+  "paymentStep.button.update": "Update Order",
+  "paymentStep.button.confirm": "Confirm Order"
 }

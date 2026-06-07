@@ -1,14 +1,16 @@
 package com.anotame.identity.infrastructure.security;
 
+import com.anotame.identity.application.port.output.TokenGeneratorPort;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
 import java.util.Set;
+import java.util.UUID;
 
 @ApplicationScoped
-public class JwtUtils {
+public class JwtUtils implements TokenGeneratorPort {
 
     @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "anotame-identity")
     String issuer;
@@ -23,8 +25,8 @@ public class JwtUtils {
      *                  fallback in that case.
      * @param roles     Role codes (e.g. {"EMPLOYEE"}).
      */
-    public String generateToken(String username, java.util.UUID userId,
-                                java.util.UUID branchId, Set<String> roles) {
+    @Override
+    public String generateToken(String username, UUID userId, UUID branchId, Set<String> roles) {
         var builder = Jwt.issuer(issuer)
                 .upn(username)
                 .claim("user_id", userId.toString())
