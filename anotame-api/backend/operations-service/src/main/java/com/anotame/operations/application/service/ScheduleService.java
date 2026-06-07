@@ -24,38 +24,62 @@ public class ScheduleService {
         LocalDate date = dateTime.toLocalDate();
         LocalTime time = dateTime.toLocalTime();
 
-        // 1. Check Holiday
-        Optional<Holiday> holiday = scheduleRepository.getHoliday(date);
-        if (holiday.isPresent()) {
-            return false; // Closed on holidays
+        if (isHoliday(date)) {
+            return false;
         }
 
-        // 2. Check Work Day
-        int divOfWeek = date.getDayOfWeek().getValue(); // 1=Mon, 7=Sun
-        Optional<WorkDay> workDayOpt = scheduleRepository.getWorkDay(divOfWeek);
-
-        if (workDayOpt.isEmpty()) {
-            return false; // Default closed if not defined
+        Optional<WorkDay> workDayOpt = scheduleRepository.getWorkDay(date.getDayOfWeek().getValue());
+        if (workDayOpt.isPresent() && isOpenDuringWorkDate(workDayOpt.get(), time)) {
+            return true;
         }
 
-        WorkDay workDay = workDayOpt.get();
+        LocalDate previousDate = date.minusDays(1);
+        if (isHoliday(previousDate)) {
+            return false;
+        }
+
+        return scheduleRepository.getWorkDay(previousDate.getDayOfWeek().getValue())
+                .filter(workDay -> carriesIntoNextDate(workDay, time))
+                .isPresent();
+    }
+
+    private boolean isHoliday(LocalDate date) {
+        return scheduleRepository.getHoliday(date).isPresent();
+    }
+
+    private boolean isOpenDuringWorkDate(WorkDay workDay, LocalTime time) {
         if (!workDay.isOpen()) {
             return false;
         }
+        LocalTime openTime = workDay.getOpenTime();
+        LocalTime closeTime = workDay.getCloseTime();
 
-        // 3. Check Hours
-        // Handle simplified case: if openTime or closeTime is null, assume open all
-        // day?
-        // Or if closeTime < openTime (night shift)? Not handling night shift crossing
-        // midnight for now.
-        if (workDay.getOpenTime() != null && time.isBefore(workDay.getOpenTime())) {
+        if (openTime == null && closeTime == null) {
+            return true;
+        }
+        if (openTime == null) {
+            return !time.isAfter(closeTime);
+        }
+        if (closeTime == null) {
+            return !time.isBefore(openTime);
+        }
+        if (crossesMidnight(workDay)) {
+            return !time.isBefore(openTime);
+        }
+        return !time.isBefore(openTime) && !time.isAfter(closeTime);
+    }
+
+    private boolean carriesIntoNextDate(WorkDay workDay, LocalTime time) {
+        if (!workDay.isOpen() || !crossesMidnight(workDay)) {
             return false;
         }
-        if (workDay.getCloseTime() != null && time.isAfter(workDay.getCloseTime())) {
-            return false;
-        }
+        return !time.isAfter(workDay.getCloseTime());
+    }
 
-        return true;
+    private boolean crossesMidnight(WorkDay workDay) {
+        return workDay.getOpenTime() != null
+                && workDay.getCloseTime() != null
+                && workDay.getCloseTime().isBefore(workDay.getOpenTime());
     }
 
     public List<WorkDay> getAllWorkDays() {
