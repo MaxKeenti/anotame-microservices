@@ -62,7 +62,8 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     public User save(User user) {
         UserEntity entity = user.getId() == null
                 ? new UserEntity()
-                : userRepository.findByIdOptional(user.getId()).orElseGet(UserEntity::new);
+                : userRepository.findByIdOptional(user.getId())
+                        .orElseThrow(() -> new IllegalStateException("User not found: " + user.getId()));
 
         applyDomain(entity, user);
 

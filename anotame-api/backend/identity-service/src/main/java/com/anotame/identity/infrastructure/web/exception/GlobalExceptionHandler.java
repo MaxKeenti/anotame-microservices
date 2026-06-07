@@ -1,6 +1,9 @@
 package com.anotame.identity.infrastructure.web.exception;
 
 import com.anotame.identity.domain.exception.DomainException;
+import com.anotame.identity.domain.exception.InvalidCredentialsException;
+import com.anotame.identity.domain.exception.ResourceNotFoundException;
+import com.anotame.identity.domain.exception.UserAlreadyExistsException;
 import com.anotame.identity.infrastructure.web.dto.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
@@ -29,7 +32,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
         }
         if (exception instanceof DomainException de) {
             log.warn("Domain exception: {}", de.getMessage());
-            return Response.status(de.getHttpStatus())
+            return Response.status(statusFor(de))
                     .entity(new ErrorResponse("DOMAIN_EXCEPTION", de.getMessage()))
                     .build();
         }
@@ -43,5 +46,18 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorResponse("INTERNAL_ERROR", "Internal server error"))
                 .build();
+    }
+
+    private Response.Status statusFor(DomainException exception) {
+        if (exception instanceof InvalidCredentialsException) {
+            return Response.Status.UNAUTHORIZED;
+        }
+        if (exception instanceof ResourceNotFoundException) {
+            return Response.Status.NOT_FOUND;
+        }
+        if (exception instanceof UserAlreadyExistsException) {
+            return Response.Status.CONFLICT;
+        }
+        return Response.Status.BAD_REQUEST;
     }
 }
