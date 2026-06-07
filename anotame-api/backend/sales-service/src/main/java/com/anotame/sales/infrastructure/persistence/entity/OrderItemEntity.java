@@ -3,6 +3,7 @@ package com.anotame.sales.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -29,7 +30,9 @@ public class OrderItemEntity {
     @Column(name = "id_garment_type", nullable = false)
     private UUID garmentTypeId;
 
+    // Batch-load service collections across multiple items in one query to avoid N+1 on order listings.
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     private java.util.List<OrderItemServiceEntity> services = new java.util.ArrayList<>();
 
     @Column(name = "garment_name")

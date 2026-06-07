@@ -3,6 +3,7 @@ package com.anotame.sales.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -59,7 +60,9 @@ public class OrderEntity {
     @Column(name = "total_duration_min")
     private Integer totalDurationMin = 0;
 
+    // Batch-load item collections across multiple orders in one query to avoid N+1 on order listings.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     private List<OrderItemEntity> items = new ArrayList<>();
 
     @Column(name = "pickup_code")
