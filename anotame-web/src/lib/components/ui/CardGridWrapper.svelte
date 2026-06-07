@@ -274,7 +274,7 @@
                   {#each bodyColumns as col (getColumnId(col))}
                     {@const colId = getColumnId(col)}
                     <div class="flex items-start gap-2 text-sm">
-                      <dt class="text-xs font-bold uppercase tracking-wider text-muted-foreground shrink-0 pt-0.5 min-w-[6rem]">
+                      <dt class="text-xs font-bold uppercase tracking-wider text-muted-foreground shrink-0 pt-0.5 min-w-24">
                         {getColumnHeader(col)}
                       </dt>
                       <dd class="text-foreground">
