@@ -13,7 +13,7 @@ import java.util.UUID;
 @Table(name = "top_holiday")
 @Getter
 @Setter
-public class HolidayJpa {
+public class HolidayEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

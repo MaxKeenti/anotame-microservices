@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "tce_establishment")
 @Getter
 @Setter
-public class EstablishmentJpa {
+public class EstablishmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

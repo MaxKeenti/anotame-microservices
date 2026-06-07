@@ -3,34 +3,34 @@ package com.anotame.operations.infrastructure.persistence.adapter;
 import com.anotame.operations.application.port.output.ScheduleRepositoryPort;
 import com.anotame.operations.domain.model.Holiday;
 import com.anotame.operations.domain.model.WorkDay;
-import com.anotame.operations.infrastructure.persistence.entity.HolidayJpa;
-import com.anotame.operations.infrastructure.persistence.entity.WorkDayJpa;
+import com.anotame.operations.infrastructure.persistence.entity.HolidayEntity;
+import com.anotame.operations.infrastructure.persistence.entity.WorkDayEntity;
 import com.anotame.operations.infrastructure.persistence.repository.HolidayRepository;
 import com.anotame.operations.infrastructure.persistence.repository.WorkDayRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class SchedulePersistenceAdapter implements ScheduleRepositoryPort {
 
-    @Inject
-    WorkDayRepository workDayRepository;
+    private final WorkDayRepository workDayRepository;
+    private final HolidayRepository holidayRepository;
 
-    @Inject
-    HolidayRepository holidayRepository;
+    public SchedulePersistenceAdapter(WorkDayRepository workDayRepository, HolidayRepository holidayRepository) {
+        this.workDayRepository = workDayRepository;
+        this.holidayRepository = holidayRepository;
+    }
 
     @Override
     public List<WorkDay> getAllWorkDays() {
         return workDayRepository.listAll().stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -42,17 +42,16 @@ public class SchedulePersistenceAdapter implements ScheduleRepositoryPort {
     @Override
     @Transactional
     public WorkDay save(WorkDay workDay) {
-        WorkDayJpa entity = null;
+        WorkDayEntity entity = null;
         if (workDay.getId() != null) {
             entity = workDayRepository.findById(workDay.getId());
         }
         if (entity == null) {
-            // Check by DayOfWeek if creating new logic
-            Optional<WorkDayJpa> existing = workDayRepository.findByDayOfWeek(workDay.getDayOfWeek());
+            Optional<WorkDayEntity> existing = workDayRepository.findByDayOfWeek(workDay.getDayOfWeek());
             if (existing.isPresent()) {
                 entity = existing.get();
             } else {
-                entity = new WorkDayJpa();
+                entity = new WorkDayEntity();
             }
         }
 
@@ -69,7 +68,7 @@ public class SchedulePersistenceAdapter implements ScheduleRepositoryPort {
     public List<Holiday> getAllHolidays() {
         return holidayRepository.listAll().stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -81,12 +80,12 @@ public class SchedulePersistenceAdapter implements ScheduleRepositoryPort {
     @Override
     @Transactional
     public Holiday save(Holiday holiday) {
-        HolidayJpa entity = null;
+        HolidayEntity entity = null;
         if (holiday.getId() != null) {
             entity = holidayRepository.findById(holiday.getId());
         }
         if (entity == null) {
-            entity = new HolidayJpa();
+            entity = new HolidayEntity();
         }
 
         entity.setDate(holiday.getDate());
@@ -102,7 +101,7 @@ public class SchedulePersistenceAdapter implements ScheduleRepositoryPort {
         holidayRepository.deleteById(id);
     }
 
-    private WorkDay toDomain(WorkDayJpa entity) {
+    private WorkDay toDomain(WorkDayEntity entity) {
         WorkDay domain = new WorkDay();
         domain.setId(entity.getId());
         domain.setDayOfWeek(entity.getDayOfWeek());
@@ -112,7 +111,7 @@ public class SchedulePersistenceAdapter implements ScheduleRepositoryPort {
         return domain;
     }
 
-    private Holiday toDomain(HolidayJpa entity) {
+    private Holiday toDomain(HolidayEntity entity) {
         Holiday domain = new Holiday();
         domain.setId(entity.getId());
         domain.setDate(entity.getDate());

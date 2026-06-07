@@ -14,7 +14,7 @@ import java.util.UUID;
 @Table(name = "top_work_day")
 @Getter
 @Setter
-public class WorkDayJpa {
+public class WorkDayEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
