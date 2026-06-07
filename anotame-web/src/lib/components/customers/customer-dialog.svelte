@@ -98,7 +98,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Nombre</Form.Label>
+                <Form.Label>{m['common.firstName']()}</Form.Label>
                 <Input {...props} {...constraints} bind:value={$form.firstName} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -109,7 +109,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Apellido</Form.Label>
+                <Form.Label>{m['common.lastName']()}</Form.Label>
                 <Input {...props} {...constraints} bind:value={$form.lastName} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -142,14 +142,14 @@
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
-          Cancelar
+          {m['common.cancel']()}
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
           {#if isSubmitting}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            Guardando...
+            {m['common.saving']()}
           {:else}
-            Guardar
+            {m['common.save']()}
           {/if}
         </Button>
       </Dialog.Footer>

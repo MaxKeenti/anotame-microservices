@@ -124,11 +124,11 @@
 			if (priceListItem) {
 				price = String(priceListItem.price);
 				// Show that price came from price list
-				toast.info("Precio desde lista", { description: `${priceListItem.price}` });
+				toast.info(m['itemSubWizard.toast.priceFromList'](), { description: `${priceListItem.price}` });
 			} else {
 				// Service not in price list - leave price blank per D-06
 				price = "";
-				toast.info("Servicio no en lista de precios", { description: `Ingresa el precio manualmente` });
+				toast.info(m['itemSubWizard.toast.serviceNotInList'](), { description: m['itemSubWizard.toast.serviceNotInListDesc']() });
 			}
 		} else {
 			// No price list selected - use service default
@@ -166,11 +166,11 @@
 		if (editingServiceIndex >= 0) {
 			addedServices[editingServiceIndex] = entry;
 			addedServices = [...addedServices];
-			toast.success("Servicio actualizado", { description: tempService.name });
+			toast.success(m['itemSubWizard.toast.serviceUpdated'](), { description: tempService.name });
 			editingServiceIndex = -1;
 		} else {
 			addedServices = [...addedServices, entry];
-			toast.success("Servicio agregado", { description: tempService.name });
+			toast.success(m['itemSubWizard.toast.serviceAdded'](), { description: tempService.name });
 		}
 		tempService = null;
 		step = 3;
@@ -180,7 +180,7 @@
 		const removed = addedServices[index].serviceName;
 		addedServices.splice(index, 1);
 		addedServices = [...addedServices];
-		toast.info("Servicio removido", { description: removed });
+		toast.info(m['itemSubWizard.toast.serviceRemoved'](), { description: removed });
 	}
 
 	function handleConfirmItem() {
@@ -197,7 +197,7 @@
 </script>
 
 {#if loading}
-    <div class="p-8 text-center animate-pulse">Cargando catálogo...</div>
+    <div class="p-8 text-center animate-pulse">{m['itemSubWizard.loadingCatalog']()}</div>
 {:else}
     <div class="flex flex-col h-full bg-background relative animate-in fade-in slide-in-from-right duration-300">
         <!-- Header -->
@@ -351,7 +351,7 @@
                     </div>
 
                     <div class="space-y-3">
-                        <label class="text-base font-medium" for="precio-base">Precio Base ($)</label>
+                        <label class="text-base font-medium" for="precio-base">{m['itemSubWizard.label.basePrice']()}</label>
                         <div class="relative">
                             <span class="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl">$</span>
                             <Input
@@ -365,12 +365,12 @@
 
                     <div class="grid grid-cols-2 gap-6">
                         <div class="space-y-3">
-                            <label class="text-base font-medium" for="ajuste">Ajuste ($)</label>
+                            <label class="text-base font-medium" for="ajuste">{m['itemSubWizard.label.adjustment']()}</label>
                             <Input
                                 id="ajuste"
                                 type="number"
                                 class="h-16 text-xl text-center rounded-xl"
-                                placeholder="+/- 0.00"
+                                placeholder={m['itemSubWizard.placeholder.adjustment']()}
                                 bind:value={adj}
                             />
                         </div>
@@ -387,7 +387,7 @@
 
                     <div class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
                         <div class="flex justify-between items-center">
-                            <label class="text-base font-bold text-primary" for="duracion">Esfuerzo Estimado (Minutos)</label>
+                            <label class="text-base font-bold text-primary" for="duracion">{m['itemSubWizard.label.effort']()}</label>
                             <span class="font-mono text-2xl font-bold text-primary">{duration}m</span>
                         </div>
                         <Input
@@ -399,11 +399,11 @@
                             class="h-10 cursor-pointer accent-primary"
                             bind:value={duration}
                         />
-                        <p class="text-xs text-muted-foreground italic text-center">Desliza para ajustar si crees que esta prenda tomará más tiempo de lo normal.</p>
+                        <p class="text-xs text-muted-foreground italic text-center">{m['itemSubWizard.effortHint']()}</p>
                     </div>
 
                     <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
-                        {editingServiceIndex >= 0 ? 'Actualizar Servicio' : 'Confirmar Servicio'}
+                        {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
                 </div>
             {/if}
@@ -455,7 +455,7 @@
                     onclick={() => step = 3}
                     disabled={addedServices.length === 0}
                 >
-                    Continuar
+                    {m['common.continue']()}
                 </Button>
             </div>
         {/if}
@@ -464,7 +464,7 @@
             <div class="pt-6 border-t border-border mt-auto pb-4">
                 <Button size="lg" class="w-full h-16 text-xl rounded-xl shadow-lg touch-manipulation" onclick={handleConfirmItem}>
                     <CheckCircle2 class="mr-2 w-6 h-6" />
-                    Confirmar Prenda
+                    {m['itemSubWizard.button.confirmGarment']()}
                 </Button>
             </div>
         {/if}

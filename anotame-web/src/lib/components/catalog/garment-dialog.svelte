@@ -89,7 +89,7 @@
     <Dialog.Header>
       <Dialog.Title>{item?.id ? m['garmentDialog.title.edit']() : m['garmentDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
-        Configura los detalles del tipo de prenda.
+        {m['garmentDialog.description']()}
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
@@ -97,8 +97,8 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Nombre</Form.Label>
-              <Input {...props} {...constraints} placeholder="Ej. Pantalón de Mezclilla" bind:value={$form.name} class="h-12" />
+              <Form.Label>{m['garmentDialog.label.name']()}</Form.Label>
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -110,7 +110,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['garmentDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder="Opcional" bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -119,14 +119,14 @@
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
-          Cancelar
+          {m['common.cancel']()}
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
           {#if isSubmitting}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            Guardando...
+            {m['common.saving']()}
           {:else}
-            Guardar
+            {m['common.save']()}
           {/if}
         </Button>
       </Dialog.Footer>
