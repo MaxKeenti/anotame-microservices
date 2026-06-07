@@ -9,25 +9,21 @@ import com.anotame.sales.infrastructure.persistence.entity.OrderItemEntity;
 import com.anotame.sales.infrastructure.persistence.repository.CustomerRepository;
 import com.anotame.sales.infrastructure.persistence.repository.OrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
+@RequiredArgsConstructor
 public class OrderPersistenceAdapter implements OrderRepositoryPort {
 
-    @Inject
-    OrderRepository orderRepository;
-
-    @Inject
-    CustomerRepository customerRepository;
-
-    @Inject
-    jakarta.persistence.EntityManager em;
+    private final OrderRepository orderRepository;
+    private final CustomerRepository customerRepository;
+    private final EntityManager em;
 
     @Override
     @Transactional
@@ -35,8 +31,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         OrderEntity entity;
         if (order.getId() != null) {
             entity = orderRepository.findById(order.getId());
-            if (entity == null)
+            if (entity == null) {
                 entity = new OrderEntity();
+            }
         } else {
             entity = new OrderEntity();
         }
@@ -59,8 +56,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         entity.setPriceListId(order.getPriceListId());
         entity.setPriceListName(order.getPriceListName());
 
-        // Map items
-        // Simplified: Clear and re-add for now
         entity.getItems().clear();
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
@@ -72,7 +67,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 ie.setSubtotal(item.getSubtotal());
                 ie.setNotes(item.getNotes());
 
-                // Map Services
                 if (item.getServices() != null) {
                     for (com.anotame.sales.domain.model.OrderItemService service : item.getServices()) {
                         com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity se = new com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity();
@@ -81,19 +75,17 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                         se.setUnitPrice(service.getUnitPrice());
                         se.setAdjustmentAmount(service.getAdjustmentAmount());
                         se.setAdjustmentReason(service.getAdjustmentReason());
-                        se.setDurationMin(service.getDurationMin()); // Map duration
-                        se.setOrderItem(ie); // Link parent
+                        se.setDurationMin(service.getDurationMin());
+                        se.setOrderItem(ie);
                         ie.getServices().add(se);
                     }
                 }
 
-                entity.addItem(ie); // This also sets the order in OrderEntity.addItem if correctly implemented
-                // Manually ensure link if addItem is simple add
+                entity.addItem(ie);
                 ie.setOrder(entity);
             }
         }
 
-        // Link Customer
         if (order.getCustomer() != null && order.getCustomer().getId() != null) {
             CustomerEntity customerEntity = customerRepository.findById(order.getCustomer().getId());
             if (customerEntity != null) {
@@ -107,7 +99,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
 
     @Override
     public List<Order> findAll() {
-        return orderRepository.listAll().stream().map(this::toDomain).collect(Collectors.toList());
+        return orderRepository.listAll().stream().map(this::toDomain).toList();
     }
 
     @Override
@@ -217,7 +209,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         o.setPriceListId(entity.getPriceListId());
         o.setPriceListName(entity.getPriceListName());
 
-        // Map Customer
         if (entity.getCustomer() != null) {
             com.anotame.sales.domain.model.Customer c = new com.anotame.sales.domain.model.Customer();
             c.setId(entity.getCustomer().getId());
@@ -228,7 +219,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
             o.setCustomer(c);
         }
 
-        // Map Items
         if (entity.getItems() != null) {
             for (OrderItemEntity ie : entity.getItems()) {
                 OrderItem item = new OrderItem();
@@ -240,7 +230,6 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 item.setSubtotal(ie.getSubtotal());
                 item.setNotes(ie.getNotes());
 
-                // Map Services
                 if (ie.getServices() != null) {
                     for (com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity se : ie
                             .getServices()) {
@@ -251,7 +240,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                         s.setUnitPrice(se.getUnitPrice());
                         s.setAdjustmentAmount(se.getAdjustmentAmount());
                         s.setAdjustmentReason(se.getAdjustmentReason());
-                        s.setDurationMin(se.getDurationMin()); // Map back
+                        s.setDurationMin(se.getDurationMin());
                         item.addService(s);
                     }
                 }

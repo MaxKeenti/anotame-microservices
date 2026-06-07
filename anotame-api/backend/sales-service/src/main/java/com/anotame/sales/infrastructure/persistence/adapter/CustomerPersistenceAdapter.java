@@ -5,19 +5,18 @@ import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.infrastructure.persistence.entity.CustomerEntity;
 import com.anotame.sales.infrastructure.persistence.repository.CustomerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
+@RequiredArgsConstructor
 public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
 
-    @Inject
-    CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
 
     @Override
     public Optional<Customer> findById(UUID id) {
@@ -38,7 +37,7 @@ public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
     public List<Customer> search(String query) {
         return customerRepository.search(query).stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -48,19 +47,17 @@ public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
         if (customer.getId() != null) {
             entity = customerRepository.findById(customer.getId());
             if (entity == null) {
-                entity = new CustomerEntity(); // Should handle update vs create appropriately
+                entity = new CustomerEntity();
             }
         } else {
             entity = new CustomerEntity();
         }
 
-        // Map fields
         entity.setFirstName(customer.getFirstName());
         entity.setLastName(customer.getLastName());
         entity.setEmail(customer.getEmail());
         entity.setPhoneNumber(customer.getPhoneNumber());
         entity.setPreferences(customer.getPreferences());
-        // ID, CreatedAt, UpdatedAt handled by DB/JPA
 
         customerRepository.persist(entity);
         return toDomain(entity);
@@ -69,7 +66,7 @@ public class CustomerPersistenceAdapter implements CustomerRepositoryPort {
     @Override
     @Transactional
     public void deleteById(UUID id) {
-        customerRepository.delete("id = ?1", id); // Hard delete or soft? Original used @SQLDelete
+        customerRepository.deleteById(id);
     }
 
     private Customer toDomain(CustomerEntity entity) {
