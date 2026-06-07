@@ -10,6 +10,7 @@ import com.anotame.sales.application.service.SalesService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Path("/orders")
@@ -31,9 +33,12 @@ public class OrdersController {
     private final SalesService salesService;
     private final JsonWebToken jwt;
 
+    @ConfigProperty(name = "app.default-branch-id")
+    UUID defaultBranchId;
+
     @POST
     public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
-        return salesService.createOrderDTO(request, requireUuidClaim("user_id"), requireUuidClaim("branch_id"));
+        return salesService.createOrderDTO(request, requireUuidClaim("user_id"), branchIdFromJwtOrDefault());
     }
 
     @GET
@@ -103,12 +108,21 @@ public class OrdersController {
     }
 
     private UUID requireUuidClaim(String claimName) {
+        return readUuidClaim(claimName)
+                .orElseThrow(() -> new BadRequestException("Missing or invalid " + claimName + " claim in JWT token"));
+    }
+
+    private UUID branchIdFromJwtOrDefault() {
+        return readUuidClaim("branch_id").orElse(defaultBranchId);
+    }
+
+    private Optional<UUID> readUuidClaim(String claimName) {
         String claimValue = jwt.getClaim(claimName);
         if (claimValue == null || claimValue.isBlank()) {
-            throw new BadRequestException("Missing or invalid " + claimName + " claim in JWT token");
+            return Optional.empty();
         }
         try {
-            return UUID.fromString(claimValue);
+            return Optional.of(UUID.fromString(claimValue));
         } catch (IllegalArgumentException e) {
             log.error("Invalid {} format in JWT token: {}", claimName, e.getMessage(), e);
             throw new BadRequestException("Invalid request format");

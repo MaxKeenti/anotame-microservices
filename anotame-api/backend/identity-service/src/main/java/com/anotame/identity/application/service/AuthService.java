@@ -14,7 +14,9 @@ import com.anotame.identity.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,6 +27,9 @@ public class AuthService {
         private final UserRepositoryPort userRepository;
         private final PasswordHasherPort passwordHasher;
         private final TokenGeneratorPort tokenGenerator;
+
+        @ConfigProperty(name = "app.default-branch-id")
+        Optional<UUID> defaultBranchId;
 
         public AuthResponse login(LoginRequest request) {
                 var user = userRepository.findByUsername(request.getUsername())
@@ -72,6 +77,9 @@ public class AuthService {
         private AuthResponse buildAuthResponse(User user) {
                 Set<String> roles = rolesFor(user);
                 UUID branchId = userRepository.findActiveBranchForUser(user.getId());
+                if (branchId == null) {
+                        branchId = defaultBranchId.orElse(null);
+                }
                 var jwtToken = tokenGenerator.generateToken(user.getUsername(), user.getId(), branchId, roles);
 
                 var userResponse = mapToResponse(user);
