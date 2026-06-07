@@ -33,7 +33,7 @@ class ApiService {
     const config: RequestInit = {
       ...init,
       headers,
-      credentials: "include", // Essential for HttpOnly cookies as in the legacy system
+      credentials: "include",
     };
 
     const response = await fetch(input, config);
@@ -67,7 +67,7 @@ class ApiService {
           // Format 1: New unified shape {"errorCode": "...", "message": "...", "details": [...]}
           if (errorData.message) {
             backendMessage = errorData.message;
-          // Format 2: Legacy shape {"error": "Message"} — kept for backward compat during migration
+            // Fallback shape from older services or intermediaries: {"error": "Message"}
           } else if (errorData.error) {
             backendMessage = errorData.error;
           }
@@ -111,7 +111,7 @@ class ApiService {
     }
   }
 
-  // Example methods mapped from legacy
+  // Convenience methods for order flows
   async getOrder(id: string): Promise<OrderResponse> {
     return this.request<OrderResponse>(`${API_SALES}/orders/${id}`);
   }

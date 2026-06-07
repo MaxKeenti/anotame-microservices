@@ -42,6 +42,13 @@ function resolveBackendUrl(apiPath: string): string | null {
 	return null;
 }
 
+function proxyError(errorCode: string, message: string, status: number): Response {
+	return new Response(
+		JSON.stringify({ errorCode, message, details: [] }),
+		{ status, headers: { 'Content-Type': 'application/json' } },
+	);
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const { request } = event;
 	const url = new URL(request.url);
@@ -55,9 +62,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 		if (!targetBase) {
 			console.warn(`[proxy] No backend mapping found for path: ${url.pathname}`);
-			return new Response(
-				JSON.stringify({ error: `No backend configured for ${url.pathname}` }),
-				{ status: 404, headers: { 'Content-Type': 'application/json' } },
+			return proxyError(
+				'BACKEND_NOT_CONFIGURED',
+				`No backend configured for ${url.pathname}`,
+				404,
 			);
 		}
 
@@ -114,10 +122,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 					`[proxy] Failed to read request body for ${request.method} ${fullTargetUrl}:`,
 					err,
 				);
-				return new Response(JSON.stringify({ error: 'Failed to read request body' }), {
-					status: 400,
-					headers: { 'Content-Type': 'application/json' },
-				});
+				return proxyError('INVALID_REQUEST_BODY', 'Failed to read request body', 400);
 			}
 		}
 
@@ -132,9 +137,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 			});
 		} catch (err) {
 			console.error(`[proxy] Network error reaching ${fullTargetUrl}:`, err);
-			return new Response(
-				JSON.stringify({ error: `Backend unreachable: ${(err as Error).message}` }),
-				{ status: 502, headers: { 'Content-Type': 'application/json' } },
+			return proxyError(
+				'BACKEND_UNREACHABLE',
+				`Backend unreachable: ${(err as Error).message}`,
+				502,
 			);
 		}
 

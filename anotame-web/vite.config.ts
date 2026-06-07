@@ -15,7 +15,7 @@ export default defineConfig({
 	build: {
 		rollupOptions: {
 			onLog(level, log, defaultHandler) {
-				// Prevent Third-Party NPM libraries from cluttering our terminal logs!
+				// Prevent third-party dependencies from cluttering our terminal logs.
 				if (log.code === 'CIRCULAR_DEPENDENCY' || log.message?.includes('Circular dependency')) {
 					return;
 				}
