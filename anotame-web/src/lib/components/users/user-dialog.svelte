@@ -35,7 +35,7 @@
   let isSubmitting = $state(false);
 
   const superform = superForm(defaults(zod4(userSchema)), {
-    id: formId,
+    id: untrack(() => formId),
     SPA: true,
     validators: zod4(userSchema),
     async onUpdate({ form }) {
