@@ -100,8 +100,11 @@ public class SalesService {
         order.setCreatedBy(userId);
         order.setCreatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
-        // amountPaid starts at 0; the ledger entry below drives the denormalized cache
-        order.setAmountPaid(BigDecimal.ZERO);
+        // amountPaid is a denormalized cache backed by the payment ledger; seed it below
+        // (before the single persist) when an initial payment is supplied.
+        BigDecimal initialPayment = request.getAmountPaid();
+        boolean hasInitialPayment = initialPayment != null && initialPayment.compareTo(BigDecimal.ZERO) > 0;
+        order.setAmountPaid(hasInitialPayment ? initialPayment : BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());
         order.setPriceListId(request.getPriceListId());
         order.setPriceListName(request.getPriceListName());
@@ -123,9 +126,10 @@ public class SalesService {
 
         Order saved = orderRepository.save(order);
 
-        // If an initial payment was provided at order creation, create the ledger entry
-        BigDecimal initialPayment = request.getAmountPaid();
-        if (initialPayment != null && initialPayment.compareTo(BigDecimal.ZERO) > 0) {
+        // Record the ledger entry backing amountPaid. Done after the save (needs the generated
+        // order id) but without re-saving the order — a second save() would reload the entity
+        // and delete+recreate every line item via orphanRemoval.
+        if (hasInitialPayment) {
             OffsetDateTime now = OffsetDateTime.now();
             OrderPayment payment = new OrderPayment();
             payment.setOrderId(saved.getId());
@@ -134,9 +138,6 @@ public class SalesService {
             payment.setRecordedAt(now);
             payment.setCreatedAt(now);
             paymentRepository.save(payment);
-
-            saved.setAmountPaid(initialPayment);
-            saved = orderRepository.save(saved);
         }
 
         return saved;
