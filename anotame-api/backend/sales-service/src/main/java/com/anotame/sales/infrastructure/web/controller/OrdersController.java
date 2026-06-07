@@ -10,6 +10,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -22,42 +24,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrdersController {
 
+    private static final Logger log = LoggerFactory.getLogger(OrdersController.class);
+
     private final SalesService salesService;
     private final JsonWebToken jwt;
 
     @POST
     public OrderResponse createOrder(@jakarta.validation.Valid CreateOrderRequest request) {
-        String userIdClaim = (String) jwt.getClaim("user_id");
-        if (userIdClaim == null || userIdClaim.isEmpty()) {
-            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
-        }
-
-        String branchIdClaim = (String) jwt.getClaim("branch_id");
-        // Intentional backward compatibility: branch_id is optional with fallback to
-        // default branch (Oaxaca #113)
-        // This supports newly registered users, legacy sessions, and v1.0 rollout
-        // without requiring re-login
-        UUID branchId;
-        try {
-            branchId = (branchIdClaim != null && !branchIdClaim.isEmpty())
-                    ? UUID.fromString(branchIdClaim)
-                    : UUID.fromString("ea22f4a4-5504-43d9-92f9-30cc17b234d1");
-        } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid branch_id format in JWT token: {}",
-                    e.getMessage(), e);
-            throw new jakarta.ws.rs.BadRequestException("Invalid request format");
-        }
-
-        UUID userId;
-        try {
-            userId = UUID.fromString(userIdClaim);
-        } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid user_id format in JWT token: {}",
-                    e.getMessage(), e);
-            throw new jakarta.ws.rs.BadRequestException("Invalid request format");
-        }
-
-        return salesService.createOrderDTO(request, userId, branchId);
+        return salesService.createOrderDTO(request, requireUuidClaim("user_id"), requireUuidClaim("branch_id"));
     }
 
     @GET
@@ -74,18 +48,7 @@ public class OrdersController {
     @PUT
     @Path("/{id}")
     public OrderResponse updateOrder(@PathParam("id") UUID id, @jakarta.validation.Valid UpdateOrderRequest request) {
-        String userIdClaim = (String) jwt.getClaim("user_id");
-        if (userIdClaim == null || userIdClaim.isEmpty()) {
-            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
-        }
-        UUID userId;
-        try {
-            userId = UUID.fromString(userIdClaim);
-        } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid user_id format in JWT token: {}",
-                    e.getMessage(), e);
-            throw new jakarta.ws.rs.BadRequestException("Invalid request format");
-        }
+        UUID userId = requireUuidClaim("user_id");
         String role = jwt.getGroups().stream().findFirst().orElse("EMPLOYEE");
         return salesService.updateOrder(id, request, userId, role);
     }
@@ -96,18 +59,7 @@ public class OrdersController {
     @Produces(MediaType.APPLICATION_JSON)
     public jakarta.ws.rs.core.Response deliverOrder(@PathParam("id") UUID id,
                                                      @jakarta.validation.Valid DeliverOrderRequest body) {
-        String userIdClaim = (String) jwt.getClaim("user_id");
-        if (userIdClaim == null || userIdClaim.isEmpty()) {
-            throw new jakarta.ws.rs.BadRequestException("Missing or invalid user_id claim in JWT token");
-        }
-        UUID userId;
-        try {
-            userId = UUID.fromString(userIdClaim);
-        } catch (IllegalArgumentException e) {
-            org.slf4j.LoggerFactory.getLogger(OrdersController.class).error("Invalid user_id format in JWT token: {}",
-                    e.getMessage(), e);
-            throw new jakarta.ws.rs.BadRequestException("Invalid request format");
-        }
+        UUID userId = requireUuidClaim("user_id");
         salesService.deliverOrder(
                 id,
                 body.getPickupCode(),
@@ -134,5 +86,18 @@ public class OrdersController {
     public void updateStatus(@PathParam("id") UUID id, Map<String, String> payload) {
         String status = payload.get("status");
         salesService.updateOrderStatus(id, status);
+    }
+
+    private UUID requireUuidClaim(String claimName) {
+        String claimValue = jwt.getClaim(claimName);
+        if (claimValue == null || claimValue.isBlank()) {
+            throw new BadRequestException("Missing or invalid " + claimName + " claim in JWT token");
+        }
+        try {
+            return UUID.fromString(claimValue);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid {} format in JWT token: {}", claimName, e.getMessage(), e);
+            throw new BadRequestException("Invalid request format");
+        }
     }
 }
