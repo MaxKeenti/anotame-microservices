@@ -175,7 +175,7 @@ public class SalesService {
 
     private com.anotame.sales.application.dto.OrderResponse mapToResponse(Order order) {
         if (order.getCustomer() == null) {
-            throw new RuntimeException("Order customer cannot be null");
+            throw new IllegalStateException("Order customer cannot be null");
         }
         CustomerDto custDto = new CustomerDto();
         custDto.setId(order.getCustomer().getId());
