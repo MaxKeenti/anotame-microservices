@@ -2,6 +2,7 @@ package com.anotame.catalog.infrastructure.persistence.adapter;
 
 import com.anotame.catalog.application.port.output.GarmentRepositoryPort;
 import com.anotame.catalog.domain.model.GarmentType;
+import com.anotame.catalog.infrastructure.persistence.entity.GarmentTypeEntity;
 import com.anotame.catalog.infrastructure.persistence.repository.GarmentTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -21,7 +22,9 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
 
     @Override
     public List<GarmentType> findAllActive() {
-        return repository.findByActiveTrue();
+        return repository.findByActiveTrue().stream()
+                .map(CatalogPersistenceMapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -29,7 +32,8 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
         if (id == null) {
             return Optional.empty();
         }
-        return repository.findByIdOptional(id);
+        return repository.findByIdOptional(id)
+                .map(CatalogPersistenceMapper::toDomain);
     }
 
     @Override
@@ -38,19 +42,18 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
         if (garmentType == null) {
             return null;
         }
-        if (garmentType.getId() == null) {
-            repository.persist(garmentType);
+        GarmentTypeEntity entity = garmentType.getId() == null
+                ? new GarmentTypeEntity()
+                : repository.findByIdOptional(garmentType.getId())
+                        .orElseThrow(() -> new IllegalStateException("Garment type not found: " + garmentType.getId()));
+
+        CatalogPersistenceMapper.apply(entity, garmentType);
+
+        if (entity.getId() == null) {
+            repository.persist(entity);
         }
-        // If entity is already persisted (has ID) and is managed, changes are
-        // auto-flushed.
-        // If passed entity is detached (from Controller Request -> DTO -> Entity with
-        // ID),
-        // we might need merge. PanacheRepository doesn't have merge.
-        // But `CatalogService` usually fetches entity first, then modifies it
-        // (attached).
-        // Exceptions: New entity (Id null) -> Persist.
-        // Let's assume standard attached entities for updates.
-        return garmentType;
+
+        return CatalogPersistenceMapper.toDomain(entity);
     }
 
     @Override
@@ -59,7 +62,6 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
         if (id != null) {
             repository.findByIdOptional(id).ifPresent(garment -> {
                 garment.setActive(false);
-                // No explicit save needed if attached and Transactional
             });
         }
     }

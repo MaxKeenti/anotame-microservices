@@ -40,8 +40,6 @@ public class PriceListService {
         list.setActive(request.isActive());
         list.setPriority(request.getPriority());
 
-        priceListRepository.save(list);
-
         if (request.getItems() != null) {
             for (PriceListRequest.ItemRequest itemReq : request.getItems()) {
                 Service service = serviceRepository.findById(itemReq.getServiceId())
@@ -53,7 +51,7 @@ public class PriceListService {
             }
         }
 
-        return mapToResponse(list);
+        return mapToResponse(priceListRepository.save(list));
     }
 
     public PricingCalculationResponse calculatePrice(PricingCalculationRequest request) {
