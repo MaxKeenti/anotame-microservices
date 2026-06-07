@@ -4,12 +4,12 @@ import com.anotame.sales.application.dto.AddPaymentRequest;
 import com.anotame.sales.application.dto.PaymentResponse;
 import com.anotame.sales.application.port.output.OrderPaymentRepositoryPort;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
+import com.anotame.sales.domain.exception.SalesNotFoundException;
+import com.anotame.sales.domain.exception.SalesUnprocessableException;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderPayment;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -27,33 +27,21 @@ public class PaymentService {
     @Transactional
     public PaymentResponse addPayment(UUID orderId, AddPaymentRequest request) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new WebApplicationException(
-                        Response.status(Response.Status.NOT_FOUND)
-                                .entity("Order not found: " + orderId)
-                                .build()));
+                .orElseThrow(() -> new SalesNotFoundException("Order not found: " + orderId));
 
         if ("CANCELLED".equals(order.getStatus())) {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.fromStatusCode(422))
-                            .entity("Cannot record payment for a cancelled order")
-                            .build());
+            throw new SalesUnprocessableException("Cannot record payment for a cancelled order");
         }
 
         if (request.amount().compareTo(BigDecimal.ZERO) < 0
                 && (request.notes() == null || request.notes().isBlank())) {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.fromStatusCode(422))
-                            .entity("REFUND_NOTE_REQUIRED")
-                            .build());
+            throw new SalesUnprocessableException("REFUND_NOTE_REQUIRED");
         }
 
         BigDecimal newTotal = order.getAmountPaid().add(request.amount());
         if (newTotal.compareTo(order.getTotalAmount()) > 0) {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.fromStatusCode(422))
-                            .entity("Payment would exceed order total. Balance remaining: "
-                                    + order.getTotalAmount().subtract(order.getAmountPaid()))
-                            .build());
+            throw new SalesUnprocessableException("Payment would exceed order total. Balance remaining: "
+                    + order.getTotalAmount().subtract(order.getAmountPaid()));
         }
 
         OffsetDateTime now = OffsetDateTime.now();
@@ -78,14 +66,9 @@ public class PaymentService {
     }
 
     public List<PaymentResponse> getPayments(UUID orderId) {
-        orderRepository.findById(orderId)
-                .orElseThrow(() -> new WebApplicationException(
-                        Response.status(Response.Status.NOT_FOUND)
-                                .entity("Order not found: " + orderId)
-                                .build()));
-
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new SalesNotFoundException("Order not found: " + orderId));
         BigDecimal amountPaid = paymentRepository.sumByOrderId(orderId);
-        Order order = orderRepository.findById(orderId).orElseThrow();
 
         return paymentRepository.findByOrderId(orderId).stream()
                 .map(p -> toResponse(p, amountPaid, order.getTotalAmount(),

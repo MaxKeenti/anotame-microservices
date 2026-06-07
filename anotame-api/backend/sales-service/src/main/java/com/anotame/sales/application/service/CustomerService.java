@@ -2,12 +2,12 @@ package com.anotame.sales.application.service;
 
 import com.anotame.sales.application.dto.CustomerDto;
 import com.anotame.sales.application.port.output.CustomerRepositoryPort;
-import com.anotame.sales.domain.exception.FieldValidationException; // <-- Imported custom exception
+import com.anotame.sales.domain.exception.FieldValidationException;
+import com.anotame.sales.domain.exception.SalesNotFoundException;
 import com.anotame.sales.domain.model.Customer;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException; // <-- Using standard JAX-RS for 404s
 
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +47,7 @@ public class CustomerService {
     @Transactional
     public CustomerDto getCustomer(UUID id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente no encontrado")); // Better than RuntimeException
+                .orElseThrow(() -> new SalesNotFoundException("Cliente no encontrado"));
         return mapToDto(customer);
     }
 
@@ -61,7 +61,7 @@ public class CustomerService {
     @Transactional
     public CustomerDto updateCustomer(UUID id, CustomerDto dto) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new SalesNotFoundException("Cliente no encontrado"));
 
         String newEmail = (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) ? dto.getEmail().trim() : null;
 
@@ -92,7 +92,7 @@ public class CustomerService {
     @Transactional
     public void deleteCustomer(UUID id) {
         if (customerRepository.findById(id).isEmpty()) {
-            throw new NotFoundException("Cliente no encontrado");
+            throw new SalesNotFoundException("Cliente no encontrado");
         }
         customerRepository.deleteById(id);
     }

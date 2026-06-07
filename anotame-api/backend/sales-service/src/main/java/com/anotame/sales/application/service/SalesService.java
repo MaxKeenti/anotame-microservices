@@ -5,6 +5,9 @@ import com.anotame.sales.application.dto.CreateOrderRequest;
 import com.anotame.sales.application.dto.CustomerDto;
 import com.anotame.sales.application.dto.OrderItemDto;
 import com.anotame.sales.application.dto.UpdateOrderRequest;
+import com.anotame.sales.domain.exception.SalesConflictException;
+import com.anotame.sales.domain.exception.SalesNotFoundException;
+import com.anotame.sales.domain.exception.SalesValidationException;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
@@ -16,9 +19,6 @@ import com.anotame.sales.application.port.output.OrderAuditLogRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -32,7 +32,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -237,7 +236,7 @@ public class SalesService {
     @Transactional
     public com.anotame.sales.application.dto.OrderResponse getOrder(UUID id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new SalesNotFoundException("Order not found"));
         return mapToResponse(order);
     }
 
@@ -256,15 +255,11 @@ public class SalesService {
     public com.anotame.sales.application.dto.OrderResponse updateOrder(UUID id, UpdateOrderRequest request, UUID userId,
             String role) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new WebApplicationException(
-                        Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()));
+                .orElseThrow(() -> new SalesNotFoundException("Pedido no encontrado"));
 
         // Status lock: DELIVERED and CANCELLED orders cannot be edited
         if ("DELIVERED".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            throw new WebApplicationException(
-                    Response.status(409)
-                            .entity(Map.of("error", "No se puede editar un pedido entregado o cancelado"))
-                            .build());
+            throw new SalesConflictException("No se puede editar un pedido entregado o cancelado");
         }
 
         // Audit log: record per-field changes before applying updates
@@ -366,13 +361,10 @@ public class SalesService {
     @Transactional
     public void updateOrderStatus(UUID id, String status) {
         if (status == null || !VALID_STATUSES.contains(status)) {
-            throw new WebApplicationException(
-                    Response.status(400)
-                            .entity(Map.of("error", "Estado inválido: " + status))
-                            .build());
+            throw new SalesValidationException("Estado inválido: " + status);
         }
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new SalesNotFoundException("Order not found"));
         order.setStatus(status);
         order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         orderRepository.save(order);
@@ -382,31 +374,21 @@ public class SalesService {
     public void deliverOrder(UUID orderId, String pickupCode, UUID userId, boolean markFullyPaid,
                              String paymentMethod) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new WebApplicationException(
-                        Response.status(404).entity(Map.of("error", "Pedido no encontrado")).build()));
+                .orElseThrow(() -> new SalesNotFoundException("Pedido no encontrado"));
 
         if (!"READY".equals(order.getStatus())) {
-            throw new WebApplicationException(
-                    Response.status(409)
-                            .entity(Map.of("error", "Solo se pueden entregar pedidos en estado LISTO"))
-                            .build());
+            throw new SalesConflictException("Solo se pueden entregar pedidos en estado LISTO");
         }
 
         if (order.getPickupCode() == null || order.getPickupCode().isEmpty()) {
-            throw new WebApplicationException(
-                    Response.status(400)
-                            .entity(Map.of("error", "Código de recogida no está disponible para este pedido"))
-                            .build());
+            throw new SalesValidationException("Código de recogida no está disponible para este pedido");
         }
 
         boolean valid = MessageDigest.isEqual(
                 order.getPickupCode().getBytes(java.nio.charset.StandardCharsets.UTF_8),
                 pickupCode.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         if (!valid) {
-            throw new WebApplicationException(
-                    Response.status(400)
-                            .entity(Map.of("error", "Código de recogida incorrecto"))
-                            .build());
+            throw new SalesValidationException("Código de recogida incorrecto");
         }
 
         OffsetDateTime deliveredAt = OffsetDateTime.now(ZoneId.systemDefault());
@@ -454,10 +436,7 @@ public class SalesService {
             if (VALID_PAYMENT_METHODS.contains(normalized)) {
                 return normalized;
             }
-            throw new WebApplicationException(
-                    Response.status(400)
-                            .entity(Map.of("error", "Método de pago inválido: " + requestedPaymentMethod))
-                            .build());
+            throw new SalesValidationException("Método de pago inválido: " + requestedPaymentMethod);
         }
 
         if (orderPaymentMethod != null && !orderPaymentMethod.isBlank()) {
@@ -474,7 +453,7 @@ public class SalesService {
         UUID customerId = dto.getId();
         if (customerId != null) {
             return customerRepository.findById(customerId)
-                    .orElseThrow(() -> new RuntimeException("Customer not found"));
+                    .orElseThrow(() -> new SalesNotFoundException("Customer not found"));
         }
 
         // Check by existing unique fields
@@ -776,7 +755,7 @@ public class SalesService {
         try {
             return YearMonth.parse(monthParam);
         } catch (DateTimeParseException e) {
-            throw new BadRequestException("month must use YYYY-MM format");
+            throw new SalesValidationException("month must use YYYY-MM format");
         }
     }
 }
