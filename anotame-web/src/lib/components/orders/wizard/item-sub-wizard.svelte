@@ -8,10 +8,15 @@
 	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
+	import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
+	import type { DraftOrderItem } from '$lib/services/orders/OrderWizardState.svelte';
+
+	type DraftService = DraftOrderItem['services'][number];
+	type TempService = Pick<ServiceResponse, 'id' | 'name' | 'description'> & Partial<ServiceResponse>;
 
 	let props = $props<{
-		initialItem?: any,
-		onSave: (item: any) => void,
+		initialItem?: DraftOrderItem,
+		onSave: (item: DraftOrderItem) => void,
 		onCancel: () => void
 	}>();
 
@@ -19,14 +24,14 @@
 		return props.initialItem ? 1 : 0;
 	}
 	let step = $state(getInitialStep());
-	let garmentTypes = $state<any[]>([]);
-	let services = $state<any[]>([]);
+	let garmentTypes = $state<GarmentTypeResponse[]>([]);
+	let services = $state<ServiceResponse[]>([]);
 	let loading = $state(true);
 
-	let selectedGarment = $state<any | null>(null);
-	let addedServices = $state<any[]>([]);
+	let selectedGarment = $state<GarmentTypeResponse | null>(null);
+	let addedServices = $state<DraftService[]>([]);
 
-	let tempService = $state<any | null>(null);
+	let tempService = $state<TempService | null>(null);
 	let price = $state<string>("");
 	let adj = $state<string>("");
 	let adjReason = $state("");
@@ -51,21 +56,23 @@
 	onMount(async () => {
 		try {
 			const [gRes, sRes] = await Promise.all([
-				apiService.request<any[]>(`${API_CATALOG}/catalog/garments`),
-				apiService.request<any[]>(`${API_CATALOG}/catalog/services`)
+				apiService.request<GarmentTypeResponse[]>(`${API_CATALOG}/catalog/garments`),
+				apiService.request<ServiceResponse[]>(`${API_CATALOG}/catalog/services`)
 			]);
-			garmentTypes = (gRes || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'es'));
+			garmentTypes = (gRes || []).sort((a: GarmentTypeResponse, b: GarmentTypeResponse) => a.name.localeCompare(b.name, 'es'));
 			services = sRes || [];
 
-			if (props.initialItem) {
-				let g = garmentTypes.find(x => x.id === props.initialItem.garmentId || x.id === props.initialItem.garmentTypeId);
-				if (!g && props.initialItem.garmentName) {
-					g = garmentTypes.find(x => x.name.toLowerCase() === props.initialItem.garmentName.toLowerCase());
+			const init = props.initialItem;
+			if (init) {
+				let g = garmentTypes.find(x => x.id === init.garmentId || x.id === init.garmentTypeId);
+				if (!g && init.garmentName) {
+					const targetName = init.garmentName.toLowerCase();
+					g = garmentTypes.find(x => x.name.toLowerCase() === targetName);
 				}
 				if (g) selectedGarment = g;
 
-				if (props.initialItem.services) addedServices = [...props.initialItem.services];
-				notes = props.initialItem.notes || "";
+				if (init.services) addedServices = [...init.services];
+				notes = init.notes || "";
 			}
 		} catch (e) {
 			console.error(e);
@@ -107,7 +114,7 @@
 		});
 	});
 
-	function handleGarmentSelect(g: any) {
+	function handleGarmentSelect(g: GarmentTypeResponse) {
 		selectedGarment = g;
 		addedServices = [];
 		step = 1;
@@ -115,7 +122,7 @@
 		serviceFilter = "";
 	}
 
-	function handleServiceSelect(s: any) {
+	function handleServiceSelect(s: ServiceResponse) {
 		tempService = s;
 		
 		// Auto-fill from price list if selected, otherwise use service default price
@@ -268,7 +275,7 @@
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <div class="text-right">
-                                            <div class="font-mono font-bold text-lg">${(s.unitPrice + s.adjustmentAmount).toFixed(2)}</div>
+                                            <div class="font-mono font-bold text-lg">${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)}</div>
                                         </div>
                                         <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
                                             <Pencil class="w-5 h-5" />
@@ -280,7 +287,7 @@
                                 </div>
                             {/each}
                             <div class="text-right font-bold pt-3 border-t text-xl">
-                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
                             </div>
                         </div>
                     {/if}
@@ -415,12 +422,12 @@
                         <h4 class="font-bold text-2xl mb-4">{selectedGarment?.name}</h4>
                         <ul class="space-y-2 text-base text-muted-foreground">
                             {#each addedServices as s}
-                                <li>• {s.serviceName} (${(s.unitPrice + s.adjustmentAmount).toFixed(2)})</li>
+                                <li>• {s.serviceName} (${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)})</li>
                             {/each}
                         </ul>
                         <div class="mt-4 pt-4 border-t border-dashed border-foreground/20 flex flex-col items-end gap-3">
                             <div class="font-bold text-xl">
-                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
                             </div>
                             <Button
                                 variant="outline"

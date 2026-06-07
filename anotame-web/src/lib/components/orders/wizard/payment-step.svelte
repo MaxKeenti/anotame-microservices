@@ -2,6 +2,7 @@
 	import { onMount, untrack, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
+	import type { DraftOrder, DraftOrderItem } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
 	import {
 		apiService,
@@ -18,21 +19,23 @@
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
 	import * as m from '$lib/paraglide/messages';
-	import type { OrderResponse } from '$lib/types/dtos';
+	import type { OrderResponse, WorkloadDayResponse, Establishment } from '$lib/types/dtos';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+
+	type DraftService = DraftOrderItem['services'][number];
 
 	let props = $props<{ onNext: () => void; onBack: () => void }>();
 
 	let isSubmitting = $state(false);
 	let error = $state<string | null>(null);
 
-	let draft = $derived(orderWizardState.activeDraft || ({} as any));
+	let draft = $derived(orderWizardState.activeDraft ?? ({} as Partial<DraftOrder>));
 
 	let total = $derived(
-		(draft?.items || []).reduce((acc: number, item: any) => {
+		(draft?.items || []).reduce((acc: number, item: DraftOrderItem) => {
 			const itemTotal = (item.services || []).reduce(
-				(sAcc: number, s: any) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0),
+				(sAcc: number, s: DraftService) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0),
 				0
 			);
 			return acc + itemTotal;
@@ -82,13 +85,13 @@
 				const mm = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
-				const orderItems = (draft?.items || []).map((item: any) => ({
+				const orderItems = (draft?.items || []).map((item: DraftOrderItem) => ({
 					garmentTypeId: item.garmentTypeId || item.garmentId || null,
 					garmentName: item.garmentName || '',
 					quantity: item.quantity ?? 1,
 					notes: item.notes || '',
 					services:
-						item.services?.map((s: any) => ({
+						item.services?.map((s: DraftService) => ({
 							serviceId: s.serviceId,
 							serviceName: s.serviceName,
 							unitPrice: s.unitPrice,
@@ -181,7 +184,7 @@
 			draft?.committedDeadline ||
 			draft?.notes
 		) {
-			$form.paymentMethod = draft?.paymentMethod || 'CASH';
+			$form.paymentMethod = (draft?.paymentMethod as 'CASH' | 'CARD' | 'TRANSFER') || 'CASH';
 			$form.amountPaid = draft?.amountPaid ?? 0;
 			// For edit mode, always set committedDeadline from draft (required field)
 			$form.committedDeadline = draft?.committedDeadline
@@ -219,13 +222,13 @@
 
 	// Workload validation logic
 	let capacity = $state(480);
-	let dailyWorkload = $state<any[]>([]);
+	let dailyWorkload = $state<WorkloadDayResponse[]>([]);
 
 	onMount(async () => {
 		try {
 			const [estData, metricsData] = await Promise.all([
-				apiService.request<any>(`${API_OPERATIONS}/establishment`),
-				apiService.request<any>(`${API_SALES}/orders/kpi/dashboard`)
+				apiService.request<Establishment>(`${API_OPERATIONS}/establishment`),
+				apiService.request<{ dailyWorkload?: WorkloadDayResponse[] }>(`${API_SALES}/orders/kpi/dashboard`)
 			]);
 			if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
 			if (metricsData?.dailyWorkload) dailyWorkload = metricsData.dailyWorkload;
@@ -237,7 +240,7 @@
 	let selectedDayWorkload = $derived.by(() => {
 		if (!draft?.committedDeadline || dailyWorkload.length === 0) return 0;
 		const selectedDate = draft?.committedDeadline.slice(0, 10);
-		const day = dailyWorkload.find((d: any) => d.date === selectedDate);
+		const day = dailyWorkload.find((d: WorkloadDayResponse) => d.date === selectedDate);
 		return day ? day.totalMinutesUsed : 0;
 	});
 

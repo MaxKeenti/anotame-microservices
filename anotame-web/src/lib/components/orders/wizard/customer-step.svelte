@@ -6,9 +6,10 @@
    import { Search, User, Plus } from 'lucide-svelte';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
-   
+   import type { CustomerDto } from '$lib/types/dtos';
+
    let query = $state('');
-   let results = $state<any[]>([]);
+   let results = $state<CustomerDto[]>([]);
    let isSearching = $state(false);
 
    $effect(() => {
@@ -16,7 +17,7 @@
            isSearching = true;
            const delay = setTimeout(async () => {
                try {
-                   const res = await apiService.request<any[]>(`${API_SALES}/api/customers/search?query=${query}`);
+                   const res = await apiService.request<CustomerDto[]>(`${API_SALES}/api/customers/search?query=${query}`);
                    results = res || [];
                } catch(e) {
                    results = [];
@@ -30,7 +31,7 @@
        }
    });
 
-   function selectCustomer(c: any) {
+   function selectCustomer(c: CustomerDto) {
        orderWizardState.updateActiveDraft({ customer: c });
        toast.success(m['customerStep.toast.selected'](), { description: `${c.firstName} ${c.lastName}` });
        query = '';
