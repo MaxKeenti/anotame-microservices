@@ -1,14 +1,16 @@
 package com.anotame.identity.infrastructure.security;
 
+import com.anotame.identity.application.port.output.TokenGeneratorPort;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
 import java.util.Set;
+import java.util.UUID;
 
 @ApplicationScoped
-public class JwtUtils {
+public class JwtUtils implements TokenGeneratorPort {
 
     @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "anotame-identity")
     String issuer;
@@ -18,13 +20,13 @@ public class JwtUtils {
      * @param userId    The user's real UUID from tca_user.id_user. Always present.
      * @param branchId  The user's active branch UUID from tce_employee_assignment.
      *                  May be null for users with no active branch assignment
-     *                  (e.g., newly registered users). When null the claim is
-     *                  omitted from the token; sales-service uses its rollout
-     *                  fallback in that case.
+     *                  (e.g., newly registered users). When null, the claim is
+     *                  omitted from the token and branch-scoped sales operations
+     *                  reject the request until an active assignment exists.
      * @param roles     Role codes (e.g. {"EMPLOYEE"}).
      */
-    public String generateToken(String username, java.util.UUID userId,
-                                java.util.UUID branchId, Set<String> roles) {
+    @Override
+    public String generateToken(String username, UUID userId, UUID branchId, Set<String> roles) {
         var builder = Jwt.issuer(issuer)
                 .upn(username)
                 .claim("user_id", userId.toString())

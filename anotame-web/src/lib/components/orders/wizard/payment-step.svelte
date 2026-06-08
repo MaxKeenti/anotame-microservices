@@ -2,6 +2,7 @@
 	import { onMount, untrack, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
+	import type { DraftOrder, DraftOrderItem } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
 	import {
 		apiService,
@@ -13,25 +14,28 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from 'lucide-svelte';
+	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
 	import * as m from '$lib/paraglide/messages';
+	import type { OrderResponse, WorkloadDayResponse, Establishment } from '$lib/types/dtos';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+
+	type DraftService = DraftOrderItem['services'][number];
 
 	let props = $props<{ onNext: () => void; onBack: () => void }>();
 
 	let isSubmitting = $state(false);
 	let error = $state<string | null>(null);
 
-	let draft = $derived(orderWizardState.activeDraft || ({} as any));
+	let draft = $derived(orderWizardState.activeDraft ?? ({} as Partial<DraftOrder>));
 
 	let total = $derived(
-		(draft?.items || []).reduce((acc: number, item: any) => {
+		(draft?.items || []).reduce((acc: number, item: DraftOrderItem) => {
 			const itemTotal = (item.services || []).reduce(
-				(sAcc: number, s: any) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0),
+				(sAcc: number, s: DraftService) => sAcc + (s.unitPrice || 0) + (s.adjustmentAmount || 0),
 				0
 			);
 			return acc + itemTotal;
@@ -40,16 +44,16 @@
 
 	const paymentSchema = z.object({
 		paymentMethod: z.enum(['CASH', 'CARD', 'TRANSFER']).default('CASH'),
-		amountPaid: z.number().min(0, 'El monto no puede ser negativo').default(0),
+		amountPaid: z.number().min(0, m['orders.wizard.zod.amountNotNegative']()).default(0),
 		committedDeadline: z
 			.string()
-			.min(1, 'La fecha de entrega es obligatoria')
+			.min(1, m['orders.wizard.zod.deadlineRequired']())
 			.refine((v) => {
 				const selected = new Date(v);
 				const now = new Date();
 				// 5 minute grace period to account for clock drift
 				return selected >= new Date(now.getTime() - 5 * 60 * 1000);
-			}, 'La fecha de entrega debe ser hoy o en el futuro'),
+			}, m['orders.wizard.zod.deadlineFuture']()),
 		notes: z.string().optional().or(z.literal(''))
 	});
 
@@ -60,7 +64,7 @@
 		async onUpdate({ form: f }) {
 			if (!f.valid) return;
 			if (!draft?.customer || !draft?.items || draft?.items.length === 0) {
-				error = 'Faltan datos requeridos (Cliente o Prendas)';
+				error = m['orders.wizard.missingData']();
 				return;
 			}
 			error = null;
@@ -81,13 +85,13 @@
 				const mm = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');
 				deadlineStr = `${deadlineStr}${sign}${hh}:${mm}`;
 
-				const orderItems = (draft?.items || []).map((item: any) => ({
+				const orderItems = (draft?.items || []).map((item: DraftOrderItem) => ({
 					garmentTypeId: item.garmentTypeId || item.garmentId || null,
 					garmentName: item.garmentName || '',
 					quantity: item.quantity ?? 1,
 					notes: item.notes || '',
 					services:
-						item.services?.map((s: any) => ({
+						item.services?.map((s: DraftService) => ({
 							serviceId: s.serviceId,
 							serviceName: s.serviceName,
 							unitPrice: s.unitPrice,
@@ -119,14 +123,14 @@
 					const targetId = draft?.id;
 					// Clear draft before navigation to avoid UI "blink" back to Step 1
 					orderWizardState.clearActiveDraft();
-					toast.success('Pedido guardado correctamente.');
+					toast.success(m['orders.wizard.saveSuccess']());
 					await goto(`/dashboard/orders/${targetId}`);
 				} else {
-					const res = await apiService.request<any>(`${API_SALES}/orders`, {
+					const res = await apiService.request<OrderResponse>(`${API_SALES}/orders`, {
 						method: 'POST',
 						body: JSON.stringify(payload)
 					});
-					toast.success('Nota confirmada exitosamente');
+					toast.success(m['orders.wizard.confirmSuccess']());
 					const targetId = res?.id;
 
 					// Navigate first, then cleanup to avoid UI "blink" to Step 1
@@ -149,18 +153,18 @@
 						.map(([field, msg]) => `${field}: ${msg}`)
 						.join(', ');
 					toast.error(m['orders.wizard.validationError'](), {
-						description: errorMessages || 'Hay errores en los campos marcados'
+						description: errorMessages || m['orders.wizard.validationErrorDesc']()
 					});
 				} else if (e instanceof ApiError && e.status === 409) {
 					if (draft?.isEditing) {
-						toast.error('No es posible editar este pedido.');
+						toast.error(m['orders.wizard.cannotEdit']());
 					} else {
 						error = m['orders.wizard.dbConflict']();
-						toast.error('Error al procesar la orden', { description: e.message });
+						toast.error(m['orders.wizard.processOrderError'](), { description: e.message });
 					}
 				} else {
 					error = `Error: ${e.message}`;
-					toast.error('Error al procesar la nota', { description: e.message });
+					toast.error(m['orders.wizard.processNoteError'](), { description: e.message });
 				}
 			} finally {
 				isSubmitting = false;
@@ -180,7 +184,7 @@
 			draft?.committedDeadline ||
 			draft?.notes
 		) {
-			$form.paymentMethod = draft?.paymentMethod || 'CASH';
+			$form.paymentMethod = (draft?.paymentMethod as 'CASH' | 'CARD' | 'TRANSFER') || 'CASH';
 			$form.amountPaid = draft?.amountPaid ?? 0;
 			// For edit mode, always set committedDeadline from draft (required field)
 			$form.committedDeadline = draft?.committedDeadline
@@ -218,13 +222,13 @@
 
 	// Workload validation logic
 	let capacity = $state(480);
-	let dailyWorkload = $state<any[]>([]);
+	let dailyWorkload = $state<WorkloadDayResponse[]>([]);
 
 	onMount(async () => {
 		try {
 			const [estData, metricsData] = await Promise.all([
-				apiService.request<any>(`${API_OPERATIONS}/establishment`),
-				apiService.request<any>(`${API_SALES}/orders/kpi/dashboard`)
+				apiService.request<Establishment>(`${API_OPERATIONS}/establishment`),
+				apiService.request<{ dailyWorkload?: WorkloadDayResponse[] }>(`${API_SALES}/orders/kpi/dashboard`)
 			]);
 			if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
 			if (metricsData?.dailyWorkload) dailyWorkload = metricsData.dailyWorkload;
@@ -236,7 +240,7 @@
 	let selectedDayWorkload = $derived.by(() => {
 		if (!draft?.committedDeadline || dailyWorkload.length === 0) return 0;
 		const selectedDate = draft?.committedDeadline.slice(0, 10);
-		const day = dailyWorkload.find((d: any) => d.date === selectedDate);
+		const day = dailyWorkload.find((d: WorkloadDayResponse) => d.date === selectedDate);
 		return day ? day.totalMinutesUsed : 0;
 	});
 
@@ -265,14 +269,14 @@
 
 <form method="POST" use:enhance class="flex flex-col h-full gap-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">Paso 3: Pago y Confirmación</h2>
+		<h2 class="text-xl font-semibold">{m['paymentStep.title']()}</h2>
 	</div>
 
 	<div class="flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
 		<!-- Total Section -->
 		<div class="text-center py-6 bg-muted/20 rounded-xl">
 			<div class="text-muted-foreground uppercase text-sm font-semibold tracking-wider">
-				Total a Pagar
+				{m['paymentStep.totalToPay']()}
 			</div>
 			<div class="text-5xl font-bold font-mono mt-2">${total.toFixed(2)}</div>
 		</div>
@@ -280,7 +284,7 @@
 		{#if !draft?.isEditing}
 		<!-- Payment Method (new orders only) -->
 		<div class="space-y-4">
-			<label class="text-sm font-medium" for="payment-method">Método de Pago</label>
+			<label class="text-sm font-medium" for="payment-method">{m['orders.wizard.paymentMethod']()}</label>
 			<div class="grid grid-cols-3 gap-4" id="payment-method">
 				<Button
 					type="button"
@@ -291,7 +295,7 @@
 					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CASH' || !$form.paymentMethod ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
 				>
 					<DollarSign class="w-8 h-8 mb-2" />
-					<span class="font-semibold">Efectivo</span>
+					<span class="font-semibold">{m['orders.wizard.cash']()}</span>
 				</Button>
 				<Button
 					type="button"
@@ -302,7 +306,7 @@
 					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
 				>
 					<CreditCard class="w-8 h-8 mb-2" />
-					<span class="font-semibold">Tarjeta</span>
+					<span class="font-semibold">{m['orders.wizard.card']()}</span>
 				</Button>
 				<Button
 					type="button"
@@ -313,7 +317,7 @@
 					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
 				>
 					<Wallet class="w-8 h-8 mb-2" />
-					<span class="font-semibold">Transf.</span>
+					<span class="font-semibold">{m['orders.wizard.transfer']()}</span>
 				</Button>
 			</div>
 		</div>
@@ -324,7 +328,7 @@
 				{#snippet children({ constraints })}
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Monto Recibido</Form.Label>
+							<Form.Label>{m['orders.wizard.amountReceived']()}</Form.Label>
 							<div class="relative">
 								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
 									>$</span
@@ -351,7 +355,7 @@
 							size="sm"
 							onclick={() => {
 								$form.amountPaid = total;
-							}}>Total</Button
+							}}>{m['orders.wizard.total']()}</Button
 						>
 						<Button
 							type="button"
@@ -376,7 +380,7 @@
 			<div
 				class="bg-card border border-border p-4 rounded-xl flex flex-col justify-center items-center shadow-sm"
 			>
-				<div class="text-sm text-muted-foreground">Saldo Pendiente</div>
+				<div class="text-sm text-muted-foreground">{m['orders.wizard.balanceDue']()}</div>
 				<div class={`text-4xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-primary'}`}>
 					${balance.toFixed(2)}
 				</div>
@@ -393,7 +397,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
 			<Form.Field form={superform} name="committedDeadline">
 				{#snippet children({ constraints })}
-					<Form.Label>Fecha de Entrega</Form.Label>
+					<Form.Label>{m['orders.wizard.deliveryDate']()}</Form.Label>
 					<!-- Adaptive: Calendar + Time popover on desktop, native datetime-local on mobile -->
 					<AdaptiveDateTimePicker
 						id="delivery-date"
@@ -402,7 +406,7 @@
 						onValueChange={(v) => {
 							$form.committedDeadline = v;
 						}}
-						placeholder="Seleccionar fecha y hora..."
+						placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
 						class="rounded-xl text-lg"
 					/>
 					<Form.FieldErrors />
@@ -412,12 +416,12 @@
 				{#snippet children({ constraints })}
 					<Form.Control>
 						{#snippet children({ props })}
-							<Form.Label>Notas Generales de Nota</Form.Label>
+							<Form.Label>{m['orders.wizard.orderNotes']()}</Form.Label>
 							<Input
 								{...props}
 								{...constraints}
 								id="order-notes"
-								placeholder="Detalles sobre entrega, atención, etc."
+								placeholder={m['orders.wizard.orderNotesPlaceholder']()}
 								class="h-12 rounded-xl text-lg"
 								bind:value={$form.notes}
 							/>
@@ -432,7 +436,7 @@
 					class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
 				>
 					<div class="flex justify-between items-center text-sm">
-						<span class="font-medium">Ocupación para este día:</span>
+						<span class="font-medium">{m['paymentStep.occupancyForDay']()}</span>
 						<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
 							{projectedOccupancy} / {capacity} min ({occupancyPercentage}%)
 						</span>
@@ -452,10 +456,9 @@
 						>
 							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
 							<div>
-								<h5 class="text-xs font-bold text-destructive">¡Día Saturado!</h5>
+								<h5 class="text-xs font-bold text-destructive">{m['paymentStep.dayFull']()}</h5>
 								<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
-									Esta fecha ya cuenta con mucha carga. Considera otra fecha para asegurar la
-									entrega a tiempo.
+									{m['paymentStep.dayFullHint']()}
 								</p>
 							</div>
 						</div>
@@ -490,9 +493,9 @@
 		>
 			{#if isSubmitting}
 				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
-				Procesando...
+				{m['paymentStep.processing']()}
 			{:else}
-				{draft?.isEditing ? 'Actualizar Nota' : 'Confirmar Nota'}
+				{draft?.isEditing ? m['paymentStep.button.update']() : m['paymentStep.button.confirm']()}
 			{/if}
 		</Button>
 	</div>

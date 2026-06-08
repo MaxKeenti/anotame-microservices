@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
-  import { X } from 'lucide-svelte';
+  import { X } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   type Props = {

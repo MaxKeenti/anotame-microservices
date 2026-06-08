@@ -1,45 +1,146 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
-  import { ApiError } from '$lib/services/ApiError';
-  import { Button } from '$lib/components/ui/button';
-  import * as Table from '$lib/components/ui/table';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import * as Tabs from '$lib/components/ui/tabs';
+  import * as Popover from '$lib/components/ui/popover';
+  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
   import { formatDate } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { CheckCircle2, Eye, XCircle } from 'lucide-svelte';
+  import { CheckCircle2, Eye, XCircle, MoreVertical } from '@lucide/svelte';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { OrderSummaryResponse, PageResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
-  let workOrders = $state<any[]>([]);
-  let readyOrders = $state<any[]>([]);
-  let loading = $state(true);
-  let deliverDialogOpen = $state(false);
-  let deliverTarget = $state<{ id: string; ticketNumber: string } | null>(null);
+  const mobile = useIsMobile();
 
-  async function fetchWorkOrders() {
-    loading = true;
+  let inProgressOrders = $state<OrderSummaryResponse[]>([]);
+  let readyOrders = $state<OrderSummaryResponse[]>([]);
+  let inProgressLoading = $state(true);
+  let readyLoading = $state(true);
+  let inProgressPageIndex = $state(0);
+  let readyPageIndex = $state(0);
+  let inProgressTotalPages = $state(0);
+  let readyTotalPages = $state(0);
+  let inProgressTotal = $state(0);
+  let deliverDialogOpen = $state(false);
+  let deliverTarget = $state<{
+    id: string;
+    ticketNumber: string;
+    totalAmount: number;
+    amountPaid: number;
+  } | null>(null);
+
+  let operationPageSize = $derived(mobile.current ? 12 : 20);
+
+  function buildSummaryUrl(status: string, pageIndex: number, pageSize: number): string {
+    const params = new URLSearchParams({
+      status,
+      page: String(pageIndex),
+      size: String(pageSize)
+    });
+    return `${API_SALES}/orders/summary?${params.toString()}`;
+  }
+
+  let inProgressRequestId = 0;
+  let readyRequestId = 0;
+
+  async function fetchStatusPage(status: 'IN_PROGRESS' | 'READY', pageIndex: number, pageSize: number) {
+    const requestId = status === 'IN_PROGRESS'
+      ? ++inProgressRequestId
+      : ++readyRequestId;
+    if (status === 'IN_PROGRESS') {
+      inProgressLoading = true;
+    } else {
+      readyLoading = true;
+    }
     try {
-      const allOrders = await apiService.request<any[]>(`${API_SALES}/orders`);
-      workOrders = (allOrders || []).filter((o: any) => o.status === 'IN_PROGRESS');
-      readyOrders = (allOrders || []).filter((o: any) => o.status === 'READY');
+      const page = await apiService.request<PageResponse<OrderSummaryResponse>>(
+        buildSummaryUrl(status, pageIndex, pageSize)
+      );
+      if (status === 'IN_PROGRESS') {
+        if (requestId !== inProgressRequestId) return;
+        inProgressOrders = page.items || [];
+        inProgressTotalPages = page.totalPages;
+        inProgressTotal = page.total;
+      } else {
+        if (requestId !== readyRequestId) return;
+        readyOrders = page.items || [];
+        readyTotalPages = page.totalPages;
+      }
     } catch (e: any) {
+      if (
+        (status === 'IN_PROGRESS' && requestId !== inProgressRequestId) ||
+        (status === 'READY' && requestId !== readyRequestId)
+      ) return;
       console.error(e);
       toast.error(m["operations.toast.loadError"]());
-      workOrders = [];
-      readyOrders = [];
+      if (status === 'IN_PROGRESS') {
+        inProgressOrders = [];
+        inProgressTotalPages = 0;
+        inProgressTotal = 0;
+      } else {
+        readyOrders = [];
+        readyTotalPages = 0;
+      }
     } finally {
-      loading = false;
+      if (status === 'IN_PROGRESS') {
+        if (requestId === inProgressRequestId) {
+          inProgressLoading = false;
+        }
+      } else {
+        if (requestId === readyRequestId) {
+          readyLoading = false;
+        }
+      }
     }
   }
 
+  function refreshOperationOrders() {
+    fetchStatusPage('IN_PROGRESS', inProgressPageIndex, operationPageSize);
+    fetchStatusPage('READY', readyPageIndex, operationPageSize);
+  }
+
+  let mounted = $state(false);
+  let lastInProgressPageSize = 0;
+  let lastReadyPageSize = 0;
+
   onMount(() => {
-    fetchWorkOrders();
+    mounted = true;
   });
 
-  async function handleComplete(order: any) {
+  $effect(() => {
+    if (!mounted) return;
+    const pageSize = operationPageSize;
+    if (pageSize !== lastInProgressPageSize) {
+      lastInProgressPageSize = pageSize;
+      if (inProgressPageIndex !== 0) {
+        inProgressPageIndex = 0;
+        return;
+      }
+    }
+    fetchStatusPage('IN_PROGRESS', inProgressPageIndex, pageSize);
+  });
+
+  $effect(() => {
+    if (!mounted) return;
+    const pageSize = operationPageSize;
+    if (pageSize !== lastReadyPageSize) {
+      lastReadyPageSize = pageSize;
+      if (readyPageIndex !== 0) {
+        readyPageIndex = 0;
+        return;
+      }
+    }
+    fetchStatusPage('READY', readyPageIndex, pageSize);
+  });
+
+  async function handleComplete(order: OrderSummaryResponse) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmMarkReadyTitle"](),
       description: m["operations.confirmMarkReadyDesc"]({ ticket: order.ticketNumber })
@@ -52,14 +153,14 @@
         body: JSON.stringify({ status: 'READY' })
       });
       toast.success(m["operations.toast.markedReady"](), { description: order.ticketNumber });
-      fetchWorkOrders();
+      refreshOperationOrders();
     } catch (e: any) {
       console.error(e);
       toast.error(m["operations.toast.updateError"](), { description: e.message });
     }
   }
 
-  async function handleCancelWorkOrder(order: any) {
+  async function handleCancelOrder(order: OrderSummaryResponse) {
     const ok = await adaptiveConfirm({
       title: m["operations.confirmCancelTitle"](),
       description: m["operations.confirmCancelDesc"]({ ticket: order.ticketNumber })
@@ -69,37 +170,49 @@
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
       toast.success(m["operations.toast.cancelSuccess"](), { description: order.ticketNumber });
-      fetchWorkOrders();
+      refreshOperationOrders();
     } catch (e: any) {
       console.error(e);
-      if (e instanceof ApiError && e.status === 409) {
-        toast.error(m["operations.toast.cannotCancel"](), {
-          description: m["operations.toast.cannotCancelDesc"]()
-        });
-      } else {
-        toast.error(m["operations.toast.cancelError"](), { description: e?.message });
-      }
+      toast.error(m["operations.toast.cancelError"](), { description: e?.message });
     }
   }
 
-  function openDeliverDialog(order: any) {
-    deliverTarget = { id: order.id, ticketNumber: order.ticketNumber };
+  function openDeliverDialog(order: OrderSummaryResponse) {
+    deliverTarget = {
+      id: order.id,
+      ticketNumber: order.ticketNumber,
+      totalAmount: Number(order.totalAmount ?? 0),
+      amountPaid: Number(order.amountPaid ?? 0)
+    };
     deliverDialogOpen = true;
   }
 
   function handleDelivered() {
     deliverDialogOpen = false;
     deliverTarget = null;
-    fetchWorkOrders();
+    refreshOperationOrders();
   }
 
-  function getServicesSummary(items: any[]): string {
-    return items?.map((i: any) => i.services?.map((s: any) => s.serviceName).join(', ')).filter(Boolean).join('; ') || '-';
+  function getNamesSummary(names: string[] | undefined): string {
+    return names?.filter(Boolean).join(', ') || '-';
   }
 
-  function getGarmentsSummary(items: any[]): string {
-    return items?.map((i: any) => i.garmentName).filter(Boolean).join(', ') || '-';
-  }
+  const inProgressColumns: ColumnDef<OrderSummaryResponse>[] = [
+    { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'status', accessorFn: (row) => row.status, header: m["operations.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'services', accessorFn: (row) => getNamesSummary(row.serviceNames), header: m["operations.column.services"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["operations.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
+  ];
+
+  const readyColumns: ColumnDef<OrderSummaryResponse>[] = [
+    { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'garments', accessorFn: (row) => getNamesSummary(row.garmentNames), header: m["operations.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'deliveryPromised', accessorFn: (row) => formatDate(row.committedDeadline), header: m["operations.column.deliveryPromised"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
+  ];
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
@@ -109,9 +222,9 @@
       <p class="text-muted-foreground">{m["operations.page.subtitle"]()}</p>
     </div>
     <div class="text-sm text-muted-foreground bg-card border border-border px-4 py-2 rounded-lg">
-      {workOrders.length === 1
-        ? m["operations.count.single"]({ count: workOrders.length })
-        : m["operations.count.plural"]({ count: workOrders.length })}
+      {inProgressTotal === 1
+        ? m["operations.count.single"]({ count: inProgressTotal })
+        : m["operations.count.plural"]({ count: inProgressTotal })}
     </div>
   </div>
 
@@ -122,131 +235,127 @@
     </Tabs.List>
 
     <Tabs.Content value="in-progress">
-      <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-        <Table.Root class="w-full min-w-200">
-          <Table.Header>
-            <Table.Row>
-              <Table.Head class="px-6 py-4">{m["operations.column.ticket"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.customer"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.status"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.services"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.deadline"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 text-right">{m["operations.column.actions"]()}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {#if loading}
-              <Table.Row>
-                <Table.Cell colspan={6} class="h-24 text-center">
-                  {m["common.loading"]()}
-                </Table.Cell>
-              </Table.Row>
-            {:else if workOrders.length === 0}
-              <Table.Row>
-                <Table.Cell colspan={6} class="h-24 text-center text-muted-foreground">
-                  {m["operations.empty.inProgress"]()}
-                </Table.Cell>
-              </Table.Row>
-            {:else}
-              {#each workOrders as wo (wo.id)}
-                <Table.Row class="hover:bg-muted/30 transition-colors">
-                  <Table.Cell class="px-6 py-4 font-medium font-mono text-sm">{wo.ticketNumber}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">{wo.customer?.firstName} {wo.customer?.lastName}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">
-                    <StatusBadge status={wo.status} />
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
-                    {getServicesSummary(wo.items)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground text-sm">
-                    {formatDate(wo.committedDeadline)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-right space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      class="h-10 px-4 touch-manipulation font-medium"
-                      href={`/dashboard/orders/${wo.id}`}
-                    >
-                      <Eye class="w-4 h-4 mr-2" />
-                      {m["common.view"]()}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      class="h-10 px-4 touch-manipulation font-medium text-destructive hover:text-destructive/90"
-                      onclick={() => handleCancelWorkOrder(wo)}
-                    >
-                      <XCircle class="w-4 h-4 mr-2" />
-                      {m["operations.button.cancel"]()}
-                    </Button>
-                    <Button
-                      size="sm"
-                      class="h-10 px-4 touch-manipulation font-medium bg-emerald-600 hover:bg-emerald-700 text-white"
-                      onclick={() => handleComplete(wo)}
-                    >
-                      <CheckCircle2 class="w-4 h-4 mr-2" />
-                      {m["operations.button.markReady"]()}
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
+      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+        {#snippet statusCell(row: Row<OrderSummaryResponse>)}
+          <StatusBadge status={row.original.status} />
+        {/snippet}
+
+        {#snippet inProgressActions(row: Row<OrderSummaryResponse>)}
+          <div class="flex justify-end items-center gap-2">
+            <Button
+              size="sm"
+              class="h-10 px-4 touch-manipulation font-medium bg-emerald-600 hover:bg-emerald-700 text-white"
+              onclick={() => handleComplete(row.original)}
+            >
+              <CheckCircle2 class="w-4 h-4 mr-2" />
+              {m["operations.button.markReady"]()}
+            </Button>
+            <Popover.Root>
+              <Popover.Trigger
+                class={buttonVariants({ variant: 'outline', size: 'icon-lg' }) + ' touch-manipulation'}
+                aria-label={m["common.actions"]()}
+              >
+                <MoreVertical class="w-4 h-4" />
+              </Popover.Trigger>
+              <Popover.Content class="w-48 p-1">
+                <a
+                  href={`/dashboard/orders/${row.original.id}`}
+                  class="flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Eye class="w-4 h-4" />
+                  {m["common.view"]()}
+                </a>
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10"
+                  onclick={() => handleCancelOrder(row.original)}
+                >
+                  <XCircle class="w-4 h-4" />
+                  {m["operations.button.cancel"]()}
+                </button>
+              </Popover.Content>
+            </Popover.Root>
+          </div>
+        {/snippet}
+
+        {#if mobile.current}
+          <CardGridWrapper
+            columns={inProgressColumns}
+            data={inProgressOrders}
+            loading={inProgressLoading}
+            emptyMessage={m["operations.empty.inProgress"]()}
+            cellRenders={{ status: statusCell }}
+            manualPagination={true}
+            pageIndex={inProgressPageIndex}
+            pageCount={inProgressTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { inProgressPageIndex = page; }}
+            actionCell={inProgressActions}
+          />
+        {:else}
+          <DataTableWrapper
+            columns={inProgressColumns}
+            data={inProgressOrders}
+            loading={inProgressLoading}
+            emptyMessage={m["operations.empty.inProgress"]()}
+            cellRenders={{ status: statusCell }}
+            manualPagination={true}
+            pageIndex={inProgressPageIndex}
+            pageCount={inProgressTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { inProgressPageIndex = page; }}
+          >
+            {#snippet actionCell(row)}
+              {@render inProgressActions(row)}
+            {/snippet}
+          </DataTableWrapper>
+        {/if}
       </div>
     </Tabs.Content>
 
     <Tabs.Content value="ready">
-      <div class="bg-card border border-border rounded-xl overflow-x-auto shadow-sm">
-        <Table.Root class="w-full min-w-175">
-          <Table.Header>
-            <Table.Row>
-              <Table.Head class="px-6 py-4">{m["operations.column.ticket"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.customer"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.garments"]()}</Table.Head>
-              <Table.Head class="px-6 py-4">{m["operations.column.deliveryPromised"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 text-right">{m["operations.column.actions"]()}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {#if loading}
-              <Table.Row>
-                <Table.Cell colspan={5} class="h-24 text-center">{m["common.loading"]()}</Table.Cell>
-              </Table.Row>
-            {:else if readyOrders.length === 0}
-              <Table.Row>
-                <Table.Cell colspan={5} class="h-32 text-center">
-                  <div class="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p class="text-base font-semibold">{m["operations.emptyReadyTitle"]()}</p>
-                    <p class="text-sm">{m["operations.emptyReadyDesc"]()}</p>
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            {:else}
-              {#each readyOrders as ro (ro.id)}
-                <Table.Row class="hover:bg-muted/30 transition-colors">
-                  <Table.Cell class="px-6 py-4 font-medium font-mono text-sm">{ro.ticketNumber}</Table.Cell>
-                  <Table.Cell class="px-6 py-4">{ro.customer?.firstName} {ro.customer?.lastName}</Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
-                    {getGarmentsSummary(ro.items)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-muted-foreground text-sm">
-                    {formatDate(ro.committedDeadline)}
-                  </Table.Cell>
-                  <Table.Cell class="px-6 py-4 text-right">
-                    <Button
-                      class="h-12 px-4 touch-manipulation font-medium"
-                      onclick={() => openDeliverDialog(ro)}
-                    >
-                      {m["operations.button.deliver"]()}
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-            {/if}
-          </Table.Body>
-        </Table.Root>
+      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
+        {#snippet readyActions(row: Row<OrderSummaryResponse>)}
+          <div class="flex justify-end">
+            <Button
+              class="h-12 px-4 touch-manipulation font-medium"
+              onclick={() => openDeliverDialog(row.original)}
+            >
+              {m["operations.button.deliver"]()}
+            </Button>
+          </div>
+        {/snippet}
+
+        {#if mobile.current}
+          <CardGridWrapper
+            columns={readyColumns}
+            data={readyOrders}
+            loading={readyLoading}
+            emptyMessage={m["operations.emptyReadyTitle"]()}
+            manualPagination={true}
+            pageIndex={readyPageIndex}
+            pageCount={readyTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { readyPageIndex = page; }}
+            actionCell={readyActions}
+          />
+        {:else}
+          <DataTableWrapper
+            columns={readyColumns}
+            data={readyOrders}
+            loading={readyLoading}
+            emptyMessage={m["operations.emptyReadyTitle"]()}
+            manualPagination={true}
+            pageIndex={readyPageIndex}
+            pageCount={readyTotalPages}
+            pageSize={operationPageSize}
+            onPageChange={(page) => { readyPageIndex = page; }}
+          >
+            {#snippet actionCell(row)}
+              {@render readyActions(row)}
+            {/snippet}
+          </DataTableWrapper>
+        {/if}
       </div>
     </Tabs.Content>
   </Tabs.Root>
@@ -257,6 +366,8 @@
     bind:open={deliverDialogOpen}
     orderId={deliverTarget.id}
     ticketNumber={deliverTarget.ticketNumber}
+    orderTotal={deliverTarget.totalAmount}
+    amountPaid={deliverTarget.amountPaid}
     onDelivered={handleDelivered}
     onClose={() => { deliverDialogOpen = false; deliverTarget = null; }}
   />

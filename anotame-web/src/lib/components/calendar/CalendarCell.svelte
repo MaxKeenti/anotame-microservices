@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { AlertCircle } from 'lucide-svelte';
+  import { AlertCircle } from '@lucide/svelte';
   import * as Popover from '$lib/components/ui/popover';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
   interface Props {
     day?: number;
+    dateLabel?: string;
     capacityPercent?: number;
     orderCount?: number;
     scheduledRevenue?: number;
@@ -21,6 +22,7 @@
 
   let {
     day,
+    dateLabel,
     capacityPercent = 0,
     orderCount = 0,
     scheduledRevenue = 0,
@@ -36,17 +38,10 @@
 
   function getCapacityColor() {
     if (!isCurrentMonth) return 'bg-transparent';
-    if (isHoliday) return 'bg-red-50 border-red-200';
-    if (capacityPercent < thresholdGreen) return 'bg-green-50 border-green-200';
-    if (capacityPercent < thresholdAmber) return 'bg-amber-50 border-amber-200';
-    return 'bg-red-50 border-red-200';
-  }
-
-  function getCapacityBadgeColor() {
-    if (isHoliday) return 'bg-red-200 text-red-900';
-    if (capacityPercent < thresholdGreen) return 'bg-green-200 text-green-900';
-    if (capacityPercent < thresholdAmber) return 'bg-amber-200 text-amber-900';
-    return 'bg-red-200 text-red-900';
+    if (isHoliday) return 'bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30';
+    if (capacityPercent < thresholdGreen) return 'bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/30';
+    if (capacityPercent < thresholdAmber) return 'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30';
+    return 'bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30';
   }
 
   function getBarColor() {
@@ -54,34 +49,55 @@
     if (capacityPercent < thresholdAmber) return 'bg-amber-500';
     return 'bg-red-500';
   }
+
+  function getPercentTextColor() {
+    if (capacityPercent >= thresholdAmber) return 'text-red-600 dark:text-red-400';
+    if (capacityPercent >= thresholdGreen) return 'text-amber-600 dark:text-amber-400';
+    if (capacityPercent > 0) return 'text-green-600 dark:text-green-400';
+    return 'text-muted-foreground';
+  }
 </script>
 
 {#if day}
   <Popover.Root>
     <Popover.Trigger>
-      <div
-        class="relative p-2 min-h-24 border rounded-lg transition-all cursor-pointer hover:shadow-md {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
-      >
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-semibold">{day}</span>
-            {#if isHoliday}
-              <AlertCircle class="w-4 h-4 text-red-500" />
+      {#snippet child({ props })}
+        <div
+          {...props}
+          class="relative p-3 min-h-28 border rounded-lg transition-all cursor-pointer hover:shadow-md flex flex-col justify-between {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase text-muted-foreground">{dateLabel ?? day}</span>
+              {#if isHoliday || capacityPercent >= thresholdAmber}
+                <AlertCircle class="w-4 h-4 text-red-500" />
+              {/if}
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-mono text-sm font-bold text-foreground">
+                {totalMinutesUsed} <span class="text-[10px] font-semibold text-muted-foreground">min</span>
+              </span>
+              <span class="text-sm font-black {getPercentTextColor()}">{capacityPercent.toFixed(0)}%</span>
+            </div>
+
+            <div class="h-2 w-full rounded-full bg-background/80 shadow-inner overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all {getBarColor()}"
+                style="width: {Math.min(100, capacityPercent)}%"
+              ></div>
+            </div>
+
+            {#if orderCount > 0}
+              <div class="text-xs text-muted-foreground">
+                {m["calendar.day.orders"]({ count: orderCount })}
+              </div>
             {/if}
           </div>
-          {#if capacityPercent !== undefined}
-            <span class="text-xs font-bold px-2 py-0.5 rounded {getCapacityBadgeColor()}">
-              {capacityPercent.toFixed(0)}%
-            </span>
-          {/if}
         </div>
-
-        {#if orderCount > 0}
-          <div class="text-xs text-gray-600 mt-1">
-            {orderCount} {orderCount === 1 ? 'order' : 'orders'}
-          </div>
-        {/if}
-      </div>
+      {/snippet}
     </Popover.Trigger>
 
     <Popover.Content side="top" class="w-64">

@@ -3,6 +3,7 @@ package com.anotame.sales.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -15,6 +16,8 @@ import java.util.UUID;
 @Table(name = "tco_customer")
 @Getter
 @Setter
+// Batch-load lazy customer proxies (e.g. one per order in a listing) in one query to avoid N+1.
+@BatchSize(size = 50)
 @SQLDelete(sql = "UPDATE tco_customer SET is_deleted = true, deleted_at = NOW() WHERE id_customer = ?")
 @SQLRestriction("is_deleted = false")
 public class CustomerEntity {

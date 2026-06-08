@@ -4,7 +4,7 @@
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import { apiService, API_IDENTITY, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
 
@@ -19,8 +19,8 @@
     username: z.string().optional().or(z.literal('')),
     password: z.string().optional().or(z.literal('')),
     role: z.string().default('EMPLOYEE'),
-    firstName: z.string().min(1, 'El nombre es obligatorio'),
-    lastName: z.string().min(1, 'El apellido es obligatorio'),
+    firstName: z.string().min(1, m['userDialog.zod.nameRequired']()),
+    lastName: z.string().min(1, m['userDialog.zod.lastNameRequired']()),
     email: z.string().email(m['userDialog.zod.emailInvalid']()),
   });
 
@@ -35,7 +35,7 @@
   let isSubmitting = $state(false);
 
   const superform = superForm(defaults(zod4(userSchema)), {
-    id: formId,
+    id: untrack(() => formId),
     SPA: true,
     validators: zod4(userSchema),
     async onUpdate({ form }) {
@@ -44,7 +44,7 @@
       const isEdit = !!form.data.id;
       if (!isEdit) {
         if (!form.data.username) {
-            setError(form, 'username', 'El nombre de usuario es obligatorio');
+            setError(form, 'username', m['userDialog.zod.usernameRequired']());
             return;
         }
         if (!form.data.password || form.data.password.length < 6) {
@@ -64,7 +64,7 @@
                 email: form.data.email,
               })
             });
-            toast.success("Usuario actualizado exitosamente");
+            toast.success(m['userDialog.toast.updateSuccess']());
         } else {
             await apiService.request(`${API_IDENTITY}/users`, {
               method: 'POST',
@@ -77,7 +77,7 @@
                 email: form.data.email,
               })
             });
-            toast.success("Usuario creado exitosamente");
+            toast.success(m['userDialog.toast.createSuccess']());
         }
         
         onClose();
@@ -87,9 +87,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al actualizar el usuario.");
+          toast.error(e.message || m['userDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -126,16 +126,16 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-md">
     <Dialog.Header>
-      <Dialog.Title>{$form.id ? 'Editar Usuario' : 'Nuevo Usuario'}</Dialog.Title>
+      <Dialog.Title>{$form.id ? m['userDialog.title.edit']() : m['userDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
-        {$form.id ? 'Actualiza los datos del usuario.' : 'Crea un nuevo acceso al sistema.'}
+        {$form.id ? m['userDialog.description.edit']() : m['userDialog.description.new']()}
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
       {#if $form.id}
         <!-- Username: read-only -->
         <div class="space-y-2">
-          <Form.Label>Usuario</Form.Label>
+          <Form.Label>{m['common.user']()}</Form.Label>
           <div id="u-username" class="flex h-12 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
             {$form.username}
           </div>
@@ -146,7 +146,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Usuario (Login) <span class="text-destructive">*</span></Form.Label>
+                <Form.Label>{m['userDialog.label.username']()} <span class="text-destructive">*</span></Form.Label>
                 <Input {...props} {...constraints} id="u-username" bind:value={$form.username} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -159,7 +159,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Contraseña <span class="text-destructive">*</span></Form.Label>
+                <Form.Label>{m['userDialog.label.password']()} <span class="text-destructive">*</span></Form.Label>
                 <Input {...props} {...constraints} id="u-password" type="password" bind:value={$form.password} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -170,13 +170,13 @@
         <!-- Role input for creation -->
         <Form.Field form={superform} name="role">
           {#snippet children({ constraints })}
-            <Form.Label>Rol <span class="text-destructive">*</span></Form.Label>
-            <AdaptiveSelect 
-              id="u-role" 
-              bind:value={$form.role} 
+            <Form.Label>{m['userDialog.label.role']()} <span class="text-destructive">*</span></Form.Label>
+            <AdaptiveSelect
+              id="u-role"
+              bind:value={$form.role}
               items={[
-                  {value: 'EMPLOYEE', label: 'Empleado'},
-                  {value: 'ADMIN', label: 'Administrador'}
+                  {value: 'EMPLOYEE', label: m['userDialog.role.employee']()},
+                  {value: 'ADMIN', label: m['userDialog.role.admin']()}
               ]}
             />
             <Form.FieldErrors />
@@ -189,7 +189,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Nombre</Form.Label>
+                <Form.Label>{m['common.firstName']()}</Form.Label>
                 <Input {...props} {...constraints} id="u-firstname" bind:value={$form.firstName} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -200,7 +200,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Apellido</Form.Label>
+                <Form.Label>{m['common.lastName']()}</Form.Label>
                 <Input {...props} {...constraints} id="u-lastname" bind:value={$form.lastName} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -223,14 +223,14 @@
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
-          Cancelar
+          {m['common.cancel']()}
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
           {#if isSubmitting}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            Guardando...
+            {m['common.saving']()}
           {:else}
-            {$form.id ? 'Guardar Cambios' : 'Guardar'}
+            {$form.id ? m['common.saveChanges']() : m['common.save']()}
           {/if}
         </Button>
       </Dialog.Footer>

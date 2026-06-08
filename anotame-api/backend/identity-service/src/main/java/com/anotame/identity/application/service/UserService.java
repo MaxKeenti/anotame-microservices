@@ -1,34 +1,38 @@
 package com.anotame.identity.application.service;
 
+import com.anotame.identity.application.dto.CreateUserRequest;
 import com.anotame.identity.application.dto.UpdateUserRequest;
 import com.anotame.identity.application.dto.UserResponse;
+import com.anotame.identity.application.port.output.PasswordHasherPort;
+import com.anotame.identity.application.port.output.RoleRepositoryPort;
+import com.anotame.identity.application.port.output.UserRepositoryPort;
 import com.anotame.identity.domain.exception.ResourceNotFoundException;
 import com.anotame.identity.domain.exception.UserAlreadyExistsException;
+import com.anotame.identity.domain.model.Role;
 import com.anotame.identity.domain.model.User;
-import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final com.anotame.identity.infrastructure.persistence.repository.RoleRepository roleRepository;
+    private final UserRepositoryPort userRepository;
+    private final RoleRepositoryPort roleRepository;
+    private final PasswordHasherPort passwordHasher;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
-    public UserResponse createUser(com.anotame.identity.application.dto.CreateUserRequest request) {
+    public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new UserAlreadyExistsException(request.getUsername());
         }
@@ -38,38 +42,32 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setPassword(io.quarkus.elytron.security.common.BcryptUtil.bcryptHash(request.getPassword()));
+        user.setPassword(passwordHasher.hash(request.getPassword()));
 
         String roleCode = request.getRole() != null ? request.getRole().toUpperCase() : "EMPLOYEE";
-        com.anotame.identity.domain.model.Role role = roleRepository.findByCode(roleCode)
+        Role role = roleRepository.findByCode(roleCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Role '" + roleCode + "'"));
         user.setRole(role);
 
-        userRepository.persist(user);
-        return mapToResponse(user);
+        return mapToResponse(userRepository.save(user));
     }
 
     public UserResponse getUserById(UUID id) {
-        User user = userRepository.findById(id);
-        if (user == null) {
-            throw new ResourceNotFoundException("User");
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
         return mapToResponse(user);
     }
 
     @Transactional
     public UserResponse updateUser(UUID id, UpdateUserRequest request) {
-        User user = userRepository.findById(id);
-        if (user == null) {
-            throw new ResourceNotFoundException("User");
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
 
-        // userRepository.persist(user); // Not needed for updates within transaction
-        return mapToResponse(user);
+        return mapToResponse(userRepository.save(user));
     }
 
     @Transactional
@@ -79,11 +77,10 @@ public class UserService {
 
     @Transactional
     public void updateLocale(UUID userId, String locale) {
-        var user = userRepository.findById(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User");
-        }
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
         user.setLocale(locale);
+        userRepository.save(user);
     }
 
     private UserResponse mapToResponse(User user) {

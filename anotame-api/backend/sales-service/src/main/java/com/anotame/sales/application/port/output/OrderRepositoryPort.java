@@ -7,6 +7,8 @@ public interface OrderRepositoryPort {
 
     java.util.List<Order> findAll();
 
+    OrderSummaryResult findSummaries(int page, int size, OrderSummaryCriteria criteria);
+
     java.util.Optional<Order> findById(java.util.UUID id);
 
     void delete(java.util.UUID id);
@@ -45,7 +47,7 @@ public interface OrderRepositoryPort {
     java.util.List<Object[]> getTopCustomers(java.time.OffsetDateTime start, java.time.OffsetDateTime end, int limit);
 
     // At-risk customer query
-    java.util.List<Object[]> getAtRiskCustomers(java.time.OffsetDateTime cutoffDate, int limit);
+    java.util.List<Object[]> getAtRiskCustomers(java.time.LocalDate cutoffDate, String zoneId, int limit);
 
     // Calendar queries
     java.util.List<Object[]> getCalendarMonthData(java.time.OffsetDateTime monthStart, java.time.OffsetDateTime monthEnd, String zoneId);

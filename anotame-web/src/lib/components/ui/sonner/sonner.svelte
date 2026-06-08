@@ -8,12 +8,33 @@
 	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 
 	let { ...restProps }: SonnerProps = $props();
+
+	const sonnerThemeStyle = [
+		'--normal-bg: var(--color-popover);',
+		'--normal-bg-hover: var(--color-muted);',
+		'--normal-border: var(--color-border);',
+		'--normal-border-hover: var(--color-border);',
+		'--normal-text: var(--color-popover-foreground);',
+		'--success-bg: var(--color-success-background);',
+		'--success-border: var(--color-success-border);',
+		'--success-text: var(--color-success-background-foreground);',
+		'--info-bg: var(--color-info-background);',
+		'--info-border: var(--color-info-border);',
+		'--info-text: var(--color-info-background-foreground);',
+		'--warning-bg: var(--color-warning-background);',
+		'--warning-border: var(--color-warning-border);',
+		'--warning-text: var(--color-warning-background-foreground);',
+		'--error-bg: var(--color-destructive-background);',
+		'--error-border: var(--color-destructive-border);',
+		'--error-text: var(--color-destructive-foreground);'
+	].join(' ');
 </script>
 
 <Sonner
 	theme={mode.current}
+	richColors
 	class="toaster group"
-	style="--normal-bg: var(--color-popover); --normal-text: var(--color-popover-foreground); --normal-border: var(--color-border);"
+	style={sonnerThemeStyle}
 	{...restProps}
 >
 	{#snippet loadingIcon()}

@@ -10,7 +10,7 @@
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
-  import LayoutGridIcon from 'lucide-svelte/icons/layout-grid';
+  import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');

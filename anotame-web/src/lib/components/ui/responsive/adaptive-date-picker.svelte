@@ -4,18 +4,19 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import { CalendarIcon } from 'lucide-svelte';
+  import { CalendarIcon } from '@lucide/svelte';
   import {
     CalendarDate,
     type DateValue,
   } from '@internationalized/date';
+  import * as m from '$lib/paraglide/messages';
 
   let {
     value = $bindable(''),
     min = '',
     max = '',
     onValueChange,
-    placeholder = 'Seleccionar fecha...',
+    placeholder = m['common.selectDate'](),
     id = '',
     class: className = '',
   }: {

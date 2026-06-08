@@ -1,0 +1,49 @@
+package com.anotame.sales.infrastructure.web.controller;
+
+import com.anotame.sales.application.dto.CustomerDto;
+import com.anotame.sales.application.service.CustomerService;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.UUID;
+
+@Path("/api/customers")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@io.quarkus.security.Authenticated
+@RequiredArgsConstructor
+public class CustomerController {
+
+    private final CustomerService customerService;
+
+    @POST
+    public CustomerDto createCustomer(CustomerDto customerDto) {
+        return customerService.createCustomer(customerDto);
+    }
+
+    @GET
+    @Path("/{id}")
+    public CustomerDto getCustomer(@PathParam("id") UUID id) {
+        return customerService.getCustomer(id);
+    }
+
+    @GET
+    @Path("/search")
+    public List<CustomerDto> searchCustomers(@QueryParam("query") String query) {
+        return customerService.searchCustomers(query);
+    }
+
+    @PUT
+    @Path("/{id}")
+    public CustomerDto updateCustomer(@PathParam("id") UUID id, CustomerDto customerDto) {
+        return customerService.updateCustomer(id, customerDto);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public void deleteCustomer(@PathParam("id") UUID id) {
+        customerService.deleteCustomer(id);
+    }
+}

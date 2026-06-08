@@ -3,12 +3,13 @@
    import { apiService, API_SALES } from '$lib/services/api.svelte';
    import { Button } from '$lib/components/ui/button';
    import { Input } from '$lib/components/ui/input';
-   import { Search, User, Plus } from 'lucide-svelte';
+   import { Search, User, Plus } from '@lucide/svelte';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
-   
+   import type { CustomerDto } from '$lib/types/dtos';
+
    let query = $state('');
-   let results = $state<any[]>([]);
+   let results = $state<CustomerDto[]>([]);
    let isSearching = $state(false);
 
    $effect(() => {
@@ -16,7 +17,7 @@
            isSearching = true;
            const delay = setTimeout(async () => {
                try {
-                   const res = await apiService.request<any[]>(`${API_SALES}/api/customers/search?query=${query}`);
+                   const res = await apiService.request<CustomerDto[]>(`${API_SALES}/api/customers/search?query=${query}`);
                    results = res || [];
                } catch(e) {
                    results = [];
@@ -30,9 +31,9 @@
        }
    });
 
-   function selectCustomer(c: any) {
+   function selectCustomer(c: CustomerDto) {
        orderWizardState.updateActiveDraft({ customer: c });
-       toast.success("Cliente seleccionado", { description: `${c.firstName} ${c.lastName}` });
+       toast.success(m['customerStep.toast.selected'](), { description: `${c.firstName} ${c.lastName}` });
        query = '';
        results = [];
    }
@@ -49,8 +50,8 @@
 
 <div class="flex flex-col h-full gap-6">
     <div class="text-center md:text-left">
-        <h2 class="text-xl font-semibold">Paso 1: ¿De quién es el pedido?</h2>
-        <p class="text-muted-foreground">Busca un cliente existente o selecciona uno nuevo.</p>
+        <h2 class="text-xl font-semibold">{m['customerStep.title']()}</h2>
+        <p class="text-muted-foreground">{m['customerStep.subtitle']()}</p>
     </div>
 
     <div class="flex-1 flex flex-col items-center justify-start max-w-2xl mx-auto w-full gap-8 pt-4">
@@ -64,8 +65,8 @@
                 <p class="text-muted-foreground text-sm">{draft?.customer?.email}</p>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <Button variant="outline" class="h-10 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>Cambiar</Button>
-                    <Button class="h-10 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onNext}>Continuar</Button>
+                    <Button variant="outline" class="h-10 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
+                    <Button class="h-10 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onNext}>{m['common.continue']()}</Button>
                 </div>
             </div>
         {:else}
@@ -91,7 +92,7 @@
                                         <div class="font-bold text-lg group-hover:text-primary">{c.firstName} {c.lastName}</div>
                                         <div class="text-sm text-muted-foreground">{c.phoneNumber}</div>
                                     </div>
-                                    <div class="opacity-0 lg:group-hover:opacity-100 text-primary font-medium">Seleccionar &rarr;</div>
+                                    <div class="opacity-0 lg:group-hover:opacity-100 text-primary font-medium">{m['customerStep.select']()} &rarr;</div>
                                 </Button>
                             {/each}
                         </div>
@@ -102,7 +103,7 @@
 
                 <Button href="/dashboard/customers" variant="secondary" class="w-full h-16 text-lg rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 gap-2 touch-manipulation">
                     <Plus class="w-6 h-6" />
-                    Ir a crear cliente
+                    {m['customerStep.goCreate']()}
                 </Button>
             </div>
         {/if}
@@ -110,8 +111,8 @@
 
     {#if !draft?.customer}
         <div class="flex justify-between items-center py-3 sm:py-4 border-t border-border mt-auto">
-            <Button variant="ghost" class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base touch-manipulation" onclick={onBack}>Cancelar</Button>
-            <Button disabled class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">Selecciona un Cliente</Button>
+            <Button variant="ghost" class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base touch-manipulation" onclick={onBack}>{m['common.cancel']()}</Button>
+            <Button disabled class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">{m['customerStep.selectPrompt']()}</Button>
         </div>
     {/if}
 </div>

@@ -2,9 +2,10 @@ package com.anotame.catalog.application.service;
 
 import com.anotame.catalog.application.port.output.GarmentRepositoryPort;
 import com.anotame.catalog.application.port.output.ServiceRepositoryPort;
+import com.anotame.catalog.domain.exception.CatalogNotFoundException;
 import com.anotame.catalog.domain.model.GarmentType;
-import com.anotame.catalog.dto.GarmentTypeRequest;
-import com.anotame.catalog.dto.ServiceRequest;
+import com.anotame.catalog.application.dto.GarmentTypeRequest;
+import com.anotame.catalog.application.dto.ServiceRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
@@ -46,7 +47,7 @@ public class CatalogService {
             garment.setName(request.getName());
             garment.setDescription(request.getDescription());
             return garmentRepository.save(garment);
-        }).orElseThrow(() -> new RuntimeException("Garment not found"));
+        }).orElseThrow(() -> new CatalogNotFoundException("Garment"));
     }
 
     public void deleteGarment(UUID id) {
@@ -90,7 +91,7 @@ public class CatalogService {
             }
 
             return serviceRepository.save(service);
-        }).orElseThrow(() -> new RuntimeException("Service not found"));
+        }).orElseThrow(() -> new CatalogNotFoundException("Service"));
     }
 
     public void deleteService(UUID id) {

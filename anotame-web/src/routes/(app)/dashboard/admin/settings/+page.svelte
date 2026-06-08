@@ -6,7 +6,7 @@
   import * as Card from '$lib/components/ui/card';
   import * as Select from '$lib/components/ui/select';
   import { toast } from 'svelte-sonner';
-  import { Store, ReceiptText, Palette, Sliders } from 'lucide-svelte';
+  import { Store, ReceiptText, Palette, Sliders } from '@lucide/svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';

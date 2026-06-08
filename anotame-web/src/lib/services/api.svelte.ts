@@ -1,6 +1,7 @@
 import { ApiError } from './ApiError';
 import { getApiBase, isNativeApp } from '$lib/capacitor';
 import { tokenStore } from './native/tokenStore';
+import type { OrderResponse, CreateOrderRequest } from '$lib/types/dtos';
 
 export const API_IDENTITY = getApiBase('identity');
 export const API_CATALOG = getApiBase('catalog');
@@ -79,7 +80,7 @@ class ApiService {
           // Format 1: New unified shape {"errorCode": "...", "message": "...", "details": [...]}
           if (errorData.message) {
             backendMessage = errorData.message;
-          // Format 2: Legacy shape {"error": "Message"} — kept for backward compat during migration
+            // Fallback shape from older services or intermediaries: {"error": "Message"}
           } else if (errorData.error) {
             backendMessage = errorData.error;
           }
@@ -123,13 +124,13 @@ class ApiService {
     }
   }
 
-  // Example methods mapped from legacy
-  async getOrder(id: string): Promise<any> {
-    return this.request<any>(`${API_SALES}/orders/${id}`);
+  // Convenience methods for order flows
+  async getOrder(id: string): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`${API_SALES}/orders/${id}`);
   }
 
-  async updateOrder(id: string, data: any): Promise<any> {
-    return this.request<any>(`${API_SALES}/orders/${id}`, {
+  async updateOrder(id: string, data: CreateOrderRequest): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`${API_SALES}/orders/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });

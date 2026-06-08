@@ -9,7 +9,7 @@
     import PaymentStep from '$lib/components/orders/wizard/payment-step.svelte';
     import { Button } from '$lib/components/ui/button';
     import * as m from '$lib/paraglide/messages';
-    import { ChevronDown } from 'lucide-svelte';
+    import { ChevronDown } from '@lucide/svelte';
 
     let isLoading = $state(true);
     let stepsExpanded = $state(false);

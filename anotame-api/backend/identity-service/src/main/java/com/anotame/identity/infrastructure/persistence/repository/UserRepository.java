@@ -1,25 +1,25 @@
 package com.anotame.identity.infrastructure.persistence.repository;
 
-import com.anotame.identity.domain.model.User;
+import com.anotame.identity.infrastructure.persistence.entity.UserEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserRepository implements PanacheRepositoryBase<User, UUID> {
+@RequiredArgsConstructor
+public class UserRepository implements PanacheRepositoryBase<UserEntity, UUID> {
 
-    @Inject
-    EntityManager em;
+    private final EntityManager em;
 
-    public Optional<User> findByUsername(String username) {
+    public Optional<UserEntity> findByUsername(String username) {
         return find("username", username).firstResultOptional();
     }
 
-    public Optional<User> findByEmail(String email) {
+    public Optional<UserEntity> findByEmail(String email) {
         return find("email", email).firstResultOptional();
     }
 

@@ -1,16 +1,18 @@
 package com.anotame.catalog.infrastructure.web.controller;
 
-import com.anotame.catalog.dto.GarmentTypeResponse;
-import com.anotame.catalog.dto.ServiceResponse;
+import com.anotame.catalog.application.dto.GarmentTypeRequest;
+import com.anotame.catalog.application.dto.GarmentTypeResponse;
+import com.anotame.catalog.application.dto.ServiceRequest;
+import com.anotame.catalog.application.dto.ServiceResponse;
 import com.anotame.catalog.application.service.CatalogService;
+import com.anotame.catalog.application.service.PriceListService;
 import com.anotame.catalog.domain.model.GarmentType;
+import com.anotame.catalog.domain.model.PriceListItem;
 import com.anotame.catalog.domain.model.Service;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.anotame.catalog.infrastructure.persistence.repository.PriceListItemRepository;
 
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,11 +21,11 @@ import com.anotame.catalog.infrastructure.persistence.repository.PriceListItemRe
 public class CatalogController {
 
     private final CatalogService catalogService;
-    private final PriceListItemRepository priceListItemRepository;
+    private final PriceListService priceListService;
 
-    public CatalogController(CatalogService catalogService, PriceListItemRepository priceListItemRepository) {
+    public CatalogController(CatalogService catalogService, PriceListService priceListService) {
         this.catalogService = catalogService;
-        this.priceListItemRepository = priceListItemRepository;
+        this.priceListService = priceListService;
     }
 
     @GET
@@ -41,20 +43,16 @@ public class CatalogController {
                 .map(this::mapToServiceDto)
                 .collect(Collectors.toList());
 
-        // Calculate effective prices
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        List<com.anotame.catalog.domain.model.PriceListItem> overrides = priceListItemRepository
-                .findActiveOverrides(now);
+        List<PriceListItem> overrides = priceListService.getActiveOverrides(now);
 
         for (ServiceResponse service : services) {
-            // Default to base price
             service.setEffectivePrice(service.getBasePrice());
 
-            // Find first override (highest priority)
-            for (com.anotame.catalog.domain.model.PriceListItem item : overrides) {
+            for (PriceListItem item : overrides) {
                 if (item.getService().getId().equals(service.getId())) {
                     service.setEffectivePrice(item.getPrice());
-                    break; // Priority sort ensures first match is winner
+                    break;
                 }
             }
         }
@@ -66,7 +64,7 @@ public class CatalogController {
 
     @POST
     @Path("/garments")
-    public GarmentTypeResponse createGarment(com.anotame.catalog.dto.GarmentTypeRequest request) {
+    public GarmentTypeResponse createGarment(GarmentTypeRequest request) {
         GarmentType created = catalogService.createGarment(request);
         return mapToGarmentDto(created);
     }
@@ -74,7 +72,7 @@ public class CatalogController {
     @PUT
     @Path("/garments/{id}")
     public GarmentTypeResponse updateGarment(@PathParam("id") java.util.UUID id,
-            com.anotame.catalog.dto.GarmentTypeRequest request) {
+            GarmentTypeRequest request) {
         GarmentType updated = catalogService.updateGarment(id, request);
         return mapToGarmentDto(updated);
     }
@@ -89,7 +87,7 @@ public class CatalogController {
 
     @POST
     @Path("/services")
-    public ServiceResponse createService(com.anotame.catalog.dto.ServiceRequest request) {
+    public ServiceResponse createService(ServiceRequest request) {
         Service created = catalogService.createService(request);
         return mapToServiceDto(created);
     }
@@ -97,7 +95,7 @@ public class CatalogController {
     @PUT
     @Path("/services/{id}")
     public ServiceResponse updateService(@PathParam("id") java.util.UUID id,
-            com.anotame.catalog.dto.ServiceRequest request) {
+            ServiceRequest request) {
         Service updated = catalogService.updateService(id, request);
         return mapToServiceDto(updated);
     }

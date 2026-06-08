@@ -7,7 +7,7 @@ Java 21 Quarkus microservices for Anotame. Each service owns its own PostgreSQL 
 - `identity-service` on port `8081`: authentication and user management
 - `catalog-service` on port `8082`: garments, services, and price lists
 - `sales-service` on port `8083`: customers, orders, payments, and receipts
-- `operations-service` on port `8084`: shifts, thresholds, and work orders
+- `operations-service` on port `8084`: establishment settings, schedules, and capacity thresholds
 
 ## Local Development
 

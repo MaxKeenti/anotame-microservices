@@ -3,7 +3,7 @@
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
@@ -12,19 +12,20 @@
   import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+  import type { GarmentTypeResponse } from '$lib/types/dtos';
 
   const serviceSchema = z.object({
     id: z.string().nullable().optional(),
-    name: z.string().min(2, 'El nombre es obligatorio'),
+    name: z.string().min(2, m['serviceDialog.zod.nameRequired']()),
     description: z.string().optional().or(z.literal('')),
-    basePrice: z.number().min(0, 'El precio debe ser mayor o igual a 0'),
+    basePrice: z.number().min(0, m['serviceDialog.zod.priceMin']()),
     defaultDurationMin: z.number().min(1, m['serviceDialog.zod.minDuration']()),
-    garmentTypeId: z.string().min(1, 'Selecciona una prenda'),
+    garmentTypeId: z.string().min(1, m['serviceDialog.zod.garmentRequired']()),
   });
 
   let { item, garments = [], onClose, onSuccess } = $props<{
     item: any | null;
-    garments?: any[];
+    garments?: GarmentTypeResponse[];
     onClose: () => void;
     onSuccess?: () => void;
   }>();
@@ -33,7 +34,7 @@
   let isSubmitting = $state(false);
 
   const garmentItems = $derived(
-    garments.map((g: any) => ({ value: g.id, label: g.name }))
+    garments.map((g: GarmentTypeResponse) => ({ value: g.id, label: g.name }))
   );
 
   const superform = superForm(defaults(zod4(serviceSchema)), {
@@ -57,13 +58,13 @@
             method: 'PUT',
             body: JSON.stringify(payload)
           });
-          toast.success("Servicio actualizado exitosamente");
+          toast.success(m['serviceDialog.toast.updateSuccess']());
         } else {
           await apiService.request(`${API_CATALOG}/catalog/services`, {
             method: 'POST',
             body: JSON.stringify(payload)
           });
-          toast.success("Servicio creado exitosamente");
+          toast.success(m['serviceDialog.toast.createSuccess']());
         }
         onClose();
         onSuccess?.();
@@ -72,9 +73,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al guardar the servicio.");
+          toast.error(e.message || m['serviceDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -107,19 +108,19 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-lg">
     <Dialog.Header>
-      <Dialog.Title>{item?.id ? 'Editar Servicio' : 'Nuevo Servicio'}</Dialog.Title>
+      <Dialog.Title>{item?.id ? m['serviceDialog.title.edit']() : m['serviceDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
-        Configura los detalles del servicio ofrecido.
+        {m['serviceDialog.description']()}
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
       <Form.Field form={superform} name="garmentTypeId">
         {#snippet children({ constraints })}
-          <Form.Label>Prenda Asociada</Form.Label>
+          <Form.Label>{m['serviceDialog.label.garment']()}</Form.Label>
           <AdaptiveSelect
             id="s-garment"
             bind:value={$form.garmentTypeId}
-            placeholder="Seleccionar prenda..."
+            placeholder={m['serviceDialog.placeholder.garment']()}
             items={garmentItems}
           />
           <Form.FieldErrors />
@@ -130,8 +131,8 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Nombre del Servicio</Form.Label>
-              <Input {...props} {...constraints} placeholder="Ej. Bastilla, Ajuste de Cintura" bind:value={$form.name} class="h-12" />
+              <Form.Label>{m['serviceDialog.label.name']()}</Form.Label>
+              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -143,7 +144,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['serviceDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder="Detalles adicionales (opcional)" bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -155,7 +156,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>Precio Base ($)</Form.Label>
+                <Form.Label>{m['serviceDialog.label.basePrice']()}</Form.Label>
                 <Input {...props} {...constraints} type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -177,14 +178,14 @@
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
-          Cancelar
+          {m['common.cancel']()}
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
           {#if isSubmitting}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            Guardando...
+            {m['common.saving']()}
           {:else}
-            Guardar
+            {m['common.save']()}
           {/if}
         </Button>
       </Dialog.Footer>

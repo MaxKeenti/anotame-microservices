@@ -3,7 +3,7 @@
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
   
@@ -14,7 +14,7 @@
 
   const garmentSchema = z.object({
     id: z.string().nullable().optional(),
-    name: z.string().min(2, 'El nombre es obligatorio'),
+    name: z.string().min(2, m['garmentDialog.zod.nameRequired']()),
     description: z.string().optional().or(z.literal(''))
   });
 
@@ -40,13 +40,13 @@
             method: 'PUT',
             body: JSON.stringify(form.data)
           });
-          toast.success("Prenda actualizada exitosamente");
+          toast.success(m['garmentDialog.toast.updateSuccess']());
         } else {
           await apiService.request(`${API_CATALOG}/catalog/garments`, {
             method: 'POST',
             body: JSON.stringify(form.data)
           });
-          toast.success("Prenda creada exitosamente");
+          toast.success(m['garmentDialog.toast.createSuccess']());
         }
         onClose();
         onSuccess?.();
@@ -55,9 +55,9 @@
           for (const [field, message] of Object.entries(e.validationErrors)) {
             setError(form, field as keyof typeof form.data, message);
           }
-          toast.error("Por favor, revisa los campos marcados en rojo.");
+          toast.error(m['common.checkMarkedFields']());
         } else {
-          toast.error(e.message || "Error al guardar la prenda.");
+          toast.error(e.message || m['garmentDialog.toast.saveError']());
         }
       } finally {
         isSubmitting = false;
@@ -87,9 +87,9 @@
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
   <Dialog.Content class="max-w-md">
     <Dialog.Header>
-      <Dialog.Title>{item?.id ? 'Editar Prenda' : 'Nueva Prenda'}</Dialog.Title>
+      <Dialog.Title>{item?.id ? m['garmentDialog.title.edit']() : m['garmentDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
-        Configura los detalles del tipo de prenda.
+        {m['garmentDialog.description']()}
       </Dialog.Description>
     </Dialog.Header>
     <form method="POST" use:enhance class="space-y-4 py-4">
@@ -97,8 +97,8 @@
         {#snippet children({ constraints })}
           <Form.Control>
             {#snippet children({ props })}
-              <Form.Label>Nombre</Form.Label>
-              <Input {...props} {...constraints} placeholder="Ej. Pantalón de Mezclilla" bind:value={$form.name} class="h-12" />
+              <Form.Label>{m['garmentDialog.label.name']()}</Form.Label>
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -110,7 +110,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['garmentDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder="Opcional" bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -119,14 +119,14 @@
 
       <Dialog.Footer class="pt-4">
         <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
-          Cancelar
+          {m['common.cancel']()}
         </Dialog.Close>
         <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
           {#if isSubmitting}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
-            Guardando...
+            {m['common.saving']()}
           {:else}
-            Guardar
+            {m['common.save']()}
           {/if}
         </Button>
       </Dialog.Footer>

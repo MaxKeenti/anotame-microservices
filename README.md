@@ -9,7 +9,7 @@ The system consists of 4 backend services and 1 SvelteKit frontend:
 - **identity-service** (port 8081): User registration, authentication, JWT issuance
 - **catalog-service** (port 8082): Garment types, services, price lists
 - **sales-service** (port 8083): Order creation and management
-- **operations-service** (port 8084): Shifts, employee assignments, work orders
+- **operations-service** (port 8084): Establishment settings, schedules, and capacity thresholds
 - **anotame-web**: SvelteKit frontend (port 3000 in dev)
 
 All backend services follow Hexagonal Architecture (domain / application / infrastructure layers).
@@ -91,7 +91,7 @@ anotame-api/backend/
   identity-service/     Java Quarkus — auth and users
   catalog-service/      Java Quarkus — garments, services, price lists
   sales-service/        Java Quarkus — orders
-  operations-service/   Java Quarkus — shifts and work orders
+  operations-service/   Java Quarkus — establishment settings and schedules
 anotame-web/            SvelteKit frontend
 docker-compose.yml      Local dev database containers (4 PostgreSQL)
 .env                    Local dev env vars (JWT keys, cookie config)

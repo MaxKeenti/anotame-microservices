@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import XIcon from 'lucide-svelte/icons/x';
-  import LogOutIcon from 'lucide-svelte/icons/log-out';
+  import XIcon from '@lucide/svelte/icons/x';
+  import LogOutIcon from '@lucide/svelte/icons/log-out';
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';

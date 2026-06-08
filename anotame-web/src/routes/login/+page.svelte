@@ -1,17 +1,36 @@
 <script lang="ts">
   import { useGuestGuard } from '$lib/guards/index.svelte';
   import { authService } from '$lib/services/auth.svelte';
+  import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import { superForm, defaults, setError } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
   import * as m from '$lib/paraglide/messages';
 
+  onMount(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('sessionExpired')) {
+      authService.clearLocalSession();
+      url.searchParams.delete('sessionExpired');
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+  });
+
   const guard = useGuestGuard('/dashboard');
+
+  function getLoginRedirectPath() {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (!next || !next.startsWith('/') || next.startsWith('//')) {
+      return '/dashboard';
+    }
+
+    return next;
+  }
 
   const loginSchema = z.object({
     username: z.string().min(1, m["login.zod.usernameRequired"]()),
@@ -34,7 +53,7 @@
           username: form.data.username,
           password: form.data.password
         });
-        window.location.href = '/dashboard';
+        window.location.href = getLoginRedirectPath();
       } catch (err: any) {
         errorMsg = m["login.error.invalidCredentials"]();
       } finally {

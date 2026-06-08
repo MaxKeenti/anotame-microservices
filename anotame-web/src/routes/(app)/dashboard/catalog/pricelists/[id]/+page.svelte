@@ -12,9 +12,10 @@
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
@@ -28,7 +29,7 @@
   // State
   let isLoading = $state(true);
   let isSaving = $state(false);
-  let services = $state<any[]>([]);
+  let services = $state<ServiceResponse[]>([]);
 
   const pricelistSchema = z.object({
     name: z.string().min(1, m["catalog.pricelist.zodNameRequired"]()),
@@ -87,23 +88,23 @@
   const { form, enhance } = superform;
 
   // Column definitions for overrides table
-  const overrideColumns: ColumnDef<any>[] = [
+  const overrideColumns: ColumnDef<ServiceResponse>[] = [
     {
       accessorKey: 'name',
-      header: 'Servicio',
+      header: m["catalog.pricelist.columnService"](),
       enableSorting: false,
       meta: { cardGroup: 'header' },
     },
     {
       accessorKey: 'basePrice',
-      header: 'Precio Base',
+      header: m["catalog.pricelist.columnBasePrice"](),
       enableSorting: false,
       accessorFn: (row) => `$${row.basePrice.toFixed(2)}`,
       meta: { cardGroup: 'body' },
     },
     {
       id: 'override',
-      header: 'Precio Override',
+      header: m["catalog.pricelist.columnOverride"](),
       enableSorting: false,
       meta: { cardGroup: 'body' },
     },
@@ -113,8 +114,8 @@
     try {
       // Fetch both services and the specific pricelist simultaneously
       const [svcRes, listRes] = await Promise.all([
-        apiService.request<any[]>(`${API_CATALOG}/catalog/services`),
-        apiService.request<any>(`${API_CATALOG}/pricelists/${listId}`)
+        apiService.request<ServiceResponse[]>(`${API_CATALOG}/catalog/services`),
+        apiService.request<PriceListResponse>(`${API_CATALOG}/pricelists/${listId}`)
       ]);
 
       services = svcRes || [];
@@ -129,7 +130,7 @@
 
         const newOverrides: Record<string, string> = {};
         if (list.items) {
-          list.items.forEach((item: any) => {
+          list.items.forEach((item: PriceListItemDto) => {
             newOverrides[item.serviceId] = String(item.price);
           });
         }
@@ -166,7 +167,7 @@
     {m["catalog.pricelist.loadingStrategy"]()}
   </div>
 {:else}
-  {#snippet overrideCellRender(row: Row<any>)}
+  {#snippet overrideCellRender(row: Row<ServiceResponse>)}
     <Input
       type="number"
       step="0.01"

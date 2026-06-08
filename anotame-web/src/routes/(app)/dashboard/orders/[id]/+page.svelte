@@ -3,7 +3,7 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
-  import { ApiError } from "$lib/services/ApiError";
+  import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
   import StatusBadge from "$lib/components/ui/StatusBadge.svelte";
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
@@ -18,16 +18,16 @@
   let id = $derived($page.params.id);
   let action = $derived($page.url.searchParams.get("action"));
 
-  let order = $state<any | null>(null);
+  let order = $state<OrderResponse | null>(null);
   let loading = $state(true);
-  let establishment = $state<any | null>(null);
+  let establishment = $state<Establishment | null>(null);
   let auditLog = $state<any[]>([]);
   let showPaymentModal = $state(false);
   let paymentRefreshKey = $state(0);
 
   onMount(async () => {
     // Non-blocking establishment fetch
-    apiService.request<any>(`${API_OPERATIONS}/establishment`)
+    apiService.request<Establishment>(`${API_OPERATIONS}/establishment`)
       .then(res => establishment = res)
       .catch(e => console.warn('Could not load establishment settings (non-blocking):', e));
   });
@@ -41,7 +41,7 @@
       try {
         loading = true;
         const [res, log] = await Promise.all([
-          apiService.request<any>(`${API_SALES}/orders/${id}`),
+          apiService.request<OrderResponse>(`${API_SALES}/orders/${id}`),
           apiService.request<any[]>(`${API_SALES}/orders/${id}/audit`).catch(() => [])
         ]);
         if (!isCancelled) {
@@ -90,13 +90,7 @@
       goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
-      if (e instanceof ApiError && e.status === 409) {
-        toast.error(m["orders.detail.cannotDelete"](), {
-          description: m["orders.detail.hasLinkedWorkOrders"]()
-        });
-      } else {
-        toast.error(m["orders.detail.cancelError"](), { description: e?.message });
-      }
+      toast.error(m["orders.detail.cancelError"](), { description: e?.message });
     }
   }
 
@@ -113,9 +107,9 @@
       customerName: `${order.customer.firstName} ${order.customer.lastName}`,
       phone: order.customer.phoneNumber,
       deadline: order.committedDeadline || new Date().toISOString(),
-      items: order.items.map((i: any) => ({
+      items: order.items.map((i: OrderItemResponse) => ({
         garment: i.garmentName,
-        services: i.services?.map((s: any) => ({
+        services: i.services?.map((s) => ({
           name: s.serviceName,
           price: s.unitPrice,
           adjustment: s.adjustmentAmount,
@@ -151,7 +145,7 @@
   async function handlePaymentSuccess() {
     paymentRefreshKey += 1;
     try {
-      const res = await apiService.request<any>(`${API_SALES}/orders/${id}`);
+      const res = await apiService.request<OrderResponse>(`${API_SALES}/orders/${id}`);
       order = res;
     } catch (e) {
       console.error(e);
@@ -173,7 +167,7 @@
 
       toast.success(m["orders.detail.sendToOpsSuccess"]());
       loading = true;
-      const res = await apiService.request<any>(`${API_SALES}/orders/${id}`);
+      const res = await apiService.request<OrderResponse>(`${API_SALES}/orders/${id}`);
       order = res;
     } catch (e: any) {
       console.error(e);

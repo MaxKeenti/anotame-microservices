@@ -1,33 +1,39 @@
 package com.anotame.catalog.application.service;
 
+import com.anotame.catalog.application.dto.PriceListItemDto;
+import com.anotame.catalog.application.dto.PriceListRequest;
+import com.anotame.catalog.application.dto.PriceListResponse;
+import com.anotame.catalog.application.dto.PricingCalculationRequest;
+import com.anotame.catalog.application.dto.PricingCalculationResponse;
+import com.anotame.catalog.application.port.output.PriceListItemRepositoryPort;
+import com.anotame.catalog.application.port.output.PriceListRepositoryPort;
+import com.anotame.catalog.application.port.output.ServiceRepositoryPort;
+import com.anotame.catalog.domain.exception.CatalogNotFoundException;
 import com.anotame.catalog.domain.model.PriceList;
 import com.anotame.catalog.domain.model.PriceListItem;
 import com.anotame.catalog.domain.model.Service;
-import com.anotame.catalog.dto.*;
-import com.anotame.catalog.infrastructure.persistence.repository.PriceListItemRepository;
-import com.anotame.catalog.infrastructure.persistence.repository.PriceListRepository;
-import com.anotame.catalog.infrastructure.persistence.repository.ServiceRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PriceListService {
 
-    @Inject
-    PriceListRepository priceListRepository;
+    private final PriceListRepositoryPort priceListRepository;
+    private final PriceListItemRepositoryPort priceListItemRepository;
+    private final ServiceRepositoryPort serviceRepository;
 
-    @Inject
-    PriceListItemRepository priceListItemRepository;
-
-    @Inject
-    ServiceRepository serviceRepository;
+    public PriceListService(
+            PriceListRepositoryPort priceListRepository,
+            PriceListItemRepositoryPort priceListItemRepository,
+            ServiceRepositoryPort serviceRepository) {
+        this.priceListRepository = priceListRepository;
+        this.priceListItemRepository = priceListItemRepository;
+        this.serviceRepository = serviceRepository;
+    }
 
     @Transactional
     public PriceListResponse create(PriceListRequest request) {
@@ -38,108 +44,89 @@ public class PriceListService {
         list.setActive(request.isActive());
         list.setPriority(request.getPriority());
 
-        priceListRepository.persist(list);
-
-        // Process initial items if any
         if (request.getItems() != null) {
             for (PriceListRequest.ItemRequest itemReq : request.getItems()) {
-                Service service = serviceRepository.findById(itemReq.getServiceId());
-                if (service != null) {
-                    PriceListItem item = new PriceListItem();
-                    item.setService(service);
-                    item.setPrice(itemReq.getPrice());
-                    list.addItem(item); // helper handles bi-directional
-                }
+                Service service = serviceRepository.findById(itemReq.getServiceId())
+                        .orElseThrow(() -> new CatalogNotFoundException("Service"));
+                PriceListItem item = new PriceListItem();
+                item.setService(service);
+                item.setPrice(itemReq.getPrice());
+                list.addItem(item);
             }
         }
 
-        return mapToResponse(list);
+        return mapToResponse(priceListRepository.save(list));
     }
 
     public PricingCalculationResponse calculatePrice(PricingCalculationRequest request) {
         LocalDateTime date = request.getDate() != null ? request.getDate() : LocalDateTime.now();
-        Service service = serviceRepository.findById(request.getServiceId());
-
-        if (service == null) {
-            throw new NotFoundException("Service not found");
-        }
+        Service service = serviceRepository.findById(request.getServiceId())
+                .orElseThrow(() -> new CatalogNotFoundException("Service"));
 
         PricingCalculationResponse response = new PricingCalculationResponse();
         response.setServiceId(service.getId());
 
-        // Strategy: Check for override
-        PriceListItem effectiveItem = priceListItemRepository.findEffectiveItem(service.getId(), date);
-
-        if (effectiveItem != null) {
+        priceListItemRepository.findEffectiveItem(service.getId(), date).ifPresentOrElse(effectiveItem -> {
             response.setFinalPrice(effectiveItem.getPrice());
             response.setSource(effectiveItem.getPriceList().getName());
             response.setPriceListId(effectiveItem.getPriceList().getId());
-        } else {
+        }, () -> {
             response.setFinalPrice(service.getBasePrice());
             response.setSource("BASE_PRICE");
             response.setPriceListId(null);
-        }
+        });
 
         return response;
     }
 
     public List<PriceListResponse> getAll() {
-        return priceListRepository.listAll().stream()
+        return priceListRepository.findAll().stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public PriceListResponse getById(UUID id) {
-        PriceList list = priceListRepository.findById(id);
-        if (list == null)
-            throw new NotFoundException();
+        PriceList list = priceListRepository.findById(id)
+                .orElseThrow(() -> new CatalogNotFoundException("PriceList"));
         return mapToResponse(list);
     }
 
     @Transactional
     public PriceListResponse update(UUID id, PriceListRequest request) {
-        PriceList list = priceListRepository.findById(id);
-        if (list == null) {
-            throw new NotFoundException("PriceList not found");
-        }
+        PriceList list = priceListRepository.findById(id)
+                .orElseThrow(() -> new CatalogNotFoundException("PriceList"));
 
-        // Update fields
         list.setName(request.getName());
         list.setValidFrom(request.getValidFrom());
         list.setValidTo(request.getValidTo());
         list.setActive(request.isActive());
         list.setPriority(request.getPriority());
 
-        // Update items (Full Replacement Strategy for simplicity)
-        // Clear existing items
         list.getItems().clear();
 
-        // Add new items
         if (request.getItems() != null) {
             for (PriceListRequest.ItemRequest itemReq : request.getItems()) {
-                Service service = serviceRepository.findById(itemReq.getServiceId());
-                if (service != null) {
-                    PriceListItem item = new PriceListItem();
-                    item.setService(service);
-                    item.setPrice(itemReq.getPrice());
-                    list.addItem(item);
-                }
+                Service service = serviceRepository.findById(itemReq.getServiceId())
+                        .orElseThrow(() -> new CatalogNotFoundException("Service"));
+                PriceListItem item = new PriceListItem();
+                item.setService(service);
+                item.setPrice(itemReq.getPrice());
+                list.addItem(item);
             }
         }
 
-        // Persist happens automatically at transaction end
-        return mapToResponse(list);
+        return mapToResponse(priceListRepository.save(list));
     }
 
     @Transactional
     public void delete(UUID id) {
-        // Soft delete handled by entity annotation?
-        // Logic says @SQLDelete handles the physical SQL generation, but Hibernate
-        // delete() call triggers it.
         priceListRepository.deleteById(id);
     }
 
-    // Mapping Helper
+    public List<PriceListItem> getActiveOverrides(LocalDateTime date) {
+        return priceListItemRepository.findActiveOverrides(date);
+    }
+
     private PriceListResponse mapToResponse(PriceList list) {
         PriceListResponse res = new PriceListResponse();
         res.setId(list.getId());
@@ -157,7 +144,7 @@ public class PriceListService {
                 dto.setPrice(item.getPrice());
                 dto.setBasePrice(item.getService().getBasePrice());
                 return dto;
-            }).collect(Collectors.toList()));
+            }).toList());
         }
 
         return res;

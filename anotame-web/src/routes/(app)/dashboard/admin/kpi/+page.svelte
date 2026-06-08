@@ -1,13 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { apiService, API_SALES } from '$lib/services/api.svelte';
+  import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
+  import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
-  import { TrendingUp, Activity, Truck, AlertCircle, Clock, Banknote, Calendar } from 'lucide-svelte';
+  import * as Popover from '$lib/components/ui/popover';
+  import { TrendingUp, Activity, Truck, AlertCircle, Clock, Banknote, Calendar, ChevronLeft, ChevronRight, Check, Loader2 } from '@lucide/svelte';
   import FinancialKpiPanel from '$lib/components/dashboard/FinancialKpiPanel.svelte';
-  import WorkloadCalendar from '$lib/components/dashboard/WorkloadCalendar.svelte';
-  import { API_OPERATIONS } from '$lib/services/api.svelte';
+  import CalendarGrid from '$lib/components/calendar/CalendarGrid.svelte';
+  import { getLocale } from '$lib/paraglide/runtime';
+  import type { CalendarDayResponse, CalendarMonthResponse, Establishment, WorkloadDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
+  import { toast } from 'svelte-sonner';
 
   interface DashboardMetrics {
     workload: {
@@ -26,11 +30,10 @@
       date: string;
       totalPaid: number;
     }[];
-    dailyWorkload: {
-      date: string;
-      totalMinutesUsed: number;
-    }[];
+    dailyWorkload: WorkloadDayResponse[];
   }
+
+  const today = new Date();
 
   let metrics = $state<DashboardMetrics | null>(null);
   let capacity = $state(480);
@@ -39,23 +42,155 @@
   let atRiskDaysThreshold = $state(60);
   let isLoading = $state(true);
   let activeBarIndex = $state<number | null>(null);
+  let calendarYear = $state(today.getFullYear());
+  let calendarMonth = $state(today.getMonth() + 1);
+  let calendarData = $state<CalendarDayResponse[]>([]);
+  let calendarLoading = $state(true);
+  let calendarError = $state<string | null>(null);
+  let financeMonthOpen = $state(false);
+  let financeMonthLoading = $state(false);
+  let financePickerYear = $state(today.getFullYear());
+  let selectedFinanceYear = $state(today.getFullYear());
+  let selectedFinanceMonth = $state(today.getMonth() + 1);
 
   // Math for simple bar chart scaling
   let chartMax = $derived(
     metrics?.weeklyRevenueChart.reduce((max, point) => Math.max(max, point.totalPaid), 0) || 100
   );
+  let calendarMonthLabel = $derived(
+    new Intl.DateTimeFormat(getLocale(), { month: 'long', year: 'numeric' }).format(
+      new Date(calendarYear, calendarMonth - 1, 1)
+    )
+  );
+  let selectedFinanceMonthParam = $derived(getMonthParam(selectedFinanceYear, selectedFinanceMonth));
+  let selectedFinanceMonthLabel = $derived(formatMonthLabel(selectedFinanceYear, selectedFinanceMonth));
+  let selectedFinanceMonthlyRevenue = $derived(metrics?.finance.monthlyRevenue ?? 0);
+  let financeMonthOptions = $derived(
+    Array.from({ length: 12 }, (_, index) => {
+      const monthValue = index + 1;
+
+      return {
+        value: monthValue,
+        label: new Intl.DateTimeFormat(getLocale(), { month: 'short' }).format(
+          new Date(financePickerYear, index, 1)
+        )
+      };
+    })
+  );
+
+  function getMonthParam(yearValue: number, monthValue: number): string {
+    return `${yearValue}-${String(monthValue).padStart(2, '0')}`;
+  }
+
+  function formatMonthLabel(yearValue: number, monthValue: number): string {
+    return new Intl.DateTimeFormat(getLocale(), { month: 'long', year: 'numeric' }).format(
+      new Date(yearValue, monthValue - 1, 1)
+    );
+  }
+
+  function isFutureFinanceMonth(yearValue: number, monthValue: number): boolean {
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+
+    return yearValue > currentYear || (yearValue === currentYear && monthValue > currentMonth);
+  }
+
+  async function fetchDashboardMetrics(monthParam = selectedFinanceMonthParam) {
+    return apiService.request<DashboardMetrics>(
+      `${API_SALES}/orders/kpi/dashboard?month=${encodeURIComponent(monthParam)}`
+    );
+  }
+
+  async function handleFinanceMonthSelect(monthValue: number) {
+    if (isFutureFinanceMonth(financePickerYear, monthValue)) return;
+
+    const previousYear = selectedFinanceYear;
+    const previousMonth = selectedFinanceMonth;
+    const nextYear = financePickerYear;
+    const nextMonthParam = getMonthParam(nextYear, monthValue);
+    selectedFinanceYear = nextYear;
+    selectedFinanceMonth = monthValue;
+    financeMonthOpen = false;
+    financeMonthLoading = true;
+
+    try {
+      metrics = await fetchDashboardMetrics(nextMonthParam);
+    } catch (err) {
+      console.error('Failed to load dashboard metrics:', err);
+      selectedFinanceYear = previousYear;
+      selectedFinanceMonth = previousMonth;
+      financePickerYear = previousYear;
+      toast.error(m['kpi.monthPicker.loadError']());
+    } finally {
+      financeMonthLoading = false;
+    }
+  }
+
+  function handleFinanceMonthOpenChange(open: boolean) {
+    financeMonthOpen = open;
+    if (open) {
+      financePickerYear = selectedFinanceYear;
+    }
+  }
+
+  function handlePreviousFinanceYear() {
+    financePickerYear -= 1;
+  }
+
+  function handleNextFinanceYear() {
+    if (financePickerYear < today.getFullYear()) {
+      financePickerYear += 1;
+    }
+  }
+
+  async function loadCalendarMonth(yearValue = calendarYear, monthValue = calendarMonth, capacityMinutes = capacity) {
+    calendarLoading = true;
+    calendarError = null;
+
+    try {
+      const monthParam = getMonthParam(yearValue, monthValue);
+      const response = await apiService.request<CalendarMonthResponse>(
+        `${API_SALES}/orders/kpi/calendar?month=${monthParam}&dailyCapacityMinutes=${capacityMinutes}`
+      );
+      calendarData = response.days || [];
+    } catch (err) {
+      console.error('Failed to load workload calendar:', err);
+      calendarData = [];
+      calendarError = m["common.noData"]();
+    } finally {
+      calendarLoading = false;
+    }
+  }
+
+  async function handlePreviousCalendarMonth() {
+    const nextMonth = calendarMonth === 1 ? 12 : calendarMonth - 1;
+    const nextYear = calendarMonth === 1 ? calendarYear - 1 : calendarYear;
+    calendarMonth = nextMonth;
+    calendarYear = nextYear;
+    await loadCalendarMonth(nextYear, nextMonth);
+  }
+
+  async function handleNextCalendarMonth() {
+    const nextMonth = calendarMonth === 12 ? 1 : calendarMonth + 1;
+    const nextYear = calendarMonth === 12 ? calendarYear + 1 : calendarYear;
+    calendarMonth = nextMonth;
+    calendarYear = nextYear;
+    await loadCalendarMonth(nextYear, nextMonth);
+  }
 
   onMount(async () => {
     try {
       const [metricsData, estData] = await Promise.all([
-        apiService.request<DashboardMetrics>(`${API_SALES}/orders/kpi/dashboard`),
-        apiService.request<any>(`${API_OPERATIONS}/establishment`)
+        fetchDashboardMetrics(selectedFinanceMonthParam),
+        apiService.request<Establishment>(`${API_OPERATIONS}/establishment`)
       ]);
       metrics = metricsData;
-      if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
+      const nextCapacity = estData?.dailyCapacityMinutes || capacity;
+      capacity = nextCapacity;
       if (estData?.capacityThresholdGreen != null) thresholdGreen = estData.capacityThresholdGreen;
       if (estData?.capacityThresholdAmber != null) thresholdAmber = estData.capacityThresholdAmber;
       if (estData?.atRiskDaysThreshold != null) atRiskDaysThreshold = estData.atRiskDaysThreshold;
+      await loadCalendarMonth(calendarYear, calendarMonth, nextCapacity);
     } catch (e) {
       console.error("Error loading KPIs:", e);
     } finally {
@@ -169,9 +304,84 @@
       </div>
 
       <!-- Workload Calendar -->
-      <div class="mt-8">
-        <WorkloadCalendar dailyWorkload={metrics.dailyWorkload} {capacity} {thresholdGreen} {thresholdAmber} />
-      </div>
+      <Card.Root id="workload-calendar" class="mt-8 scroll-mt-24">
+        <Card.Header class="gap-4 md:flex md:flex-row md:items-center md:justify-between">
+          <div>
+            <Card.Title class="flex items-center gap-2">
+              <Calendar class="w-5 h-5 text-primary" />
+              {m["calendar.title"]()}
+            </Card.Title>
+            <Card.Description>{m["calendar.description"]()}</Card.Description>
+          </div>
+          <div class="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/30 p-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-10 w-10"
+              onclick={handlePreviousCalendarMonth}
+              disabled={calendarLoading}
+              aria-label={m["common.previous"]()}
+            >
+              <ChevronLeft class="w-5 h-5" />
+            </Button>
+            <span class="min-w-36 text-center text-sm font-bold capitalize md:min-w-44">
+              {calendarMonthLabel}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-10 w-10"
+              onclick={handleNextCalendarMonth}
+              disabled={calendarLoading}
+              aria-label={m["common.next"]()}
+            >
+              <ChevronRight class="w-5 h-5" />
+            </Button>
+          </div>
+        </Card.Header>
+        <Card.Content class="space-y-6">
+          {#if calendarError}
+            <div class="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+              {calendarError}
+            </div>
+          {/if}
+
+          {#if calendarLoading}
+            <div class="h-96 rounded-lg border border-border bg-muted/40 animate-pulse"></div>
+          {:else}
+            <CalendarGrid
+              year={calendarYear}
+              month={calendarMonth}
+              days={calendarData}
+              dailyCapacity={capacity}
+              {thresholdGreen}
+              {thresholdAmber}
+              showHeader={false}
+            />
+
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded bg-green-200"></div>
+                <span class="text-sm text-muted-foreground">
+                  {m["calendar.capacity.low"]({ green: String(thresholdGreen) })}
+                </span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded bg-amber-200"></div>
+                <span class="text-sm text-muted-foreground">
+                  {m["calendar.capacity.medium"]({ green: String(thresholdGreen), amber: String(thresholdAmber) })}
+                </span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded bg-red-200"></div>
+                <span class="text-sm text-muted-foreground">
+                  {m["calendar.capacity.high"]({ amber: String(thresholdAmber) })}
+                </span>
+              </div>
+            </div>
+          {/if}
+        </Card.Content>
+      </Card.Root>
     </div>
 
     <!-- Finance (Revenue) -->
@@ -195,18 +405,82 @@
           </Card.Content>
         </Card.Root>
 
-        <Card.Root>
-          <Card.Header class="flex flex-row items-center justify-between pb-2">
-            <Card.Title class="text-sm font-medium">{m['kpi.card.monthRevenue']()}</Card.Title>
-            <Calendar class="h-4 w-4 text-muted-foreground" />
-          </Card.Header>
-          <Card.Content>
-            <div class="text-3xl font-bold font-mono">
-              {formatCurrency(metrics.finance.monthlyRevenue)}
+        <Popover.Root bind:open={financeMonthOpen} onOpenChange={handleFinanceMonthOpenChange}>
+          <Popover.Trigger>
+            {#snippet child({ props })}
+              <Card.Root
+                {...props}
+                aria-label={m['kpi.monthPicker.ariaLabel']({ month: selectedFinanceMonthLabel })}
+                class="cursor-pointer transition-all hover:bg-muted/30 focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:outline-none {financeMonthLoading ? 'opacity-80' : ''}"
+              >
+                <Card.Header class="flex flex-row items-center justify-between pb-2">
+                  <Card.Title class="text-sm font-medium">{m['kpi.card.monthRevenueSelectable']()}</Card.Title>
+                  {#if financeMonthLoading}
+                    <Loader2 class="h-4 w-4 animate-spin text-muted-foreground" />
+                  {:else}
+                    <Calendar class="h-4 w-4 text-muted-foreground" />
+                  {/if}
+                </Card.Header>
+                <Card.Content>
+                  <div class="text-3xl font-bold font-mono">
+                    {formatCurrency(selectedFinanceMonthlyRevenue)}
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-1">
+                    {m['kpi.card.monthRevenueSelectedDesc']({ month: selectedFinanceMonthLabel })}
+                  </p>
+                </Card.Content>
+              </Card.Root>
+            {/snippet}
+          </Popover.Trigger>
+          <Popover.Content class="w-80 max-w-[calc(100vw-2rem)]" align="center">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-10 w-10"
+                  onclick={handlePreviousFinanceYear}
+                  disabled={financeMonthLoading}
+                  aria-label={m["common.previous"]()}
+                >
+                  <ChevronLeft class="w-5 h-5" />
+                </Button>
+                <span class="min-w-24 text-center text-sm font-bold">
+                  {financePickerYear}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-10 w-10"
+                  onclick={handleNextFinanceYear}
+                  disabled={financeMonthLoading || financePickerYear >= today.getFullYear()}
+                  aria-label={m["common.next"]()}
+                >
+                  <ChevronRight class="w-5 h-5" />
+                </Button>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                {#each financeMonthOptions as option}
+                  {@const isMonthSelected = selectedFinanceYear === financePickerYear && selectedFinanceMonth === option.value}
+                  {@const isMonthDisabled = isFutureFinanceMonth(financePickerYear, option.value)}
+                  <Button
+                    variant={isMonthSelected ? 'default' : 'outline'}
+                    class="h-12 justify-center capitalize touch-manipulation"
+                    disabled={financeMonthLoading || isMonthDisabled}
+                    aria-label={m['kpi.monthPicker.selectMonth']({ month: formatMonthLabel(financePickerYear, option.value) })}
+                    onclick={() => handleFinanceMonthSelect(option.value)}
+                  >
+                    <span class="truncate">{option.label}</span>
+                    {#if isMonthSelected}
+                      <Check class="ml-1 h-3 w-3" />
+                    {/if}
+                  </Button>
+                {/each}
+              </div>
             </div>
-            <p class="text-xs text-muted-foreground mt-1">{m['kpi.card.monthRevenueDesc']()}</p>
-          </Card.Content>
-        </Card.Root>
+          </Popover.Content>
+        </Popover.Root>
 
         <Card.Root>
           <Card.Header class="flex flex-row items-center justify-between pb-2">

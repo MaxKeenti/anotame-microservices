@@ -5,18 +5,18 @@ import com.anotame.sales.domain.model.OrderPayment;
 import com.anotame.sales.infrastructure.persistence.entity.OrderPaymentEntity;
 import com.anotame.sales.infrastructure.persistence.repository.OrderPaymentRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
+@RequiredArgsConstructor
 public class OrderPaymentPersistenceAdapter implements OrderPaymentRepositoryPort {
 
-    @Inject
-    OrderPaymentRepository repository;
+    private final OrderPaymentRepository repository;
 
     @Override
     @Transactional

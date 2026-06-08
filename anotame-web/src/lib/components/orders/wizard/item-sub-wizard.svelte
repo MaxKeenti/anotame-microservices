@@ -5,13 +5,18 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from 'lucide-svelte';
+	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
+	import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
+	import type { DraftOrderItem } from '$lib/services/orders/OrderWizardState.svelte';
+
+	type DraftService = DraftOrderItem['services'][number];
+	type TempService = Pick<ServiceResponse, 'id' | 'name' | 'description'> & Partial<ServiceResponse>;
 
 	let props = $props<{
-		initialItem?: any,
-		onSave: (item: any) => void,
+		initialItem?: DraftOrderItem,
+		onSave: (item: DraftOrderItem) => void,
 		onCancel: () => void
 	}>();
 
@@ -19,14 +24,14 @@
 		return props.initialItem ? 1 : 0;
 	}
 	let step = $state(getInitialStep());
-	let garmentTypes = $state<any[]>([]);
-	let services = $state<any[]>([]);
+	let garmentTypes = $state<GarmentTypeResponse[]>([]);
+	let services = $state<ServiceResponse[]>([]);
 	let loading = $state(true);
 
-	let selectedGarment = $state<any | null>(null);
-	let addedServices = $state<any[]>([]);
+	let selectedGarment = $state<GarmentTypeResponse | null>(null);
+	let addedServices = $state<DraftService[]>([]);
 
-	let tempService = $state<any | null>(null);
+	let tempService = $state<TempService | null>(null);
 	let price = $state<string>("");
 	let adj = $state<string>("");
 	let adjReason = $state("");
@@ -51,21 +56,23 @@
 	onMount(async () => {
 		try {
 			const [gRes, sRes] = await Promise.all([
-				apiService.request<any[]>(`${API_CATALOG}/catalog/garments`),
-				apiService.request<any[]>(`${API_CATALOG}/catalog/services`)
+				apiService.request<GarmentTypeResponse[]>(`${API_CATALOG}/catalog/garments`),
+				apiService.request<ServiceResponse[]>(`${API_CATALOG}/catalog/services`)
 			]);
-			garmentTypes = (gRes || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'es'));
+			garmentTypes = (gRes || []).sort((a: GarmentTypeResponse, b: GarmentTypeResponse) => a.name.localeCompare(b.name, 'es'));
 			services = sRes || [];
 
-			if (props.initialItem) {
-				let g = garmentTypes.find(x => x.id === props.initialItem.garmentId || x.id === props.initialItem.garmentTypeId);
-				if (!g && props.initialItem.garmentName) {
-					g = garmentTypes.find(x => x.name.toLowerCase() === props.initialItem.garmentName.toLowerCase());
+			const init = props.initialItem;
+			if (init) {
+				let g = garmentTypes.find(x => x.id === init.garmentId || x.id === init.garmentTypeId);
+				if (!g && init.garmentName) {
+					const targetName = init.garmentName.toLowerCase();
+					g = garmentTypes.find(x => x.name.toLowerCase() === targetName);
 				}
 				if (g) selectedGarment = g;
 
-				if (props.initialItem.services) addedServices = [...props.initialItem.services];
-				notes = props.initialItem.notes || "";
+				if (init.services) addedServices = [...init.services];
+				notes = init.notes || "";
 			}
 		} catch (e) {
 			console.error(e);
@@ -107,7 +114,7 @@
 		});
 	});
 
-	function handleGarmentSelect(g: any) {
+	function handleGarmentSelect(g: GarmentTypeResponse) {
 		selectedGarment = g;
 		addedServices = [];
 		step = 1;
@@ -115,7 +122,7 @@
 		serviceFilter = "";
 	}
 
-	function handleServiceSelect(s: any) {
+	function handleServiceSelect(s: ServiceResponse) {
 		tempService = s;
 		
 		// Auto-fill from price list if selected, otherwise use service default price
@@ -124,11 +131,11 @@
 			if (priceListItem) {
 				price = String(priceListItem.price);
 				// Show that price came from price list
-				toast.info("Precio desde lista", { description: `${priceListItem.price}` });
+				toast.info(m['itemSubWizard.toast.priceFromList'](), { description: `${priceListItem.price}` });
 			} else {
 				// Service not in price list - leave price blank per D-06
 				price = "";
-				toast.info("Servicio no en lista de precios", { description: `Ingresa el precio manualmente` });
+				toast.info(m['itemSubWizard.toast.serviceNotInList'](), { description: m['itemSubWizard.toast.serviceNotInListDesc']() });
 			}
 		} else {
 			// No price list selected - use service default
@@ -166,11 +173,11 @@
 		if (editingServiceIndex >= 0) {
 			addedServices[editingServiceIndex] = entry;
 			addedServices = [...addedServices];
-			toast.success("Servicio actualizado", { description: tempService.name });
+			toast.success(m['itemSubWizard.toast.serviceUpdated'](), { description: tempService.name });
 			editingServiceIndex = -1;
 		} else {
 			addedServices = [...addedServices, entry];
-			toast.success("Servicio agregado", { description: tempService.name });
+			toast.success(m['itemSubWizard.toast.serviceAdded'](), { description: tempService.name });
 		}
 		tempService = null;
 		step = 3;
@@ -180,7 +187,7 @@
 		const removed = addedServices[index].serviceName;
 		addedServices.splice(index, 1);
 		addedServices = [...addedServices];
-		toast.info("Servicio removido", { description: removed });
+		toast.info(m['itemSubWizard.toast.serviceRemoved'](), { description: removed });
 	}
 
 	function handleConfirmItem() {
@@ -197,7 +204,7 @@
 </script>
 
 {#if loading}
-    <div class="p-8 text-center animate-pulse">Cargando catálogo...</div>
+    <div class="p-8 text-center animate-pulse">{m['itemSubWizard.loadingCatalog']()}</div>
 {:else}
     <div class="flex flex-col h-full bg-background relative animate-in fade-in slide-in-from-right duration-300">
         <!-- Header -->
@@ -212,12 +219,12 @@
                 </Button>
             {/if}
             <h3 class="text-xl font-bold truncate">
-                {#if step === 0} Selecciona Prenda
-                {:else if step === 1} Agregar Servicios
-                {:else if step === 2} Configurar Servicio
-                {:else} Notas de la Prenda {/if}
+                {#if step === 0} {m['orders.wizard.stepSelectGarment']()}
+                {:else if step === 1} {m['orders.wizard.stepAddServices']()}
+                {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
+                {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
             </h3>
-            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-10 px-4 touch-manipulation" onclick={props.onCancel}>Cancelar</Button>
+            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-10 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
@@ -254,21 +261,21 @@
 
                     {#if addedServices.length > 0}
                         <div class="space-y-3">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Servicios Agregados</h4>
+                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.servicesAdded']()}</h4>
                             {#each addedServices as s, idx}
                                 <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
                                     <div>
                                         <div class="font-medium text-lg">{s.serviceName}</div>
                                         <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
                                             {#if s.adjustmentReason}
-                                                <span>Adj: {s.adjustmentReason}</span>
+                                                <span>{m['orders.wizard.adjustmentShort']()} {s.adjustmentReason}</span>
                                             {/if}
                                             <span>⏱️ {s.durationMin} min</span>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <div class="text-right">
-                                            <div class="font-mono font-bold text-lg">${(s.unitPrice + s.adjustmentAmount).toFixed(2)}</div>
+                                            <div class="font-mono font-bold text-lg">${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)}</div>
                                         </div>
                                         <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
                                             <Pencil class="w-5 h-5" />
@@ -280,26 +287,26 @@
                                 </div>
                             {/each}
                             <div class="text-right font-bold pt-3 border-t text-xl">
-                                Total: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
                             </div>
                         </div>
                     {/if}
 
                     <div class="space-y-4 pt-4">
                         <div class="flex justify-between items-center">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Agregar Servicio</h4>
+                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.addService']()}</h4>
                             <Button
                                 variant="ghost"
                                 class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
                                 onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
                             >
-                                {showAllServices ? "Ver recomendados" : "Ver todos"}
+                                {showAllServices ? m['orders.wizard.viewRecommended']() : m['orders.wizard.viewAll']()}
                             </Button>
                         </div>
 
                         <Input
                             type="search"
-                            placeholder="Buscar servicio..."
+                            placeholder={m['orders.wizard.searchServicePlaceholder']()}
                             class="h-11 rounded-xl"
                             bind:value={serviceFilter}
                         />
@@ -334,7 +341,7 @@
                             {/each}
                             {#if visibleServices.length === 0}
                                 <div class="col-span-full text-center py-8 text-muted-foreground text-lg">
-                                    {serviceFilter ? "Sin resultados para tu búsqueda." : "No hay servicios recomendados."}
+                                    {serviceFilter ? m['orders.wizard.noSearchResults']() : m['orders.wizard.noRecommendedServices']()}
                                 </div>
                             {/if}
                         </div>
@@ -351,7 +358,7 @@
                     </div>
 
                     <div class="space-y-3">
-                        <label class="text-base font-medium" for="precio-base">Precio Base ($)</label>
+                        <label class="text-base font-medium" for="precio-base">{m['itemSubWizard.label.basePrice']()}</label>
                         <div class="relative">
                             <span class="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl">$</span>
                             <Input
@@ -365,21 +372,21 @@
 
                     <div class="grid grid-cols-2 gap-6">
                         <div class="space-y-3">
-                            <label class="text-base font-medium" for="ajuste">Ajuste ($)</label>
+                            <label class="text-base font-medium" for="ajuste">{m['itemSubWizard.label.adjustment']()}</label>
                             <Input
                                 id="ajuste"
                                 type="number"
                                 class="h-16 text-xl text-center rounded-xl"
-                                placeholder="+/- 0.00"
+                                placeholder={m['itemSubWizard.placeholder.adjustment']()}
                                 bind:value={adj}
                             />
                         </div>
                         <div class="space-y-3">
-                            <label class="text-base font-medium" for="razon-ajuste">Razón Ajuste</label>
+                            <label class="text-base font-medium" for="razon-ajuste">{m['orders.wizard.adjustmentReason']()}</label>
                             <Input
                                 id="razon-ajuste"
                                 class="h-16 text-lg rounded-xl"
-                                placeholder="Motivo..."
+                                placeholder={m['orders.wizard.reasonPlaceholder']()}
                                 bind:value={adjReason}
                             />
                         </div>
@@ -387,7 +394,7 @@
 
                     <div class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
                         <div class="flex justify-between items-center">
-                            <label class="text-base font-bold text-primary" for="duracion">Esfuerzo Estimado (Minutos)</label>
+                            <label class="text-base font-bold text-primary" for="duracion">{m['itemSubWizard.label.effort']()}</label>
                             <span class="font-mono text-2xl font-bold text-primary">{duration}m</span>
                         </div>
                         <Input
@@ -399,11 +406,11 @@
                             class="h-10 cursor-pointer accent-primary"
                             bind:value={duration}
                         />
-                        <p class="text-xs text-muted-foreground italic text-center">Desliza para ajustar si crees que esta prenda tomará más tiempo de lo normal.</p>
+                        <p class="text-xs text-muted-foreground italic text-center">{m['itemSubWizard.effortHint']()}</p>
                     </div>
 
                     <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
-                        {editingServiceIndex >= 0 ? 'Actualizar Servicio' : 'Confirmar Servicio'}
+                        {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
                 </div>
             {/if}
@@ -415,12 +422,12 @@
                         <h4 class="font-bold text-2xl mb-4">{selectedGarment?.name}</h4>
                         <ul class="space-y-2 text-base text-muted-foreground">
                             {#each addedServices as s}
-                                <li>• {s.serviceName} (${(s.unitPrice + s.adjustmentAmount).toFixed(2)})</li>
+                                <li>• {s.serviceName} (${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)})</li>
                             {/each}
                         </ul>
                         <div class="mt-4 pt-4 border-t border-dashed border-foreground/20 flex flex-col items-end gap-3">
                             <div class="font-bold text-xl">
-                                Total: ${addedServices.reduce((acc, s) => acc + s.unitPrice + s.adjustmentAmount, 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
                             </div>
                             <Button
                                 variant="outline"
@@ -428,13 +435,13 @@
                                 onclick={() => step = 1}
                             >
                                 <Plus class="w-4 h-4 mr-2" />
-                                Agregar otro servicio
+                                {m['orders.wizard.addAnotherService']()}
                             </Button>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <label class="text-base font-medium" for="notas-prenda">Notas Generales de la Prenda</label>
+                        <label class="text-base font-medium" for="notas-prenda">{m['orders.wizard.garmentNotes']()}</label>
                         <Textarea
                             id="notas-prenda"
                             class="min-h-[160px] resize-none text-lg p-4 rounded-xl"
@@ -455,7 +462,7 @@
                     onclick={() => step = 3}
                     disabled={addedServices.length === 0}
                 >
-                    Continuar
+                    {m['common.continue']()}
                 </Button>
             </div>
         {/if}
@@ -464,7 +471,7 @@
             <div class="pt-6 border-t border-border mt-auto pb-4">
                 <Button size="lg" class="w-full h-16 text-xl rounded-xl shadow-lg touch-manipulation" onclick={handleConfirmItem}>
                     <CheckCircle2 class="mr-2 w-6 h-6" />
-                    Confirmar Prenda
+                    {m['itemSubWizard.button.confirmGarment']()}
                 </Button>
             </div>
         {/if}

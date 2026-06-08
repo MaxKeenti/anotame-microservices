@@ -1,17 +1,22 @@
 package com.anotame.identity.application.service;
 
 import com.anotame.identity.application.dto.AuthResponse;
+import com.anotame.identity.application.dto.ChangeCredentialsRequest;
 import com.anotame.identity.application.dto.LoginRequest;
+import com.anotame.identity.application.dto.UserResponse;
+import com.anotame.identity.application.port.output.PasswordHasherPort;
+import com.anotame.identity.application.port.output.TokenGeneratorPort;
+import com.anotame.identity.application.port.output.UserRepositoryPort;
 import com.anotame.identity.domain.exception.InvalidCredentialsException;
 import com.anotame.identity.domain.exception.ResourceNotFoundException;
 import com.anotame.identity.domain.exception.UserAlreadyExistsException;
-import com.anotame.identity.infrastructure.persistence.repository.UserRepository;
-import com.anotame.identity.infrastructure.security.JwtUtils;
+import com.anotame.identity.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,69 +24,40 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
 
-        private final UserRepository userRepository;
-        private final JwtUtils jwtUtils;
+        private final UserRepositoryPort userRepository;
+        private final PasswordHasherPort passwordHasher;
+        private final TokenGeneratorPort tokenGenerator;
+
+        @ConfigProperty(name = "app.default-branch-id")
+        Optional<UUID> defaultBranchId;
 
         public AuthResponse login(LoginRequest request) {
                 var user = userRepository.findByUsername(request.getUsername())
                                 .orElseThrow(() -> new InvalidCredentialsException());
 
-                if (!io.quarkus.elytron.security.common.BcryptUtil.matches(request.getPassword(), user.getPassword())) {
+                if (!passwordHasher.matches(request.getPassword(), user.getPassword())) {
                         throw new InvalidCredentialsException();
                 }
 
-                Set<String> roles = new HashSet<>();
-                if (user.getRole() != null) {
-                        roles.add(user.getRole().getCode());
-                }
-
-                UUID branchId = userRepository.findActiveBranchForUser(user.getId());
-                var jwtToken = jwtUtils.generateToken(user.getUsername(), user.getId(), branchId, roles);
-
-                var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
-                                .id(user.getId())
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .role(user.getRole() != null ? user.getRole().getCode() : null)
-                                .locale(user.getLocale())
-                                .build();
-
-                return AuthResponse.builder()
-                                .token(jwtToken)
-                                .user(userResponse)
-                                .build();
+                return buildAuthResponse(user);
         }
 
-        public com.anotame.identity.application.dto.UserResponse getUser(String username) {
+        public UserResponse getUser(String username) {
                 var user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new ResourceNotFoundException("User"));
 
-                return com.anotame.identity.application.dto.UserResponse.builder()
-                                .id(user.getId())
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .firstName(user.getFirstName())
-                                .lastName(user.getLastName())
-                                .role(user.getRole() != null ? user.getRole().getCode() : null)
-                                .locale(user.getLocale())
-                                .build();
+                return mapToResponse(user);
         }
 
         @Transactional
-        public AuthResponse updateCredentials(String username,
-                        com.anotame.identity.application.dto.ChangeCredentialsRequest request) {
+        public AuthResponse updateCredentials(String username, ChangeCredentialsRequest request) {
                 var user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new ResourceNotFoundException("User"));
 
-                // Verify current password
-                if (!io.quarkus.elytron.security.common.BcryptUtil.matches(request.getCurrentPassword(),
-                                user.getPassword())) {
+                if (!passwordHasher.matches(request.getCurrentPassword(), user.getPassword())) {
                         throw new InvalidCredentialsException();
                 }
 
-                // Update Username if provided and different
                 if (request.getNewUsername() != null && !request.getNewUsername().isBlank()
                                 && !request.getNewUsername().equals(user.getUsername())) {
                         if (userRepository.existsByUsername(request.getNewUsername())) {
@@ -90,25 +66,39 @@ public class AuthService {
                         user.setUsername(request.getNewUsername());
                 }
 
-                // Update Password if provided
                 if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
-                        user.setPassword(io.quarkus.elytron.security.common.BcryptUtil
-                                        .bcryptHash(request.getNewPassword()));
+                        user.setPassword(passwordHasher.hash(request.getNewPassword()));
                 }
 
-                // Persist changes (implicit in transaction, but good for clarity/hooks)
-                // userRepository.persist(user);
+                User savedUser = userRepository.save(user);
+                return buildAuthResponse(savedUser);
+        }
 
-                // Return new token/auth response since username might have changed
-                Set<String> roles = new HashSet<>();
-                if (user.getRole() != null) {
-                        roles.add(user.getRole().getCode());
-                }
-
+        private AuthResponse buildAuthResponse(User user) {
+                Set<String> roles = rolesFor(user);
                 UUID branchId = userRepository.findActiveBranchForUser(user.getId());
-                var jwtToken = jwtUtils.generateToken(user.getUsername(), user.getId(), branchId, roles);
+                if (branchId == null) {
+                        branchId = defaultBranchId.orElse(null);
+                }
+                var jwtToken = tokenGenerator.generateToken(user.getUsername(), user.getId(), branchId, roles);
 
-                var userResponse = com.anotame.identity.application.dto.UserResponse.builder()
+                var userResponse = mapToResponse(user);
+
+                return AuthResponse.builder()
+                                .token(jwtToken)
+                                .user(userResponse)
+                                .build();
+        }
+
+        private Set<String> rolesFor(User user) {
+                if (user.getRole() == null) {
+                        return Set.of();
+                }
+                return Set.of(user.getRole().getCode());
+        }
+
+        private UserResponse mapToResponse(User user) {
+                return UserResponse.builder()
                                 .id(user.getId())
                                 .username(user.getUsername())
                                 .email(user.getEmail())
@@ -116,11 +106,6 @@ public class AuthService {
                                 .lastName(user.getLastName())
                                 .role(user.getRole() != null ? user.getRole().getCode() : null)
                                 .locale(user.getLocale())
-                                .build();
-
-                return AuthResponse.builder()
-                                .token(jwtToken)
-                                .user(userResponse)
                                 .build();
         }
 }

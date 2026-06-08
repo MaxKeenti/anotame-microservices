@@ -5,7 +5,7 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  import { CreditCard, DollarSign, Wallet, Loader2 } from 'lucide-svelte';
+  import { CreditCard, DollarSign, Wallet, Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
@@ -62,8 +62,8 @@
         method: 'POST',
         body: JSON.stringify({
           amount: amt,
-          method,
-          note: note.trim() || null
+          paymentMethod: method,
+          notes: note.trim() || null
         })
       });
       toast.success(m['orders.payment.success']());
@@ -72,9 +72,9 @@
       onSuccess();
     } catch (e: any) {
       if (e instanceof ApiError) {
-        if (e.status === 400) {
+        if (e.status === 400 || e.status === 422) {
           const body = e.message ?? '';
-          if (body.includes('OVERPAYMENT') || body.includes('overpayment')) {
+          if (body.includes('OVERPAYMENT') || body.includes('overpayment') || body.includes('exceed')) {
             errorMessage = m['orders.payment.errorOverpayment']();
           } else if (body.includes('REFUND_NOTE') || body.includes('note')) {
             errorMessage = m['orders.payment.errorRefundNote']();
@@ -128,7 +128,7 @@
 
       <!-- Method -->
       <div class="space-y-2">
-        <label class="text-sm font-medium">{m['orders.detail.paymentMethod']()}</label>
+        <div class="text-sm font-medium">{m['orders.detail.paymentMethod']()}</div>
         <div class="grid grid-cols-3 gap-2">
           <Button
             type="button"

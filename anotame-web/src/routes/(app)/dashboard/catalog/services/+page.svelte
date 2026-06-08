@@ -5,14 +5,15 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Edit, Trash2 } from 'lucide-svelte';
+  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
 
   const mobile = useIsMobile();
 
@@ -20,8 +21,10 @@
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
 
-  let services = $state<any[]>([]);
-  let garments = $state<any[]>([]);
+  type ServiceEditorItem = Omit<Partial<ServiceResponse>, 'id'> & { id?: string | null };
+
+  let services = $state<ServiceResponse[]>([]);
+  let garments = $state<GarmentTypeResponse[]>([]);
   let loading = $state(true);
 
   // Filters
@@ -29,7 +32,7 @@
   let garmentFilter = $state('');
 
   // Single dialog state
-  let editingService = $state<any | null>(null);
+  let editingService = $state<ServiceEditorItem | null>(null);
 
   // Reactive filtering
   let filteredServices = $derived.by(() => {
@@ -45,20 +48,20 @@
     });
   });
 
-  let columns = $derived<ColumnDef<any>[]>([
+  let columns = $derived<ColumnDef<ServiceResponse>[]>([
     { accessorKey: 'name', header: m["catalog.services.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'garment', accessorFn: (row: any) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'garment', accessorFn: (row) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { accessorKey: 'defaultDurationMin', header: m["catalog.services.colDuration"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'price', accessorFn: (row: any) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<any>] : []),
+    { id: 'price', accessorFn: (row) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<ServiceResponse>] : []),
   ]);
 
   async function fetchData() {
     loading = true;
     try {
       const [servicesData, garmentsData] = await Promise.all([
-        apiService.request<any[]>(`${API_CATALOG}/catalog/services`),
-        apiService.request<any[]>(`${API_CATALOG}/catalog/garments`)
+        apiService.request<ServiceResponse[]>(`${API_CATALOG}/catalog/services`),
+        apiService.request<GarmentTypeResponse[]>(`${API_CATALOG}/catalog/garments`)
       ]);
       services = servicesData || [];
       garments = garmentsData || [];
@@ -86,11 +89,11 @@
     };
   }
 
-  function handleEditClick(service: any) {
+  function handleEditClick(service: ServiceResponse) {
     editingService = service;
   }
 
-  async function handleDeleteClick(service: any) {
+  async function handleDeleteClick(service: ServiceResponse) {
     const ok = await adaptiveConfirm({
       title: m["catalog.services.deleteTitle"](),
       description: m["catalog.services.deleteDescription"]({ name: service.name })
@@ -111,7 +114,7 @@
     fetchData();
   }
 
-  function getGarmentName(garmentTypeId: string): string {
+  function getGarmentName(garmentTypeId?: string): string {
     const g = garments.find(g => g.id === garmentTypeId);
     return g?.name || '-';
   }
@@ -156,7 +159,7 @@
 
   <!-- Table / Cards -->
   <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet serviceActions(row)}
+    {#snippet serviceActions(row: Row<ServiceResponse>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"

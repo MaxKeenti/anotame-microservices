@@ -8,7 +8,7 @@
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import FloatingActionBar from '$lib/components/ui/FloatingActionBar.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
-  import { Edit, Trash2, Eye } from 'lucide-svelte';
+  import { Edit, Trash2, Eye } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
@@ -19,17 +19,20 @@
 
   const mobile = useIsMobile();
   import { toast } from 'svelte-sonner';
-  import type { ColumnDef } from '@tanstack/table-core';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import type { GarmentTypeResponse, OrderSummaryResponse, PageResponse } from '$lib/types/dtos';
   import * as Tabs from '$lib/components/ui/tabs';
   import * as m from '$lib/paraglide/messages';
 
   let view = $state<'active' | 'drafts'>('active');
-  let orders = $state<any[]>([]);
-  let garments = $state<any[]>([]);
+  let orders = $state<OrderSummaryResponse[]>([]);
+  let garments = $state<GarmentTypeResponse[]>([]);
   let loading = $state(true);
+  let ordersPageIndex = $state(0);
+  let ordersTotalPages = $state(0);
 
   // Bulk selection state
-  let selectedOrders = $state<any[]>([]);
+  let selectedOrders = $state<OrderSummaryResponse[]>([]);
 
   // Filters
   let searchQuery = $state("");
@@ -37,15 +40,16 @@
   let dateFilter = $state("");
 
   let drafts = $derived(orderWizardState.drafts.current);
+  let ordersPageSize = $derived(mobile.current ? 12 : 20);
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
 
-  const activeColumns: ColumnDef<any>[] = [
+  const activeColumns: ColumnDef<OrderSummaryResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["orders.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["orders.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'garments', accessorFn: (row) => row.items?.map((i: any) => i.garmentName).join(', '), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { id: 'garments', accessorFn: (row) => formatNames(row.garmentNames), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
     { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
@@ -59,25 +63,74 @@
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
-  async function fetchData() {
+  function formatNames(names: string[] | undefined): string {
+    return names?.filter(Boolean).join(', ') || '-';
+  }
+
+  function buildSummaryUrl(pageIndex: number, pageSize: number): string {
+    const params = new URLSearchParams({
+      page: String(pageIndex),
+      size: String(pageSize)
+    });
+    const query = searchQuery.trim();
+    if (query) params.set('search', query);
+    if (garmentFilter) params.set('garmentId', garmentFilter);
+    if (dateFilter) params.set('deadline', dateFilter);
+    return `${API_SALES}/orders/summary?${params.toString()}`;
+  }
+
+  let ordersRequestId = 0;
+
+  async function fetchOrders(pageIndex = ordersPageIndex, pageSize = ordersPageSize) {
     loading = true;
+    const requestId = ++ordersRequestId;
     try {
-      const [ordersData, garmentsData] = await Promise.all([
-        apiService.request<any[]>(`${API_SALES}/orders`),
-        apiService.request<any[]>(`${API_CATALOG}/catalog/garments`)
-      ]);
-      orders = ordersData || [];
-      garments = garmentsData || [];
+      const page = await apiService.request<PageResponse<OrderSummaryResponse>>(
+        buildSummaryUrl(pageIndex, pageSize)
+      );
+      if (requestId !== ordersRequestId) return;
+      orders = page.items || [];
+      ordersTotalPages = page.totalPages;
+      selectedOrders = [];
     } catch (e) {
+      if (requestId !== ordersRequestId) return;
       console.error(e);
       // Optional: Add toast error handling here
     } finally {
-      loading = false;
+      if (requestId === ordersRequestId) {
+        loading = false;
+      }
     }
   }
 
+  async function fetchGarments() {
+    try {
+      garments = await apiService.request<GarmentTypeResponse[]>(`${API_CATALOG}/catalog/garments`) || [];
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  let mounted = $state(false);
+  let lastSummaryFilterKey = '';
+
   onMount(() => {
-    fetchData();
+    mounted = true;
+    fetchGarments();
+  });
+
+  $effect(() => {
+    if (!mounted) return;
+    const pageSize = ordersPageSize;
+    const filterKey = [searchQuery.trim(), garmentFilter, dateFilter, pageSize].join('\u0000');
+    if (filterKey !== lastSummaryFilterKey) {
+      lastSummaryFilterKey = filterKey;
+      if (ordersPageIndex !== 0) {
+        ordersPageIndex = 0;
+        return;
+      }
+    }
+    fetchOrders(ordersPageIndex, pageSize);
   });
 
   async function handleDeleteDraft(id: string) {
@@ -112,7 +165,7 @@
       toast.success(m["orders.bulk.updateSuccess"]({ count: String(successCount) }));
     }
     selectedOrders = [];
-    fetchData();
+    fetchOrders();
   }
 
   async function handleBulkDelete() {
@@ -144,47 +197,13 @@
       toast.success(m["orders.bulk.updateSuccess"]({ count: String(successCount) }));
     }
     selectedOrders = [];
-    fetchData();
+    ordersPageIndex = 0;
+    fetchOrders(0, ordersPageSize);
   }
 
   function handleBulkCancel() {
     selectedOrders = [];
   }
-
-  // Derived filter logic
-  let filteredOrders = $derived.by(() => {
-    return orders.filter(order => {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        order.ticketNumber?.toLowerCase().includes(query) ||
-        order.customer?.firstName?.toLowerCase().includes(query) ||
-        order.customer?.lastName?.toLowerCase().includes(query);
-
-      if (!matchesSearch) return false;
-
-      if (garmentFilter) {
-        const selectedGarment = garments.find(g => g.id === garmentFilter);
-        if (selectedGarment) {
-          const hasGarment = order.items?.some((item: any) =>
-            item.garmentName === selectedGarment.name
-          );
-          if (!hasGarment) return false;
-        }
-      }
-
-      if (dateFilter) {
-        if (!order.committedDeadline) return false;
-        const d = new Date(order.committedDeadline);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        const orderDate = `${year}-${month}-${day}`;
-        if (orderDate !== dateFilter) return false;
-      }
-
-      return true;
-    });
-  });
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
@@ -252,11 +271,11 @@
 
       <!-- Active Orders Table / Card Grid -->
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet statusCell(row: any)}
+        {#snippet statusCell(row: Row<OrderSummaryResponse>)}
           <StatusBadge status={row.original.status} />
         {/snippet}
 
-        {#snippet activeOrderActions(row: any)}
+        {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end gap-2">
             <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
               <Edit class="w-4 h-4 mr-2" />
@@ -272,7 +291,7 @@
         {#if mobile.current}
           <CardGridWrapper
             columns={activeColumns}
-            data={filteredOrders}
+            data={orders}
             loading={loading}
             emptyMessage={m["orders.empty"]()}
             filterPlaceholder={m["orders.searchPlaceholder"]()}
@@ -280,13 +299,18 @@
             cellRenders={{ status: statusCell }}
             bulkActions={true}
             bulkMode={true}
+            manualPagination={true}
+            pageIndex={ordersPageIndex}
+            pageCount={ordersTotalPages}
+            pageSize={ordersPageSize}
+            onPageChange={(page) => { ordersPageIndex = page; }}
             onSelectionChange={(rows) => { selectedOrders = rows; }}
             actionCell={activeOrderActions}
           />
         {:else}
           <DataTableWrapper
             columns={activeColumns}
-            data={filteredOrders}
+            data={orders}
             loading={loading}
             emptyMessage={m["orders.empty"]()}
             filterPlaceholder={m["orders.searchPlaceholder"]()}
@@ -294,6 +318,11 @@
             cellRenders={{ status: statusCell }}
             bulkActions={true}
             bulkMode={true}
+            manualPagination={true}
+            pageIndex={ordersPageIndex}
+            pageCount={ordersTotalPages}
+            pageSize={ordersPageSize}
+            onPageChange={(page) => { ordersPageIndex = page; }}
             onSelectionChange={(rows) => { selectedOrders = rows; }}
           >
             {#snippet actionCell(row)}

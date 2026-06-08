@@ -67,6 +67,7 @@ export interface OrderResponse {
   committedDeadline: string;
   status: string;
   totalAmount: number;
+  totalDurationMin?: number;
   amountPaid: number;
   paymentMethod: string;
   notes: string;
@@ -76,6 +77,48 @@ export interface OrderResponse {
   deliveredAt?: string;  // ISO string (OffsetDateTime serialized)
   priceListId?: string | null;
   priceListName?: string | null;
+}
+
+export interface OrderSummaryResponse {
+  id: string;
+  ticketNumber: string;
+  customer: CustomerDto;
+  committedDeadline?: string | null;
+  status: string;
+  totalAmount: number;
+  totalDurationMin?: number;
+  amountPaid: number;
+  createdAt?: string;
+  deliveredAt?: string | null;
+  garmentNames: string[];
+  serviceNames: string[];
+}
+
+export interface PageResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface WorkloadDayResponse {
+  date: string;
+  totalMinutesUsed: number;
+}
+
+export interface CalendarDayResponse {
+  date: string;
+  totalMinutesUsed: number;
+  orderCount: number;
+  scheduledRevenue: number;
+  capacityPercent: number;
+  isHoliday: boolean;
+  isOpen: boolean;
+}
+
+export interface CalendarMonthResponse {
+  days: CalendarDayResponse[];
 }
 
 export interface GarmentTypeRequest {
@@ -89,23 +132,6 @@ export interface ServiceRequest {
   defaultDurationMin: number;
   basePrice: number;
   garmentTypeId?: string;
-}
-
-export interface WorkOrderItem {
-  id: string;
-  salesOrderItemId: string;
-  serviceName: string;
-  currentStage: string;
-  notes: string;
-}
-
-export interface WorkOrder {
-  id: string;
-  salesOrderId: string;
-  status: string; // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
-  items: WorkOrderItem[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface PriceListItemDto {
@@ -154,6 +180,12 @@ export interface Establishment {
   ownerName?: string;
   taxInfo?: string; // JSON
   active: boolean;
+  dailyCapacityMinutes?: number;
+  capacityThresholdGreen?: number;
+  capacityThresholdAmber?: number;
+  atRiskDaysThreshold?: number;
+  primaryColor?: string | null;
+  fontFamily?: string | null;
 }
 
 export interface UserResponse {

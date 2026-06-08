@@ -2,8 +2,9 @@
    import { orderWizardState, type DraftOrderItem, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
    import ItemSubWizard from './item-sub-wizard.svelte';
    import { Button } from '$lib/components/ui/button';
-   import { Plus, Trash2, Edit, Copy } from 'lucide-svelte';
+   import { Plus, Trash2, Edit, Copy } from '@lucide/svelte';
    import { toast } from 'svelte-sonner';
+   import * as m from '$lib/paraglide/messages';
 
    let { onNext, onBack } = $props<{ onNext: () => void, onBack: () => void }>();
 
@@ -22,10 +23,10 @@
        let newItems = [...items];
        if (editingIndex !== null) {
            newItems[editingIndex] = item;
-           toast.success("Prenda actualizada", { description: item.garmentName });
+           toast.success(m['itemsStep.toast.garmentUpdated'](), { description: item.garmentName });
        } else {
            newItems.push(item);
-           toast.success("Prenda agregada", { description: item.garmentName });
+           toast.success(m['itemsStep.toast.garmentAdded'](), { description: item.garmentName });
        }
        orderWizardState.updateActiveDraft({ items: newItems });
        isAddingItem = false;
@@ -42,20 +43,20 @@
        const deletedGarment = newItems[index].garmentName;
        newItems.splice(index, 1);
        orderWizardState.updateActiveDraft({ items: newItems });
-       toast.info("Prenda eliminada", { description: deletedGarment });
+       toast.info(m['itemsStep.toast.garmentRemoved'](), { description: deletedGarment });
    }
 
    function handleDuplicateItem(index: number) {
        const itemToDuplicate = items[index];
        const newItem: DraftOrderItem = {
            ...itemToDuplicate,
-           notes: itemToDuplicate.notes ? `${itemToDuplicate.notes} (Copia)` : '(Copia)',
+           notes: itemToDuplicate.notes ? `${itemToDuplicate.notes} ${m['itemsStep.copySuffix']()}` : m['itemsStep.copySuffix'](),
            services: (itemToDuplicate.services || []).map(s => ({ ...s }))
        };
        let newItems = [...items];
        newItems.splice(index + 1, 0, newItem);
        orderWizardState.updateActiveDraft({ items: newItems });
-       toast.success("Prenda duplicada", { description: `${itemToDuplicate.garmentName}` });
+       toast.success(m['itemsStep.toast.garmentDuplicated'](), { description: `${itemToDuplicate.garmentName}` });
    }
 </script>
 
@@ -72,24 +73,24 @@
    <div class="flex flex-col h-full gap-6">
        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
            <div>
-               <h2 class="text-xl font-semibold">Paso 2: Prendas y Servicios</h2>
-               <p class="text-muted-foreground">Agrega las prendas que el cliente deja.</p>
+               <h2 class="text-xl font-semibold">{m['itemsStep.title']()}</h2>
+               <p class="text-muted-foreground">{m['itemsStep.subtitle']()}</p>
            </div>
            <Button onclick={() => isAddingItem = true} size="lg" class="rounded-xl h-14 px-8 w-full sm:w-auto touch-manipulation shadow-md">
                <Plus class="w-5 h-5 mr-2" />
-               Agregar Prenda
+               {m['itemsStep.addGarment']()}
            </Button>
        </div>
 
        <div class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
            {#if items.length === 0}
                <div class="h-64 flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl text-muted-foreground w-full">
-                   <p class="text-lg">No hay prendas agregadas.</p>
+                   <p class="text-lg">{m['itemsStep.empty']()}</p>
                    <button
                        class="mt-6 text-primary font-bold text-lg cursor-pointer hover:underline touch-manipulation py-4 px-6 bg-primary/5 rounded-xl transition-colors"
                        onclick={() => isAddingItem = true}
                    >
-                       + Agregar la primera prenda
+                       {m['itemsStep.addFirst']()}
                    </button>
                </div>
            {:else}
@@ -110,7 +111,7 @@
                            </div>
                            {#if item.notes}
                                <div class="text-sm text-muted-foreground mt-3 bg-secondary/50 p-2 rounded-lg border border-border/50 inline-block">
-                                   <span class="font-semibold text-foreground mr-1">Nota:</span>{item.notes}
+                                   <span class="font-semibold text-foreground mr-1">{m['itemsStep.noteLabel']()}</span>{item.notes}
                                </div>
                            {/if}
                        </div>
@@ -120,13 +121,13 @@
                                ${(item.services || []).reduce((acc: number, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
                            </div>
                            <div class="flex gap-2 bg-secondary/30 p-1.5 rounded-xl">
-                               <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title="Duplicar" onclick={() => handleDuplicateItem(idx)}>
+                               <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title={m['common.duplicate']()} onclick={() => handleDuplicateItem(idx)}>
                                    <Copy class="w-5 h-5 sm:w-6 sm:h-6" />
                                </Button>
-                               <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title="Editar" onclick={() => handleEditItem(idx)}>
+                               <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title={m['common.edit']()} onclick={() => handleEditItem(idx)}>
                                    <Edit class="w-5 h-5 sm:w-6 sm:h-6" />
                                </Button>
-                               <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-destructive rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-destructive/20" title="Eliminar" onclick={() => handleDeleteItem(idx)}>
+                               <Button variant="ghost" size="icon" class="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-destructive rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-destructive/20" title={m['common.delete']()} onclick={() => handleDeleteItem(idx)}>
                                    <Trash2 class="w-5 h-5 sm:w-6 sm:h-6" />
                                </Button>
                            </div>
@@ -139,24 +140,24 @@
        <div class="border-t border-border pt-3 sm:pt-6 mt-auto">
            <!-- Desktop: total row then full-width buttons -->
            <div class="hidden sm:flex justify-between items-center mb-6 px-2">
-               <span class="text-xl font-medium">Total Estimado:</span>
+               <span class="text-xl font-medium">{m['itemsStep.totalEstimated']()}</span>
                <span class="text-4xl font-bold font-mono text-primary">${total.toFixed(2)}</span>
            </div>
            <div class="hidden sm:flex gap-4">
-               <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl touch-manipulation" onclick={onBack}>Atrás</Button>
+               <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl touch-manipulation" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <Button class="flex-1 h-16 text-lg rounded-xl shadow-lg touch-manipulation" onclick={onNext} disabled={items.length === 0}>
-                   Continuar al Pago
+                   {m['itemsStep.continueToPayment']()}
                </Button>
            </div>
            <!-- Mobile: single compact row — back | total | continue -->
            <div class="flex sm:hidden items-center gap-2">
-               <Button variant="outline" class="h-10 px-3 text-sm rounded-xl touch-manipulation flex-shrink-0" onclick={onBack}>Atrás</Button>
+               <Button variant="outline" class="h-10 px-3 text-sm rounded-xl touch-manipulation flex-shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <div class="flex-1 flex flex-col items-center leading-tight">
-                   <span class="text-xs text-muted-foreground">Total</span>
+                   <span class="text-xs text-muted-foreground">{m['orders.wizard.total']()}</span>
                    <span class="text-lg font-bold font-mono text-primary">${total.toFixed(2)}</span>
                </div>
                <Button class="h-10 px-3 text-sm rounded-xl shadow-lg touch-manipulation flex-shrink-0" onclick={onNext} disabled={items.length === 0}>
-                   Continuar
+                   {m['common.continue']()}
                </Button>
            </div>
        </div>

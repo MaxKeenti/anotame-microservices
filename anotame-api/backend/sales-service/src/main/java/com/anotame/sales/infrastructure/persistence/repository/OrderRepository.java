@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -91,7 +92,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
     @SuppressWarnings("unchecked")
     public List<Object[]> getRevenueTimeSeries(OffsetDateTime start, String granularity, String zoneId) {
         String dateFormat = switch (granularity) {
-            case "week" -> "YYYY-IW";  // ISO week
+            case "week" -> "IYYY-IW";  // ISO week-year and week
             case "month" -> "YYYY-MM";
             default -> "YYYY-MM-DD";   // day
         };
@@ -115,7 +116,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .createNativeQuery(
                         "SELECT " +
                         "  ois.service_name, " +
-                        "  SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))) AS totalRevenue, " +
+                        "  COALESCE(SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))), 0) AS totalRevenue, " +
                         "  COUNT(DISTINCT top.id_order) AS orderCount, " +
                         "  COALESCE(SUM(ois.duration_min * oi.quantity), 0) AS totalDurationMin " +
                         "FROM tco_order_payment top " +
@@ -126,8 +127,9 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "  AND top.amount > 0 " +
                         "  AND o.is_deleted = false " +
                         "  AND oi.is_deleted = false " +
+                        "  AND oi.subtotal > 0 " +
                         "GROUP BY ois.service_name " +
-                        "ORDER BY totalRevenue DESC")
+                        "ORDER BY totalRevenue DESC NULLS LAST, ois.service_name ASC")
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
@@ -174,21 +176,27 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
 
     // At-Risk Customers
     @SuppressWarnings("unchecked")
-    public List<Object[]> getAtRiskCustomers(OffsetDateTime cutoffDate, int limit) {
+    public List<Object[]> getAtRiskCustomers(LocalDate cutoffDate, String zoneId, int limit) {
         return getEntityManager()
                 .createNativeQuery(
                         "SELECT " +
                         "  c.id_customer, " +
                         "  c.first_name, " +
                         "  c.last_name, " +
-                        "  MAX(o.created_at AT TIME ZONE 'UTC')::date::text AS last_order_date " +
-                        "FROM tco_order o " +
-                        "JOIN tco_customer c ON o.id_customer = c.id_customer " +
-                        "WHERE o.is_deleted = false AND c.is_deleted = false " +
+                        "  MAX((o.created_at AT TIME ZONE :zone)::date)::text AS last_order_date " +
+                        "FROM tco_customer c " +
+                        "LEFT JOIN tco_order o ON o.id_customer = c.id_customer " +
+                        "  AND o.is_deleted = false " +
+                        "WHERE c.is_deleted = false " +
                         "GROUP BY c.id_customer, c.first_name, c.last_name " +
-                        "HAVING MAX(o.created_at) < :cutoffDate " +
-                        "ORDER BY last_order_date ASC " +
+                        "HAVING MAX((o.created_at AT TIME ZONE :zone)::date) <= :cutoffDate " +
+                        "  OR (MAX((o.created_at AT TIME ZONE :zone)::date) IS NULL " +
+                        "    AND MIN((c.created_at AT TIME ZONE :zone)::date) <= :cutoffDate) " +
+                        "ORDER BY COALESCE(MAX((o.created_at AT TIME ZONE :zone)::date), " +
+                        "  MIN((c.created_at AT TIME ZONE :zone)::date)) ASC, " +
+                        "  c.first_name ASC, c.last_name ASC " +
                         "LIMIT :limit")
+                .setParameter("zone", zoneId)
                 .setParameter("cutoffDate", cutoffDate)
                 .setParameter("limit", limit)
                 .getResultList();

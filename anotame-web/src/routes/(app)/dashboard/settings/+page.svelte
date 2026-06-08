@@ -2,10 +2,10 @@
   import { mode, setMode, resetMode } from 'mode-watcher';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
-  import SunIcon from 'lucide-svelte/icons/sun';
-  import MoonIcon from 'lucide-svelte/icons/moon';
-  import MonitorIcon from 'lucide-svelte/icons/monitor';
-  import GlobeIcon from 'lucide-svelte/icons/globe';
+  import SunIcon from '@lucide/svelte/icons/sun';
+  import MoonIcon from '@lucide/svelte/icons/moon';
+  import MonitorIcon from '@lucide/svelte/icons/monitor';
+  import GlobeIcon from '@lucide/svelte/icons/globe';
   import { paletteStore, type UserPalette } from '$lib/stores/palette.svelte';
   import { tablePreferences, PAGE_SIZE_OPTIONS } from '$lib/stores/table-preferences.svelte';
   import * as m from '$lib/paraglide/messages';
