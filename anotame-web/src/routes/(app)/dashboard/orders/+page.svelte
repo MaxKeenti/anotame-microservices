@@ -289,7 +289,7 @@
         {/snippet}
 
         {#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
-          <div class="max-w-sm min-w-0 whitespace-normal break-words leading-6" title={formatNames(row.original.garmentNames)}>
+          <div class="max-w-sm min-w-0 whitespace-normal wrap-break-word leading-6" title={formatNames(row.original.garmentNames)}>
             {#if cleanGarmentNames(row.original.garmentNames).length > 0}
               {visibleGarmentNames(row.original.garmentNames).join(', ')}
               {#if hiddenGarmentCount(row.original.garmentNames) > 0}
