@@ -1,5 +1,8 @@
-import type { LayoutServerLoad } from './$types';
+import type { LayoutLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
+import { API_IDENTITY } from '$lib/services/api.svelte';
+import { isNativeApp } from '$lib/capacitor';
+import { tokenStore } from '$lib/services/native/tokenStore';
 
 function redirectToLogin(url: URL, reason: string, details: Record<string, unknown> = {}) {
 	const next = encodeURIComponent(`${url.pathname}${url.search}`);
@@ -12,17 +15,26 @@ function redirectToLogin(url: URL, reason: string, details: Record<string, unkno
 	throw redirect(303, `/login?sessionExpired=1&next=${next}`);
 }
 
-export const load: LayoutServerLoad = async ({ fetch, url }) => {
-	// Verify user is authenticated and has ADMIN role at server level
-	// This provides defense-in-depth against direct URL access
+export const load: LayoutLoad = async ({ fetch, url }) => {
+	// Backend enforces ADMIN role on protected endpoints; this guard protects direct navigation.
 	try {
-		const response = await fetch('/api/identity/auth/me', {
+		const headers = new Headers({ 'Content-Type': 'application/json' });
+		const native = isNativeApp();
+
+		if (native) {
+			const token = await tokenStore.get();
+			if (token) {
+				headers.set('Authorization', `Bearer ${token}`);
+			}
+		}
+
+		const response = await fetch(`${API_IDENTITY}/auth/me`, {
 			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
+			headers,
+			...(native ? {} : { credentials: 'include' as const }),
 		});
 
 		if (response.status === 401 || response.status === 403) {
-			// Not authenticated or session expired
 			redirectToLogin(url, 'auth-me-denied', { status: response.status });
 		}
 
@@ -32,17 +44,14 @@ export const load: LayoutServerLoad = async ({ fetch, url }) => {
 
 		const user = await response.json();
 
-		// Check if user has ADMIN role
 		if (!user || user.role !== 'ADMIN') {
 			redirectToLogin(url, 'admin-role-required', { role: user?.role ?? null });
 		}
 
-		// User is authorized, return their data for child pages
 		return {
 			user,
 		};
 	} catch (err: any) {
-		// If it's already a SvelteKit error, re-throw it
 		if (err.status) {
 			throw err;
 		}

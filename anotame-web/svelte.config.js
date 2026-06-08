@@ -1,10 +1,13 @@
-import adapter from '@sveltejs/adapter-node';
+import nodeAdapter from '@sveltejs/adapter-node';
+import staticAdapter from '@sveltejs/adapter-static';
+
+const isMobile = process.env.MOBILE === '1';
 
 function adapterWithCleanLogs(options) {
-	const nodeAdapter = adapter(options);
+	const adapter = nodeAdapter(options);
 
 	return {
-		...nodeAdapter,
+		...adapter,
 		async adapt(builder) {
 			const originalWarn = console.warn;
 
@@ -22,7 +25,7 @@ function adapterWithCleanLogs(options) {
 			};
 
 			try {
-				await nodeAdapter.adapt(builder);
+				await adapter.adapt(builder);
 			} finally {
 				console.warn = originalWarn;
 			}
@@ -33,7 +36,9 @@ function adapterWithCleanLogs(options) {
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		adapter: adapterWithCleanLogs(),
+		adapter: isMobile
+			? staticAdapter({ pages: 'build', assets: 'build', fallback: 'index.html', strict: false })
+			: adapterWithCleanLogs(),
 		paths: {
 			relative: false
 		}

@@ -1,10 +1,12 @@
 import { ApiError } from './ApiError';
+import { getApiBase, isNativeApp } from '$lib/capacitor';
+import { tokenStore } from './native/tokenStore';
 import type { OrderResponse, CreateOrderRequest } from '$lib/types/dtos';
 
-export const API_IDENTITY = "/api/identity";
-export const API_CATALOG = "/api/catalog";
-export const API_SALES = "/api/sales";
-export const API_OPERATIONS = "/api/operations";
+export const API_IDENTITY = getApiBase('identity');
+export const API_CATALOG = getApiBase('catalog');
+export const API_SALES = getApiBase('sales');
+export const API_OPERATIONS = getApiBase('operations');
 
 export class ApiValidationError extends Error {
   public validationErrors: Record<string, string>;
@@ -30,10 +32,21 @@ class ApiService {
       headers.set("Content-Type", "application/json");
     }
 
+    // Native (Capacitor) auth uses a Bearer token from secure storage because
+    // cross-origin HttpOnly cookies cannot reach the backend from
+    // capacitor://localhost. Web continues to rely on the HttpOnly cookie.
+    const native = isNativeApp();
+    if (native && !headers.has("Authorization")) {
+      const token = await tokenStore.get();
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+    }
+
     const config: RequestInit = {
       ...init,
       headers,
-      credentials: "include",
+      ...(native ? {} : { credentials: "include" as const }),
     };
 
     const response = await fetch(input, config);

@@ -75,7 +75,10 @@ public class AuthController {
                 .maxAge(86400) // 24 hours (match JWT expiry if possible)
                 .build();
 
-        return Response.ok(authResponse.getUser()) // Return only user info
+        // Body includes both token and user so native clients (Capacitor) can
+        // pull the JWT for Bearer-token auth; web clients ignore the token
+        // and rely on the HttpOnly cookie.
+        return Response.ok(authResponse)
                 .cookie(cookie)
                 .build();
     }

@@ -35,6 +35,14 @@ The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns.
 - **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components placed in `src/lib/components/ui/`. For forms, use the `sveltekit-superforms` single-dialog pattern. For data management pages, use `DataTableWrapper` on desktop and `CardGridWrapper` on mobile as described in `docs/adr/0004-responsive-data-grids.md`.
 - **i18n**: All text must be internationalized using Paraglide.
 
+### Mobile (Capacitor) Build
+The same `anotame-web` source tree builds both the Railway Node server and the iOS/Android Capacitor bundle. See `docs/adr/0005-dual-build-web-and-capacitor.md`.
+
+- **Build commands**: `bun run build` produces the adapter-node Docker artifact; `bun run build:mobile` produces the adapter-static bundle under `build/` for `npx cap sync`.
+- **Platform branching**: Use `isNativeApp()` from `$lib/capacitor` to gate native-only code paths. Never assume web-only globals (`document.cookie`, server `fetch` to `/api/...`) work on native.
+- **API base URLs**: All API calls must go through `getApiBase('identity' | 'catalog' | 'sales' | 'operations')` or the exported `API_*` constants in `$lib/services/api.svelte`. Never hard-code `/api/...` or full backend URLs — those break on native (no Node proxy).
+- **Auth model**: Web uses HttpOnly cookies; native uses a Bearer token persisted via `@capacitor/preferences` (`tokenStore`). The login endpoint returns both; only one is consumed per platform.
+
 ### UI/UX Rules & Accessibility
 - **Touch-First Design**: UI must be heavily optimized for touchscreen interactions (large touch targets, responsive layouts) and screens ≤ 1024x768px.
 - **Wizards over Long Forms**: Complex actions like Order Creation must be split into logical wizard steps (e.g., 1. Customer, 2. Garment/Service, 3. Payment).

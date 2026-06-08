@@ -1,5 +1,12 @@
 import { PersistedState } from 'runed';
 import { apiService, API_IDENTITY } from './api.svelte';
+import { isNativeApp } from '$lib/capacitor';
+import { tokenStore } from './native/tokenStore';
+
+interface LoginResponse {
+    token: string;
+    user: User;
+}
 
 export interface User {
     id: string;
@@ -30,6 +37,9 @@ class AuthService {
 
     clearLocalSession(): void {
         this.userState.current = null;
+        if (isNativeApp()) {
+            void tokenStore.clear();
+        }
         if (typeof window !== "undefined" && !window.location.pathname.includes('/login')) {
             window.location.href = '/login';
         }
@@ -58,17 +68,20 @@ class AuthService {
     }
 
     async login(credentials: any): Promise<void> {
-        const response = await apiService.request<User>(`${API_IDENTITY}/auth/login`, {
+        const response = await apiService.request<LoginResponse>(`${API_IDENTITY}/auth/login`, {
             method: 'POST',
             body: JSON.stringify(credentials),
             skipAuthRedirect: true
         });
 
-        // Save user data (the HttpOnly cookie handles the token natively)
-        this.userState.current = response;
+        // Native: persist the JWT for Bearer-token auth. Web ignores response.token
+        // and relies on the HttpOnly cookie.
+        if (isNativeApp()) {
+            await tokenStore.set(response.token);
+        }
 
-        // Set the Paraglide locale cookie so the SSR hook resolves the correct locale
-        this.setLocaleCookie(response.locale || 'es');
+        this.userState.current = response.user;
+        this.setLocaleCookie(response.user.locale || 'es');
     }
 
     async logout(): Promise<void> {
@@ -79,6 +92,9 @@ class AuthService {
             });
         } finally {
             this.userState.current = null;
+            if (isNativeApp()) {
+                await tokenStore.clear();
+            }
             // Clear the Paraglide locale cookie on logout
             if (typeof document !== 'undefined') {
                 document.cookie = 'PARAGLIDE_LOCALE=;path=/;max-age=0';
