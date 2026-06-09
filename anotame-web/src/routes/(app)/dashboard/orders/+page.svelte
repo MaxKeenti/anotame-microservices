@@ -44,6 +44,7 @@
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
+  const MAX_GARMENT_SUMMARY_ITEMS = 4;
 
   const activeColumns: ColumnDef<OrderSummaryResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["orders.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
@@ -65,6 +66,18 @@
 
   function formatNames(names: string[] | undefined): string {
     return names?.filter(Boolean).join(', ') || '-';
+  }
+
+  function cleanGarmentNames(names: string[] | undefined): string[] {
+    return names?.map((name) => name.trim()).filter(Boolean) ?? [];
+  }
+
+  function visibleGarmentNames(names: string[] | undefined): string[] {
+    return cleanGarmentNames(names).slice(0, MAX_GARMENT_SUMMARY_ITEMS);
+  }
+
+  function hiddenGarmentCount(names: string[] | undefined): number {
+    return Math.max(0, cleanGarmentNames(names).length - MAX_GARMENT_SUMMARY_ITEMS);
   }
 
   function buildSummaryUrl(pageIndex: number, pageSize: number): string {
@@ -275,8 +288,23 @@
           <StatusBadge status={row.original.status} />
         {/snippet}
 
+        {#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
+          <div class="max-w-sm min-w-0 whitespace-normal wrap-break-word leading-6" title={formatNames(row.original.garmentNames)}>
+            {#if cleanGarmentNames(row.original.garmentNames).length > 0}
+              {visibleGarmentNames(row.original.garmentNames).join(', ')}
+              {#if hiddenGarmentCount(row.original.garmentNames) > 0}
+                <span class="ml-1 inline-flex whitespace-nowrap rounded-sm bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                  +{hiddenGarmentCount(row.original.garmentNames)}
+                </span>
+              {/if}
+            {:else}
+              -
+            {/if}
+          </div>
+        {/snippet}
+
         {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
-          <div class="flex justify-end gap-2">
+          <div class="flex justify-end gap-2 whitespace-nowrap">
             <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
               <Edit class="w-4 h-4 mr-2" />
               {m["common.edit"]()}
@@ -296,7 +324,7 @@
             emptyMessage={m["orders.empty"]()}
             filterPlaceholder={m["orders.searchPlaceholder"]()}
             showFilter={false}
-            cellRenders={{ status: statusCell }}
+            cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
             bulkActions={true}
             bulkMode={true}
             manualPagination={true}
@@ -315,7 +343,7 @@
             emptyMessage={m["orders.empty"]()}
             filterPlaceholder={m["orders.searchPlaceholder"]()}
             showFilter={false}
-            cellRenders={{ status: statusCell }}
+            cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
             bulkActions={true}
             bulkMode={true}
             manualPagination={true}

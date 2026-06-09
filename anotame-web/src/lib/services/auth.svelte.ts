@@ -16,6 +16,12 @@ export interface User {
     locale: string;
 }
 
+export type ChangeCredentialsRequest = {
+    currentPassword: string;
+    newUsername?: string | null;
+    newPassword?: string | null;
+};
+
 class AuthService {
     // Tracks current user, persists across reloads via localStorage
     private userState = new PersistedState<User | null>('auth_user', null);
@@ -119,6 +125,17 @@ class AuthService {
 
         this.userState.current = { ...this.user, locale: newLocale };
         this.setLocaleCookie(newLocale);
+    }
+
+    async changeCredentials(request: ChangeCredentialsRequest): Promise<void> {
+        const response = await apiService.request<User>(`${API_IDENTITY}/auth/change-credentials`, {
+            method: 'POST',
+            body: JSON.stringify(request),
+            skipAuthRedirect: true
+        });
+
+        this.userState.current = response;
+        this.setLocaleCookie(response.locale || 'es');
     }
 }
 

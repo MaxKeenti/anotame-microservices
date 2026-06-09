@@ -8,6 +8,7 @@
   const isAdmin = $derived(userRole === 'ADMIN');
 
   const visibleItems = $derived(menuItems.filter((item) => {
+    if (item.showInDashboard === false) return false;
     if (adminOnlyItems.includes(item.key)) return isAdmin;
     return true;
   }));
