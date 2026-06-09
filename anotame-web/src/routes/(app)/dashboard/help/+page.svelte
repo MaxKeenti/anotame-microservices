@@ -154,9 +154,15 @@
     if (typeof document === 'undefined') return;
 
     tick().then(() => {
-      document
-        .querySelector<HTMLAnchorElement>(`[data-mobile-help-topic="${current}"]`)
-        ?.scrollIntoView({ block: 'nearest', inline: 'center' });
+      const el = document.querySelector<HTMLElement>(`[data-mobile-help-topic="${current}"]`);
+      const strip = el?.parentElement;
+      if (!el || !strip) return;
+      // Scroll only the horizontal pill strip — never let it bubble to the
+      // page/main scroll container (that would yank the reader's position).
+      const elRect = el.getBoundingClientRect();
+      const stripRect = strip.getBoundingClientRect();
+      const delta = elRect.left + elRect.width / 2 - (stripRect.left + stripRect.width / 2);
+      strip.scrollBy({ left: delta, behavior: 'smooth' });
     });
   });
 </script>
@@ -174,7 +180,7 @@
     <p class="max-w-3xl text-muted-foreground">{m['help.page.description']()}</p>
   </div>
 
-  <div class="grid gap-4 lg:grid-cols-[18rem_1fr] lg:items-start">
+  <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)] lg:items-start">
     <aside class="lg:sticky lg:top-0 space-y-4">
       <div class="rounded-xl border border-border bg-card p-4 shadow-sm">
         <label for="help-search" class="sr-only">{m['common.search']()}</label>
