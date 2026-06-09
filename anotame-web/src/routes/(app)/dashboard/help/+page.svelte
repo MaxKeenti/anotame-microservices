@@ -148,6 +148,17 @@
       observer?.disconnect();
     };
   });
+
+  $effect(() => {
+    const current = activeSection;
+    if (typeof document === 'undefined') return;
+
+    tick().then(() => {
+      document
+        .querySelector<HTMLAnchorElement>(`[data-mobile-help-topic="${current}"]`)
+        ?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    });
+  });
 </script>
 
 <svelte:head>
@@ -214,6 +225,24 @@
           {/each}
         </div>
       </nav>
+
+      <nav
+        class="sticky top-0 z-30 -mx-4 border-y border-border bg-background/95 px-4 py-3 shadow-sm backdrop-blur lg:hidden"
+        aria-label={m['help.toc.title']()}
+      >
+        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+          {#each visibleTopics as topic (topic.id)}
+            <a
+              href={`#${topic.id}`}
+              data-mobile-help-topic={topic.id}
+              aria-current={activeSection === topic.id ? 'true' : undefined}
+              class="shrink-0 rounded-full border px-3 py-2 text-sm font-medium transition-colors {activeSection === topic.id ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground'}"
+            >
+              {topic.title()}
+            </a>
+          {/each}
+        </div>
+      </nav>
     </aside>
 
     <div class="space-y-6 min-w-0">
@@ -259,7 +288,7 @@
             id={topic.id}
             data-help-section
             data-help-id={topic.id}
-            class="scroll-mt-6 rounded-xl border border-border bg-card p-5 shadow-sm"
+            class="scroll-mt-24 rounded-xl border border-border bg-card p-5 shadow-sm lg:scroll-mt-6"
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div class="min-w-0">
