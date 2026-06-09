@@ -40,10 +40,14 @@
 </script>
 
 {#if count > 0}
+<!--
+  Position-agnostic: the parent (the bottom dock slot in the (app) layout)
+  handles placement. Styled to match the dock pill so the swap feels native.
+-->
 <div
   role="toolbar"
   aria-label={m["order.bulk.title"]()}
-  class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card border border-border rounded-xl shadow-lg px-4 py-2 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
+  class="pointer-events-auto flex items-center gap-3 bg-background/60 backdrop-blur-xl border border-border/50 rounded-[2rem] shadow-2xl px-4 py-2 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 

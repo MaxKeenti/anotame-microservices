@@ -11,6 +11,8 @@
   import * as m from '$lib/paraglide/messages';
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
+  import FloatingActionBar from '$lib/components/ui/FloatingActionBar.svelte';
+  import { dockActionStore } from '$lib/stores/dock-action.svelte';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
@@ -19,6 +21,10 @@
   let isCredentialsOpen = $state(false);
 
   const user = $derived(authService.user);
+
+  // When a page registers a contextual action (bulk editing), the dock is
+  // swapped for its action bar.
+  const bulkAction = $derived(dockActionStore.current);
 
   let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
@@ -137,13 +143,26 @@
         onClose={() => { isCredentialsOpen = false; }}
       />
 
-      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 overflow-y-auto">
+      <!-- pb leaves room for the floating dock so content scrolls clear of it -->
+      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-24 overflow-y-auto">
         {@render children()}
       </main>
 
-      <!-- Bottom Dock Section -->
-      <div class="shrink-0 w-full pt-4 pb-6 bg-transparent z-40 relative pointer-events-none">
-        <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 mx-auto w-max max-w-[calc(100vw-2rem)] rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
+      <!-- Bottom Dock: floats over content like the macOS dock. While a page
+           registers a bulk action (e.g. orders selection) it swaps the dock
+           for that action bar, keeping the user on the page until done. -->
+      <div class="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 pointer-events-none">
+        {#if bulkAction}
+          <FloatingActionBar
+            count={bulkAction.count}
+            isAdmin={bulkAction.isAdmin}
+            allDraft={bulkAction.allDraft}
+            onChangeStatus={bulkAction.onChangeStatus}
+            onDelete={bulkAction.onDelete}
+            onCancel={bulkAction.onCancel}
+          />
+        {:else}
+        <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 max-w-[calc(100vw-2rem)] rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
           {#snippet dockIconWrapper(item: any)}
             {@const Icon = item.icon}
             <a
@@ -184,6 +203,7 @@
             </div>
           </button>
         </div>
+        {/if}
       </div>
 
   </div>
