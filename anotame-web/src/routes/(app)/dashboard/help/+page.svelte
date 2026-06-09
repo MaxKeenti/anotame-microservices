@@ -238,7 +238,7 @@
         class="sticky top-0 z-30 rounded-xl border border-border bg-background/90 p-2 shadow-sm backdrop-blur lg:hidden"
         aria-label={m['help.toc.title']()}
       >
-        <div class="flex gap-2 overflow-x-auto no-scrollbar [mask-image:linear-gradient(to_right,black_calc(100%_-_1.5rem),transparent)]">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mask-[linear-gradient(to_right,black_calc(100%-1.5rem),transparent)]">
           {#each visibleTopics as topic (topic.id)}
             <a
               href={`#${topic.id}`}
