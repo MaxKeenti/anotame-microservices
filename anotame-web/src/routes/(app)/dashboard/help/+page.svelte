@@ -225,12 +225,14 @@
           {/each}
         </div>
       </nav>
+    </aside>
 
+    <div class="space-y-6 min-w-0">
       <nav
-        class="sticky top-0 z-30 -mx-4 border-y border-border bg-background/95 px-4 py-3 shadow-sm backdrop-blur lg:hidden"
+        class="sticky top-0 z-30 rounded-xl border border-border bg-background/90 p-2 shadow-sm backdrop-blur lg:hidden"
         aria-label={m['help.toc.title']()}
       >
-        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar [mask-image:linear-gradient(to_right,black_calc(100%_-_1.5rem),transparent)]">
           {#each visibleTopics as topic (topic.id)}
             <a
               href={`#${topic.id}`}
@@ -243,9 +245,7 @@
           {/each}
         </div>
       </nav>
-    </aside>
 
-    <div class="space-y-6 min-w-0">
       <section class="rounded-xl border border-border bg-card p-4 shadow-sm" data-help-id="quick-start">
         <div class="mb-4 flex items-center gap-2">
           <BookOpen class="h-5 w-5 text-primary" />
