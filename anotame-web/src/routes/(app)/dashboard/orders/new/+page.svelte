@@ -68,7 +68,7 @@
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
     
-    <div class="flex flex-col h-[calc(100vh-8rem)]">
+    <div class="flex flex-col h-full">
         <!-- Stepper Header: compact single row on all screen sizes -->
         <div class="mb-4 sm:mb-6">
             <div class="flex items-center gap-2">

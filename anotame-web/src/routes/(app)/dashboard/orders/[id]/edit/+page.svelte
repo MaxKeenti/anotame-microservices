@@ -250,7 +250,7 @@
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
 
-    <div class="flex flex-col h-[calc(100vh-8rem)]">
+    <div class="flex flex-col h-full">
         <!-- Status lock banner for DELIVERED / CANCELLED orders -->
         {#if isLocked}
             <div

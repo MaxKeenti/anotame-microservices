@@ -144,7 +144,7 @@
       />
 
       <!-- pb leaves room for the floating dock so content scrolls clear of it -->
-      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-24 overflow-y-auto">
+      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-28 overflow-y-auto">
         {@render children()}
       </main>
 
@@ -162,7 +162,7 @@
             onCancel={bulkAction.onCancel}
           />
         {:else}
-        <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 max-w-[calc(100vw-2rem)] rounded-[2rem] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
+        <div class="pointer-events-auto flex items-center justify-center gap-2 px-3 py-2 max-w-[calc(100vw-2rem)] rounded-[12px] bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
           {#snippet dockIconWrapper(item: any)}
             {@const Icon = item.icon}
             <a
