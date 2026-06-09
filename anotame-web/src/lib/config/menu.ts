@@ -10,6 +10,7 @@ import UsersIcon from "@lucide/svelte/icons/users";
 import UserIcon from "@lucide/svelte/icons/user";
 import StoreIcon from "@lucide/svelte/icons/store";
 import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
+import CircleHelpIcon from "@lucide/svelte/icons/circle-help";
 import * as m from '$lib/paraglide/messages';
 
 type MenuItem = {
@@ -18,6 +19,8 @@ type MenuItem = {
     icon: typeof HomeIcon;
     getName: () => string;
     getDescription: () => string;
+    showInDock?: boolean;
+    showInDashboard?: boolean;
 };
 
 const menuNameMessages: Record<string, () => string> = {
@@ -33,6 +36,7 @@ const menuNameMessages: Record<string, () => string> = {
     preferences: m["nav.preferences.name"],
     users: m["nav.users.name"],
     customers: m["nav.customers.name"],
+    help: m["nav.help.name"],
 };
 
 const menuDescMessages: Record<string, () => string> = {
@@ -48,10 +52,11 @@ const menuDescMessages: Record<string, () => string> = {
     preferences: m["nav.preferences.description"],
     users: m["nav.users.description"],
     customers: m["nav.customers.description"],
+    help: m["nav.help.description"],
 };
 
 export const menuItems: MenuItem[] = [
-    { key: "home", href: "/dashboard", icon: HomeIcon, getName: () => menuNameMessages.home(), getDescription: () => menuDescMessages.home() },
+    { key: "home", href: "/dashboard", icon: HomeIcon, getName: () => menuNameMessages.home(), getDescription: () => menuDescMessages.home(), showInDock: false, showInDashboard: false },
     { key: "kpi", href: "/dashboard/admin/kpi", icon: TrendingUpIcon, getName: () => menuNameMessages.kpi(), getDescription: () => menuDescMessages.kpi() },
     { key: "orders", href: "/dashboard/orders", icon: ClipboardListIcon, getName: () => menuNameMessages.orders(), getDescription: () => menuDescMessages.orders() },
     { key: "operations", href: "/dashboard/operations", icon: ActivityIcon, getName: () => menuNameMessages.operations(), getDescription: () => menuDescMessages.operations() },
@@ -60,9 +65,10 @@ export const menuItems: MenuItem[] = [
     { key: "pricelists", href: "/dashboard/catalog/pricelists", icon: DollarSignIcon, getName: () => menuNameMessages.pricelists(), getDescription: () => menuDescMessages.pricelists() },
     { key: "schedule", href: "/dashboard/admin/schedule", icon: CalendarIcon, getName: () => menuNameMessages.schedule(), getDescription: () => menuDescMessages.schedule() },
     { key: "business", href: "/dashboard/admin/settings", icon: StoreIcon, getName: () => menuNameMessages.business(), getDescription: () => menuDescMessages.business() },
-    { key: "preferences", href: "/dashboard/settings", icon: SettingsIcon, getName: () => menuNameMessages.preferences(), getDescription: () => menuDescMessages.preferences() },
     { key: "users", href: "/dashboard/admin/users", icon: UsersIcon, getName: () => menuNameMessages.users(), getDescription: () => menuDescMessages.users() },
     { key: "customers", href: "/dashboard/customers", icon: UserIcon, getName: () => menuNameMessages.customers(), getDescription: () => menuDescMessages.customers() },
+    { key: "help", href: "/dashboard/help", icon: CircleHelpIcon, getName: () => menuNameMessages.help(), getDescription: () => menuDescMessages.help(), showInDock: false },
+    { key: "preferences", href: "/dashboard/settings", icon: SettingsIcon, getName: () => menuNameMessages.preferences(), getDescription: () => menuDescMessages.preferences(), showInDock: false },
 ];
 
 export const adminOnlyItems = ["users", "business", "schedule", "pricelists", "kpi"];
