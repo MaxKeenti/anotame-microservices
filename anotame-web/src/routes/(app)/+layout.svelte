@@ -4,7 +4,7 @@
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import MenuModal from '$lib/components/layout/menu-modal.svelte';
-  import UserDialog from '$lib/components/users/user-dialog.svelte';
+  import CredentialsDialog from '$lib/components/users/credentials-dialog.svelte';
   import { paletteStore } from '$lib/stores/palette.svelte';
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
@@ -16,8 +16,7 @@
   const guard = useAuthGuard('/login');
 
   let isMenuOpen = $state(false);
-  let isProfileOpen = $state(false);
-  let currentUserForEdit = $state<any | null>(null);
+  let isCredentialsOpen = $state(false);
 
   const user = $derived(authService.user);
 
@@ -53,7 +52,7 @@
 
   const allAvailableItems = $derived.by(() => {
     return menuItems.filter(item => {
-      if (item.key === 'home' || item.key === 'preferences') return false;
+      if (item.showInDock === false) return false;
       const isAdmin = user?.role === 'ADMIN';
       return adminOnlyItems.includes(item.key) ? isAdmin : true;
     });
@@ -69,15 +68,8 @@
     const visibleDockKeys = new Set(dockItems.map(i => i.key));
     const recents = recentPaths
       .map(key => menuItems.find(m => m.key === key)!)
-      .filter(item => item && !visibleDockKeys.has(item.key));
+      .filter(item => item && item.showInDock !== false && !visibleDockKeys.has(item.key));
     return recents.slice(0, maxRecents);
-  });
-
-  // When profile is opened, set current user for editing
-  $effect(() => {
-    if (isProfileOpen && user) {
-      currentUserForEdit = user;
-    }
   });
 
   // Initialize store with server-loaded theme during hydration
@@ -137,13 +129,12 @@
   <!-- The authenticated shell with global touch-first UI rules -->
   <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden">
 
-      <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isProfileOpen = true; }} />
+      <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isCredentialsOpen = true; }} />
 
-      <UserDialog
-        item={currentUserForEdit}
-        id="profile-edit"
-        onClose={() => { isProfileOpen = false; currentUserForEdit = null; }}
-        onSuccess={() => { /* User data will be refetched via authService */ }}
+      <CredentialsDialog
+        bind:open={isCredentialsOpen}
+        id="credentials-edit"
+        onClose={() => { isCredentialsOpen = false; }}
       />
 
       <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 overflow-y-auto">
