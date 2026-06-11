@@ -65,8 +65,10 @@
   });
 
   // Mobile: 3 pinned icons + 1 recent. Desktop: dynamic based on available width.
-  const reservedWidth = $derived(24 + (maxRecents * 56) + 20 + 56);
-  const maxVisibleDockItems = $derived(isMobile ? 3 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 56)));
+  // 64px per slot = 52px icon cell + gap, plus headroom so the magnification
+  // spread never pushes the dock past the viewport edge.
+  const reservedWidth = $derived(24 + (maxRecents * 64) + 20 + 64);
+  const maxVisibleDockItems = $derived(isMobile ? 3 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 64)));
 
   const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
 
@@ -77,6 +79,40 @@
       .filter(item => item && item.showInDock !== false && !visibleDockKeys.has(item.key));
     return recents.slice(0, maxRecents);
   });
+
+  // macOS-style dock magnification: each icon's width follows a cosine bell
+  // centered on the cursor, so neighbors swell too and push each other apart
+  // while their bottoms stay anchored to the shelf. Width (not transform) is
+  // animated so siblings genuinely displace, like the real dock.
+  const MAGNIFY = 0.7; // extra scale at the cursor (1x -> 1.7x)
+  const MAGNIFY_RANGE = 130; // px of influence to each side of the cursor
+  let dockEl = $state<HTMLElement | undefined>(undefined);
+  let magnifyRaf = 0;
+
+  function magnifyDock(e: PointerEvent) {
+    if (e.pointerType !== 'mouse' || !dockEl) return;
+    const x = e.clientX;
+    cancelAnimationFrame(magnifyRaf);
+    magnifyRaf = requestAnimationFrame(() => {
+      if (!dockEl) return;
+      for (const el of dockEl.querySelectorAll<HTMLElement>('[data-dock-icon]')) {
+        const rect = el.getBoundingClientRect();
+        const t = Math.min(Math.abs(x - rect.left - rect.width / 2) / MAGNIFY_RANGE, 1);
+        const scale = 1 + MAGNIFY * Math.cos((t * Math.PI) / 2) ** 2;
+        el.style.setProperty('--scale', scale.toFixed(3));
+      }
+    });
+  }
+
+  function resetDockMagnify() {
+    cancelAnimationFrame(magnifyRaf);
+    if (!dockEl) return;
+    for (const el of dockEl.querySelectorAll<HTMLElement>('[data-dock-icon]')) {
+      el.style.removeProperty('--scale');
+    }
+  }
+
+  $effect(() => () => cancelAnimationFrame(magnifyRaf));
 
   // Initialize store with server-loaded theme during hydration
   // We use untrack to avoid dependency tracking on the store itself, preventing hydration loops
@@ -162,19 +198,36 @@
             onCancel={bulkAction.onCancel}
           />
         {:else}
-        <div class="pointer-events-auto flex items-center justify-center gap-1.5 px-2.5 py-1.5 max-w-[calc(100vw-2rem)] rounded-3xl bg-background/50 backdrop-blur-xl border border-border/50 shadow-2xl overflow-x-auto no-scrollbar">
+        <nav
+          bind:this={dockEl}
+          onpointermove={magnifyDock}
+          onpointerleave={resetDockMagnify}
+          aria-label={m["layout.menuButton"]()}
+          class="pointer-events-auto flex h-[60px] sm:h-[68px] items-end gap-1.5 px-2.5 pb-2 max-w-[calc(100vw-2rem)] rounded-3xl bg-background/40 backdrop-blur-2xl backdrop-saturate-150 border border-border/40 shadow-2xl shadow-black/15"
+        >
           {#snippet dockIconWrapper(item: any)}
             {@const Icon = item.icon}
+            {@const active = page.url.pathname.startsWith(item.href)}
             <a
+              data-dock-icon
               href={item.href}
-              class="relative group flex items-center justify-center w-13 h-13 transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
-              title={item.getName()}
+              aria-label={item.getName()}
+              class="group relative flex w-[calc(var(--scale,1)*44px)] sm:w-[calc(var(--scale,1)*52px)] shrink-0 flex-col items-center justify-end outline-none transition-[width] duration-150 ease-out will-change-[width]"
             >
-              <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md {page.url.pathname.startsWith(item.href) ? 'ring-2 ring-primary/50' : ''}">
-                <Icon class="w-6 h-6 {page.url.pathname.startsWith(item.href) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}" />
+              <!-- macOS-style name label above the magnified icon -->
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg border border-border/50 bg-popover/90 px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
+              >
+                {item.getName()}
+                <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b border-r border-border/50 bg-popover/90"></span>
+              </span>
+              <div class="flex aspect-square w-full items-center justify-center rounded-[22%] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring">
+                <Icon class="size-1/2 {active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}" />
               </div>
-              {#if page.url.pathname.startsWith(item.href)}
-                <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></div>
+              {#if active}
+                <!-- Running-app dot, neutral like macOS -->
+                <span class="absolute -bottom-[5px] left-1/2 size-1 -translate-x-1/2 rounded-full bg-foreground/60"></span>
               {/if}
             </a>
           {/snippet}
@@ -182,27 +235,35 @@
           {#each dockItems as item (item.key)}
             {@render dockIconWrapper(item)}
           {/each}
-          
+
           {#if recentItems.length > 0}
-            <div class="w-px h-8 bg-border/50 mx-1"></div>
+            <div class="w-px h-8 sm:h-9 shrink-0 self-center bg-border/60"></div>
             {#each recentItems as item (item.key)}
               {@render dockIconWrapper(item)}
             {/each}
           {/if}
 
-          <div class="w-px h-8 bg-border/50 mx-1"></div>
+          <div class="w-px h-8 sm:h-9 shrink-0 self-center bg-border/60"></div>
 
           <!-- Full Menu Button -->
           <button
+            data-dock-icon
             onclick={() => isMenuOpen = true}
-            class="relative group flex items-center justify-center w-13 h-13 transition-all duration-300 origin-bottom hover:scale-125 hover:-translate-y-3"
-            title={m["layout.menuButton"]()}
+            aria-label={m["layout.menuButton"]()}
+            class="group relative flex w-[calc(var(--scale,1)*44px)] sm:w-[calc(var(--scale,1)*52px)] shrink-0 flex-col items-center justify-end outline-none transition-[width] duration-150 ease-out will-change-[width]"
           >
-            <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-all group-hover:shadow-md">
-              <LayoutGridIcon class="w-6 h-6 text-muted-foreground group-hover:text-foreground" />
+            <span
+              aria-hidden="true"
+              class="pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg border border-border/50 bg-popover/90 px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
+            >
+              {m["layout.menuButton"]()}
+              <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b border-r border-border/50 bg-popover/90"></span>
+            </span>
+            <div class="flex aspect-square w-full items-center justify-center rounded-[22%] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring">
+              <LayoutGridIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
             </div>
           </button>
-        </div>
+        </nav>
         {/if}
       </div>
 
