@@ -65,9 +65,9 @@
   });
 
   // Mobile: 3 pinned icons + 1 recent. Desktop: dynamic based on available width.
-  // 64px per slot = 52px icon cell + gap, plus headroom so the magnification
-  // spread never pushes the dock past the viewport edge.
-  const reservedWidth = $derived(24 + (maxRecents * 64) + 20 + 64);
+  // 64px per slot = 52px icon cell + 8px gap, plus headroom so the
+  // magnification spread never pushes the dock past the viewport edge.
+  const reservedWidth = $derived(32 + (maxRecents * 64) + 24 + 64);
   const maxVisibleDockItems = $derived(isMobile ? 3 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 64)));
 
   const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
@@ -179,9 +179,13 @@
         onClose={() => { isCredentialsOpen = false; }}
       />
 
-      <!-- pb leaves room for the floating dock so content scrolls clear of it -->
-      <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-28 overflow-y-auto">
-        {@render children()}
+      <!-- The bottom padding lives on an inner wrapper, not the scroll
+           container: Safari ignores padding-bottom on the scroller itself,
+           which let fully-scrolled content hide under the floating dock. -->
+      <main class="flex-1 w-full overflow-y-auto">
+        <div class="w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-28">
+          {@render children()}
+        </div>
       </main>
 
       <!-- Bottom Dock: floats over content like the macOS dock. While a page
@@ -203,7 +207,7 @@
           onpointermove={magnifyDock}
           onpointerleave={resetDockMagnify}
           aria-label={m["layout.menuButton"]()}
-          class="pointer-events-auto flex h-[60px] sm:h-[68px] items-end gap-1.5 px-2.5 pb-2 max-w-[calc(100vw-2rem)] rounded-3xl bg-background/40 backdrop-blur-2xl backdrop-saturate-150 border border-border/40 shadow-2xl shadow-black/15"
+          class="pointer-events-auto flex h-16 sm:h-18 items-end gap-2 px-3.5 pb-2.5 max-w-[calc(100vw-2rem)] rounded-3xl bg-background/40 backdrop-blur-2xl backdrop-saturate-150 border border-border/40 shadow-2xl shadow-black/15"
         >
           {#snippet dockIconWrapper(item: any)}
             {@const Icon = item.icon}
@@ -222,8 +226,8 @@
                 {item.getName()}
                 <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b border-r border-border/50 bg-popover/90"></span>
               </span>
-              <div class="flex aspect-square w-full items-center justify-center rounded-[22%] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring">
-                <Icon class="size-1/2 {active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}" />
+              <div class="flex aspect-square w-full items-center justify-center rounded-[22%] border transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring {active ? 'bg-linear-to-b from-primary to-primary/85 border-primary/50 shadow-md' : 'bg-linear-to-b from-card to-muted border-border/50 shadow-sm'}">
+                <Icon class="size-1/2 {active ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'}" />
               </div>
               {#if active}
                 <!-- Running-app dot, neutral like macOS -->
