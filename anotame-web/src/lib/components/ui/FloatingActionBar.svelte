@@ -47,7 +47,7 @@
 <div
   role="toolbar"
   aria-label={m["order.bulk.title"]()}
-  class="pointer-events-auto flex items-center gap-3 bg-background/60 backdrop-blur-xl border border-border/50 rounded-full shadow-2xl px-4 py-1.5 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
+  class="pointer-events-auto flex items-center gap-3 bg-background/85 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl px-4 py-1.5 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 
