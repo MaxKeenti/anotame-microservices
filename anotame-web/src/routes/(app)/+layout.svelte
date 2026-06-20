@@ -181,9 +181,14 @@
 
       <!-- The bottom padding lives on an inner wrapper, not the scroll
            container: Safari ignores padding-bottom on the scroller itself,
-           which let fully-scrolled content hide under the floating dock. -->
+           which let fully-scrolled content hide under the floating dock.
+           `flex flex-col min-h-full` makes the wrapper at least a full
+           viewport tall so full-height pages (e.g. the order wizard, whose
+           footer is pinned with mt-auto) fill via flex instead of h-full —
+           that keeps the pb-28 clearance honored so their bottom action bar
+           ends up safely above the dock instead of overflowing under it. -->
       <main class="flex-1 w-full overflow-y-auto">
-        <div class="w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-28">
+        <div class="flex flex-col min-h-full w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-28">
           {@render children()}
         </div>
       </main>
