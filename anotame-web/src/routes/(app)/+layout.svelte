@@ -186,9 +186,16 @@
            viewport tall so full-height pages (e.g. the order wizard, whose
            footer is pinned with mt-auto) fill via flex instead of h-full —
            that keeps the pb-28 clearance honored so their bottom action bar
-           ends up safely above the dock instead of overflowing under it. -->
+           ends up safely above the dock instead of overflowing under it.
+
+           Padding is split into px-*/pt-*/pb-28 on purpose — do NOT collapse
+           it back into the `p-*` shorthand. A responsive shorthand (md:p-6,
+           lg:p-8) is emitted after the non-responsive pb-28 in Tailwind's
+           output, so it silently overrides padding-bottom at >=md and wipes
+           out the dock clearance. Keeping pb-28 the only padding-bottom rule
+           makes it win at every breakpoint. -->
       <main class="flex-1 w-full overflow-y-auto">
-        <div class="flex flex-col min-h-full w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 pb-28">
+        <div class="flex flex-col min-h-full w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4 md:pt-6 lg:pt-8 pb-28">
           {@render children()}
         </div>
       </main>
