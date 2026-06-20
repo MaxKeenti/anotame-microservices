@@ -90,7 +90,7 @@
 	}
 </script>
 
-<div class="flex flex-col h-full gap-6">
+<div class="flex flex-col flex-1 min-h-0 gap-6">
 	<div class="text-center md:text-left">
 		{#if isEditMode}
 			<h2 class="text-xl font-semibold">{m['priceListStep.label']()}</h2>

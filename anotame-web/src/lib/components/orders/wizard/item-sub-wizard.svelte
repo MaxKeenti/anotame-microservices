@@ -206,7 +206,7 @@
 {#if loading}
     <div class="p-8 text-center animate-pulse">{m['itemSubWizard.loadingCatalog']()}</div>
 {:else}
-    <div class="flex flex-col h-full bg-background relative animate-in fade-in slide-in-from-right duration-300">
+    <div class="flex flex-col flex-1 min-h-0 bg-background relative animate-in fade-in slide-in-from-right duration-300">
         <!-- Header -->
         <div class="flex items-center gap-4 border-b border-border pb-4 mb-4">
             {#if step > 0}

@@ -70,7 +70,7 @@
        }}
    />
 {:else}
-   <div class="flex flex-col h-full gap-6">
+   <div class="flex flex-col flex-1 min-h-0 gap-6">
        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
            <div>
                <h2 class="text-xl font-semibold">{m['itemsStep.title']()}</h2>

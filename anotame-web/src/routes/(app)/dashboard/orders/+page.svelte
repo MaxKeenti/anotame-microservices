@@ -6,7 +6,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
-  import FloatingActionBar from '$lib/components/ui/FloatingActionBar.svelte';
+  import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Edit, Trash2, Eye } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -45,6 +45,27 @@
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
   const MAX_GARMENT_SUMMARY_ITEMS = 4;
+
+  // Mirror the bulk selection into the shared dock slot: while orders are
+  // selected the (app) layout swaps the dock for the bulk action bar, keeping
+  // the user on this page. Cleanup restores the dock when the selection empties
+  // or we navigate away.
+  $effect(() => {
+    if (selectedOrders.length > 0) {
+      dockActionStore.set({
+        count: selectedOrders.length,
+        isAdmin,
+        allDraft: allSelectedDeletable,
+        onChangeStatus: handleBulkStatusChange,
+        onDelete: handleBulkDelete,
+        onCancel: handleBulkCancel,
+      });
+    } else {
+      dockActionStore.clear();
+    }
+
+    return () => dockActionStore.clear();
+  });
 
   const activeColumns: ColumnDef<OrderSummaryResponse>[] = [
     { accessorKey: 'ticketNumber', header: m["orders.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
@@ -360,14 +381,6 @@
         {/if}
       </div>
 
-      <FloatingActionBar
-        count={selectedOrders.length}
-        isAdmin={isAdmin}
-        allDraft={allSelectedDeletable}
-        onChangeStatus={handleBulkStatusChange}
-        onDelete={handleBulkDelete}
-        onCancel={handleBulkCancel}
-      />
     </Tabs.Content>
 
     <Tabs.Content value="drafts" class="space-y-6">

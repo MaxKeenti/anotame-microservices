@@ -62,13 +62,13 @@
 </script>
 
 {#if isLoading}
-    <div class="flex flex-col h-full items-center justify-center text-muted-foreground gap-2">
+    <div class="flex flex-col flex-1 min-h-0 items-center justify-center text-muted-foreground gap-2">
         <div>{m["common.loading"]()}</div>
     </div>
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
     
-    <div class="flex flex-col h-[calc(100vh-8rem)]">
+    <div class="flex flex-col flex-1 min-h-0">
         <!-- Stepper Header: compact single row on all screen sizes -->
         <div class="mb-4 sm:mb-6">
             <div class="flex items-center gap-2">
