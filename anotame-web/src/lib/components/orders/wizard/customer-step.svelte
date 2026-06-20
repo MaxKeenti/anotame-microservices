@@ -48,7 +48,7 @@
    let draft = $derived(orderWizardState.activeDraft);
 </script>
 
-<div class="flex flex-col h-full gap-6">
+<div class="flex flex-col flex-1 min-h-0 gap-6">
     <div class="text-center md:text-left">
         <h2 class="text-xl font-semibold">{m['customerStep.title']()}</h2>
         <p class="text-muted-foreground">{m['customerStep.subtitle']()}</p>

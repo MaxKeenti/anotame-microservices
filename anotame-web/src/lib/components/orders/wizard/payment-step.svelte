@@ -267,7 +267,7 @@
 	});
 </script>
 
-<form method="POST" use:enhance class="flex flex-col h-full gap-6">
+<form method="POST" use:enhance class="flex flex-col flex-1 min-h-0 gap-6">
 	<div class="flex items-center justify-between">
 		<h2 class="text-xl font-semibold">{m['paymentStep.title']()}</h2>
 	</div>
