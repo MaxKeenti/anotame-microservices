@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
+import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 
 type BuildLog = {
 	code?: string;
@@ -39,6 +40,38 @@ export default defineConfig({
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
+		}),
+		SvelteKitPWA({
+			registerType: 'autoUpdate',
+			// Online-only: install + app shell, but no offline navigation fallback.
+			manifest: {
+				name: 'Anotame',
+				short_name: 'Anotame',
+				description: 'Anotame',
+				start_url: '/',
+				scope: '/',
+				display: 'standalone',
+				background_color: '#ffffff',
+				theme_color: '#FF4500',
+				icons: [
+					{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+					{ src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+					{
+						src: '/icons/icon-maskable-512.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'maskable'
+					}
+				]
+			},
+			workbox: {
+				// Precache the build assets only; no navigateFallback means page
+				// navigations always hit the network (strictly online).
+				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
+			},
+			devOptions: {
+				enabled: false
+			}
 		})
 	],
 	build: {

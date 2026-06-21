@@ -236,14 +236,14 @@
                 class="pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg border border-border/50 bg-popover/90 px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
               >
                 {item.getName()}
-                <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b border-r border-border/50 bg-popover/90"></span>
+                <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-xs border-b border-r border-border/50 bg-popover/90"></span>
               </span>
               <div class="flex aspect-square w-full items-center justify-center rounded-[22%] border transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring {active ? 'bg-linear-to-b from-primary to-primary/85 border-primary/50 shadow-md' : 'bg-linear-to-b from-card to-muted border-border/50 shadow-sm'}">
                 <Icon class="size-1/2 {active ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'}" />
               </div>
               {#if active}
                 <!-- Running-app dot, neutral like macOS -->
-                <span class="absolute -bottom-[5px] left-1/2 size-1 -translate-x-1/2 rounded-full bg-foreground/60"></span>
+                <span class="absolute -bottom-1.25 left-1/2 size-1 -translate-x-1/2 rounded-full bg-foreground/60"></span>
               {/if}
             </a>
           {/snippet}
@@ -273,7 +273,7 @@
               class="pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg border border-border/50 bg-popover/90 px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
             >
               {m["layout.menuButton"]()}
-              <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b border-r border-border/50 bg-popover/90"></span>
+              <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-xs border-b border-r border-border/50 bg-popover/90"></span>
             </span>
             <div class="flex aspect-square w-full items-center justify-center rounded-[22%] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring">
               <LayoutGridIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
