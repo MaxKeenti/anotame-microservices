@@ -308,6 +308,7 @@
   "landing.button.login": "Sign In",
   "operations.page.title": "Operations Control",
   "operations.page.subtitle": "In-progress orders pending completion.",
+  "operations.searchPlaceholder": "Ticket, Customer Name...",
   "operations.count.single": "{count} order in progress",
   "operations.count.plural": "{count} orders in progress",
   "operations.tab.inProgress": "In Progress",

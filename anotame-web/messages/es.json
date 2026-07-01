@@ -308,6 +308,7 @@
   "landing.button.login": "Iniciar Sesión",
   "operations.page.title": "Control de Operaciones",
   "operations.page.subtitle": "Pedidos en progreso pendientes de completar.",
+  "operations.searchPlaceholder": "Ticket, Nombre del Cliente...",
   "operations.count.single": "{count} pedido en progreso",
   "operations.count.plural": "{count} pedidos en progreso",
   "operations.tab.inProgress": "En progreso",
