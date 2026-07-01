@@ -15,9 +15,16 @@ public class CustomerRepository implements PanacheRepositoryBase<CustomerEntity,
         if (query == null) {
             query = "";
         }
+        // Accent-insensitive: unaccent() (from the unaccent extension, enabled in V4)
+        // is applied to both the column and the search term so "monica" matches
+        // "Mónica" and vice versa. The parameter is unaccented in-DB too, so callers
+        // can type either form.
         String q = "%" + query.toLowerCase() + "%";
         return list(
-                "LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR phoneNumber LIKE ?1 OR LOWER(email) LIKE ?1",
+                "LOWER(FUNCTION('unaccent', firstName)) LIKE FUNCTION('unaccent', ?1) "
+                        + "OR LOWER(FUNCTION('unaccent', lastName)) LIKE FUNCTION('unaccent', ?1) "
+                        + "OR phoneNumber LIKE ?1 "
+                        + "OR LOWER(FUNCTION('unaccent', email)) LIKE FUNCTION('unaccent', ?1)",
                 q);
     }
 
