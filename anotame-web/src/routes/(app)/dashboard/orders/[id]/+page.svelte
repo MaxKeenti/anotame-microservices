@@ -201,11 +201,11 @@
   </div>
 {:else}
   <div class="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-20">
-    <div class="flex items-center gap-4">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
       <a href="/dashboard/orders" class="text-muted-foreground hover:text-foreground touch-manipulation">
         &larr; {m["orders.detail.back"]()}
       </a>
-      <h1 class="text-2xl font-bold">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
+      <h1 class="text-xl sm:text-2xl font-bold break-words min-w-0">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
       <StatusBadge status={order.status} />
     </div>
 
