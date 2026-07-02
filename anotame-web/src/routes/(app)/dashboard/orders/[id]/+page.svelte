@@ -205,7 +205,7 @@
       <a href="/dashboard/orders" class="text-muted-foreground hover:text-foreground touch-manipulation">
         &larr; {m["orders.detail.back"]()}
       </a>
-      <h1 class="text-xl sm:text-2xl font-bold break-words min-w-0">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
+      <h1 class="text-xl sm:text-2xl font-bold wrap-break-word min-w-0">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
       <StatusBadge status={order.status} />
     </div>
 
