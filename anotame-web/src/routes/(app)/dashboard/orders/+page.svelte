@@ -8,7 +8,7 @@
   import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
-  import { Edit, Trash2, Eye } from '@lucide/svelte';
+  import { Trash2, Eye, SquarePen } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
@@ -327,7 +327,7 @@
         {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end gap-2 whitespace-nowrap">
             <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
-              <Edit class="w-4 h-4 mr-2" />
+              <SquarePen class="w-4 h-4 mr-2" />
               {m["common.edit"]()}
             </Button>
             <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
@@ -388,7 +388,7 @@
         {#snippet draftActions(row: any)}
           <div class="flex justify-end gap-2">
             <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
-              <Edit class="w-4 h-4 mr-2" />
+              <SquarePen class="w-4 h-4 mr-2" />
               <span>{m["orders.editDraft"]()}</span>
             </Button>
             <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
