@@ -19,12 +19,18 @@ public class CustomerRepository implements PanacheRepositoryBase<CustomerEntity,
         // is applied to both the column and the search term so "monica" matches
         // "Mónica" and vice versa. The parameter is unaccented in-DB too, so callers
         // can type either form.
+        //
+        // Both sides of each LIKE are wrapped in LOWER(): besides normalizing case, it
+        // gives the unaccent() result a known String type. Hibernate can't infer the
+        // return type of the custom unaccent() function, so a bare FUNCTION('unaccent',
+        // ?1) on the right of a LIKE is treated as java.lang.Object and rejected with
+        // "Operand of 'like' is of type 'java.lang.Object'".
         String q = "%" + query.toLowerCase() + "%";
         return list(
-                "LOWER(FUNCTION('unaccent', firstName)) LIKE FUNCTION('unaccent', ?1) "
-                        + "OR LOWER(FUNCTION('unaccent', lastName)) LIKE FUNCTION('unaccent', ?1) "
+                "LOWER(FUNCTION('unaccent', firstName)) LIKE LOWER(FUNCTION('unaccent', ?1)) "
+                        + "OR LOWER(FUNCTION('unaccent', lastName)) LIKE LOWER(FUNCTION('unaccent', ?1)) "
                         + "OR phoneNumber LIKE ?1 "
-                        + "OR LOWER(FUNCTION('unaccent', email)) LIKE FUNCTION('unaccent', ?1)",
+                        + "OR LOWER(FUNCTION('unaccent', email)) LIKE LOWER(FUNCTION('unaccent', ?1))",
                 q);
     }
 
