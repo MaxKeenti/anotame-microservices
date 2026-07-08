@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record OrderSummaryCriteria(
         String search,
+        String exactTicketNumber,
         UUID garmentTypeId,
         OffsetDateTime deadlineStart,
         OffsetDateTime deadlineEnd,
