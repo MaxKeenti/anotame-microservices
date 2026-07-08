@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { apiService, API_SALES, API_CATALOG } from '$lib/services/api.svelte';
-  import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
+  import { orderWizardState, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -39,7 +39,7 @@
   let garmentFilter = $state("");
   let dateFilter = $state("");
 
-  let drafts = $derived(orderWizardState.drafts.current);
+  let drafts = $derived<DraftOrder[]>(orderWizardState.drafts.current);
   let ordersPageSize = $derived(mobile.current ? 12 : 20);
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
@@ -77,10 +77,9 @@
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
-  const draftsColumns: ColumnDef<any>[] = [
-    { id: 'draftId', accessorFn: (row) => row.id, header: m["orders.column.tempId"](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'customer', accessorFn: (row) => row.customer?.firstName ? `${row.customer.firstName} ${row.customer.lastName ?? ''}` : m["orders.noName"](), header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'garments', accessorFn: (row) => m["orders.garmentCount"]({ count: String(row.items?.length || 0) }), header: m["orders.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
+  const draftsColumns: ColumnDef<DraftOrder>[] = [
+    { id: 'customer', accessorFn: (row) => formatDraftCustomer(row), header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'garments', accessorFn: (row) => formatDraftGarments(row), header: m["orders.column.garments"](), enableSorting: false, meta: { cardGroup: 'header' } },
     { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: m["orders.column.lastModified"](), enableSorting: true, meta: { cardGroup: 'body' } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
@@ -99,6 +98,27 @@
 
   function hiddenGarmentCount(names: string[] | undefined): number {
     return Math.max(0, cleanGarmentNames(names).length - MAX_GARMENT_SUMMARY_ITEMS);
+  }
+
+  function formatDraftCustomer(draft: DraftOrder): string {
+    const customer = draft.customer;
+    const name = [customer?.firstName, customer?.lastName]
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(' ');
+    return name || m["orders.noName"]();
+  }
+
+  function formatDraftGarments(draft: DraftOrder): string {
+    const names = draft.items
+      ?.map((item) => item.garmentName?.trim())
+      .filter((name): name is string => Boolean(name)) ?? [];
+    if (names.length === 0) {
+      return m["orders.garmentCount"]({ count: String(draft.items?.length || 0) });
+    }
+    const visible = names.slice(0, MAX_GARMENT_SUMMARY_ITEMS);
+    const remaining = names.length - visible.length;
+    return remaining > 0 ? `${visible.join(', ')} +${remaining}` : visible.join(', ');
   }
 
   function buildSummaryUrl(pageIndex: number, pageSize: number): string {
@@ -385,13 +405,13 @@
 
     <Tabs.Content value="drafts" class="space-y-6">
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet draftActions(row: any)}
-          <div class="flex justify-end gap-2">
-            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center">
+        {#snippet draftActions(row: Row<DraftOrder>)}
+          <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
               <SquarePen class="w-4 h-4 mr-2" />
               <span>{m["orders.editDraft"]()}</span>
             </Button>
-            <Button variant="ghost" class="h-10 px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleDeleteDraft(row.original.id)}>
+            <Button variant="ghost" class="h-10 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
               <Trash2 class="w-4 h-4 mr-2" />
               <span>{m["common.delete"]()}</span>
             </Button>

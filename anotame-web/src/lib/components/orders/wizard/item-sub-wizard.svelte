@@ -42,6 +42,12 @@
 	let notes = $state("");
 	let showAllServices = $state(false);
 	let serviceFilter = $state("");
+	let peekedServiceId = $state<string | null>(null);
+	let servicePeekTimer: ReturnType<typeof setTimeout> | null = null;
+	let serviceClickSuppressTimer: ReturnType<typeof setTimeout> | null = null;
+	let servicePeekPointerId: number | null = null;
+	let servicePeekStart = { x: 0, y: 0 };
+	let suppressNextServiceClick = false;
 
 	// Get the currently selected price list
 	let priceList = $derived(orderWizardState.getPriceList());
@@ -146,6 +152,84 @@
 		adjReason = "";
 		duration = s.defaultDurationMin || 30;
 		step = 2;
+	}
+
+	function clearServicePeekTimer() {
+		if (!servicePeekTimer) return;
+		clearTimeout(servicePeekTimer);
+		servicePeekTimer = null;
+	}
+
+	function clearServiceClickSuppression() {
+		if (serviceClickSuppressTimer) {
+			clearTimeout(serviceClickSuppressTimer);
+			serviceClickSuppressTimer = null;
+		}
+		suppressNextServiceClick = false;
+	}
+
+	function armServiceClickSuppression() {
+		if (serviceClickSuppressTimer) {
+			clearTimeout(serviceClickSuppressTimer);
+			serviceClickSuppressTimer = null;
+		}
+		suppressNextServiceClick = true;
+	}
+
+	function expireServiceClickSuppressionSoon() {
+		if (!suppressNextServiceClick || serviceClickSuppressTimer) return;
+
+		serviceClickSuppressTimer = setTimeout(() => {
+			suppressNextServiceClick = false;
+			serviceClickSuppressTimer = null;
+		}, 700);
+	}
+
+	function resetServicePeek() {
+		const wasPeeking = peekedServiceId !== null;
+
+		clearServicePeekTimer();
+		servicePeekPointerId = null;
+		peekedServiceId = null;
+		if (wasPeeking) expireServiceClickSuppressionSoon();
+	}
+
+	function startServicePeek(event: PointerEvent, serviceId: string) {
+		if (event.pointerType === 'mouse') return;
+
+		clearServicePeekTimer();
+		servicePeekPointerId = event.pointerId;
+		servicePeekStart = { x: event.clientX, y: event.clientY };
+
+		servicePeekTimer = setTimeout(() => {
+			if (servicePeekPointerId !== event.pointerId) return;
+
+			peekedServiceId = serviceId;
+			armServiceClickSuppression();
+			servicePeekTimer = null;
+		}, 450);
+	}
+
+	function moveServicePeek(event: PointerEvent) {
+		if (event.pointerId !== servicePeekPointerId) return;
+
+		const deltaX = Math.abs(event.clientX - servicePeekStart.x);
+		const deltaY = Math.abs(event.clientY - servicePeekStart.y);
+		if (deltaX > 10 || deltaY > 10) resetServicePeek();
+	}
+
+	function endServicePeek(event: PointerEvent) {
+		if (event.pointerId !== servicePeekPointerId) return;
+		resetServicePeek();
+	}
+
+	function handleServiceCardClick(s: ServiceResponse) {
+		if (suppressNextServiceClick) {
+			clearServiceClickSuppression();
+			return;
+		}
+
+		handleServiceSelect(s);
 	}
 
 	function handleEditService(idx: number) {
@@ -313,12 +397,20 @@
 
                         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {#each visibleServices as s}
+                                {@const isPeeking = peekedServiceId === s.id}
                                 <Button
                                     variant="outline"
-                                    class="h-20 md:h-28 p-3 md:p-5 rounded-xl border-2 hover:border-primary hover:bg-primary/5 flex items-center justify-between gap-2 transition-all text-left bg-card shadow-sm w-full whitespace-normal touch-manipulation"
-                                    onclick={() => handleServiceSelect(s)}
+                                    title={s.name}
+                                    class={`group relative h-auto min-h-20 md:min-h-28 ${isPeeking ? 'max-h-56 z-20 border-primary bg-primary/5 shadow-lg' : 'max-h-20 md:max-h-28 bg-card shadow-sm'} p-3 md:p-5 rounded-xl border-2 md:hover:max-h-56 md:hover:border-primary md:hover:bg-primary/5 md:hover:shadow-lg focus-visible:max-h-56 focus-visible:border-primary focus-visible:bg-primary/5 flex items-center justify-between gap-2 overflow-hidden transition-[max-height,box-shadow,background-color,border-color,transform] duration-200 ease-out text-left w-full whitespace-normal touch-manipulation`}
+                                    onpointerdown={(event) => startServicePeek(event, s.id)}
+                                    onpointermove={moveServicePeek}
+                                    onpointerup={endServicePeek}
+                                    onpointercancel={endServicePeek}
+                                    onpointerleave={endServicePeek}
+                                    oncontextmenu={(event) => event.preventDefault()}
+                                    onclick={() => handleServiceCardClick(s)}
                                 >
-                                    <span class="font-bold text-sm md:text-base lg:text-lg leading-tight w-full line-clamp-2">{s.name}</span>
+                                    <span class={`font-bold text-sm md:text-base lg:text-lg leading-tight w-full ${isPeeking ? 'line-clamp-none' : 'line-clamp-2 md:group-hover:line-clamp-none group-focus-visible:line-clamp-none'}`}>{s.name}</span>
                                     <div class="flex flex-col items-end shrink-0">
                                         {#if priceListMap.size > 0}
                                             {@const plPrice = priceListMap.get(s.id)}

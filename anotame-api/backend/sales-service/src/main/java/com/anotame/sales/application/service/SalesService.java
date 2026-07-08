@@ -167,6 +167,7 @@ public class SalesService {
         int normalizedPage = Math.max(page, 0);
         int normalizedSize = Math.min(Math.max(size, 1), 100);
         String normalizedSearch = search == null || search.isBlank() ? null : search.trim();
+        String exactTicketNumber = normalizedSearch == null ? null : normalizeTicketSearch(normalizedSearch);
         List<String> normalizedStatuses = normalizeStatuses(statuses);
 
         OffsetDateTime deadlineStart = null;
@@ -182,6 +183,7 @@ public class SalesService {
                 normalizedSize,
                 new OrderSummaryCriteria(
                         normalizedSearch,
+                        exactTicketNumber,
                         garmentTypeId,
                         deadlineStart,
                         deadlineEnd,
@@ -200,6 +202,23 @@ public class SalesService {
                 .total(result.total())
                 .totalPages(totalPages)
                 .build();
+    }
+
+    private String normalizeTicketSearch(String search) {
+        String normalized = search.trim().toUpperCase(Locale.ROOT);
+        String digits;
+        if (normalized.matches("^ORD[-\\s]?\\d+$")) {
+            digits = normalized.replaceAll("\\D", "");
+        } else if (normalized.matches("^\\d{1,5}$")) {
+            digits = normalized;
+        } else {
+            return null;
+        }
+
+        String padded = digits.length() >= 5
+                ? digits
+                : "0".repeat(5 - digits.length()) + digits;
+        return "ORD-" + padded;
     }
 
     private List<String> normalizeStatuses(List<String> statuses) {

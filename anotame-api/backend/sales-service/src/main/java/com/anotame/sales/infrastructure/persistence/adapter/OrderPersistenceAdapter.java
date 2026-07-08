@@ -320,7 +320,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
 
     private String buildSummaryFromClause(OrderSummaryCriteria criteria) {
         List<String> predicates = new ArrayList<>();
-        if (criteria.search() != null) {
+        if (criteria.exactTicketNumber() != null) {
+            predicates.add("lower(o.ticketNumber) = :exactTicketNumber");
+        } else if (criteria.search() != null) {
             predicates.add("(" +
                     "lower(o.ticketNumber) like :search or " +
                     "lower(c.firstName) like :search or " +
@@ -348,7 +350,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     private void bindSummaryParameters(Query query, OrderSummaryCriteria criteria) {
-        if (criteria.search() != null) {
+        if (criteria.exactTicketNumber() != null) {
+            query.setParameter("exactTicketNumber", criteria.exactTicketNumber().toLowerCase(Locale.ROOT));
+        } else if (criteria.search() != null) {
             query.setParameter("search", "%" + criteria.search().toLowerCase(Locale.ROOT) + "%");
         }
         if (criteria.garmentTypeId() != null) {

@@ -199,9 +199,9 @@
           bodyColumns.length > 0 ||
           (actionCell != null)}
 
-        <Card.Root class="border border-border shadow-sm overflow-hidden">
+        <Card.Root class="min-w-0 border border-border shadow-sm overflow-hidden">
           <Card.Header class="pb-2 px-4 pt-4">
-            <div class="flex items-start gap-3">
+            <div class="flex min-w-0 items-start gap-3">
               <!-- Bulk selection checkbox -->
               {#if bulkActions && bulkMode}
                 <div class="flex items-center justify-center mt-0.5 shrink-0">
@@ -225,7 +225,7 @@
 
                   {#if i === 0}
                     <!-- Primary title -->
-                    <Card.Title class="text-base font-semibold leading-tight truncate">
+                    <Card.Title class="text-base font-semibold leading-tight whitespace-normal break-words">
                       {#if cellRenders && cellRenders[colId]}
                         {@render cellRenders[colId](row)}
                       {:else}
@@ -234,7 +234,7 @@
                     </Card.Title>
                   {:else}
                     <!-- Secondary header fields as description/chip -->
-                    <Card.Description class="mt-1 text-sm text-muted-foreground truncate">
+                    <Card.Description class="mt-1 text-sm text-muted-foreground whitespace-normal break-words">
                       {#if cellRenders && cellRenders[colId]}
                         {@render cellRenders[colId](row)}
                       {:else}
@@ -273,11 +273,11 @@
                 <dl class="space-y-2 mt-3">
                   {#each bodyColumns as col (getColumnId(col))}
                     {@const colId = getColumnId(col)}
-                    <div class="flex items-start gap-2 text-sm">
+                    <div class="flex min-w-0 items-start gap-2 text-sm">
                       <dt class="text-xs font-bold uppercase tracking-wider text-muted-foreground shrink-0 pt-0.5 min-w-24">
                         {getColumnHeader(col)}
                       </dt>
-                      <dd class="text-foreground">
+                      <dd class="min-w-0 flex-1 text-foreground break-words">
                         {#if cellRenders && cellRenders[colId]}
                           {@render cellRenders[colId](row)}
                         {:else}
@@ -291,7 +291,7 @@
 
               <!-- Action cell -->
               {#if actionCell}
-                <div class="mt-4">
+                <div class="mt-4 min-w-0">
                   {@render actionCell(row)}
                 </div>
               {/if}
