@@ -11,6 +11,8 @@ This repository keeps current, maintained documentation only. Historical plannin
 - [anotame-api/backend/README.md](../anotame-api/backend/README.md) — backend service workflow.
 - [anotame-web/README.md](../anotame-web/README.md) — frontend workflow.
 - [workflow.md](./workflow.md) — agent workflow and historical GSD archive pointer.
+- [backend-consolidation-client-access-plan.html](./backend-consolidation-client-access-plan.html) — cost reduction, database consolidation, and client access rollout plan.
+- [phase-0-prerequisites.md](./phase-0-prerequisites.md) — Phase 0 evidence sources, unresolved external inputs, and branch-contract deployment order.
 - [adr/](./adr/) — durable decisions that are hard to reverse or surprising without context.
 - [archive/](./archive/) — non-canonical extracts from historical planning systems.
 

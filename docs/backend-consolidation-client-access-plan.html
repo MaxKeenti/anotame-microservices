@@ -1,0 +1,1551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anotame Backend Consolidation and Client Access Plan</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f6f6;
+      --paper: #ffffff;
+      --ink: #232625;
+      --muted: #626863;
+      --line: #d7dddc;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --accent-soft: #dff3ef;
+      --warn: #9a3412;
+      --warn-soft: #fff0df;
+      --risk: #991b1b;
+      --risk-soft: #fee2e2;
+      --ok: #166534;
+      --ok-soft: #dcfce7;
+      --code: #edf1f1;
+      --shadow: 0 18px 42px rgba(35, 38, 37, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--accent-strong);
+      text-decoration-color: rgba(17, 94, 89, 0.35);
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      text-decoration-color: currentColor;
+    }
+
+    code {
+      padding: 0.12rem 0.34rem;
+      border-radius: 5px;
+      background: var(--code);
+      color: #1f2933;
+      font-family:
+        "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.92em;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 24px 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 28px;
+      align-items: end;
+      padding: 34px 0 38px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent-strong);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+      line-height: 1.15;
+    }
+
+    h1 {
+      max-width: 820px;
+      font-size: 3.75rem;
+      font-weight: 850;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+    }
+
+    .lead {
+      max-width: 780px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .meta {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      font-size: 0.9rem;
+    }
+
+    .meta span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 0;
+    }
+
+    .nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .section {
+      margin-top: 38px;
+      padding: 38px 0 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .section-header p {
+      max-width: 650px;
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.warn {
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    .badge.risk {
+      background: var(--risk-soft);
+      color: var(--risk);
+    }
+
+    .badge.ok {
+      background: var(--ok-soft);
+      color: var(--ok);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .panel h3 {
+      margin-bottom: 8px;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .panel ul,
+    .panel ol,
+    .section ul,
+    .section ol {
+      margin: 10px 0 0;
+      padding-left: 1.2rem;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    .callout {
+      margin-top: 16px;
+      padding: 16px;
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--warn);
+      background: var(--warn-soft);
+    }
+
+    .callout.risk {
+      border-left-color: var(--risk);
+      background: var(--risk-soft);
+    }
+
+    .callout p {
+      margin: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f1e8;
+      font-size: 0.78rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .phase {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 20px;
+      padding: 22px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .phase:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .phase-label {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+    }
+
+    .phase-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 850;
+    }
+
+    .phase-label p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .phase-body {
+      min-width: 0;
+    }
+
+    .phase-body h3 {
+      margin-bottom: 8px;
+      font-size: 1.25rem;
+    }
+
+    .phase-body > p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .check::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+      background: var(--paper);
+    }
+
+    .check strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .check span {
+      color: var(--muted);
+    }
+
+    .sequence {
+      counter-reset: step;
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .sequence li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .sequence li::before {
+      content: counter(step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .refs {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .refs li {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+    }
+
+    .panel .refs {
+      margin-top: 0;
+    }
+
+    .panel .refs li {
+      padding: 7px 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    footer {
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .shell {
+        padding: 20px 14px 48px;
+      }
+
+      .hero,
+      .grid,
+      .grid.two,
+      .phase {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 24px 0 30px;
+      }
+
+      .section {
+        padding-top: 30px;
+      }
+
+      h1 {
+        font-size: 2.35rem;
+      }
+
+      h2 {
+        font-size: 1.55rem;
+      }
+
+      .phase-label {
+        position: static;
+      }
+
+      .section-header {
+        display: block;
+      }
+
+      .section-header .badge {
+        margin-top: 12px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .shell {
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      .section,
+      .panel,
+      .check,
+      .sequence li,
+      .refs li {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      .nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Architecture and rollout plan</p>
+        <h1>Backend Consolidation and Client Access Plan</h1>
+        <p class="lead">
+          Recommended path: fix authorization and branch correctness first,
+          reduce measured runtime cost without changing ownership, and build the
+          client portal as a separate public security boundary. Database and
+          process consolidation remain optional, evidence-driven workstreams.
+        </p>
+        <nav class="nav" aria-label="Plan sections">
+          <a href="#summary">Summary</a>
+          <a href="#gates">Decision Gates</a>
+          <a href="#railway-baseline">Railway Baseline</a>
+          <a href="#phases">Phases</a>
+          <a href="#security">Launch Blockers</a>
+          <a href="#verification">Verification</a>
+          <a href="#sequence">Sequence</a>
+          <a href="#references">References</a>
+        </nav>
+      </div>
+      <aside class="meta" aria-label="Document metadata">
+        <div>
+          <span>Status</span>
+          <strong>Phase 0 staging verified; production gates remain open</strong>
+        </div>
+        <div>
+          <span>Reviewed</span>
+          <strong>2026-07-10</strong>
+        </div>
+        <div>
+          <span>Current topology</span>
+          <strong>4 Quarkus services, 4 PostgreSQL databases, 1 SvelteKit service</strong>
+        </div>
+        <div>
+          <span>Railway evidence</span>
+          <strong>Production and development inspected through Railway MCP</strong>
+        </div>
+      </aside>
+    </header>
+
+    <section class="section" id="summary">
+      <div class="section-header">
+        <div>
+          <h2>Summary</h2>
+          <p>
+            Cost work is useful only when the invoice and runtime measurements
+            show a material saving. Client access is blocked until staff and
+            client authorization models, tenant scope, and customer identity are
+            enforceable and covered by tests.
+          </p>
+        </div>
+        <span class="badge ok">Recommended path</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Primary goal</th>
+              <th>Decision</th>
+              <th>Exit criteria</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>0</strong> Baseline and correctness</td>
+              <td>Instrument the system and repair branch-assignment behavior.</td>
+              <td>Required now.</td>
+              <td>Costs and SLOs measured; branch source and tenancy invariants work without fallback.</td>
+            </tr>
+            <tr>
+              <td><strong>1</strong> Runtime cost control</td>
+              <td>Reduce actual RAM and idle compute while keeping service boundaries.</td>
+              <td>Low topology risk, but savings must be measured.</td>
+              <td>No OOM loops, acceptable cold starts and p95 latency, no connection starvation.</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong> Authorization and scope</td>
+              <td>Enforce staff roles, tenant boundaries, branch scope, and customer ownership.</td>
+              <td>Required before public access.</td>
+              <td>Default-deny role matrix and cross-scope tests pass.</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong> Client access foundation</td>
+              <td>Create a safe public order-status and order-history surface.</td>
+              <td>Required before portal launch.</td>
+              <td>Dedicated tracking proof, verified contacts, client sessions, minimal DTOs, abuse controls.</td>
+            </tr>
+            <tr>
+              <td><strong>4</strong> Database consolidation</td>
+              <td>Move to one PostgreSQL service with four schemas.</td>
+              <td>Optional if database cost remains material.</td>
+              <td>New ADR, least-privilege roles, rehearsed cutover, whole-instance and schema recovery tested.</td>
+            </tr>
+            <tr>
+              <td><strong>5</strong> Business-service consolidation</td>
+              <td>Merge sales, catalog, and operations into a modular monolith.</td>
+              <td>Optional if JVM/container cost remains material.</td>
+              <td>Identity remains separate; module and migration boundaries remain explicit.</td>
+            </tr>
+            <tr>
+              <td><strong>6</strong> Full consolidation</td>
+              <td>Run identity and business domains in one backend process.</td>
+              <td>Exceptional and normally avoided.</td>
+              <td>External identity/signing authority and a documented business justification.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="gates">
+      <div class="section-header">
+        <div>
+          <h2>Decision Gates</h2>
+          <p>
+            Every optional phase has a measurable entry condition and an agreed
+            stop condition. A lower resource limit or fewer services is not, by
+            itself, proof of lower cost or acceptable reliability.
+          </p>
+        </div>
+        <span class="badge warn">Required before changes</span>
+      </div>
+
+      <div class="grid two">
+        <article class="panel">
+          <h3>Cost and Payback</h3>
+          <ul>
+            <li>Record Railway cost by backend, database, volume, backup, and network egress.</li>
+            <li>Record the workspace plan and included monthly usage before treating a resource reduction as an invoice saving.</li>
+            <li>Measure process RSS, heap use, CPU, restarts, and active/idle database connections.</li>
+            <li>Set a minimum monthly saving and maximum payback period before Phase 4 or 5.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Observability and Reliability</h3>
+          <ul>
+            <li>Add application metrics or structured request timing; health checks alone do not provide route p95/p99.</li>
+            <li>Provision a staging environment or formally promote development to the release-gate environment before relying on staging exit criteria.</li>
+            <li>Define SLOs for login, order list, order detail, payment, delivery, and client verification.</li>
+            <li>Define rollback triggers for OOMs, 5xx rates, login failures, DB waits, and cold-start latency.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Tenancy and Staff Scope</h3>
+          <ul>
+            <li>Choose the tenant boundary: establishment, branch, or both.</li>
+            <li>Decide whether a staff member has exactly one active branch or selects an active branch per session.</li>
+            <li>Define which admin operations are establishment-wide and which still require a branch predicate.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Customer Identity</h3>
+          <ul>
+            <li>Define whether one verified phone/email maps to exactly one customer within a tenant.</li>
+            <li>Define deduplication and account-linking behavior for existing customer records.</li>
+            <li>Choose email, SMS, or both and record provider cost, delivery SLO, and abuse controls.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="callout warning">
+        <p>
+          Phase 4 reverses the current service-owned database ADR. Proceed only
+          with a replacement ADR that records measured savings, the larger
+          failure and recovery radius, the migration method, and the point after
+          which rollback is no longer lossless.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="railway-baseline">
+      <div class="section-header">
+        <div>
+          <h2>Railway Production Baseline</h2>
+          <p>
+            Railway MCP evidence collected on 2026-07-10 from project
+            <code>anotame-production</code>. Resource figures cover the preceding
+            24 hours at five-minute sampling, with 289 points per service. They
+            are a short-window projection, not an invoice or a capacity test.
+          </p>
+        </div>
+        <span class="badge ok">Platform verified</span>
+      </div>
+
+      <div class="grid two">
+        <article class="panel">
+          <h3>Environment and Deployment State</h3>
+          <ul>
+            <li>Production has nine successful active services: four Quarkus APIs, four PostgreSQL services, and the SvelteKit frontend.</li>
+            <li>Development contains the same nine services and every service was sleeping when inspected.</li>
+            <li>No <code>staging</code> environment exists; only <code>development</code> and <code>production</code> are available.</li>
+            <li>All four production databases run the Railway PostgreSQL SSL image based on PostgreSQL 18.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Configuration Evidence</h3>
+          <ul>
+            <li>All production application services report <code>RAILPACK</code> as the active builder.</li>
+            <li>No production backend variable name indicates <code>JAVA_TOOL_OPTIONS</code>, <code>-Xmx</code>, or another JVM memory override.</li>
+            <li>The repository Dockerfile heap settings are therefore not confirmed production settings; inspect the running JVM command and heap metrics before tuning.</li>
+            <li>All four backends use private Railway database references; no public database endpoint was detected in their datasource variables.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Average memory</th>
+              <th>Maximum memory</th>
+              <th>Average CPU</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Identity API</td><td>0.2141 GB</td><td>0.2259 GB</td><td>0.0007 vCPU</td></tr>
+            <tr><td>Catalog API</td><td>0.2357 GB</td><td>0.2478 GB</td><td>0.0007 vCPU</td></tr>
+            <tr><td>Sales API</td><td>0.2764 GB</td><td>0.2812 GB</td><td>0.0006 vCPU</td></tr>
+            <tr><td>Operations API</td><td>0.2299 GB</td><td>0.2323 GB</td><td>0.0007 vCPU</td></tr>
+            <tr><td>SvelteKit frontend</td><td>0.1300 GB</td><td>0.1366 GB</td><td>0.0010 vCPU</td></tr>
+            <tr><td>Four PostgreSQL services</td><td>0.1748 GB total</td><td>0.1986 GB summed maxima</td><td>0.0010 vCPU total</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid two">
+        <article class="panel">
+          <h3>Short-Window Cost Projection</h3>
+          <ul>
+            <li>Observed average memory was approximately <code>1.2609 GB</code>, projecting to <code>$12.61/month</code> at the current <code>$10/GB/month</code> RAM rate.</li>
+            <li>Observed average CPU was approximately <code>0.0047 vCPU</code>, projecting to about <code>$0.09/month</code> at <code>$20/vCPU/month</code>.</li>
+            <li>Database disk usage totaled approximately <code>0.8787 GB</code>, projecting to about <code>$0.13/month</code> at <code>$0.15/GB/month</code>.</li>
+            <li>The combined projection is about <code>$12.84/month</code> before backups, egress, other storage, and the workspace subscription. Validate it against the actual invoice.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Decision Implications</h3>
+          <ul>
+            <li>The four databases account for about <code>0.1748 GB</code>, or <code>$1.75/month</code> of observed RAM usage before retaining the one database Phase 4 would still need. Phase 4 has a low absolute savings ceiling on this baseline.</li>
+            <li>The three business APIs account for about <code>0.7420 GB</code>, or <code>$7.42/month</code> of observed RAM usage. Phase 5 has the larger theoretical target, but only a measured merged prototype can establish savings.</li>
+            <li>Railway subscription charges count toward usage. A resource reduction may not lower the invoice when total usage remains below the plan minimum.</li>
+            <li>Railway MCP returned no HTTP logs for any application service, so route request counts, error rates, and p50/p95/p99 latency are not yet available.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="callout warning">
+        <p>
+          Baseline conclusion: prioritize observability and effective JVM
+          configuration before topology changes. Do not use repository
+          Dockerfile heap values, the 24-hour projection, or successful health
+          checks as substitutes for runtime heap evidence, an invoice, route
+          SLOs, and a representative traffic period.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="phases">
+      <div class="section-header">
+        <div>
+          <h2>Phases</h2>
+          <p>
+            The phase numbers now match execution order. Phases 4 through 6 are
+            conditional and should be skipped when their measured entry gate is
+            not met.
+          </p>
+        </div>
+        <span class="badge">Execution plan</span>
+      </div>
+
+      <article class="phase" id="phase-0">
+        <div class="phase-label">
+          <span class="phase-number">0</span>
+          <p>Correctness</p>
+        </div>
+        <div class="phase-body">
+          <h3>Baseline, Instrumentation, and Branch Correctness</h3>
+          <p>
+            Establish evidence before optimization and fix the branch claim at
+            the current four-database topology. This work cannot wait for a
+            possible future shared database.
+          </p>
+
+          <div class="callout warning">
+            <p>
+              Original defect: identity queried
+              <code>tce_employee_assignment</code> through its own datasource,
+              caught SQL failures, and issued a configured default branch. The
+              local Phase 0 implementation removes that query and fallback; it
+              is not production-ready until the Railway and product prerequisites
+              below are closed and the deployment sequence is exercised.
+            </p>
+          </div>
+
+          <div class="grid two">
+            <div class="panel">
+              <h3>Implemented and Verified Locally</h3>
+              <ul>
+                <li>Operations now owns a private, token-protected active-branch endpoint.</li>
+                <li>Identity resolves the branch through the Operations API and fails closed for zero, multiple, or unavailable assignments.</li>
+                <li>Identity and Sales no longer use a configured default branch.</li>
+                <li>Structured HTTP access logs are enabled on all four APIs.</li>
+                <li>The full Maven reactor packages successfully; 14 Identity and Operations tests pass.</li>
+                <li>Railway staging is restored from the four-database backup; all nine services and the branch-assignment smoke tests pass.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Prerequisites Still Open</h3>
+              <ul>
+                <li>Product owner approval for the temporary exactly-one-active-branch rule.</li>
+                <li>A Railway SSH key and a read-only production duplicate-assignment check.</li>
+                <li>Staging has its own internal token; generate a different production token during the production rollout.</li>
+                <li>Staging now exists with restored backup data; anchor the local Phase 0 deployments to a review branch before team testing.</li>
+                <li>Invoice/usage evidence, effective JVM flags, numeric SLOs, and a representative telemetry period.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            <p>
+              Prerequisite source map and deployment order:
+              <a href="phase-0-prerequisites.md">Phase 0 prerequisites runbook</a>.
+              Integration decision:
+              <a href="adr/0006-identity-operations-branch-assignment-api.md">ADR 0006</a>.
+            </p>
+          </div>
+
+          <div class="checklist">
+            <div class="check">
+              <div>
+                <strong>Choose a branch-assignment integration.</strong>
+                <span>Use an operations API at login, an identity-owned read projection fed by operations events, or an explicit ownership transfer recorded in an ADR. An API is the smallest near-term fix; a projection removes login-time coupling.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Fail closed when assignment is required.</strong>
+                <span>Remove broad exception swallowing and the production default fallback. A staff token that requires branch scope must not be issued without a valid active assignment.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Make assignment selection deterministic.</strong>
+                <span>Enforce one active assignment per user or require explicit branch selection and token reissue. Do not use unordered <code>LIMIT 1</code>.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Add usable measurements.</strong>
+                <span>Capture Railway usage plus application request timing, JVM memory, pool utilization, DB waits, restarts, and error rates for at least one representative billing period.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <p>
+              Exit gate: login produces a branch or establishment scope from a
+              working source of truth, no production fallback masks errors, and
+              the team can compare before/after cost and latency.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase" id="phase-1">
+        <div class="phase-label">
+          <span class="phase-number">1</span>
+          <p>Cost</p>
+        </div>
+        <div class="phase-body">
+          <h3>Runtime Cost Control</h3>
+          <p>
+            Keep all four backend services. Reduce actual resource consumption
+            first, then use platform limits as guardrails around known-good
+            values.
+          </p>
+
+          <div class="grid two">
+            <div class="panel">
+              <h3>Confirmed Current State</h3>
+              <ul>
+                <li>Repository Dockerfiles declare <code>-Xmx256m</code> for identity, catalog, and operations and <code>-Xmx384m</code> for sales, but Railway production reports Railpack builds and no JVM sizing variable. Effective production heap limits are unverified.</li>
+                <li>JDBC pools use <code>min-size=0</code> and maximum sizes of <code>2</code> or <code>3</code>.</li>
+                <li>Background connection validation is disabled, private database references are configured, and all nine production services currently report successful deployments.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Remaining Actions</h3>
+              <ul>
+                <li>Inspect the running JVM command, max heap, committed heap, metaspace, and native memory before setting <code>JAVA_TOOL_OPTIONS</code> or replica limits.</li>
+                <li>Compare RSS, heap, metaspace, and native memory before lowering any JVM or replica limit.</li>
+                <li>Treat Railway replica limits as crash and spend guardrails, not direct savings.</li>
+                <li>Add route-level request count, error, and latency telemetry; Railway MCP currently has no HTTP-log evidence for the five application services.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="checklist">
+            <div class="check">
+              <div>
+                <strong>Evaluate Serverless per service.</strong>
+                <span>Railway enables sleeping for a whole service, not selected routes. Development proves that all nine services can reach a sleeping state, but not that production sleeping is safe. Confirm that outbound traffic does not prevent sleep and test first-request latency, possible wake-up <code>502</code> responses, retry behavior, and user experience.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Keep stateful services awake unless tested otherwise.</strong>
+                <span>Do not assume PostgreSQL or a service with persistent outbound traffic will sleep safely. Start with low-traffic stateless APIs whose cold-start SLO permits it.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Deploy one change at a time.</strong>
+                <span>Change heap, replica limit, pool, or Serverless separately so regressions and savings remain attributable.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <p>
+              Exit gate: the invoice or projected usage shows a real reduction,
+              p95 and cold-start SLOs still pass, and no service has OOM,
+              restart, or connection-wait regressions.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase" id="phase-2">
+        <div class="phase-label">
+          <span class="phase-number">2</span>
+          <p>Authorization</p>
+        </div>
+        <div class="phase-body">
+          <h3>Authorization and Data Scope</h3>
+          <p>
+            Replace broad <code>@Authenticated</code> protection with an explicit
+            permission matrix. Enforce role and scope in controllers and in the
+            repository query that selects or mutates the resource.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Domain and action</th>
+                  <th>Recommended actor</th>
+                  <th>Required data predicate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>User list, user detail, create, update, delete</td>
+                  <td><code>ADMIN</code></td>
+                  <td>Current establishment or explicit platform-admin policy.</td>
+                </tr>
+                <tr>
+                  <td>Own profile, credentials, locale</td>
+                  <td>Authenticated staff self; <code>ADMIN</code> override</td>
+                  <td>Principal user ID must equal target ID. Prefer <code>/users/me</code>.</td>
+                </tr>
+                <tr>
+                  <td>Order create/read/update/status/deliver and payment entry</td>
+                  <td><code>ADMIN</code>, <code>EMPLOYEE</code></td>
+                  <td>Order branch must be inside the staff token scope.</td>
+                </tr>
+                <tr>
+                  <td>Order delete and order audit history</td>
+                  <td><code>ADMIN</code></td>
+                  <td>Order branch or establishment scope still applies.</td>
+                </tr>
+                <tr>
+                  <td>Customer create/search/read/update; customer delete</td>
+                  <td>Staff for daily work; <code>ADMIN</code> for delete</td>
+                  <td>Use the chosen tenant policy; do not expose customers across establishments.</td>
+                </tr>
+                <tr>
+                  <td>Catalog, price-list, schedule, and establishment writes</td>
+                  <td><code>ADMIN</code></td>
+                  <td>Establishment or branch ownership where applicable.</td>
+                </tr>
+                <tr>
+                  <td>Operational KPI; financial and customer KPI</td>
+                  <td>Staff for operational; <code>ADMIN</code> for financial/customer</td>
+                  <td>Every aggregation must include the same tenant and branch rules as source rows.</td>
+                </tr>
+                <tr>
+                  <td>Client order status and history</td>
+                  <td>Tracking proof or client session only</td>
+                  <td>Exact customer and tenant match; never staff-wide access.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="checklist">
+            <div class="check">
+              <div>
+                <strong>Default deny every route family.</strong>
+                <span>Staff endpoints require explicit <code>@RolesAllowed</code>. Public and client endpoints use separate policies; a valid client credential must be rejected by all staff endpoints.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Scope reads and mutations in SQL.</strong>
+                <span>Use methods such as <code>findByIdAndBranch</code> and include branch/tenant criteria in order lists, summaries, payments, customers, audit logs, and every KPI query.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Prevent identifier probing.</strong>
+                <span>For client resources, return the same not-found behavior whether an order does not exist or belongs to another customer. Do not reveal cross-tenant existence.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout warning">
+            <p>
+              The role matrix above is the recommended starting policy. Confirm
+              it with the business owner before implementation, especially
+              employee access to status, delivery, payment, audit, and KPI data.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase" id="phase-3">
+        <div class="phase-label">
+          <span class="phase-number">3</span>
+          <p>Client</p>
+        </div>
+        <div class="phase-body">
+          <h3>Client Access Foundation</h3>
+          <p>
+            Implement the public boundary in <code>sales-service</code> first,
+            where orders and customers are owned. Keep client credentials,
+            endpoint policies, cookies, DTOs, and audit events separate from the
+            staff dashboard model.
+          </p>
+
+          <div class="grid two">
+            <div class="panel">
+              <h3>Proposed Endpoints</h3>
+              <ul>
+                <li><code>POST /client/order-status</code> with ticket and dedicated tracking proof in the request body.</li>
+                <li><code>POST /client/session/code-requests</code> with a generic <code>202 Accepted</code> response.</li>
+                <li><code>POST /client/session/code-verifications</code> to establish a client session.</li>
+                <li><code>GET /client/orders</code> and <code>GET /client/orders/{id}</code> under that session.</li>
+                <li><code>DELETE /client/session</code> to revoke the current session.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Minimal Client DTO</h3>
+              <ul>
+                <li>Ticket, public status, received date, committed/estimated ready date, and delivered date.</li>
+                <li>Garment and service display names.</li>
+                <li>Total, paid, or balance only when the product policy explicitly allows it.</li>
+                <li>No pickup code, notes, full customer object, payment method, price adjustments, internal IDs, or audit history.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout risk">
+            <p>
+              Never reuse <code>pickupCode</code> for web lookup. It is a
+              six-digit value and currently authorizes physical delivery. The
+              ticket number is sequential and is not a secret.
+            </p>
+          </div>
+
+          <div class="checklist">
+            <div class="check">
+              <div>
+                <strong>Add a dedicated tracking credential.</strong>
+                <span>Generate at least 128 bits with a cryptographically secure generator, encode it for display or QR use, store only a hash, never log it, and support rotation/revocation. For QR links, keep the proof in the URL fragment and have the page submit it by POST with <code>Referrer-Policy: no-referrer</code>.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Introduce verified customer contacts.</strong>
+                <span>Store normalized phone/email, verification time, tenant, and customer link. A contact must resolve unambiguously or require an additional linking step; application-only uniqueness checks are insufficient.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Persist one-time challenges safely.</strong>
+                <span>Store a challenge hash, customer/contact link, expiry, failed-attempt count, consumed time, and audit metadata. Suggested defaults are 5-10 minute expiry, at most 5 attempts, and a 30-60 second resend cooldown.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Apply layered abuse controls.</strong>
+                <span>Rate-limit independently by IP, normalized contact, ticket, and challenge. Share counters across replicas, use generic responses and comparable timing, add escalation or CAPTCHA after thresholds, and redact secrets and contact data from logs.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Prefer an opaque client session.</strong>
+                <span>Issue a random 256-bit token in a separate <code>client_session</code> cookie with <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code>, and a restricted path. Store only its hash with customer, tenant, expiry, and revocation time; validate Origin and CSRF protection on authenticated state-changing requests.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Define the JWT alternative completely.</strong>
+                <span>If client JWTs are required, use a dedicated key, issuer, audience, token type, short expiry, customer and tenant claims, and an explicit verifier. A <code>jti</code> is revocable only when a server-side session or denylist checks it.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <p>
+              Exit gate: a client credential cannot authenticate to any staff
+              route, customer A cannot read customer B, invalid proofs do not
+              disclose order/contact existence, and client responses contain no
+              internal fields.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase" id="phase-4">
+        <div class="phase-label">
+          <span class="phase-number">4</span>
+          <p>Database</p>
+        </div>
+        <div class="phase-body">
+          <h3>Optional Database Consolidation</h3>
+          <p>
+            Use one PostgreSQL service and one database with <code>identity</code>,
+            <code>sales</code>, <code>catalog</code>, and <code>operations</code>
+            schemas only when the measured database baseline justifies the
+            migration and larger recovery radius.
+          </p>
+
+          <div class="grid two">
+            <div class="panel">
+              <h3>Bootstrap and Ownership</h3>
+              <ul>
+                <li>Run a controlled bootstrap that creates schemas, owners, roles, and shared extensions once.</li>
+                <li>Use one owner/migrator and one runtime role per bounded context.</li>
+                <li>Remove <code>CREATE</code> from <code>PUBLIC</code> on the public schema and database where appropriate.</li>
+                <li>Set default privileges so new tables and sequences remain usable only by the intended runtime role.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Runtime Isolation</h3>
+              <ul>
+                <li>Runtime roles receive only required DML and sequence privileges in their own schema.</li>
+                <li>Runtime services never use owners, migrators, or a shared superuser.</li>
+                <li>No cross-schema foreign keys unless ownership is intentionally changed by ADR.</li>
+                <li>Test that every runtime role is denied reads and writes in the other three schemas.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="checklist">
+            <div class="check">
+              <div>
+                <strong>Make all schema configuration explicit.</strong>
+                <span>Set JDBC <code>currentSchema</code>, <code>quarkus.hibernate-orm.database.default-schema</code>, <code>quarkus.flyway.schemas</code>, and Flyway-specific credentials. A common history-table name is safe because each table lives in a different schema.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Separate bootstrap from service migrations.</strong>
+                <span>Current baselines install extensions. Move cluster/database bootstrap concerns out of per-service Flyway execution so schema migrators do not need broad privileges or race each other at startup.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Keep branch integration explicit.</strong>
+                <span>Prefer the Phase 0 operations API or local projection. If a shared-database view is deliberately chosen, expose only a narrow operations-owned view and grant identity <code>SELECT</code> on that view, not the operations schema.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Rehearse a maintenance-window cutover.</strong>
+                <span>Provision and bootstrap the target, run schema-aware migrations, freeze writes, perform tested logical exports/imports, validate row counts and sequence values, switch connection settings, then smoke-test every service.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>State the rollback boundary.</strong>
+                <span>Keep old databases read-only during validation. A simple rollback is lossless only before writes begin on the new database; afterward use a forward fix or a rehearsed change-capture/replay procedure.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Test both recovery levels.</strong>
+                <span>Railway volume backup/PITR recovers the shared PostgreSQL service as a unit. Maintain logical per-schema exports or restore to a sibling service and extract one schema when bounded-context recovery is required.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout warning">
+            <p>
+              Exit gate: the replacement ADR is approved; RPO and RTO are
+              recorded; migration, role-denial, Flyway, whole-instance restore,
+              schema extraction, and pre-write rollback drills all pass in
+              staging.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase" id="phase-5">
+        <div class="phase-label">
+          <span class="phase-number">5</span>
+          <p>Services</p>
+        </div>
+        <div class="phase-body">
+          <h3>Optional Business-Service Consolidation</h3>
+          <p>
+            Merge sales, catalog, and operations into one deployable modular
+            monolith only if Phase 1 leaves material JVM/container cost. Keep
+            <code>identity-service</code> separate.
+          </p>
+
+          <div class="grid two">
+            <div class="panel">
+              <h3>Required Structure</h3>
+              <ul>
+                <li>Keep domain, application, and infrastructure packages per bounded context.</li>
+                <li>Expose module operations through application ports rather than cross-module repository access.</li>
+                <li>Keep route namespaces, exception contracts, migrations, and schema ownership explicit.</li>
+                <li>Document whether the merger transfers data ownership or preserves only organizational boundaries.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <h3>Operational Controls</h3>
+              <ul>
+                <li>Do not place the staff JWT private signing key in the business process.</li>
+                <li>Retain separate client-session secrets and reject client credentials on staff routes.</li>
+                <li>Measure startup time, RSS, DB connections, and deployment blast radius before and after.</li>
+                <li>Keep the previous service deployments available for a rehearsed rollback.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout">
+            <p>
+              Separate database credentials inside one process preserve
+              configuration discipline but are not a security boundary against
+              compromise of that process. Do not claim isolation that the merged
+              runtime cannot provide.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="phase" id="phase-6">
+        <div class="phase-label">
+          <span class="phase-number">6</span>
+          <p>Exceptional</p>
+        </div>
+        <div class="phase-body">
+          <h3>Full Backend Consolidation</h3>
+          <p>
+            Treat one process for identity and all business domains as an
+            exceptional tradeoff. Package separation does not isolate signing
+            authority inside a compromised process.
+          </p>
+
+          <div class="checklist">
+            <div class="check">
+              <div>
+                <strong>Use an external identity or signing authority.</strong>
+                <span>A separate identity provider or signing service preserves authority isolation. KMS prevents private-key extraction, but a compromised application with signing permission may still request signatures.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div>
+                <strong>Recalculate the actual benefit.</strong>
+                <span>If Phase 1 and Phase 5 already solve the cost problem, skip full consolidation. Simplicity claims must include deployment, recovery, and security blast radius.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout risk">
+            <p>
+              Default decision: do not execute Phase 6 without a concrete
+              business constraint that cannot be met by the earlier phases.
+            </p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="security">
+      <div class="section-header">
+        <div>
+          <h2>Launch Blockers</h2>
+          <p>
+            These conditions block client launch. The same authorization work
+            should also be completed before merging business services.
+          </p>
+        </div>
+        <span class="badge risk">Must resolve</span>
+      </div>
+
+      <div class="grid two">
+        <article class="panel">
+          <h3>Branch Source Is Invalid</h3>
+          <ul>
+            <li>Identity currently queries an operations-owned table through the identity datasource.</li>
+            <li>SQL errors are swallowed and replaced with a default branch.</li>
+            <li>Multiple active assignments can produce nondeterministic selection.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Staff Authorization Is Too Broad</h3>
+          <ul>
+            <li>Many controllers use only <code>@Authenticated</code>.</li>
+            <li>Order, customer, payment, KPI, catalog, operations, and some user routes lack a complete backend role policy.</li>
+            <li>Frontend visibility is not an authorization control.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Queries Lack Tenant Scope</h3>
+          <ul>
+            <li>Order reads, summaries, details, payments, audit logs, and KPI queries are not consistently branch-scoped.</li>
+            <li>Customer ownership across branches or establishments is not defined.</li>
+            <li>Mutation methods load resources by ID without a scope predicate.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Client Identity Does Not Exist</h3>
+          <ul>
+            <li>Customer phone/email fields have no database uniqueness or verification state.</li>
+            <li>The pickup code is short, generated for delivery, and must not become a web credential.</li>
+            <li>No challenge, client-session, abuse-control, or client-token verification model exists.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Release Environment and Telemetry Are Missing</h3>
+          <ul>
+            <li>Railway staging now exists and passes the Phase 0 smoke tests, but its local uploads must be anchored to a review branch before the required team rehearsals.</li>
+            <li>Railway MCP found no HTTP logs for the application services, so route error rates and p50/p95/p99 latency cannot be evaluated.</li>
+            <li>Production JVM heap limits are unverified because the active builder is Railpack and no JVM sizing variable is configured.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="verification">
+      <div class="section-header">
+        <div>
+          <h2>Verification and Release Gates</h2>
+          <p>
+            Exit criteria must be executable. The repository currently has very
+            limited backend tests, so these suites are part of the work rather
+            than post-launch follow-up.
+          </p>
+        </div>
+        <span class="badge warn">Required evidence</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Suite</th>
+              <th>Minimum evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Staff authorization</td>
+              <td>Every matrix cell has allow and deny tests for <code>ADMIN</code>, <code>EMPLOYEE</code>, unauthenticated, and client credentials.</td>
+            </tr>
+            <tr>
+              <td>Tenant and branch isolation</td>
+              <td>Cross-branch and cross-establishment reads, mutations, payments, audits, customers, and aggregations are denied.</td>
+            </tr>
+            <tr>
+              <td>Client isolation</td>
+              <td>Customer A cannot list or fetch customer B; guessed IDs and tickets do not reveal existence.</td>
+            </tr>
+            <tr>
+              <td>Challenge and session security</td>
+              <td>Expiry, single use, retry limits, resend cooldown, rate limits, revocation, cookie flags, and staff-route rejection pass.</td>
+            </tr>
+            <tr>
+              <td>Response minimization</td>
+              <td>Contract tests reject pickup code, notes, PII, payment method, internal IDs, adjustment details, and audit data in client DTOs.</td>
+            </tr>
+            <tr>
+              <td>Database consolidation</td>
+              <td>Flyway validation, row and sequence checks, cross-schema permission denial, whole-instance restore, schema extraction, and rollback rehearsal pass.</td>
+            </tr>
+            <tr>
+              <td>Runtime changes</td>
+              <td>Before/after cost, RSS, p95/p99, cold start, OOM, restart, and connection-wait evidence is retained with each deployment.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warning">
+        <p>
+          Release rule: do not expose public client routes until Phase 0, Phase
+          2, and the relevant Phase 3 verification suites pass in staging and a
+          production rollback procedure has been exercised.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="sequence">
+      <div class="section-header">
+        <div>
+          <h2>Recommended Sequence</h2>
+          <p>
+            This order fixes existing correctness issues, delivers public access
+            on a defensible authorization model, and leaves consolidation as an
+            optional response to measured cost.
+          </p>
+        </div>
+        <span class="badge ok">Final order</span>
+      </div>
+
+      <ol class="sequence">
+        <li>
+          <div>
+            <strong>Phase 0: instrument and fix branch assignment.</strong>
+            Remove the failing cross-database lookup and default fallback before relying on branch claims.
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Phase 1: tune measured runtime cost.</strong>
+            Keep four services, test one resource change at a time, and verify service-level sleeping where appropriate.
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Phase 2: enforce the role and scope matrix.</strong>
+            Make staff routes default-deny and add tenant/branch predicates to every affected query and mutation.
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Phase 3: build and verify client access.</strong>
+            Add dedicated tracking proof, verified contacts, opaque client sessions, abuse controls, and minimal DTOs.
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Phase 4 only if database savings meet the gate.</strong>
+            Replace the ADR, rehearse schema migration and recovery, then cut over during a controlled write freeze.
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Phase 5 only if JVM savings still meet the gate.</strong>
+            Merge the three business services as explicit modules while keeping identity separate.
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Avoid Phase 6 by default.</strong>
+            Full consolidation requires external identity authority and a business constraint that earlier phases cannot satisfy.
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section" id="references">
+      <div class="section-header">
+        <div>
+          <h2>References</h2>
+          <p>
+            Repository evidence anchors the current-state findings. External
+            links document the platform and security behavior used by the plan.
+          </p>
+        </div>
+        <span class="badge">Evidence</span>
+      </div>
+
+      <div class="grid two">
+        <article class="panel">
+          <h3>Repository</h3>
+          <ul class="refs" aria-label="Repository references">
+            <li><a href="adr/0001-service-owned-databases-and-flyway.md">Current service-owned database ADR</a></li>
+            <li><a href="phase-0-prerequisites.md">Phase 0 prerequisites and evidence sources</a></li>
+            <li><a href="adr/0006-identity-operations-branch-assignment-api.md">Identity-to-Operations branch assignment ADR</a></li>
+            <li><a href="../anotame-api/backend/operations-service/src/main/java/com/anotame/operations/infrastructure/web/controller/InternalEmployeeAssignmentController.java">Operations branch-assignment endpoint</a></li>
+            <li><a href="../anotame-api/backend/identity-service/src/main/java/com/anotame/identity/infrastructure/client/OperationsBranchAssignmentAdapter.java">Identity branch-assignment adapter</a></li>
+            <li><a href="../anotame-api/backend/sales-service/src/main/java/com/anotame/sales/infrastructure/web/controller/OrdersController.java">Sales order controller</a></li>
+            <li><a href="../anotame-api/backend/sales-service/src/main/java/com/anotame/sales/application/service/SalesService.java">Sales order and pickup-code behavior</a></li>
+            <li><a href="../anotame-api/backend/sales-service/src/main/java/com/anotame/sales/application/dto/OrderResponse.java">Internal order DTO</a></li>
+            <li><a href="../anotame-api/backend/sales-service/src/main/resources/db/migration/V1__baseline.sql">Sales customer and order schema</a></li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h3>Official Guidance</h3>
+          <ul class="refs" aria-label="External references">
+            <li><a href="https://docs.railway.com/pricing/cost-control">Railway cost controls and resource limits</a></li>
+            <li><a href="https://docs.railway.com/pricing">Railway resource and subscription pricing</a></li>
+            <li><a href="https://docs.railway.com/deployments/serverless">Railway Serverless behavior and caveats</a></li>
+            <li><a href="https://docs.railway.com/volumes/backups">Railway volume backups</a></li>
+            <li><a href="https://docs.railway.com/volumes/point-in-time-recovery">Railway PostgreSQL point-in-time recovery</a></li>
+            <li><a href="https://quarkus.io/guides/flyway">Quarkus Flyway configuration</a></li>
+            <li><a href="https://www.postgresql.org/docs/current/ddl-schemas.html">PostgreSQL schemas, search path, and privileges</a></li>
+            <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html">OWASP one-time token and anti-enumeration guidance</a></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      This is a working implementation plan. Durable ownership or topology
+      changes, especially database and identity changes, require ADRs.
+    </footer>
+  </main>
+</body>
+</html>

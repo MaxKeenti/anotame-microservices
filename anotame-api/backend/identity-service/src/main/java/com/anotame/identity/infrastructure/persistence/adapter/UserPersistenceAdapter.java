@@ -80,11 +80,6 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
         return userRepository.deleteById(id);
     }
 
-    @Override
-    public UUID findActiveBranchForUser(UUID userId) {
-        return userRepository.findActiveBranchForUser(userId);
-    }
-
     private void applyDomain(UserEntity entity, User user) {
         entity.setUsername(user.getUsername());
         entity.setPassword(user.getPassword());

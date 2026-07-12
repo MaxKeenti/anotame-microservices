@@ -18,23 +18,17 @@ public class JwtUtils implements TokenGeneratorPort {
     /**
      * @param username  The user's login name (used as upn).
      * @param userId    The user's real UUID from tca_user.id_user. Always present.
-     * @param branchId  The user's active branch UUID from tce_employee_assignment.
-     *                  May be null for users with no active branch assignment
-     *                  (e.g., newly registered users). When null, the claim is
-     *                  omitted from the token and branch-scoped sales operations
-     *                  reject the request until an active assignment exists.
+     * @param branchId  The user's required Operations-owned active branch UUID.
      * @param roles     Role codes (e.g. {"EMPLOYEE"}).
      */
     @Override
     public String generateToken(String username, UUID userId, UUID branchId, Set<String> roles) {
-        var builder = Jwt.issuer(issuer)
+        return Jwt.issuer(issuer)
                 .upn(username)
                 .claim("user_id", userId.toString())
+                .claim("branch_id", branchId.toString())
                 .groups(roles)
-                .expiresIn(Duration.ofHours(24));
-        if (branchId != null) {
-            builder = builder.claim("branch_id", branchId.toString());
-        }
-        return builder.sign();
+                .expiresIn(Duration.ofHours(24))
+                .sign();
     }
 }

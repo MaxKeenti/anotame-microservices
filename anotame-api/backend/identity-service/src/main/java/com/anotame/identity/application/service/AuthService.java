@@ -4,6 +4,7 @@ import com.anotame.identity.application.dto.AuthResponse;
 import com.anotame.identity.application.dto.ChangeCredentialsRequest;
 import com.anotame.identity.application.dto.LoginRequest;
 import com.anotame.identity.application.dto.UserResponse;
+import com.anotame.identity.application.port.output.BranchAssignmentPort;
 import com.anotame.identity.application.port.output.PasswordHasherPort;
 import com.anotame.identity.application.port.output.TokenGeneratorPort;
 import com.anotame.identity.application.port.output.UserRepositoryPort;
@@ -14,9 +15,7 @@ import com.anotame.identity.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,9 +26,7 @@ public class AuthService {
         private final UserRepositoryPort userRepository;
         private final PasswordHasherPort passwordHasher;
         private final TokenGeneratorPort tokenGenerator;
-
-        @ConfigProperty(name = "app.default-branch-id")
-        Optional<UUID> defaultBranchId;
+        private final BranchAssignmentPort branchAssignment;
 
         public AuthResponse login(LoginRequest request) {
                 var user = userRepository.findByUsername(request.getUsername())
@@ -76,10 +73,7 @@ public class AuthService {
 
         private AuthResponse buildAuthResponse(User user) {
                 Set<String> roles = rolesFor(user);
-                UUID branchId = userRepository.findActiveBranchForUser(user.getId());
-                if (branchId == null) {
-                        branchId = defaultBranchId.orElse(null);
-                }
+                UUID branchId = branchAssignment.requireActiveBranch(user.getId());
                 var jwtToken = tokenGenerator.generateToken(user.getUsername(), user.getId(), branchId, roles);
 
                 var userResponse = mapToResponse(user);

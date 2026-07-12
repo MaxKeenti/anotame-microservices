@@ -1,5 +1,7 @@
 package com.anotame.operations.infrastructure.web.exception;
 
+import com.anotame.operations.domain.exception.ActiveBranchNotFoundException;
+import com.anotame.operations.domain.exception.AmbiguousActiveBranchException;
 import com.anotame.operations.infrastructure.web.dto.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -19,6 +21,18 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(Exception exception) {
+        if (exception instanceof ActiveBranchNotFoundException notFound) {
+            log.warn("Active branch assignment not found: {}", notFound.getMessage());
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse("ACTIVE_BRANCH_NOT_FOUND", "Active branch assignment not found"))
+                    .build();
+        }
+        if (exception instanceof AmbiguousActiveBranchException ambiguous) {
+            log.error("Ambiguous active branch assignment: {}", ambiguous.getMessage());
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse("AMBIGUOUS_ACTIVE_BRANCH", "Multiple active branch assignments require resolution"))
+                    .build();
+        }
         if (exception instanceof ConstraintViolationException cve) {
             List<String> details = cve.getConstraintViolations().stream()
                     .map(v -> v.getPropertyPath() + ": " + v.getMessage())

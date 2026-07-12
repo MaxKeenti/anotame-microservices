@@ -1,5 +1,8 @@
 package com.anotame.identity.infrastructure.web.exception;
 
+import com.anotame.identity.domain.exception.BranchAssignmentInvalidException;
+import com.anotame.identity.domain.exception.BranchAssignmentRequiredException;
+import com.anotame.identity.domain.exception.BranchAssignmentUnavailableException;
 import com.anotame.identity.domain.exception.DomainException;
 import com.anotame.identity.domain.exception.InvalidCredentialsException;
 import com.anotame.identity.domain.exception.ResourceNotFoundException;
@@ -51,6 +54,15 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     private Response.Status statusFor(DomainException exception) {
         if (exception instanceof InvalidCredentialsException) {
             return Response.Status.UNAUTHORIZED;
+        }
+        if (exception instanceof BranchAssignmentRequiredException) {
+            return Response.Status.FORBIDDEN;
+        }
+        if (exception instanceof BranchAssignmentInvalidException) {
+            return Response.Status.CONFLICT;
+        }
+        if (exception instanceof BranchAssignmentUnavailableException) {
+            return Response.Status.SERVICE_UNAVAILABLE;
         }
         if (exception instanceof ResourceNotFoundException) {
             return Response.Status.NOT_FOUND;

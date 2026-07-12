@@ -23,6 +23,4 @@ public interface UserRepositoryPort {
     User save(User user);
 
     boolean deleteById(UUID id);
-
-    UUID findActiveBranchForUser(UUID userId);
 }
