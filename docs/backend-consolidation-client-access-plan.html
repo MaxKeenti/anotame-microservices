@@ -543,11 +543,11 @@
       <aside class="meta" aria-label="Document metadata">
         <div>
           <span>Status</span>
-          <strong>Phase 0 staging verified; production gates remain open</strong>
+          <strong>Phase 0 instrumentation verified in staging; production gates remain open</strong>
         </div>
         <div>
           <span>Reviewed</span>
-          <strong>2026-07-10</strong>
+          <strong>2026-07-14</strong>
         </div>
         <div>
           <span>Current topology</span>
@@ -555,7 +555,7 @@
         </div>
         <div>
           <span>Railway evidence</span>
-          <strong>Production and staging verified through Railway MCP; invoice recorded</strong>
+          <strong>Production and staging verified through Railway MCP and CLI; invoice recorded</strong>
         </div>
       </aside>
     </header>
@@ -660,7 +660,7 @@
         <article class="panel">
           <h3>Observability and Reliability</h3>
           <ul>
-            <li>Structured request timing is active in staging; normalize routes, add correlation fields, and aggregate production windows before claiming route p95/p99.</li>
+            <li>Normalized structured request timing and correlation fields are verified in staging; complete the route/load matrix and aggregate production windows before claiming route p95/p99.</li>
             <li>Staging is the release-gate environment and follows Git branch <code>staging</code>.</li>
             <li>Define SLOs for login, order list, order detail, payment, delivery, and client verification.</li>
             <li>Define rollback triggers for OOMs, 5xx rates, login failures, DB waits, and cold-start latency.</li>
@@ -715,7 +715,7 @@
         <article class="panel">
           <h3>Environment and Deployment State</h3>
           <ul>
-            <li>The 2026-07-14 MCP recheck found nine successful active services in production and the same nine successful services in staging.</li>
+            <li>The 2026-07-14 MCP recheck found nine successful active services in production. Staging subsequently reached nine successful services on telemetry commit <code>518502bd</code>.</li>
             <li>Staging is restored from the four production backups, isolated by environment, and connected to Git branch <code>staging</code>; production follows <code>main</code>.</li>
             <li>Development contains the same nine services and every service was sleeping when originally inspected.</li>
             <li>All four production databases run the Railway PostgreSQL SSL image based on PostgreSQL 18.</li>
@@ -774,7 +774,7 @@
             <li>The four APIs represent about 74% of the current production total, while all four databases represent about 17%. Phase 4 has a low absolute savings ceiling on this baseline.</li>
             <li>The three business APIs remain the larger theoretical consolidation target, but only a measured merged prototype can establish savings after Phase 1.</li>
             <li>If the current <code>$21.23</code> estimate closes unchanged and no other billable lines accrue, only about <code>$1.23</code> is above the Pro plan's <code>$20.00</code> included-usage floor. Savings below the floor create headroom rather than a lower invoice.</li>
-            <li>The 2026-07-10 baseline had no HTTP logs. Phase 0 now emits structured access logs in staging, but production and a representative observation period remain outstanding.</li>
+            <li>The 2026-07-10 baseline had no HTTP logs. Phase 0 now emits top-level structured attributes with normalized routes and validated request IDs in staging, but production and a representative observation period remain outstanding.</li>
           </ul>
         </article>
       </div>
@@ -850,9 +850,10 @@
                 <li>Identity resolves the branch through the Operations API and fails closed for zero, multiple, or unavailable assignments.</li>
                 <li>ADR 0007 records the durable rule: one selected Branch per staff session, while multiple Branches and Employee Assignments remain allowed.</li>
                 <li>Identity and Sales no longer use a configured default branch.</li>
-                <li>Structured HTTP access logs are enabled on all four APIs.</li>
-                <li>The full Maven reactor packages successfully; 14 Identity and Operations tests pass.</li>
+                <li>A shared module emits normalized structured HTTP attributes on all four APIs and propagates validated request IDs from Identity to Operations.</li>
+                <li>The full Maven reactor packages successfully; 19 observability, Identity, and Operations tests pass.</li>
                 <li>Railway staging is restored from the four-database backup; all nine services and the branch-assignment smoke tests pass.</li>
+                <li>Staging commit <code>518502bd</code> produced verified 200 and 401 events for every API, preserving request IDs and normalizing the dynamic Operations route.</li>
                 <li>The production multi-assignment readiness query returned zero rows on 2026-07-14.</li>
                 <li>The completed invoice and current production usage breakdown are recorded; both identify memory as the dominant cost.</li>
               </ul>
@@ -861,6 +862,7 @@
               <h3>Prerequisites Still Open</h3>
               <ul>
                 <li>Generate a production-only internal token, set the private Operations URL, and execute the Phase 0 production rollout.</li>
+                <li>Complete the staging failure/load matrix and deterministic Bun log aggregation.</li>
                 <li>Runtime JVM/native-memory evidence, numeric SLOs, and a representative production request telemetry period.</li>
               </ul>
             </div>
@@ -880,8 +882,8 @@
           <div class="panel">
             <h3>HTTP Count, Error, and Latency Plan</h3>
             <ol>
-              <li>Replace raw paths with normalized route templates and add service, environment, deployment, and request/correlation identifiers without logging credentials or customer identifiers.</li>
-              <li>Exercise success, authentication, validation, and server-failure paths for every critical flow in staging; health probes remain excluded.</li>
+              <li>Completed in staging: replace raw paths with normalized route templates and add service, environment, deployment, duration, status, and request/correlation identifiers without logging credentials or customer identifiers.</li>
+              <li>Basic success and authentication-failure probes pass for every API. Complete validation and server-failure paths for every critical flow; health probes remain excluded.</li>
               <li>Deploy the Phase 0 access events to production, then collect bounded per-service deployment-log windows. Railway's HTTP-log helpers currently return no production samples.</li>
               <li>Use a Bun aggregation script to group by service, commit, method, normalized route, and status class and calculate counts, 4xx/5xx rates, p50, p95, p99, and maximum duration.</li>
               <li>Observe at least 14 calendar days and require at least 100 route samples for p95 or 1,000 for p99; extend to 30 days for low-volume routes.</li>
@@ -969,7 +971,7 @@
                 <li>Inspect the running JVM command, max heap, committed heap, metaspace, and native memory before setting <code>JAVA_TOOL_OPTIONS</code> or replica limits.</li>
                 <li>Compare RSS, heap, metaspace, and native memory before lowering any JVM or replica limit.</li>
                 <li>Treat Railway replica limits as crash and spend guardrails, not direct savings.</li>
-                <li>Execute the HTTP measurement plan above: normalize staging access logs, deploy Phase 0 telemetry to production, aggregate it, and collect the representative baseline.</li>
+                <li>Execute the remaining HTTP measurement plan: finish the staging matrix, deploy Phase 0 telemetry to production, aggregate it, and collect the representative baseline.</li>
               </ul>
             </div>
           </div>
@@ -1418,7 +1420,7 @@
           <h3>Release Environment Exists; Telemetry Baseline Is Open</h3>
           <ul>
             <li>Railway staging follows Git branch <code>staging</code>, is restored from the production backup, and passes the Phase 0 smoke tests.</li>
-            <li>Structured HTTP logs are available in staging, but production route error rates and p50/p95/p99 latency still lack a representative observation period.</li>
+            <li>Normalized structured HTTP logs and request IDs are verified in staging, but the full scenario/load matrix and production p50/p95/p99 observation period remain open.</li>
             <li>Production now uses the service Dockerfiles and their heap flags, but runtime committed heap, metaspace, and native-memory evidence remains incomplete.</li>
           </ul>
         </article>

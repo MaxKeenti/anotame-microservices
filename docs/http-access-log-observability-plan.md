@@ -3,9 +3,9 @@
 This plan turns the Phase 0 access events into evidence that can safely compare
 staging and production before and after a runtime change.
 
-## Why the current event is insufficient
+## Why the previous event was insufficient
 
-All four Quarkus APIs currently use this access-log shape:
+Before Slice A, all four Quarkus APIs used this access-log shape:
 
 ```json
 {"event":"http_access","method":"GET","path":"/orders/2f8...","status":200,"duration_ms":83}
@@ -64,7 +64,7 @@ One completed backend request emits one event with this logical shape:
 
 1. Replace the built-in raw-path access pattern with a request/response filter
    that obtains the matched class and method `@Path` templates.
-2. Add and propagate the request ID using request context/MDC.
+2. Add and propagate the request ID using a request-scoped correlation context.
 3. Emit actual structured JSON so Railway can filter numeric and string fields,
    not only search a JSON substring inside a console message.
 4. Apply the same field contract to Identity, Catalog, Sales, and Operations.
@@ -72,6 +72,31 @@ One completed backend request emits one event with this logical shape:
    service merely for logging.
 5. Preserve the current health-path exclusion and add explicit tests proving
    secrets and identifiers are absent.
+
+Slice A was deployed to Railway staging from commit
+`518502bd7c558da926affbdc30077392bdb35881` on 2026-07-14
+(`2026-07-15` UTC). The shared library is build-time code used by the four API
+images; it is not another Railway runtime service.
+
+Recorded Slice A evidence:
+
+- the full Maven reactor passed 19 tests and Quarkus augmentation for all four
+  APIs;
+- the five staging application services reached Railway `SUCCESS` on the same
+  commit, while production remained on `main`;
+- each API returned and logged the supplied canonical `X-Request-ID` for both a
+  200 and a 401 response;
+- Railway stored the nine application fields as top-level structured
+  attributes; `railway logs --json` exposes them even though the plain MCP log
+  renderer displays an empty message for a structured-only event;
+- the Operations probe stored
+  `/internal/employee-assignments/users/{userId}/active-branch`, not the
+  concrete User UUID; and
+- routine Railway health probes did not produce application access events.
+
+This closes the event-shape and basic runtime-ingestion check. It does not close
+the full scenario/load matrix, deterministic aggregation, production rollout,
+or representative production baseline below.
 
 ### Slice B: aggregation
 
@@ -137,6 +162,10 @@ The staging gate passes only when:
 - cross-service request IDs match;
 - the aggregation output is deterministic for the same input; and
 - all services remain healthy with no OOM or unexpected restart.
+
+As of 2026-07-14, the basic 2xx/401 and structured-route checks pass for all
+four APIs. The remaining scenarios in the table, the 100/1,000-request sample
+sizes, cross-service login correlation, and Slice B aggregation are still open.
 
 ## What the JVM and native-memory gate means
 

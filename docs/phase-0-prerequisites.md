@@ -13,7 +13,7 @@ evidence before the corresponding exit gate is claimed.
 | Operations base URL | Identity variable `ANOTAME_OPERATIONS_BASE_URL` | Staging uses the private Operations service on port 8080. Production remains unset until the Phase 0 rollout. Local default remains `http://localhost:8084`; do not use the auto-generated bare public hostname as a REST-client URI. |
 | Cost and subscription | Railway Workspace **Usage** page and monthly invoice | Closed for baseline purposes. The 2026-06-08 through 2026-07-08 invoice totals `$26.18` after the `$20.00` included-usage credit. The 2026-07-14 production dashboard shows `$3.68` current and `$21.23` estimated usage. See the cost evidence below. |
 | CPU, memory, disk, and network | Railway service Metrics, Railway MCP `service_metrics`, and invoice | A completed billing period and the current production breakdown are recorded below. Preserve comparable before/after windows for each experiment. |
-| HTTP counts, errors, and latency | Structured `http_access` lines in Railway deploy logs | Staging proves the log shape, but Railway MCP currently finds no production HTTP logs. Route normalization, production rollout, aggregation, and a representative observation window remain open; follow the detailed observability plan. |
+| HTTP counts, errors, and latency | Structured `http_access` attributes in Railway deploy logs | Slice A is verified in staging: all four APIs emit normalized route templates, service/environment/deployment fields, duration, status, and validated request IDs. Full scenario/load coverage, Slice B aggregation, production rollout, and a representative observation window remain open. |
 | JVM and total process memory | Railway container metrics plus protected Quarkus JVM/datasource metrics | `-Xmx` covers only Java object memory, while Railway bills the whole process. Measure heap, metaspace, buffers, threads, total container memory, restarts, and connection waits in staging before lowering memory. |
 | SLO and rollback thresholds | Initial engineering guardrails, product owner, and observed production baseline | The observability plan supplies starting thresholds. Confirm or revise user-facing targets after the telemetry-only production baseline. |
 | Release rehearsal environment | Railway project environments | `staging` was created on 2026-07-12, restored from the backup, and connected to Git branch `staging`. Production remains connected to `main`. |
@@ -31,7 +31,7 @@ Created on 2026-07-12 in Railway project `anotame-production`:
 
 All five staging application services follow Git branch `staging` and were
 source-deployed successfully from commit
-`1272408f41cdf8702e8b32fb8789febb41e25653`. The five production application
+`518502bd7c558da926affbdc30077392bdb35881`. The five production application
 services follow `main` and run commit
 `067fededa74085300c75776474c3f1288b9920f3`. Future pushes use the corresponding
 environment branch trigger.
@@ -47,6 +47,21 @@ Validation completed on 2026-07-12:
 - Temporary password changes used by the smoke tests were restored immediately; no test credential was retained.
 - During branch-trigger setup, Railway briefly queued the staging commit for the shared production services. Environment-scoped branch patches immediately restored production to `main`; all nine production services finished `SUCCESS` on the main commit above.
 - A Railway MCP recheck on 2026-07-14 found all nine services in both `production` and `staging` at `SUCCESS`.
+
+Access-log Slice A validation completed on 2026-07-14 (`2026-07-15` UTC):
+
+- all five staging application services reached `SUCCESS` on commit `518502bd`;
+- Identity, Catalog, Sales, and Operations each emitted a structured event for
+  an authenticated 200 and an unauthenticated or invalid-credential 401;
+- all eight probes returned and logged the same canonical request ID supplied
+  by the caller;
+- the event fields were available as Railway JSON-log attributes, and the
+  Operations parameterized route contained `{userId}` rather than its concrete
+  UUID;
+- response durations were numeric and nonzero, and no health-probe event was
+  present; and
+- the valid staging JWT used for read-only probes was created in memory with a
+  five-minute expiry and was neither printed nor persisted.
 
 ## Multi-assignment readiness check
 
@@ -131,15 +146,15 @@ The full event contract, implementation slices, staging scenarios, explanation
 of JVM/total memory, production baseline, and staging-first promotion policy are
 in [HTTP Access Log Normalization and Validation Plan](./http-access-log-observability-plan.md).
 
-1. Before production rollout, replace the raw request path with a normalized
-   route template such as `/orders/{id}` and add service, environment,
-   deployment, and request/correlation identifiers. Keep query strings,
-   headers, cookies, customer identifiers, and tokens out of logs.
-2. In staging, exercise login, session validation, branch resolution, and the
+1. Completed in staging: the shared filter replaces raw paths with normalized
+   route templates and emits service, environment, deployment, duration,
+   status, and validated request/correlation fields. Query strings, headers,
+   cookies, customer identifiers, and tokens are absent from the contract.
+2. Continue the staging matrix: exercise login, session validation, branch resolution, and the
    critical order flows. Confirm every API emits parseable `http_access` events
    for success, validation failure, authentication failure, and server failure;
-   continue excluding health probes. Current smoke evidence contains four
-   Identity events and two Sales events, but does not cover all routes.
+   continue excluding health probes. Basic 200/401 coverage now exists for all
+   four APIs, but the full route and failure matrix is not yet complete.
 3. Roll Phase 0 into production in the documented dependency order. Railway's
    built-in HTTP-log helpers currently return no production samples, so collect
    the application `http_access` deployment logs per service with bounded CLI
