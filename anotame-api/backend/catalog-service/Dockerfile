@@ -13,11 +13,14 @@ COPY catalog-service/pom.xml catalog-service/pom.xml
 COPY sales-service/pom.xml sales-service/pom.xml
 COPY operations-service/pom.xml operations-service/pom.xml
 
+# Install the shared library before resolving service dependencies.
+COPY observability-common/src observability-common/src
+RUN mvn -B install -pl observability-common -DskipTests
+
 # Download dependencies
 RUN mvn -B dependency:resolve dependency:resolve-plugins -DexcludeArtifactIds=anotame-parent
 
 # Copy Source Code
-COPY observability-common/src observability-common/src
 COPY catalog-service/src catalog-service/src
 
 # Build Catalog Service
