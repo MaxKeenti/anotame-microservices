@@ -20,5 +20,6 @@ public interface OperationsBranchAssignmentClient {
     @Path("/users/{userId}/active-branch")
     ActiveBranchResponse getActiveBranch(
             @PathParam("userId") UUID userId,
-            @HeaderParam("X-Internal-Service-Token") String internalServiceToken);
+            @HeaderParam("X-Internal-Service-Token") String internalServiceToken,
+            @HeaderParam("X-Request-ID") String requestId);
 }

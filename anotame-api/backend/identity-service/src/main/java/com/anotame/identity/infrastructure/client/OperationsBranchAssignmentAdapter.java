@@ -5,6 +5,7 @@ import com.anotame.identity.domain.exception.BranchAssignmentInvalidException;
 import com.anotame.identity.domain.exception.BranchAssignmentRequiredException;
 import com.anotame.identity.domain.exception.BranchAssignmentUnavailableException;
 import com.anotame.identity.infrastructure.client.dto.ActiveBranchResponse;
+import com.anotame.observability.http.RequestCorrelationContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
@@ -22,18 +23,24 @@ public class OperationsBranchAssignmentAdapter implements BranchAssignmentPort {
 
     private final OperationsBranchAssignmentClient client;
     private final String internalServiceToken;
+    private final RequestCorrelationContext correlationContext;
 
     public OperationsBranchAssignmentAdapter(
             @RestClient OperationsBranchAssignmentClient client,
-            @ConfigProperty(name = "anotame.internal-service.token") String internalServiceToken) {
+            @ConfigProperty(name = "anotame.internal-service.token") String internalServiceToken,
+            RequestCorrelationContext correlationContext) {
         this.client = client;
         this.internalServiceToken = internalServiceToken;
+        this.correlationContext = correlationContext;
     }
 
     @Override
     public UUID requireActiveBranch(UUID userId) {
         try {
-            ActiveBranchResponse response = client.getActiveBranch(userId, internalServiceToken);
+            ActiveBranchResponse response = client.getActiveBranch(
+                    userId,
+                    internalServiceToken,
+                    correlationContext.requestId());
             if (response == null || response.branchId() == null) {
                 throw new BranchAssignmentUnavailableException();
             }

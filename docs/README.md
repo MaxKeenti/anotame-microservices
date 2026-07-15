@@ -13,6 +13,7 @@ This repository keeps current, maintained documentation only. Historical plannin
 - [workflow.md](./workflow.md) — agent workflow and historical GSD archive pointer.
 - [backend-consolidation-client-access-plan.html](./backend-consolidation-client-access-plan.html) — cost reduction, database consolidation, and client access rollout plan.
 - [phase-0-prerequisites.md](./phase-0-prerequisites.md) — Phase 0 evidence sources, unresolved external inputs, and branch-contract deployment order.
+- [http-access-log-observability-plan.md](./http-access-log-observability-plan.md) — normalized HTTP event contract, staging validation, runtime memory evidence, and staging-first promotion policy.
 - [adr/](./adr/) — durable decisions that are hard to reverse or surprising without context.
 - [archive/](./archive/) — non-canonical extracts from historical planning systems.
 
