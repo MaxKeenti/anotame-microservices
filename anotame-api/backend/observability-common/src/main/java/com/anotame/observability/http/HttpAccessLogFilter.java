@@ -10,6 +10,7 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.container.PreMatching;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.ext.Provider;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 @Provider
 @ApplicationScoped
+@PreMatching
 @Priority(Priorities.AUTHENTICATION - 100)
 public class HttpAccessLogFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
