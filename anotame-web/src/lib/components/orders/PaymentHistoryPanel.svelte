@@ -59,23 +59,23 @@
   });
 </script>
 
-<div class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-  <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">
+<div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+  <div class="wrap-break-word px-4 sm:px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">
     {m['orders.payment.historyTitle']()}
   </div>
 
   {#if loading}
-    <div class="px-6 py-8 text-center text-muted-foreground text-sm animate-pulse">
+    <div class="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm animate-pulse">
       {m['orders.detail.loading']()}
     </div>
   {:else if payments.length === 0}
-    <div class="px-6 py-8 text-center text-muted-foreground text-sm">
+    <div class="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm">
       {m['orders.payment.emptyHistory']()}
     </div>
   {:else}
     <div class="divide-y divide-border">
       {#each payments as payment}
-        <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
+        <div class="min-w-0 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
           <!-- Amount -->
           <span class={`font-bold text-base font-mono w-24 shrink-0 ${payment.amount < 0 ? 'text-destructive' : 'text-success'}`}>
             {payment.amount < 0 ? '' : '+'}{formatCurrency(payment.amount)}
@@ -88,13 +88,13 @@
 
           <!-- Note -->
           {#if noteLabel(payment)}
-            <span class="text-muted-foreground italic flex-1 truncate">{noteLabel(payment)}</span>
+            <span class="min-w-0 text-muted-foreground italic flex-1 wrap-break-word sm:truncate">{noteLabel(payment)}</span>
           {:else}
             <span class="flex-1"></span>
           {/if}
 
           <!-- Date -->
-          <span class="text-muted-foreground font-mono text-xs whitespace-nowrap shrink-0">
+          <span class="max-w-full text-muted-foreground font-mono text-xs wrap-break-word whitespace-normal sm:whitespace-nowrap sm:shrink-0">
             {formatDateTime(payment.recordedAt)}
           </span>
         </div>
