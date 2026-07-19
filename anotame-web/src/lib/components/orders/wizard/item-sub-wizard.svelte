@@ -309,12 +309,15 @@
 	function handleAddService() {
 		if (!tempService) return;
 		const serviceName = tempService.name.trim();
-		const parsedPrice = Number(price);
+		// Numeric inputs are coerced to numbers by Svelte at runtime even when the
+		// state starts as a string, so normalize before applying string validation.
+		const normalizedPrice = price == null ? '' : String(price).trim();
+		const parsedPrice = Number(normalizedPrice);
 		if (!serviceName) {
 			toast.error(m['itemSubWizard.validation.customServiceName']());
 			return;
 		}
-		if (price.trim() === '' || !Number.isFinite(parsedPrice) || parsedPrice < 0) {
+		if (normalizedPrice === '' || !Number.isFinite(parsedPrice) || parsedPrice < 0) {
 			toast.error(m['itemSubWizard.validation.servicePrice']());
 			return;
 		}
