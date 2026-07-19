@@ -50,16 +50,19 @@
                     items: res.items.map((item) => ({
                         garmentTypeId: item.garmentTypeId,
                         garmentId: undefined,
+                        source: item.source ?? 'CATALOG',
                         garmentName: item.garmentName,
                         quantity: item.quantity,
                         notes: item.notes || '',
                         services: item.services.map((s) => ({
                             serviceId: s.serviceId,
+                            source: s.source ?? 'CATALOG',
                             serviceName: s.serviceName,
                             unitPrice: s.unitPrice,
-                            durationMin: 0, // not returned by OrderItemResponse
+                            durationMin: s.durationMin,
                             adjustmentAmount: s.adjustmentAmount,
-                            adjustmentReason: s.adjustmentReason
+                            adjustmentReason: s.adjustmentReason,
+                            instructions: s.instructions
                         }))
                     })),
                     amountPaid: res.amountPaid,

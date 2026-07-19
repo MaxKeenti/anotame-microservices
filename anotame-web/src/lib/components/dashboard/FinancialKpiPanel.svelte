@@ -16,6 +16,7 @@
   }
 
   interface ServiceRevenueItem {
+    source: 'CATALOG' | 'CUSTOM';
     serviceName: string;
     totalRevenue: number;
     orderCount: number;
@@ -363,9 +364,14 @@
                   <!-- Service Header -->
                   <div class="flex items-center justify-between">
                     <div class="flex-1">
-                      <p class="text-sm font-semibold text-foreground truncate">
-                        {servicePageIndex * pageSize + i + 1}. {service.serviceName}
-                      </p>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <p class="text-sm font-semibold text-foreground truncate">
+                          {servicePageIndex * pageSize + i + 1}. {service.serviceName}
+                        </p>
+                        {#if service.source === 'CUSTOM'}
+                          <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+                        {/if}
+                      </div>
                       <p class="text-xs text-muted-foreground">
                         {service.orderCount} {m['kpi.financial.services.orders']()}
                       </p>

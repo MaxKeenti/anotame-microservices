@@ -71,6 +71,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
             for (OrderItem item : order.getItems()) {
                 OrderItemEntity ie = new OrderItemEntity();
                 ie.setGarmentTypeId(item.getGarmentTypeId());
+                ie.setSource(item.getSource());
                 ie.setGarmentName(item.getGarmentName());
                 ie.setQuantity(item.getQuantity());
                 ie.setUnitPrice(item.getUnitPrice());
@@ -81,11 +82,13 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                     for (com.anotame.sales.domain.model.OrderItemService service : item.getServices()) {
                         com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity se = new com.anotame.sales.infrastructure.persistence.entity.OrderItemServiceEntity();
                         se.setServiceId(service.getServiceId());
+                        se.setSource(service.getSource());
                         se.setServiceName(service.getServiceName());
                         se.setUnitPrice(service.getUnitPrice());
                         se.setAdjustmentAmount(service.getAdjustmentAmount());
                         se.setAdjustmentReason(service.getAdjustmentReason());
                         se.setDurationMin(service.getDurationMin());
+                        se.setInstructions(service.getInstructions());
                         se.setOrderItem(ie);
                         ie.getServices().add(se);
                     }
@@ -286,6 +289,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 OrderItem item = new OrderItem();
                 item.setId(ie.getId());
                 item.setGarmentTypeId(ie.getGarmentTypeId());
+                item.setSource(ie.getSource());
                 item.setGarmentName(ie.getGarmentName());
                 item.setQuantity(ie.getQuantity());
                 item.setUnitPrice(ie.getUnitPrice());
@@ -298,11 +302,13 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                         com.anotame.sales.domain.model.OrderItemService s = new com.anotame.sales.domain.model.OrderItemService();
                         s.setId(se.getId());
                         s.setServiceId(se.getServiceId());
+                        s.setSource(se.getSource());
                         s.setServiceName(se.getServiceName());
                         s.setUnitPrice(se.getUnitPrice());
                         s.setAdjustmentAmount(se.getAdjustmentAmount());
                         s.setAdjustmentReason(se.getAdjustmentReason());
                         s.setDurationMin(se.getDurationMin());
+                        s.setInstructions(se.getInstructions());
                         item.addService(s);
                     }
                 }
@@ -336,6 +342,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                     "where i.order = o and i.garmentTypeId = :garmentTypeId" +
                     ")");
         }
+        if (criteria.garmentSource() != null) {
+            predicates.add("exists (" +
+                    "select i.id from OrderItemEntity i " +
+                    "where i.order = o and i.source = :garmentSource" +
+                    ")");
+        }
         if (criteria.deadlineStart() != null && criteria.deadlineEnd() != null) {
             predicates.add("o.committedDeadline >= :deadlineStart and o.committedDeadline < :deadlineEnd");
         }
@@ -357,6 +369,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         }
         if (criteria.garmentTypeId() != null) {
             query.setParameter("garmentTypeId", criteria.garmentTypeId());
+        }
+        if (criteria.garmentSource() != null) {
+            query.setParameter("garmentSource", criteria.garmentSource());
         }
         if (criteria.deadlineStart() != null && criteria.deadlineEnd() != null) {
             query.setParameter("deadlineStart", criteria.deadlineStart());

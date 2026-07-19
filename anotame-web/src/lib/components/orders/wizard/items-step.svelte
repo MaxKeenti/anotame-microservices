@@ -97,15 +97,28 @@
                {#each items as item, idx}
                    <div class="bg-card border border-border p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in slide-in-from-bottom-2">
                        <div class="flex-1">
-                           <div class="font-bold text-xl mb-1">{item.garmentName}</div>
+                           <div class="flex flex-wrap items-center gap-2 mb-1">
+                               <div class="font-bold text-xl">{item.garmentName}</div>
+                               {#if item.source === 'CUSTOM'}
+                                   <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                               {/if}
+                           </div>
                            <div class="text-base text-muted-foreground space-y-1">
                                {#each (item.services || []) as s}
-                                   <div class="flex gap-2 items-baseline">
-                                       <span>• {s.serviceName}</span>
-                                       <span class="font-mono text-sm bg-secondary px-1.5 py-0.5 rounded">
-                                           ${(s.unitPrice + (s.adjustmentAmount || 0)).toFixed(2)}
-                                           {s.adjustmentAmount ? ` (Adj: ${s.adjustmentAmount})` : ''}
-                                       </span>
+                                   <div>
+                                       <div class="flex flex-wrap gap-2 items-baseline">
+                                           <span>• {s.serviceName}</span>
+                                           {#if s.source === 'CUSTOM'}
+                                               <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+                                           {/if}
+                                           <span class="font-mono text-sm bg-secondary px-1.5 py-0.5 rounded">
+                                               ${(s.unitPrice + (s.adjustmentAmount || 0)).toFixed(2)}
+                                               {s.adjustmentAmount ? ` (Adj: ${s.adjustmentAmount})` : ''}
+                                           </span>
+                                       </div>
+                                       {#if s.instructions}
+                                           <div class="pl-4 text-sm">{s.instructions}</div>
+                                       {/if}
                                    </div>
                                {/each}
                            </div>

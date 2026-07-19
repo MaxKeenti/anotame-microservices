@@ -10,6 +10,15 @@ function getIntlLocale(): string {
   return localeMap[getLocale()] ?? 'es-MX';
 }
 
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 export const generateReceiptHtml = (data: {
   ticketNumber: string;
   customerName: string;
@@ -23,6 +32,7 @@ export const generateReceiptHtml = (data: {
       price: number;
       adjustment?: number;
       adjustmentReason?: string;
+      instructions?: string;
     }>;
     notes?: string;
   }>;
@@ -52,7 +62,7 @@ export const generateReceiptHtml = (data: {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>${m["receipt.ticketTitle"]({ ticket: data.ticketNumber })}</title>
+  <title>${escapeHtml(m["receipt.ticketTitle"]({ ticket: data.ticketNumber }))}</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -83,35 +93,36 @@ export const generateReceiptHtml = (data: {
 </head>
 <body>
   <div class="header">
-    <h1>${data.establishment.name}</h1>
-    ${data.establishment.address ? `<div>${data.establishment.address}</div>` : ''}
-    ${data.establishment.contactPhone ? `<div>${m["receipt.phone"]()}: ${data.establishment.contactPhone}</div>` : ''}
-    ${data.establishment.rfc ? `<div>RFC: ${data.establishment.rfc}</div>` : ''}
-    ${data.establishment.taxRegime ? `<div>${m["receipt.taxRegime"]()}: ${data.establishment.taxRegime}</div>` : ''}
+    <h1>${escapeHtml(data.establishment.name)}</h1>
+    ${data.establishment.address ? `<div>${escapeHtml(data.establishment.address)}</div>` : ''}
+    ${data.establishment.contactPhone ? `<div>${m["receipt.phone"]()}: ${escapeHtml(data.establishment.contactPhone)}</div>` : ''}
+    ${data.establishment.rfc ? `<div>RFC: ${escapeHtml(data.establishment.rfc)}</div>` : ''}
+    ${data.establishment.taxRegime ? `<div>${m["receipt.taxRegime"]()}: ${escapeHtml(data.establishment.taxRegime)}</div>` : ''}
 
     <div style="margin-top: 5px;">${date}</div>
-    <div><strong>${m["receipt.folio"]()}: ${data.ticketNumber}</strong></div>
+    <div><strong>${m["receipt.folio"]()}: ${escapeHtml(data.ticketNumber)}</strong></div>
   </div>
 
   <div class="section">
-    <div class="row"><span>${m["receipt.customer"]()}:</span><span style="text-align: right;">${data.customerName}</span></div>
-    <div class="row"><span>${m["receipt.phone"]()}:</span><span>${data.phone || ''}</span></div>
-    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>${m["receipt.delivery"]()}:</span><span>${formatDate(data.deadline)}</span></div>
+    <div class="row"><span>${m["receipt.customer"]()}:</span><span style="text-align: right;">${escapeHtml(data.customerName)}</span></div>
+    <div class="row"><span>${m["receipt.phone"]()}:</span><span>${escapeHtml(data.phone)}</span></div>
+    <div class="row" style="margin-top: 5px; font-weight: bold;"><span>${m["receipt.delivery"]()}:</span><span>${escapeHtml(formatDate(data.deadline))}</span></div>
     <div style="text-align: center; font-size: 10px; font-weight: normal; margin-top: 2px;">${m["receipt.deliveryNote"]()}</div>
   </div>
 
   <div class="section">
     ${data.items.map(item => `
       <div class="item">
-        <div class="item-header row"><span style="font-weight: bold;">${item.garment}</span></div>
+        <div class="item-header row"><span style="font-weight: bold;">${escapeHtml(item.garment)}</span></div>
         ${item.services.map(service => `
             <div class="row" style="padding-left: 5px;">
-                <span style="flex: 1; margin-right: 2px;">+ ${service.name}</span>
+                <span style="flex: 1; margin-right: 2px;">+ ${escapeHtml(service.name)}</span>
                 <span>$${(service.price + (service.adjustment || 0)).toFixed(2)}</span>
             </div>
-            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">${m["receipt.adjustment"]()}: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${service.adjustmentReason || ''})</div>` : ''}
+            ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">${m["receipt.adjustment"]()}: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${escapeHtml(service.adjustmentReason)})</div>` : ''}
+            ${service.instructions ? `<div class="item-detail">${escapeHtml(service.instructions)}</div>` : ''}
         `).join('')}
-        ${item.notes ? `<div class="item-detail" style="font-style: italic;">${m["receipt.note"]()}: ${item.notes}</div>` : ''}
+        ${item.notes ? `<div class="item-detail" style="font-style: italic;">${m["receipt.note"]()}: ${escapeHtml(item.notes)}</div>` : ''}
       </div>
     `).join('')}
   </div>
@@ -134,7 +145,7 @@ export const generateReceiptHtml = (data: {
    ${data.pickupCode ? `
    <div class="section" style="text-align: center;">
      <div style="font-size: 10px; font-weight: normal; margin-bottom: 5px;">${m["receipt.pickupCode"]()}</div>
-     <div style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; letter-spacing: 2px; text-align: center;">${data.pickupCode}</div>
+     <div style="font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; letter-spacing: 2px; text-align: center;">${escapeHtml(data.pickupCode)}</div>
    </div>
    ` : ""}
 

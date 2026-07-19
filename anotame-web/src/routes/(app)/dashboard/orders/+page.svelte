@@ -45,6 +45,7 @@
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
   const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
   const MAX_GARMENT_SUMMARY_ITEMS = 4;
+  const CUSTOM_GARMENT_FILTER = '__CUSTOM__';
 
   // Mirror the bulk selection into the shared dock slot: while orders are
   // selected the (app) layout swaps the dock for the bulk action bar, keeping
@@ -128,7 +129,11 @@
     });
     const query = searchQuery.trim();
     if (query) params.set('search', query);
-    if (garmentFilter) params.set('garmentId', garmentFilter);
+    if (garmentFilter === CUSTOM_GARMENT_FILTER) {
+      params.set('garmentSource', 'CUSTOM');
+    } else if (garmentFilter) {
+      params.set('garmentId', garmentFilter);
+    }
     if (dateFilter) params.set('deadline', dateFilter);
     return `${API_SALES}/orders/summary?${params.toString()}`;
   }
@@ -294,7 +299,10 @@
             id="filter-garment"
             bind:value={garmentFilter}
             placeholder={m["orders.filter.selectGarment"]()}
-            items={garments.map(g => ({ value: g.id, label: g.name }))}
+            items={[
+              { value: CUSTOM_GARMENT_FILTER, label: m['orders.filter.customGarments']() },
+              ...garments.map(g => ({ value: g.id, label: g.name }))
+            ]}
             allowClear={true}
             clearText={m["orders.filter.allGarments"]()}
             class=""

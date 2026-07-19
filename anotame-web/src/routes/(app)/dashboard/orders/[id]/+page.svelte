@@ -113,7 +113,8 @@
           name: s.serviceName,
           price: s.unitPrice,
           adjustment: s.adjustmentAmount,
-          adjustmentReason: s.adjustmentReason
+          adjustmentReason: s.adjustmentReason,
+          instructions: s.instructions
         })) || [],
         notes: i.notes,
       })),
@@ -299,7 +300,12 @@
             {#each order.items as item}
               <Table.Row class="hover:bg-muted/10 transition-colors">
                 <Table.Cell class="px-6 py-4 align-top">
-                  <div class="font-bold text-base">{item.garmentName}</div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <div class="font-bold text-base">{item.garmentName}</div>
+                    {#if item.source === 'CUSTOM'}
+                      <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                    {/if}
+                  </div>
                   {#if item.notes}
                     <div class="text-sm mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
                       <span class="font-bold mr-1">{m["orders.detail.note"]()}:</span>{item.notes}
@@ -311,7 +317,17 @@
                     <Table.Body class="divide-y divide-border/20">
                       {#each item.services as service}
                         <Table.Row class="hover:bg-transparent border-0">
-                          <Table.Cell class="px-6 py-3 w-1/3 text-muted-foreground font-medium">{service.serviceName}</Table.Cell>
+                          <Table.Cell class="px-6 py-3 w-1/3 text-muted-foreground font-medium">
+                            <div class="flex flex-wrap items-center gap-2">
+                              <span>{service.serviceName}</span>
+                              {#if service.source === 'CUSTOM'}
+                                <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+                              {/if}
+                            </div>
+                            {#if service.instructions}
+                              <div class="text-sm font-normal mt-1">{service.instructions}</div>
+                            {/if}
+                          </Table.Cell>
                           <Table.Cell class="px-6 py-3 w-1/3 text-center font-mono bg-secondary/10">{item.quantity}</Table.Cell>
                           <Table.Cell class="px-6 py-3 w-1/3">
                             <div class="font-mono text-foreground">${service.unitPrice}</div>
