@@ -23,15 +23,21 @@ export interface CustomerDto {
   preferences?: Record<string, any>;
 }
 
+export type OrderContentSource = 'CATALOG' | 'CUSTOM';
+
 export interface OrderItemDto {
-  garmentTypeId: string;
+  garmentTypeId: string | null;
+  source: OrderContentSource;
   garmentName: string;
   services: Array<{
-    serviceId: string;
+    serviceId: string | null;
+    source: OrderContentSource;
     serviceName: string;
     unitPrice: number;
+    durationMin: number;
     adjustmentAmount?: number;
     adjustmentReason?: string;
+    instructions?: string;
   }>;
   quantity: number;
   notes: string;
@@ -46,14 +52,18 @@ export interface CreateOrderRequest {
 
 export interface OrderItemResponse {
   id: string;
-  garmentTypeId: string;
+  garmentTypeId: string | null;
+  source: OrderContentSource;
   garmentName: string;
   services: Array<{
-    serviceId: string;
+    serviceId: string | null;
+    source: OrderContentSource;
     serviceName: string;
     unitPrice: number;
+    durationMin: number;
     adjustmentAmount?: number;
     adjustmentReason?: string;
+    instructions?: string;
   }>;
   quantity: number;
   subtotal: number;

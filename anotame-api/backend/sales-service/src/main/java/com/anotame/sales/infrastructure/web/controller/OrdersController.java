@@ -49,9 +49,10 @@ public class OrdersController {
             @QueryParam("size") @DefaultValue("20") int size,
             @QueryParam("search") String search,
             @QueryParam("garmentId") UUID garmentId,
+            @QueryParam("garmentSource") String garmentSource,
             @QueryParam("deadline") LocalDate deadline,
             @QueryParam("status") List<String> statuses) {
-        return salesService.getOrderSummaries(page, size, search, garmentId, deadline, statuses);
+        return salesService.getOrderSummaries(page, size, search, garmentId, garmentSource, deadline, statuses);
     }
 
     @GET

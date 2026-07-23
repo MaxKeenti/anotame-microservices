@@ -1,5 +1,6 @@
 package com.anotame.sales.infrastructure.persistence.entity;
 
+import com.anotame.sales.domain.model.OrderContentSource;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +23,12 @@ public class OrderItemServiceEntity {
     @JoinColumn(name = "id_order_item", nullable = false)
     private OrderItemEntity orderItem;
 
-    @Column(name = "id_service", nullable = false)
+    @Column(name = "id_service")
     private UUID serviceId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "service_source", nullable = false, length = 20)
+    private OrderContentSource source = OrderContentSource.CATALOG;
 
     @Column(name = "service_name")
     private String serviceName;
@@ -39,4 +44,7 @@ public class OrderItemServiceEntity {
 
     @Column(name = "duration_min")
     private Integer durationMin;
+
+    @Column(name = "instructions", columnDefinition = "TEXT")
+    private String instructions;
 }

@@ -5,14 +5,28 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2, X } from '@lucide/svelte';
+	import { ArrowLeft, CheckCircle2, Pencil, Plus, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
-	import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
+	import type { GarmentTypeResponse, OrderContentSource, ServiceResponse } from '$lib/types/dtos';
 	import type { DraftOrderItem } from '$lib/services/orders/OrderWizardState.svelte';
 
 	type DraftService = DraftOrderItem['services'][number];
-	type TempService = Pick<ServiceResponse, 'id' | 'name' | 'description'> & Partial<ServiceResponse>;
+	type GarmentSelection = {
+		id: string | null;
+		name: string;
+		description: string;
+		source: OrderContentSource;
+	};
+	type TempService = {
+		id: string | null;
+		name: string;
+		description: string;
+		source: OrderContentSource;
+		defaultDurationMin?: number;
+		basePrice?: number;
+		effectivePrice?: number;
+	};
 
 	let props = $props<{
 		initialItem?: DraftOrderItem,
@@ -28,14 +42,17 @@
 	let services = $state<ServiceResponse[]>([]);
 	let loading = $state(true);
 
-	let selectedGarment = $state<GarmentTypeResponse | null>(null);
+	let selectedGarment = $state<GarmentSelection | null>(null);
 	let addedServices = $state<DraftService[]>([]);
+	let showCustomGarmentForm = $state(false);
+	let customGarmentName = $state('');
 
 	let tempService = $state<TempService | null>(null);
 	let price = $state<string>("");
 	let adj = $state<string>("");
 	let adjReason = $state("");
 	let duration = $state<number>(30);
+	let instructions = $state("");
 
 	let editingServiceIndex = $state(-1);
 
@@ -70,14 +87,29 @@
 
 			const init = props.initialItem;
 			if (init) {
-				let g = garmentTypes.find(x => x.id === init.garmentId || x.id === init.garmentTypeId);
-				if (!g && init.garmentName) {
-					const targetName = init.garmentName.toLowerCase();
-					g = garmentTypes.find(x => x.name.toLowerCase() === targetName);
+				const source = init.source ?? (init.garmentTypeId || init.garmentId ? 'CATALOG' : 'CUSTOM');
+				if (source === 'CUSTOM') {
+					selectedGarment = {
+						id: null,
+						name: init.garmentName || '',
+						description: '',
+						source: 'CUSTOM'
+					};
+				} else {
+					let g = garmentTypes.find(x => x.id === init.garmentId || x.id === init.garmentTypeId);
+					if (!g && init.garmentName) {
+						const targetName = init.garmentName.toLowerCase();
+						g = garmentTypes.find(x => x.name.toLowerCase() === targetName);
+					}
+					if (g) selectedGarment = { ...g, source: 'CATALOG' };
 				}
-				if (g) selectedGarment = g;
 
-				if (init.services) addedServices = [...init.services];
+				if (init.services) {
+					addedServices = init.services.map((service: DraftService) => ({
+						...service,
+						source: service.source ?? (service.serviceId ? 'CATALOG' : 'CUSTOM')
+					}));
+				}
 				notes = init.notes || "";
 			}
 		} catch (e) {
@@ -91,7 +123,7 @@
 		if (!selectedGarment) return [];
 		let candidates = services;
 
-		if (!showAllServices) {
+		if (!showAllServices && selectedGarment.source === 'CATALOG') {
 			const byId = services.filter(s => s.garmentTypeId === selectedGarment!.id);
 			if (byId.length > 0) candidates = byId;
 			else {
@@ -121,15 +153,29 @@
 	});
 
 	function handleGarmentSelect(g: GarmentTypeResponse) {
-		selectedGarment = g;
+		selectedGarment = { ...g, source: 'CATALOG' };
 		addedServices = [];
 		step = 1;
 		showAllServices = false;
 		serviceFilter = "";
 	}
 
+	function handleCustomGarmentSelect() {
+		const name = customGarmentName.trim();
+		if (!name) {
+			toast.error(m['itemSubWizard.validation.customGarmentName']());
+			return;
+		}
+		selectedGarment = { id: null, name, description: '', source: 'CUSTOM' };
+		addedServices = [];
+		showCustomGarmentForm = false;
+		showAllServices = true;
+		serviceFilter = '';
+		step = 1;
+	}
+
 	function handleServiceSelect(s: ServiceResponse) {
-		tempService = s;
+		tempService = { ...s, source: 'CATALOG' };
 		
 		// Auto-fill from price list if selected, otherwise use service default price
 		if (priceList?.items && priceList.items.length > 0) {
@@ -151,6 +197,18 @@
 		adj = "";
 		adjReason = "";
 		duration = s.defaultDurationMin || 30;
+		instructions = "";
+		step = 2;
+	}
+
+	function handleCustomServiceSelect() {
+		tempService = { id: null, name: '', description: '', source: 'CUSTOM' };
+		price = '';
+		adj = '';
+		adjReason = '';
+		duration = 30;
+		instructions = '';
+		editingServiceIndex = -1;
 		step = 2;
 	}
 
@@ -235,33 +293,56 @@
 	function handleEditService(idx: number) {
 		const s = addedServices[idx];
 		const catalogEntry = services.find(x => x.id === s.serviceId);
-		tempService = catalogEntry ?? { id: s.serviceId, name: s.serviceName, description: '' };
+		const source = s.source ?? (s.serviceId ? 'CATALOG' : 'CUSTOM');
+		tempService = catalogEntry
+			? { ...catalogEntry, source: 'CATALOG' }
+			: { id: source === 'CATALOG' ? s.serviceId : null, name: s.serviceName, description: '', source };
 		price = String(s.unitPrice);
 		adj = String(s.adjustmentAmount || '');
 		adjReason = s.adjustmentReason || '';
 		duration = s.durationMin;
+		instructions = s.instructions || '';
 		editingServiceIndex = idx;
 		step = 2;
 	}
 
 	function handleAddService() {
 		if (!tempService) return;
-		const entry = {
-			serviceId: tempService.id,
-			serviceName: tempService.name,
-			unitPrice: parseFloat(price) || 0,
+		const serviceName = tempService.name.trim();
+		// Numeric inputs are coerced to numbers by Svelte at runtime even when the
+		// state starts as a string, so normalize before applying string validation.
+		const normalizedPrice = price == null ? '' : String(price).trim();
+		const parsedPrice = Number(normalizedPrice);
+		if (!serviceName) {
+			toast.error(m['itemSubWizard.validation.customServiceName']());
+			return;
+		}
+		if (normalizedPrice === '' || !Number.isFinite(parsedPrice) || parsedPrice < 0) {
+			toast.error(m['itemSubWizard.validation.servicePrice']());
+			return;
+		}
+		if (!Number.isFinite(duration) || duration <= 0) {
+			toast.error(m['itemSubWizard.validation.serviceDuration']());
+			return;
+		}
+		const entry: DraftService = {
+			serviceId: tempService.source === 'CATALOG' ? tempService.id : null,
+			source: tempService.source,
+			serviceName,
+			unitPrice: parsedPrice,
 			adjustmentAmount: parseFloat(adj) || 0,
 			adjustmentReason: adjReason,
-			durationMin: duration
+			durationMin: duration,
+			instructions: instructions.trim()
 		};
 		if (editingServiceIndex >= 0) {
 			addedServices[editingServiceIndex] = entry;
 			addedServices = [...addedServices];
-			toast.success(m['itemSubWizard.toast.serviceUpdated'](), { description: tempService.name });
+			toast.success(m['itemSubWizard.toast.serviceUpdated'](), { description: serviceName });
 			editingServiceIndex = -1;
 		} else {
 			addedServices = [...addedServices, entry];
-			toast.success(m['itemSubWizard.toast.serviceAdded'](), { description: tempService.name });
+			toast.success(m['itemSubWizard.toast.serviceAdded'](), { description: serviceName });
 		}
 		tempService = null;
 		step = 3;
@@ -277,8 +358,9 @@
 	function handleConfirmItem() {
 		if (!selectedGarment) return;
 		props.onSave({
-			garmentId: selectedGarment.id,
-			garmentTypeId: selectedGarment.id,
+			garmentId: selectedGarment.id ?? undefined,
+			garmentTypeId: selectedGarment.source === 'CATALOG' ? selectedGarment.id : null,
+			source: selectedGarment.source,
 			garmentName: selectedGarment.name,
 			services: addedServices,
 			quantity: 1, // Legacy wizard hardcoded quantity mapping usually happens here or outside
@@ -314,19 +396,46 @@
         <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
             <!-- STEP 0 -->
             {#if step === 0}
-                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    {#each garmentTypes as g}
+                <div class="space-y-4">
+                    {#if showCustomGarmentForm}
+                        <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-4">
+                            <div class="space-y-2">
+                                <label class="font-medium" for="custom-garment-name">{m['itemSubWizard.customGarment.nameLabel']()}</label>
+                                <Input
+                                    id="custom-garment-name"
+                                    class="h-14 text-lg rounded-xl"
+                                    placeholder={m['itemSubWizard.customGarment.namePlaceholder']()}
+                                    bind:value={customGarmentName}
+                                />
+                            </div>
+                            <Button class="w-full h-14 rounded-xl touch-manipulation" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
+                                {m['itemSubWizard.customGarment.continue']()}
+                            </Button>
+                        </div>
+                    {/if}
+
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         <Button
                             variant="outline"
-                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation py-3"
-                            onclick={() => handleGarmentSelect(g)}
+                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal touch-manipulation py-3"
+                            onclick={() => showCustomGarmentForm = !showCustomGarmentForm}
                         >
-                            <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
-                            {#if g.description}
-                                <span class="text-xs text-muted-foreground text-center px-2 leading-snug w-full line-clamp-2">{g.description}</span>
-                            {/if}
+                            <Plus class="w-7 h-7" />
+                            <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight">{m['itemSubWizard.customGarment.action']()}</span>
                         </Button>
-                    {/each}
+                        {#each garmentTypes as g}
+                            <Button
+                                variant="outline"
+                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation py-3"
+                                onclick={() => handleGarmentSelect(g)}
+                            >
+                                <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
+                                {#if g.description}
+                                    <span class="text-xs text-muted-foreground text-center px-2 leading-snug w-full line-clamp-2">{g.description}</span>
+                                {/if}
+                            </Button>
+                        {/each}
+                    </div>
                 </div>
             {/if}
 
@@ -336,7 +445,12 @@
                     <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
                         <div class="w-14 h-14 bg-background rounded-full flex items-center justify-center text-3xl shadow-sm">👕</div>
                         <div>
-                            <div class="font-bold text-2xl">{selectedGarment.name}</div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="font-bold text-2xl">{selectedGarment.name}</div>
+                                {#if selectedGarment.source === 'CUSTOM'}
+                                    <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                {/if}
+                            </div>
                             {#if selectedGarment.description}
                                 <div class="text-sm text-muted-foreground mt-0.5">{selectedGarment.description}</div>
                             {/if}
@@ -349,13 +463,21 @@
                             {#each addedServices as s, idx}
                                 <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
                                     <div>
-                                        <div class="font-medium text-lg">{s.serviceName}</div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <div class="font-medium text-lg">{s.serviceName}</div>
+                                            {#if s.source === 'CUSTOM'}
+                                                <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                            {/if}
+                                        </div>
                                         <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
                                             {#if s.adjustmentReason}
                                                 <span>{m['orders.wizard.adjustmentShort']()} {s.adjustmentReason}</span>
                                             {/if}
                                             <span>⏱️ {s.durationMin} min</span>
                                         </div>
+                                        {#if s.instructions}
+                                            <div class="text-sm text-muted-foreground mt-1">{s.instructions}</div>
+                                        {/if}
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <div class="text-right">
@@ -379,14 +501,25 @@
                     <div class="space-y-4 pt-4">
                         <div class="flex justify-between items-center">
                             <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.addService']()}</h4>
-                            <Button
-                                variant="ghost"
-                                class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
-                                onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
-                            >
-                                {showAllServices ? m['orders.wizard.viewRecommended']() : m['orders.wizard.viewAll']()}
-                            </Button>
+                            {#if selectedGarment.source === 'CATALOG'}
+                                <Button
+                                    variant="ghost"
+                                    class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
+                                    onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
+                                >
+                                    {showAllServices ? m['orders.wizard.viewRecommended']() : m['orders.wizard.viewAll']()}
+                                </Button>
+                            {/if}
                         </div>
+
+                        <Button
+                            variant="outline"
+                            class="w-full min-h-14 border-dashed border-primary/60 bg-primary/5 hover:bg-primary/10 touch-manipulation"
+                            onclick={handleCustomServiceSelect}
+                        >
+                            <Plus class="w-5 h-5 mr-2" />
+                            {m['itemSubWizard.customService.action']()}
+                        </Button>
 
                         <Input
                             type="search"
@@ -445,8 +578,20 @@
             {#if step === 2 && tempService}
                 <div class="max-w-md mx-auto space-y-8 py-6">
                     <div class="text-center space-y-2">
-                        <h4 class="text-2xl font-bold">{tempService.name}</h4>
-                        <p class="text-base text-muted-foreground">{tempService.description}</p>
+                        {#if tempService.source === 'CUSTOM'}
+                            <div class="space-y-3 text-left">
+                                <label class="text-base font-medium" for="custom-service-name">{m['itemSubWizard.customService.nameLabel']()}</label>
+                                <Input
+                                    id="custom-service-name"
+                                    class="h-14 text-lg rounded-xl"
+                                    placeholder={m['itemSubWizard.customService.namePlaceholder']()}
+                                    bind:value={tempService.name}
+                                />
+                            </div>
+                        {:else}
+                            <h4 class="text-2xl font-bold">{tempService.name}</h4>
+                            <p class="text-base text-muted-foreground">{tempService.description}</p>
+                        {/if}
                     </div>
 
                     <div class="space-y-3">
@@ -501,6 +646,16 @@
                         <p class="text-xs text-muted-foreground italic text-center">{m['itemSubWizard.effortHint']()}</p>
                     </div>
 
+                    <div class="space-y-3">
+                        <label class="text-base font-medium" for="service-instructions">{m['itemSubWizard.customService.instructionsLabel']()}</label>
+                        <Textarea
+                            id="service-instructions"
+                            class="min-h-28 resize-none text-base p-4 rounded-xl"
+                            placeholder={m['itemSubWizard.customService.instructionsPlaceholder']()}
+                            bind:value={instructions}
+                        />
+                    </div>
+
                     <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
                         {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
@@ -511,10 +666,18 @@
             {#if step === 3}
                 <div class="space-y-8 pt-6">
                     <div class="bg-secondary/20 p-6 rounded-xl border border-border">
-                        <h4 class="font-bold text-2xl mb-4">{selectedGarment?.name}</h4>
+                        <div class="flex flex-wrap items-center gap-2 mb-4">
+                            <h4 class="font-bold text-2xl">{selectedGarment?.name}</h4>
+                            {#if selectedGarment?.source === 'CUSTOM'}
+                                <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                            {/if}
+                        </div>
                         <ul class="space-y-2 text-base text-muted-foreground">
                             {#each addedServices as s}
-                                <li>• {s.serviceName} (${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)})</li>
+                                <li>
+                                    • {s.serviceName} (${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)})
+                                    {#if s.source === 'CUSTOM'}<span class="ml-1 text-primary">· {m['orders.custom.badge']()}</span>{/if}
+                                </li>
                             {/each}
                         </ul>
                         <div class="mt-4 pt-4 border-t border-dashed border-foreground/20 flex flex-col items-end gap-3">

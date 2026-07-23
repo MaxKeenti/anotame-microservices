@@ -11,6 +11,7 @@ public class OrderItem {
     @JsonIgnore
     private Order order;
     private UUID garmentTypeId;
+    private OrderContentSource source = OrderContentSource.CATALOG;
 
     // Services
     private java.util.List<OrderItemService> services = new java.util.ArrayList<>();

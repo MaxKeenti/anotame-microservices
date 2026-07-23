@@ -17,6 +17,7 @@ import com.anotame.sales.application.dto.OrderSummaryPageResponse;
 import com.anotame.sales.application.dto.OrderSummaryResponse;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
+import com.anotame.sales.domain.model.OrderContentSource;
 import com.anotame.sales.domain.model.OrderItem;
 import com.anotame.sales.domain.model.OrderItemService;
 import com.anotame.sales.domain.model.OrderPayment;
@@ -162,6 +163,7 @@ public class SalesService {
             int size,
             String search,
             UUID garmentTypeId,
+            String garmentSource,
             LocalDate deadline,
             List<String> statuses) {
         int normalizedPage = Math.max(page, 0);
@@ -169,6 +171,7 @@ public class SalesService {
         String normalizedSearch = search == null || search.isBlank() ? null : search.trim();
         String exactTicketNumber = normalizedSearch == null ? null : normalizeTicketSearch(normalizedSearch);
         List<String> normalizedStatuses = normalizeStatuses(statuses);
+        OrderContentSource normalizedGarmentSource = normalizeGarmentSource(garmentSource);
 
         OffsetDateTime deadlineStart = null;
         OffsetDateTime deadlineEnd = null;
@@ -185,6 +188,7 @@ public class SalesService {
                         normalizedSearch,
                         exactTicketNumber,
                         garmentTypeId,
+                        normalizedGarmentSource,
                         deadlineStart,
                         deadlineEnd,
                         normalizedStatuses));
@@ -202,6 +206,17 @@ public class SalesService {
                 .total(result.total())
                 .totalPages(totalPages)
                 .build();
+    }
+
+    private OrderContentSource normalizeGarmentSource(String garmentSource) {
+        if (garmentSource == null || garmentSource.isBlank()) {
+            return null;
+        }
+        try {
+            return OrderContentSource.valueOf(garmentSource.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            throw new SalesValidationException("Invalid garment source: " + garmentSource);
+        }
     }
 
     private String normalizeTicketSearch(String search) {
@@ -285,11 +300,13 @@ public class SalesService {
                         serviceDtos = item.getServices().stream().map(s -> {
                             OrderItemServiceDto dto = new OrderItemServiceDto();
                             dto.setServiceId(s.getServiceId());
+                            dto.setSource(s.getSource());
                             dto.setServiceName(s.getServiceName());
                             dto.setUnitPrice(s.getUnitPrice());
                             dto.setAdjustmentAmount(s.getAdjustmentAmount());
                             dto.setAdjustmentReason(s.getAdjustmentReason());
                             dto.setDurationMin(s.getDurationMin()); // Map duration to DTO
+                            dto.setInstructions(s.getInstructions());
                             return dto;
                         }).toList();
                     }
@@ -297,6 +314,7 @@ public class SalesService {
                     return OrderItemResponse.builder()
                             .id(item.getId())
                             .garmentTypeId(item.getGarmentTypeId())
+                            .source(item.getSource())
                             .garmentName(item.getGarmentName())
                             .services(serviceDtos)
                             .quantity(item.getQuantity())
@@ -518,8 +536,9 @@ public class SalesService {
     private OrderItem buildOrderItem(OrderItemDto itemDto) {
         OrderItem item = new OrderItem();
         item.setGarmentTypeId(itemDto.getGarmentTypeId());
+        item.setSource(itemDto.getSource());
         item.setGarmentName(itemDto.getGarmentName());
-        item.setQuantity(itemDto.getQuantity());
+        item.setQuantity(itemDto.getQuantity() != null ? itemDto.getQuantity() : 1);
         item.setNotes(itemDto.getNotes());
 
         BigDecimal itemSubtotal = BigDecimal.ZERO;
@@ -527,12 +546,14 @@ public class SalesService {
             for (OrderItemServiceDto serviceDto : itemDto.getServices()) {
                 OrderItemService service = new OrderItemService();
                 service.setServiceId(serviceDto.getServiceId());
+                service.setSource(serviceDto.getSource());
                 service.setServiceName(serviceDto.getServiceName());
                 service.setUnitPrice(serviceDto.getUnitPrice());
                 service.setAdjustmentAmount(
                         serviceDto.getAdjustmentAmount() != null ? serviceDto.getAdjustmentAmount() : BigDecimal.ZERO);
                 service.setAdjustmentReason(serviceDto.getAdjustmentReason());
                 service.setDurationMin(serviceDto.getDurationMin() != null ? serviceDto.getDurationMin() : 0);
+                service.setInstructions(serviceDto.getInstructions());
 
                 item.addService(service);
                 itemSubtotal = itemSubtotal.add(service.getUnitPrice().add(service.getAdjustmentAmount()));
@@ -702,14 +723,14 @@ public class SalesService {
         // First pass: sum total revenue
         for (Object[] row : rawServiceData) {
             totalServiceRevenue = totalServiceRevenue.add(
-                    row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO);
+                    row[2] != null ? (BigDecimal) row[2] : BigDecimal.ZERO);
         }
 
         // Second pass: build service items with percentage share
         List<ServiceRevenueItem> serviceBreakdown = new ArrayList<>();
         for (Object[] row : rawServiceData) {
-            BigDecimal revenue = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
-            long totalDurationMin = ((Number) row[3]).longValue();
+            BigDecimal revenue = row[2] != null ? (BigDecimal) row[2] : BigDecimal.ZERO;
+            long totalDurationMin = ((Number) row[4]).longValue();
             BigDecimal revenuePerMinute = totalDurationMin > 0
                     ? revenue.divide(BigDecimal.valueOf(totalDurationMin), 2, RoundingMode.HALF_UP)
                     : BigDecimal.ZERO;
@@ -719,9 +740,10 @@ public class SalesService {
                     : BigDecimal.ZERO;
 
             serviceBreakdown.add(ServiceRevenueItem.builder()
-                    .serviceName((String) row[0])
+                    .source(OrderContentSource.valueOf((String) row[0]))
+                    .serviceName((String) row[1])
                     .totalRevenue(revenue)
-                    .orderCount(((Number) row[2]).longValue())
+                    .orderCount(((Number) row[3]).longValue())
                     .totalDurationMin(totalDurationMin)
                     .revenuePerMinute(revenuePerMinute)
                     .percentShare(percentShare)
