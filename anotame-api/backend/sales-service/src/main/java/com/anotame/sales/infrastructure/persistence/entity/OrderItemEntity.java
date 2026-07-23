@@ -1,5 +1,6 @@
 package com.anotame.sales.infrastructure.persistence.entity;
 
+import com.anotame.sales.domain.model.OrderContentSource;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,8 +28,12 @@ public class OrderItemEntity {
     @JoinColumn(name = "id_order", nullable = false)
     private OrderEntity order;
 
-    @Column(name = "id_garment_type", nullable = false)
+    @Column(name = "id_garment_type")
     private UUID garmentTypeId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "garment_source", nullable = false, length = 20)
+    private OrderContentSource source = OrderContentSource.CATALOG;
 
     // Batch-load service collections across multiple items in one query to avoid N+1 on order listings.
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)

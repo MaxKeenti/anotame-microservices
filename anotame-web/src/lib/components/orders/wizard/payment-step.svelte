@@ -87,17 +87,20 @@
 
 				const orderItems = (draft?.items || []).map((item: DraftOrderItem) => ({
 					garmentTypeId: item.garmentTypeId || item.garmentId || null,
+					source: item.source ?? 'CATALOG',
 					garmentName: item.garmentName || '',
 					quantity: item.quantity ?? 1,
 					notes: item.notes || '',
 					services:
 						item.services?.map((s: DraftService) => ({
 							serviceId: s.serviceId,
+							source: s.source ?? 'CATALOG',
 							serviceName: s.serviceName,
 							unitPrice: s.unitPrice,
 							adjustmentAmount: s.adjustmentAmount,
 							adjustmentReason: s.adjustmentReason,
-							durationMin: s.durationMin
+							durationMin: s.durationMin,
+							instructions: s.instructions
 						})) || []
 				}));
 

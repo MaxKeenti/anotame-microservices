@@ -113,7 +113,8 @@
           name: s.serviceName,
           price: s.unitPrice,
           adjustment: s.adjustmentAmount,
-          adjustmentReason: s.adjustmentReason
+          adjustmentReason: s.adjustmentReason,
+          instructions: s.instructions
         })) || [],
         notes: i.notes,
       })),
@@ -200,68 +201,77 @@
     </Button>
   </div>
 {:else}
-  <div class="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-20">
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <a href="/dashboard/orders" class="text-muted-foreground hover:text-foreground touch-manipulation">
+  <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-20">
+    <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+      <a href="/dashboard/orders" class="shrink-0 text-muted-foreground hover:text-foreground touch-manipulation">
         &larr; {m["orders.detail.back"]()}
       </a>
-      <h1 class="text-xl sm:text-2xl font-bold wrap-break-word min-w-0">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
+      <h1 class="min-w-0 max-w-full text-xl sm:text-2xl font-bold wrap-break-word">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
       <StatusBadge status={order.status} />
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Customer Info -->
-      <div class="bg-card p-6 rounded-2xl border border-border shadow-sm">
+      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm">
         <h3 class="font-bold mb-4 text-lg">{m["orders.detail.customer"]()}</h3>
-        <div class="space-y-3 text-sm">
-          <p><span class="text-muted-foreground mr-2 font-medium">{m["orders.detail.name"]()}:</span> <span class="font-semibold">{order.customer.firstName} {order.customer.lastName}</span></p>
-          <p><span class="text-muted-foreground mr-2 font-medium">{m["orders.detail.email"]()}:</span> {order.customer.email}</p>
-          <p><span class="text-muted-foreground mr-2 font-medium">{m["orders.detail.phone"]()}:</span> {order.customer.phoneNumber || "-"}</p>
+        <div class="space-y-4 text-sm">
+          <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.name"]()}:</span>
+            <span class="min-w-0 wrap-break-word font-semibold">{order.customer.firstName} {order.customer.lastName}</span>
+          </p>
+          <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.email"]()}:</span>
+            <span class="min-w-0 wrap-break-word">{order.customer.email || '-'}</span>
+          </p>
+          <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.phone"]()}:</span>
+            <span class="min-w-0 wrap-break-word">{order.customer.phoneNumber || "-"}</span>
+          </p>
         </div>
       </div>
 
       <!-- Order Info & Payment -->
-      <div class="bg-card p-6 rounded-2xl border border-border shadow-sm">
+      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm">
         <h3 class="font-bold mb-4 text-lg">{m["orders.detail.orderDetails"]()}</h3>
         <div class="space-y-3 text-sm">
-          <div class="flex justify-between items-center">
-            <span class="text-muted-foreground font-medium">{m["orders.detail.created"]()}:</span>
-            <span class="font-mono bg-secondary/30 px-2 py-1 rounded">{formatDateTime(order.createdAt)}</span>
+          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.created"]()}:</span>
+            <span class="max-w-full wrap-break-word whitespace-normal font-mono bg-secondary/30 px-2 py-1 rounded sm:text-right">{formatDateTime(order.createdAt)}</span>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-muted-foreground font-medium">{m["orders.detail.estimatedDelivery"]()}:</span>
-            <span class="font-medium bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20">{formatDateTime(order.committedDeadline)}</span>
+          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.estimatedDelivery"]()}:</span>
+            <span class="max-w-full wrap-break-word whitespace-normal font-medium bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20 sm:text-right">{formatDateTime(order.committedDeadline)}</span>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-muted-foreground font-medium">{m["orders.detail.workload"]()}:</span>
+          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.workload"]()}:</span>
             <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>
           </div>
 
           {#if order.priceListName}
-            <div class="flex justify-between items-center">
-              <span class="text-muted-foreground font-medium">{m["orders.detail.priceList"]()}:</span>
-              <span class="font-medium">{order.priceListName}</span>
+            <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.priceList"]()}:</span>
+              <span class="min-w-0 wrap-break-word font-medium sm:text-right">{order.priceListName}</span>
             </div>
           {/if}
 
           <div class="h-px bg-border my-4"></div>
 
-          <div class="flex justify-between items-center">
-            <span class="text-muted-foreground font-medium">{m["orders.detail.paymentMethod"]()}:</span>
+          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.paymentMethod"]()}:</span>
             <span class="font-bold text-foreground">
               {order.paymentMethod === 'CASH' ? m["orders.detail.paymentCash"]() : order.paymentMethod === 'CARD' ? m["orders.detail.paymentCard"]() : order.paymentMethod === 'TRANSFER' ? m["orders.detail.paymentTransfer"]() : order.paymentMethod || '-'}
             </span>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-muted-foreground font-medium">{m["orders.detail.total"]()}:</span>
+          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.total"]()}:</span>
             <span class="font-medium text-lg">{formatCurrency(order.totalAmount)}</span>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-muted-foreground font-medium">{m["orders.detail.amountPaid"]()}:</span>
+          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.amountPaid"]()}:</span>
             <span class="font-bold text-success text-lg">-{formatCurrency(order.amountPaid)}</span>
           </div>
-          <div class="border-t border-border pt-3 mt-1 flex justify-between items-center">
-            <span class="font-bold uppercase tracking-wider text-muted-foreground">{m["orders.detail.balance"]()}:</span>
+          <div class="border-t border-border pt-3 mt-1 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <span class="shrink-0 font-bold uppercase tracking-wider text-muted-foreground">{m["orders.detail.balance"]()}:</span>
             <span class={`text-2xl font-black ${((order.totalAmount || 0) - (order.amountPaid || 0)) > 0.01 ? 'text-destructive' : 'text-primary'}`}>
               {formatCurrency(Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)))}
             </span>
@@ -272,9 +282,9 @@
 
     <!-- Order Notes -->
     {#if order.notes}
-      <div class="bg-warning/10 p-5 rounded-2xl border-2 border-warning/30 text-warning-text shadow-sm">
+      <div class="min-w-0 bg-warning/10 p-4 sm:p-5 rounded-2xl border-2 border-warning/30 text-warning-text shadow-sm">
         <h3 class="font-bold mb-2 text-sm uppercase tracking-wider opacity-80 flex items-center gap-2">{m["orders.detail.generalNotes"]()}</h3>
-        <p class="text-base font-medium">{order.notes}</p>
+        <p class="wrap-break-word text-base font-medium">{order.notes}</p>
       </div>
     {/if}
 
@@ -282,9 +292,9 @@
     <PaymentHistoryPanel orderId={order.id} refreshKey={paymentRefreshKey} />
 
     <!-- Items -->
-    <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-      <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.garmentsAndServices"]()}</div>
-      <div class="overflow-x-auto">
+    <div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <div class="wrap-break-word px-4 sm:px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.garmentsAndServices"]()}</div>
+      <div class="max-w-full overflow-x-auto overscroll-x-contain">
         <Table.Root class="w-full text-sm text-left">
           <Table.Header class="bg-muted/30 text-muted-foreground uppercase text-xs font-bold">
             <Table.Row class="hover:bg-transparent">
@@ -299,7 +309,12 @@
             {#each order.items as item}
               <Table.Row class="hover:bg-muted/10 transition-colors">
                 <Table.Cell class="px-6 py-4 align-top">
-                  <div class="font-bold text-base">{item.garmentName}</div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <div class="font-bold text-base">{item.garmentName}</div>
+                    {#if item.source === 'CUSTOM'}
+                      <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                    {/if}
+                  </div>
                   {#if item.notes}
                     <div class="text-sm mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
                       <span class="font-bold mr-1">{m["orders.detail.note"]()}:</span>{item.notes}
@@ -311,7 +326,17 @@
                     <Table.Body class="divide-y divide-border/20">
                       {#each item.services as service}
                         <Table.Row class="hover:bg-transparent border-0">
-                          <Table.Cell class="px-6 py-3 w-1/3 text-muted-foreground font-medium">{service.serviceName}</Table.Cell>
+                          <Table.Cell class="px-6 py-3 w-1/3 text-muted-foreground font-medium">
+                            <div class="flex flex-wrap items-center gap-2">
+                              <span>{service.serviceName}</span>
+                              {#if service.source === 'CUSTOM'}
+                                <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+                              {/if}
+                            </div>
+                            {#if service.instructions}
+                              <div class="text-sm font-normal mt-1">{service.instructions}</div>
+                            {/if}
+                          </Table.Cell>
                           <Table.Cell class="px-6 py-3 w-1/3 text-center font-mono bg-secondary/10">{item.quantity}</Table.Cell>
                           <Table.Cell class="px-6 py-3 w-1/3">
                             <div class="font-mono text-foreground">${service.unitPrice}</div>
@@ -337,7 +362,7 @@
 
     <!-- Pickup Code -->
     {#if order.pickupCode}
-      <div class="bg-card p-6 rounded-2xl border border-border shadow-sm text-center">
+      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm text-center">
         <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">{m["orders.detail.pickupCode"]()}</p>
         <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
       </div>
@@ -345,7 +370,7 @@
 
     <!-- Audit Log -->
     {#if auditLog.length > 0}
-      <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.auditLog"]()}</div>
         <div class="divide-y divide-border">
           {#each auditLog as entry}
@@ -373,7 +398,7 @@
     />
 
     <!-- Actions -->
-    <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-border mt-8">
+    <div class="flex min-w-0 flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-border mt-8">
       <Button
         onclick={handleCancel}
         variant="ghost"

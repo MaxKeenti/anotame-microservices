@@ -115,6 +115,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
         return getEntityManager()
                 .createNativeQuery(
                         "SELECT " +
+                        "  ois.service_source, " +
                         "  ois.service_name, " +
                         "  COALESCE(SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))), 0) AS totalRevenue, " +
                         "  COUNT(DISTINCT top.id_order) AS orderCount, " +
@@ -128,7 +129,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "  AND o.is_deleted = false " +
                         "  AND oi.is_deleted = false " +
                         "  AND oi.subtotal > 0 " +
-                        "GROUP BY ois.service_name " +
+                        "GROUP BY ois.service_source, ois.service_name " +
                         "ORDER BY totalRevenue DESC NULLS LAST, ois.service_name ASC")
                 .setParameter("start", start)
                 .setParameter("end", end)
