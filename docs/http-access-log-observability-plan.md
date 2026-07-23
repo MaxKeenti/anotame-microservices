@@ -163,9 +163,31 @@ The staging gate passes only when:
 - the aggregation output is deterministic for the same input; and
 - all services remain healthy with no OOM or unexpected restart.
 
-As of 2026-07-14, the basic 2xx/401 and structured-route checks pass for all
-four APIs. The remaining scenarios in the table, the 100/1,000-request sample
-sizes, cross-service login correlation, and Slice B aggregation are still open.
+As of 2026-07-14, the basic 2xx/401 and structured-route checks passed for all
+four APIs. The 2026-07-22 local (`2026-07-23` UTC) closeout then completed the
+full 21-scenario matrix. It observed 25 exactly-once service events, including
+cross-service Identity-to-Operations correlation, expected 2xx/4xx behavior,
+one controlled upstream-unavailable `503`, and successful recovery. The pinned
+validation harness restored Identity configuration and removed every synthetic
+fixture by exact key; final fixture counts were zero.
+
+The 2026-07-22 controlled runtime run completed 1,000 successful requests for
+each of six critical routes and added private JVM/datasource telemetry. Latency,
+health, isolation, OOM, and 5xx gates passed. Catalog initially queued two
+callers behind its two-connection pool. A one-variable staging follow-up raised
+the pool maximum to four and observed zero waiters, then a separate 512 MB
+replica-limit experiment retained 30.1% headroom with no OOM or restart. Both
+changes remain staging-only because the pool result had mixed route-latency and
+memory effects. The complete request, JVM, pool, container, passive production,
+and follow-up experiment evidence is recorded in
+[Phase 0 Runtime and Request Baseline](./phase-0-runtime-baseline-2026-07-22.md).
+
+Slice B is implemented by
+`scripts/observability/aggregate-http-access-logs.ts`. Five Bun tests prove
+deterministic ordering and percentiles, deployment/commit separation, Railway
+JSON shape compatibility, fail-closed validation, and omission of request IDs
+and customer fields. A live bounded Railway export also parsed successfully.
+Raw exports remain outside Git.
 
 ## What the JVM and native-memory gate means
 

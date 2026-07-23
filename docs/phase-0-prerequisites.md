@@ -13,9 +13,9 @@ evidence before the corresponding exit gate is claimed.
 | Operations base URL | Identity variable `ANOTAME_OPERATIONS_BASE_URL` | Staging uses the private Operations service on port 8080. Production remains unset until the Phase 0 rollout. Local default remains `http://localhost:8084`; do not use the auto-generated bare public hostname as a REST-client URI. |
 | Cost and subscription | Railway Workspace **Usage** page and monthly invoice | Closed for baseline purposes. The 2026-06-08 through 2026-07-08 invoice totals `$26.18` after the `$20.00` included-usage credit. The 2026-07-14 production dashboard shows `$3.68` current and `$21.23` estimated usage. See the cost evidence below. |
 | CPU, memory, disk, and network | Railway service Metrics, Railway MCP `service_metrics`, and invoice | A completed billing period and the current production breakdown are recorded below. Preserve comparable before/after windows for each experiment. |
-| HTTP counts, errors, and latency | Structured `http_access` attributes in Railway deploy logs | Slice A is verified in staging: all four APIs emit normalized route templates, service/environment/deployment fields, duration, status, and validated request IDs. Full scenario/load coverage, Slice B aggregation, production rollout, and a representative observation window remain open. |
-| JVM and total process memory | Railway container metrics plus protected Quarkus JVM/datasource metrics | `-Xmx` covers only Java object memory, while Railway bills the whole process. Measure heap, metaspace, buffers, threads, total container memory, restarts, and connection waits in staging before lowering memory. |
-| SLO and rollback thresholds | Initial engineering guardrails, product owner, and observed production baseline | The observability plan supplies starting thresholds. Confirm or revise user-facing targets after the telemetry-only production baseline. |
+| HTTP counts, errors, and latency | Structured `http_access` attributes in Railway deploy logs | Slice A, deterministic Slice B aggregation, the 21-scenario staging matrix, and six 1,000-request route samples pass. A passive 14-day production aggregate has zero critical-route 5xx; three low-volume routes remain below the p95 threshold. Production telemetry rollout remains open. See the [2026-07-22 runtime baseline](./phase-0-runtime-baseline-2026-07-22.md). |
+| JVM and total process memory | Railway container metrics plus protected Quarkus JVM/datasource metrics | Protected staging telemetry now records heap, metaspace, buffers, threads, pool waits, startup limits, and total container memory. Catalog pool four clears the wait gate, and its separate 512 MB replica-limit experiment passes with 30.1% observed headroom. Candidate limits for the other services and production telemetry remain open. |
+| SLO and rollback thresholds | Initial engineering guardrails, product owner, and observed production baseline | The initial staging latency, 5xx, OOM, pool-wait, and memory-headroom guardrails have been exercised. Product-owner approval and longer low-volume production observation remain open. |
 | Release rehearsal environment | Railway project environments | `staging` was created on 2026-07-12, restored from the backup, and connected to Git branch `staging`. Production remains connected to `main`. |
 
 ## Staging environment
@@ -150,19 +150,23 @@ in [HTTP Access Log Normalization and Validation Plan](./http-access-log-observa
    route templates and emits service, environment, deployment, duration,
    status, and validated request/correlation fields. Query strings, headers,
    cookies, customer identifiers, and tokens are absent from the contract.
-2. Continue the staging matrix: exercise login, session validation, branch resolution, and the
-   critical order flows. Confirm every API emits parseable `http_access` events
-   for success, validation failure, authentication failure, and server failure;
-   continue excluding health probes. Basic 200/401 coverage now exists for all
-   four APIs, but the full route and failure matrix is not yet complete.
+2. Completed on 2026-07-22 local (`2026-07-23` UTC): the pinned staging
+   harness exercised login, session validation, branch resolution, Catalog
+   list/detail/validation/missing-resource behavior, and Sales
+   list/detail/write/validation/missing-claim/missing-resource behavior. The
+   full matrix produced 25 exactly-once correlated events for 21 scenarios,
+   including one expected upstream-unavailable `503`; configuration recovery
+   passed and exact-key fixture counts returned zero.
 3. Roll Phase 0 into production in the documented dependency order. Railway's
    built-in HTTP-log helpers currently return no production samples, so collect
    the application `http_access` deployment logs per service with bounded CLI
    or MCP queries.
-4. Add a Bun aggregation script that groups by environment, service, deployment,
-   commit, method, normalized route, and status class, then emits request count,
-   4xx rate, 5xx rate, p50, p95, p99, and maximum duration. Store aggregates,
-   not raw production request logs, with the experiment evidence.
+4. Completed: the Bun aggregation CLI groups by environment, service,
+   deployment, commit, method, and normalized route, then emits status-class
+   counts, separate 4xx/5xx rates, p50, p95, p99, maximum duration, and
+   observation bounds. Five deterministic unit tests and a bounded live
+   Railway export pass. Store aggregates, not raw production request logs, with
+   experiment evidence.
 5. Capture at least 14 calendar days spanning the normal weekly traffic cycle.
    Require at least 100 samples before interpreting a route p95 and 1,000 before
    interpreting p99; extend the window up to 30 days for low-volume routes.
