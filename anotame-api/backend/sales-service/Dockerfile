@@ -7,10 +7,15 @@ ENV MAVEN_OPTS="--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --
 COPY pom.xml .
 
 # Copy Module POMs
+COPY observability-common/pom.xml observability-common/pom.xml
 COPY identity-service/pom.xml identity-service/pom.xml
 COPY catalog-service/pom.xml catalog-service/pom.xml
 COPY sales-service/pom.xml sales-service/pom.xml
 COPY operations-service/pom.xml operations-service/pom.xml
+
+# Install the shared library before resolving service dependencies.
+COPY observability-common/src observability-common/src
+RUN mvn -B install -pl observability-common -DskipTests
 
 # Download dependencies
 RUN mvn -B dependency:resolve dependency:resolve-plugins -DexcludeArtifactIds=anotame-parent

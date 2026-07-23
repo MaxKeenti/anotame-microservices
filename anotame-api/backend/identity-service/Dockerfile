@@ -7,10 +7,15 @@ ENV MAVEN_OPTS="-Xmx512m"
 COPY pom.xml .
 
 # Copy Module POMs (to ensure reactor works if needed, though mostly we need parent)
+COPY observability-common/pom.xml observability-common/pom.xml
 COPY identity-service/pom.xml identity-service/pom.xml
 COPY catalog-service/pom.xml catalog-service/pom.xml
 COPY sales-service/pom.xml sales-service/pom.xml
 COPY operations-service/pom.xml operations-service/pom.xml
+
+# Install the shared library before resolving service dependencies.
+COPY observability-common/src observability-common/src
+RUN mvn -B install -pl observability-common -DskipTests
 
 # Download dependencies (to cache them)
 # We run install on parent to ensure it's available

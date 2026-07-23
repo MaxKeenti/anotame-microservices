@@ -12,6 +12,7 @@
 	<description>Parent aggregator POM for Anotame Microservices</description>
 
 	<modules>
+		<module>observability-common</module>
 		<module>identity-service</module>
 		<module>catalog-service</module>
 		<module>sales-service</module>
