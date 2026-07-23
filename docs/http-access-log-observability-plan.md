@@ -189,6 +189,26 @@ JSON shape compatibility, fail-closed validation, and omission of request IDs
 and customer fields. A live bounded Railway export also parsed successfully.
 Raw exports remain outside Git.
 
+## Production telemetry rollout
+
+The production rollout completed on 2026-07-23 UTC without a resource or data
+change. Operations and Catalog use the full reviewed Phase 0 source from
+`c558410f`. A production-safe Identity/Sales subset based on the then-current
+production `main` was staged and recorded as `22d26c55`; it adds this telemetry
+contract and private runtime metrics while preserving current default-Branch
+behavior.
+
+All four production deployments reached `SUCCESS`. Each returned live health
+`200`, kept public `/q/metrics` at `404`, exposed JVM metrics on private port
+9000, and emitted a matching `runtime_limits` event. Correlated read-only probes
+also produced normalized `http_access` events with expected statuses.
+
+The full Identity/Sales branch contract remains staging-only because production
+currently has four active Users but no active Branch or Employee Assignment.
+Promoting that behavior before the business supplies an approved Branch mapping
+would block login and order writes. No synthetic production Branch or
+assignment was created.
+
 ## What the JVM and native-memory gate means
 
 Railway bills the whole running process/container, not only Java's object heap.
@@ -227,6 +247,11 @@ Capture at least 14 calendar days so weekdays and weekends are included. Extend
 up to 30 days when a critical route has fewer than 100 requests. The baseline
 records route volume, 4xx/5xx rates, latency percentiles, memory, restarts, and
 database waits. It contains no customer payloads or identifiers.
+
+The post-telemetry window starts on 2026-07-23 UTC after the final API
+deployment. The 14-day gate ends on 2026-08-06 UTC; low-volume routes may extend
+through 2026-08-22 UTC. Do not overlap the window with a Phase 1 production
+resource change.
 
 Initial engineering guardrails, subject to revision after the baseline, are:
 

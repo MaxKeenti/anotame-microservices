@@ -1,8 +1,9 @@
 # Phase 0 Runtime and Request Baseline — 2026-07-22
 
 This document records the controlled Railway staging run completed on
-2026-07-22 America/Mexico_City (`2026-07-23` UTC) and the passive production
-baseline used to evaluate the Phase 0 optimization gates.
+2026-07-22 America/Mexico_City (`2026-07-23` UTC), the preceding passive
+production baseline, and the production telemetry rollout used to evaluate the
+Phase 0 optimization gates.
 
 It is evidence for
 [HTTP Access Log Normalization and Validation Plan](./http-access-log-observability-plan.md).
@@ -12,11 +13,13 @@ It does not authorize a production resource change.
 
 - Railway project: `anotame-production`
   (`24284ef2-e5c6-41c8-a425-2b6e6d1f3f32`).
-- Controlled traffic and telemetry deployment: `staging`
+- Controlled traffic and branch-contract validation: `staging`
   (`d80a136e-ae9d-4ea6-9ac1-7cc0ed42ff1d`) only.
-- Production activity: passive metrics, deployment-state, and HTTP aggregate
-  reads only. No production variable, deployment, database, or traffic mutation
-  was made.
+- The initial production baseline used passive metrics, deployment-state, and
+  HTTP aggregate reads. The later production rollout changed only reviewed
+  telemetry source and the Identity/Operations private integration variables;
+  it made no production data, resource-limit, pool-size, or synthetic-traffic
+  change.
 - The four staging APIs exposed Quarkus JVM and Agroal metrics on the separate
   management port `9000`. Public `/q/metrics` returned `404` while public live
   health remained `200`.
@@ -104,6 +107,64 @@ Railway JSON-export compatibility check. It retains only route-level aggregates;
 raw request events, cookies, JWTs, database URLs, credentials, and customer
 fields remain outside Git.
 
+## Reviewed source and production telemetry rollout
+
+Production was running `main` commit `12765490` when the rollout began. The
+complete Phase 0 source was reconciled with that commit as
+`c558410f` on `fix/optimization`. The full Maven reactor passed 27 tests, the
+Bun aggregator passed five tests, and the frontend production build passed
+before promotion.
+
+A production data-readiness check found four active Identity users but zero
+active Operations branches and zero active employee assignments. Enabling
+strict branch resolution in Identity and removing Sales' temporary default
+branch fallback would therefore block login and order creation. No production
+Branch or assignment was invented without an approved business mapping.
+
+The production-safe telemetry subset was cut from the current production
+source as commit `22d26c55` on `fix/phase0-production-telemetry`. It adds the
+shared normalized access filter, startup limits event, private management-port
+metrics, and required image dependencies to Identity and Sales while preserving
+their current branch behavior. Its complete Maven reactor passed 15 tests. The
+exact subset was staged first:
+
+| Service | Staging deployment | Verification |
+|---|---|---|
+| Identity | `88801bb0-5a9b-47c7-862b-fa0c2a14c442` | health `200`, public metrics `404`, private metrics `200`, startup event, correlated `/auth/me` `401` |
+| Sales | `27dc9029-d085-4c34-beb2-f835b6535630` | health `200`, public metrics `404`, private metrics `200`, startup event, correlated `/orders` `401` |
+
+The four production API deployments then reached `SUCCESS`:
+
+| Service | Source scope | Production deployment |
+|---|---|---|
+| Operations | Full Phase 0 telemetry and private branch endpoint | `baf35a07-ff83-4f38-b343-81835db63a8a` |
+| Catalog | Full Phase 0 telemetry | `6d16af27-6de0-4b40-89b8-53d0a9aa25c4` |
+| Identity | Production-safe telemetry subset | `589a6248-d284-40c6-b442-84ee2427a4f5` |
+| Sales | Production-safe telemetry subset | `c4f53474-a520-4cda-b217-6fcfb121b21a` |
+
+Every production API returned live health `200`, kept public `/q/metrics` at
+`404`, exposed JVM metrics only through its private management port, and
+emitted one matching `runtime_limits` event. Read-only smoke probes produced
+the expected normalized and correlated events: Operations returned `404` for
+a valid-token lookup with no assignment and `401` for an invalid token;
+Identity `/auth/me` and Sales `/orders` returned `401`. Catalog remained
+healthy and private-metrics-only.
+
+A production-specific internal token is configured on Identity and Operations,
+and Identity's Operations base URL uses the private service domain on port
+8080. The token value was generated independently from staging and was never
+printed or stored in Git. These variables prepare the later branch-contract
+cutover but do not activate it in the production-safe Identity build.
+
+No production memory limit, CPU limit, JVM option, datasource pool size, sleep
+setting, replica count, or database configuration was changed. In particular,
+Catalog's pool-four and 512 MB experiments remain staging-only. After the
+production rollout, staging Identity and Sales were restored to full
+`c558410f` branch-contract source as deployments
+`b0f549d4-749d-4681-b852-54a84aa00407` and
+`0809d6ce-ba6a-4db6-8688-c02339218724`; both returned health `200`, public
+metrics `404`, private metrics `200`, and a startup limits event.
+
 ## JVM, database-pool, and container evidence
 
 The JVM peaks below came from private management-port scrapes during the
@@ -165,6 +226,12 @@ threshold is met.
 Low-volume routes remain under passive observation for up to 30 days. The
 window contained no critical-route 5xx and no failed or crashed API deployment.
 
+The comparable post-telemetry observation window begins after the final
+production API deployment on 2026-07-23 UTC. It must cover at least 14 calendar
+days, through 2026-08-06 UTC, and may extend through 2026-08-22 UTC for routes
+that remain below 100 requests. No Phase 1 resource change should overlap this
+window.
+
 Production container memory over the same window:
 
 | Service | Average | End of window | Maximum |
@@ -196,6 +263,20 @@ Open or failed at the end of the initial baseline:
 - no reduced memory limit has been tested, so the 25% candidate-limit gate is
   open; and
 - three production routes remain below the p95 sample threshold.
+
+After the production telemetry rollout, the repository implementation,
+staging scenario/load matrix, deterministic aggregation, private runtime
+telemetry, and production deployment checks are complete. The remaining Phase
+0 exit gates require elapsed production observation or business input:
+
+- collect the 14-day post-telemetry aggregate, extending low-volume routes up
+  to 30 days where necessary;
+- obtain product-owner approval for numeric SLO and rollback thresholds; and
+- obtain an approved production Branch plus employee-to-Branch mappings before
+  promoting strict Identity branch resolution and the Sales no-fallback
+  behavior.
+
+Until those gates close, Phase 1 production resource changes remain blocked.
 
 ## Follow-up experiment 1: Catalog pool maximum
 

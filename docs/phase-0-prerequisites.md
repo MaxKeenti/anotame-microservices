@@ -9,12 +9,12 @@ evidence before the corresponding exit gate is claimed.
 | Branch ownership | `docs/adr/0001-service-owned-databases-and-flyway.md`, ADR 0006, and Operations migration `V1__baseline.sql` | Operations owns `tce_employee_assignment`. Identity obtains branch context through a private Operations API. |
 | Branch-context rule | ADR 0007 | Multiple Branches may be active, and a User may be assigned to more than one. Every authenticated staff session carries exactly one selected `branch_id`. The current single-Branch flow auto-selects the only assignment; branch selection is required before a second production Branch opens. |
 | Multi-assigned users | Production `Operations-DB`, table `tce_employee_assignment` | The 2026-07-14 query found zero Users with multiple active, date-valid assignments. This is a readiness baseline, not evidence for a unique constraint on User. |
-| Internal service authentication | Railway variables on `anotame-identity-service` and `anotame-operations-service` | Staging has a shared generated `ANOTAME_INTERNAL_SERVICE_TOKEN`; production remains unset until its rollout. Do not reuse the JWT signing key or copy the staging token to production. |
-| Operations base URL | Identity variable `ANOTAME_OPERATIONS_BASE_URL` | Staging uses the private Operations service on port 8080. Production remains unset until the Phase 0 rollout. Local default remains `http://localhost:8084`; do not use the auto-generated bare public hostname as a REST-client URI. |
+| Internal service authentication | Railway variables on `anotame-identity-service` and `anotame-operations-service` | Staging and production each have their own generated `ANOTAME_INTERNAL_SERVICE_TOKEN`. The production value is configured on both services without being printed or stored in Git. It is distinct from staging and from the JWT signing key. |
+| Operations base URL | Identity variable `ANOTAME_OPERATIONS_BASE_URL` | Staging and production both use their environment-local private Operations service on port 8080. Local default remains `http://localhost:8084`; do not use the auto-generated bare public hostname as a REST-client URI. |
 | Cost and subscription | Railway Workspace **Usage** page and monthly invoice | Closed for baseline purposes. The 2026-06-08 through 2026-07-08 invoice totals `$26.18` after the `$20.00` included-usage credit. The 2026-07-14 production dashboard shows `$3.68` current and `$21.23` estimated usage. See the cost evidence below. |
 | CPU, memory, disk, and network | Railway service Metrics, Railway MCP `service_metrics`, and invoice | A completed billing period and the current production breakdown are recorded below. Preserve comparable before/after windows for each experiment. |
-| HTTP counts, errors, and latency | Structured `http_access` attributes in Railway deploy logs | Slice A, deterministic Slice B aggregation, the 21-scenario staging matrix, and six 1,000-request route samples pass. A passive 14-day production aggregate has zero critical-route 5xx; three low-volume routes remain below the p95 threshold. Production telemetry rollout remains open. See the [2026-07-22 runtime baseline](./phase-0-runtime-baseline-2026-07-22.md). |
-| JVM and total process memory | Railway container metrics plus protected Quarkus JVM/datasource metrics | Protected staging telemetry now records heap, metaspace, buffers, threads, pool waits, startup limits, and total container memory. Catalog pool four clears the wait gate, and its separate 512 MB replica-limit experiment passes with 30.1% observed headroom. Candidate limits for the other services and production telemetry remain open. |
+| HTTP counts, errors, and latency | Structured `http_access` attributes in Railway deploy logs | Slice A, deterministic Slice B aggregation, the 21-scenario staging matrix, and six 1,000-request route samples pass. All four production APIs now emit the same normalized contract. The post-telemetry observation began on 2026-07-23 UTC; the 14-day closeout and low-volume extension remain open. See the [2026-07-22 runtime baseline](./phase-0-runtime-baseline-2026-07-22.md). |
+| JVM and total process memory | Railway container metrics plus protected Quarkus JVM/datasource metrics | All four staging and production APIs now expose JVM and datasource metrics only on their private management port and emit startup limits. Catalog pool four clears the staging wait gate, and its separate 512 MB replica-limit experiment passes with 30.1% observed headroom. Production resource settings remain unchanged; candidate changes require the post-telemetry baseline. |
 | SLO and rollback thresholds | Initial engineering guardrails, product owner, and observed production baseline | The initial staging latency, 5xx, OOM, pool-wait, and memory-headroom guardrails have been exercised. Product-owner approval and longer low-volume production observation remain open. |
 | Release rehearsal environment | Railway project environments | `staging` was created on 2026-07-12, restored from the backup, and connected to Git branch `staging`. Production remains connected to `main`. |
 
@@ -63,6 +63,22 @@ Access-log Slice A validation completed on 2026-07-14 (`2026-07-15` UTC):
 - the valid staging JWT used for read-only probes was created in memory with a
   five-minute expiry and was neither printed nor persisted.
 
+Phase 0 closeout validation and production rollout completed on 2026-07-22
+local (`2026-07-23` UTC):
+
+- the repository-pinned staging harness passed 21 scenarios with 25 correlated
+  access events and removed every synthetic fixture by exact key;
+- the full source was reconciled with production `main` as commit `c558410f`,
+  and a production-safe Identity/Sales telemetry subset was recorded as
+  `22d26c55`;
+- Operations, Catalog, Identity, and Sales production telemetry deployments
+  reached `SUCCESS`, returned live health `200`, kept public metrics at `404`,
+  exposed private JVM metrics, and emitted matching startup/access events;
+- no production resource, pool, replica, sleep, database, or data mutation was
+  included in the telemetry rollout; and
+- staging Identity and Sales were restored to the full branch-contract source
+  after the exact production-safe artifact passed there.
+
 ## Multi-assignment readiness check
 
 Use this read-only query to find Users who need branch selection because they
@@ -80,7 +96,11 @@ HAVING COUNT(*) > 1;
 ```
 
 The query was run against production `Operations-DB` on 2026-07-14 and returned
-`(0 rows)`. No current User therefore needs the not-yet-built branch chooser.
+`(0 rows)`. A production readiness audit on 2026-07-23 also found zero active
+Branches and zero active Employee Assignments while Identity had four active
+Users. No current User therefore needs the not-yet-built branch chooser, but
+strict branch resolution cannot replace the current fallback until the business
+defines the production Branch and maps those Users.
 Do not add a unique constraint on `id_user`: future multi-Branch staff are
 allowed. The existing `UNIQUE (id_user, id_branch)` constraint already prevents
 the same User from being assigned to the same Branch twice. Re-run this query
@@ -157,19 +177,20 @@ in [HTTP Access Log Normalization and Validation Plan](./http-access-log-observa
    full matrix produced 25 exactly-once correlated events for 21 scenarios,
    including one expected upstream-unavailable `503`; configuration recovery
    passed and exact-key fixture counts returned zero.
-3. Roll Phase 0 into production in the documented dependency order. Railway's
-   built-in HTTP-log helpers currently return no production samples, so collect
-   the application `http_access` deployment logs per service with bounded CLI
-   or MCP queries.
+3. Completed for telemetry: Operations and Catalog run the full reviewed
+   telemetry source, while Identity and Sales run the staged production-safe
+   subset that preserves current branch behavior. Collect application
+   `http_access` deployment logs per service with bounded CLI or MCP queries.
 4. Completed: the Bun aggregation CLI groups by environment, service,
    deployment, commit, method, and normalized route, then emits status-class
    counts, separate 4xx/5xx rates, p50, p95, p99, maximum duration, and
    observation bounds. Five deterministic unit tests and a bounded live
    Railway export pass. Store aggregates, not raw production request logs, with
    experiment evidence.
-5. Capture at least 14 calendar days spanning the normal weekly traffic cycle.
-   Require at least 100 samples before interpreting a route p95 and 1,000 before
-   interpreting p99; extend the window up to 30 days for low-volume routes.
+5. In progress from 2026-07-23 UTC: capture at least 14 calendar days spanning
+   the normal weekly traffic cycle. Require at least 100 samples before
+   interpreting a route p95 and 1,000 before interpreting p99; extend the
+   window up to 30 days for low-volume routes.
 6. Have the product owner approve numeric SLO and rollback thresholds. Compare
    the same routes and equivalent traffic windows before and after exactly one
    Phase 1 change.
@@ -179,6 +200,13 @@ in [HTTP Access Log Normalization and Validation Plan](./http-access-log-observa
 Run this complete sequence in staging first. Promote the same reviewed source
 changes to production only after the staging smoke and measurement gates pass;
 use production-specific credentials and repeat the production smoke checks.
+
+Production status on 2026-07-23: steps 1 and 2 are complete. Operations exposes
+the private endpoint and its production-specific token also exists on Identity.
+Steps 3 and 4 are intentionally pending because production has four active
+Users but no active Branch or Employee Assignment. Identity and Sales therefore
+run the production-safe telemetry subset until an approved business mapping is
+available. This is a data-readiness gate, not a telemetry or staging failure.
 
 1. Generate one internal token and set it on Operations and Identity without
    deploying Identity first.

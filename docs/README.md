@@ -14,7 +14,7 @@ This repository keeps current, maintained documentation only. Historical plannin
 - [backend-consolidation-client-access-plan.html](./backend-consolidation-client-access-plan.html) — cost reduction, database consolidation, and client access rollout plan.
 - [phase-0-prerequisites.md](./phase-0-prerequisites.md) — Phase 0 evidence sources, unresolved external inputs, and branch-contract deployment order.
 - [http-access-log-observability-plan.md](./http-access-log-observability-plan.md) — normalized HTTP event contract, staging validation, runtime memory evidence, and staging-first promotion policy.
-- [phase-0-runtime-baseline-2026-07-22.md](./phase-0-runtime-baseline-2026-07-22.md) — controlled 1,000-request staging samples, protected JVM/datasource telemetry, passive production baseline, and the resulting optimization-gate decision.
+- [phase-0-runtime-baseline-2026-07-22.md](./phase-0-runtime-baseline-2026-07-22.md) — controlled 1,000-request staging samples, protected JVM/datasource telemetry, production telemetry rollout, passive observation window, and the resulting optimization-gate decision.
 - [adr/](./adr/) — durable decisions that are hard to reverse or surprising without context.
 - [archive/](./archive/) — non-canonical extracts from historical planning systems.
 
