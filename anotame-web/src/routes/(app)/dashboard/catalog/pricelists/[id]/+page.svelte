@@ -76,7 +76,7 @@
         });
 
         toast.success(m["catalog.pricelist.updateSuccess"]());
-        goto('/dashboard/catalog/pricelists');
+        await goto('/dashboard/catalog/pricelists');
       } catch (err: any) {
         toast.error(err.message || m["catalog.pricelist.updateError"]());
       } finally {
@@ -182,13 +182,13 @@
     override: overrideCellRender
   }}
 
-  <div class="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-    <div class="flex justify-between items-center">
-      <div>
+  <div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div class="min-w-0">
         <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.editTitle"]()}</h1>
-        <p class="text-muted-foreground">{m["catalog.pricelist.editSubtitle"]({ name: $form.name })}</p>
+        <p class="text-muted-foreground break-words">{m["catalog.pricelist.editSubtitle"]({ name: $form.name })}</p>
       </div>
-      <Button variant="outline" class="h-10 touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button variant="outline" class="h-10 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
     </div>
 
     <form method="POST" use:enhance class="space-y-6">
@@ -268,7 +268,7 @@
           <div class="flex flex-col sm:flex-row flex-wrap gap-2 items-center p-4 bg-secondary/20 rounded-lg border border-border">
             <span class="text-sm font-bold mr-2 uppercase tracking-wide opacity-70">{m["catalog.pricelist.bulkAdjust"]()}</span>
             <div class="flex gap-2">
-              {#each [5, 10, 15, 20] as amount}
+              {#each [5, 10, 15, 20] as amount (amount)}
                 <Button type="button" variant="outline" size="sm" class="font-mono text-success hover:text-success hover:bg-success/10 border-success/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(amount)}>
                   +${amount}
                 </Button>
@@ -276,7 +276,7 @@
             </div>
             <div class="hidden sm:block w-px h-6 bg-border mx-2"></div>
             <div class="flex gap-2">
-              {#each [5, 10, 15, 20] as amount}
+              {#each [5, 10, 15, 20] as amount (amount)}
                 <Button type="button" variant="outline" size="sm" class="font-mono text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(-amount)}>
                   -${amount}
                 </Button>
@@ -313,11 +313,11 @@
         </Card.Content>
       </Card.Root>
 
-      <div class="flex justify-between items-center gap-4 pt-4 pb-12">
+      <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4 pt-4 pb-12">
         <Button
           type="button"
           variant="ghost"
-          class="h-14 px-8 text-lg touch-manipulation text-destructive hover:bg-destructive-muted hover:text-destructive"
+          class="h-14 w-full sm:w-auto px-8 text-lg touch-manipulation text-destructive hover:bg-destructive-muted hover:text-destructive"
           onclick={async () => {
             const ok = await adaptiveConfirm({
               title: m["catalog.pricelist.discardTitle"](),
@@ -328,7 +328,7 @@
         >
           {m["catalog.pricelist.discardChanges"]()}
         </Button>
-        <Button type="submit" disabled={isSaving} class="h-14 px-8 text-lg shadow-md touch-manipulation">
+        <Button type="submit" disabled={isSaving} class="h-14 w-full sm:w-auto px-8 text-lg shadow-md touch-manipulation">
           {#if isSaving}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
             {m["catalog.pricelist.saving"]()}
@@ -340,4 +340,3 @@
     </form>
   </div>
 {/if}
-
