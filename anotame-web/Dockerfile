@@ -1,4 +1,5 @@
-FROM oven/bun:latest AS builder
+FROM node:22-bookworm-slim AS builder
+COPY --from=oven/bun:1.3.14 /usr/local/bin/bun /usr/local/bin/bun
 WORKDIR /app
 
 # Ensure we have package.json and bun.lock initialized
@@ -19,7 +20,7 @@ ENV PUBLIC_OPERATIONS_URL=$PUBLIC_OPERATIONS_URL
 COPY . .
 RUN bun run build
 
-FROM oven/bun:latest AS runner
+FROM oven/bun:1.3.14 AS runner
 WORKDIR /app
 USER bun
 

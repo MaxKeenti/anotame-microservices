@@ -33,7 +33,7 @@ function adapterWithCleanLogs(options) {
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		adapter: adapterWithCleanLogs(),
+		adapter: adapterWithCleanLogs({ precompress: false }),
 		paths: {
 			relative: false
 		}
