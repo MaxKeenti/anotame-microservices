@@ -186,7 +186,7 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       <div class="min-w-0">
         <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.editTitle"]()}</h1>
-        <p class="text-muted-foreground break-words">{m["catalog.pricelist.editSubtitle"]({ name: $form.name })}</p>
+        <p class="text-muted-foreground wrap-break-word">{m["catalog.pricelist.editSubtitle"]({ name: $form.name })}</p>
       </div>
       <Button variant="outline" class="h-10 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
     </div>
