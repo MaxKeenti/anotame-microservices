@@ -8,14 +8,19 @@
   import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import * as Table from '$lib/components/ui/table';
+  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import { toast } from 'svelte-sonner';
   import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
+  import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
+
+  const mobile = useIsMobile();
 
   // State
   let isLoading = $state(false);
@@ -69,7 +74,7 @@
         });
 
         toast.success(m["catalog.pricelist.createSuccess"]());
-        goto('/dashboard/catalog/pricelists');
+        await goto('/dashboard/catalog/pricelists');
       } catch (err: any) {
         toast.error(err.message || m["catalog.pricelist.createError"]());
       } finally {
@@ -79,6 +84,28 @@
   });
 
   const { form, enhance } = superform;
+
+  const overrideColumns: ColumnDef<ServiceResponse>[] = [
+    {
+      accessorKey: 'name',
+      header: m["catalog.pricelist.columnService"](),
+      enableSorting: false,
+      meta: { cardGroup: 'header' },
+    },
+    {
+      accessorKey: 'basePrice',
+      header: m["catalog.pricelist.columnBasePrice"](),
+      enableSorting: false,
+      accessorFn: (row) => `$${row.basePrice.toFixed(2)}`,
+      meta: { cardGroup: 'body' },
+    },
+    {
+      id: 'override',
+      header: m["catalog.pricelist.columnOverride"](),
+      enableSorting: false,
+      meta: { cardGroup: 'body' },
+    },
+  ];
 
   onMount(async () => {
     try {
@@ -200,10 +227,21 @@
   }
 </script>
 
-<div class="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-  <div class="flex justify-between items-center">
+{#snippet overrideCellRender(row: Row<ServiceResponse>)}
+  <Input
+    type="number"
+    step="0.01"
+    min="0"
+    class="h-12 w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
+    placeholder={m["catalog.pricelist.overridePlaceholder"]()}
+    bind:value={overrides[row.original.id]}
+  />
+{/snippet}
+
+<div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.newTitle"]()}</h1>
-    <Button variant="outline" class="h-10 touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+    <Button variant="outline" class="h-10 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
   </div>
 
   <form method="POST" use:enhance class="space-y-6">
@@ -319,7 +357,7 @@
         <div class="flex flex-col sm:flex-row flex-wrap gap-2 items-center p-4 bg-secondary/20 rounded-lg border border-border">
           <span class="text-sm font-bold mr-2 uppercase tracking-wide opacity-70">{m["catalog.pricelist.bulkAdjust"]()}</span>
           <div class="flex gap-2">
-            {#each [5, 10, 15, 20] as amount}
+            {#each [5, 10, 15, 20] as amount (amount)}
               <Button type="button" variant="outline" size="sm" class="font-mono text-success hover:text-success hover:bg-success/10 border-success/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(amount)}>
                 +${amount}
               </Button>
@@ -327,7 +365,7 @@
           </div>
           <div class="hidden sm:block w-px h-6 bg-border mx-2"></div>
           <div class="flex gap-2">
-            {#each [5, 10, 15, 20] as amount}
+            {#each [5, 10, 15, 20] as amount (amount)}
               <Button type="button" variant="outline" size="sm" class="font-mono text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(-amount)}>
                 -${amount}
               </Button>
@@ -341,50 +379,33 @@
 
         <!-- Overrides Table -->
         <div class="border rounded-md overflow-x-auto">
-          <Table.Root class="w-full text-sm">
-            <Table.Header class="bg-secondary/30">
-              <Table.Row>
-                <Table.Head class="p-4 font-bold">{m["catalog.pricelist.overrideServiceHeader"]()}</Table.Head>
-                <Table.Head class="p-4 font-bold text-right">{m["catalog.pricelist.overrideBaseHeader"]()}</Table.Head>
-                <Table.Head class="p-4 font-bold text-center">{m["catalog.pricelist.overrideOverrideHeader"]()}</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {#each services as service (service.id)}
-                <Table.Row class="hover:bg-muted/10">
-                  <Table.Cell class="p-4 font-medium align-middle">{service.name}</Table.Cell>
-                  <Table.Cell class="p-4 text-muted-foreground font-mono text-right align-middle text-base">
-                    ${service.basePrice.toFixed(2)}
-                  </Table.Cell>
-                  <Table.Cell class="p-4 align-middle">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      class="h-12 w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
-                      placeholder={m["catalog.pricelist.overridePlaceholder"]()}
-                      bind:value={overrides[service.id]}
-                    />
-                  </Table.Cell>
-                </Table.Row>
-              {/each}
-              {#if services.length === 0}
-                <Table.Row>
-                  <Table.Cell colspan={3} class="p-8 text-center text-muted-foreground">
-                    {m["catalog.pricelist.noServices"]()}
-                  </Table.Cell>
-                </Table.Row>
-              {/if}
-            </Table.Body>
-          </Table.Root>
+          {#if mobile.current}
+            <CardGridWrapper
+              columns={overrideColumns}
+              data={services}
+              loading={false}
+              emptyMessage={m["catalog.pricelist.noServices"]()}
+              pageSize={100}
+              cellRenders={{ override: overrideCellRender }}
+            />
+          {:else}
+            <DataTableWrapper
+              columns={overrideColumns}
+              data={services}
+              loading={false}
+              emptyMessage={m["catalog.pricelist.noServices"]()}
+              pageSize={100}
+              cellRenders={{ override: overrideCellRender }}
+            />
+          {/if}
         </div>
       </Card.Content>
     </Card.Root>
 
 
-    <div class="flex justify-end gap-4 pt-4 pb-12">
-      <Button type="button" variant="outline" class="h-14 px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
-      <Button type="submit" disabled={isLoading} class="h-14 px-8 text-lg shadow-md touch-manipulation">
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-4 pb-12">
+      <Button type="button" variant="outline" class="h-14 w-full sm:w-auto px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button type="submit" disabled={isLoading} class="h-14 w-full sm:w-auto px-8 text-lg shadow-md touch-manipulation">
         {#if isLoading}
           <Loader2 class="w-4 h-4 mr-2 animate-spin" />
           {m["catalog.pricelist.creating"]()}
@@ -395,4 +416,3 @@
     </div>
   </form>
 </div>
-
