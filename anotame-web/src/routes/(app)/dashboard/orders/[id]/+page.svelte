@@ -10,6 +10,7 @@
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
+  import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
   import * as Table from "$lib/components/ui/table";
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
@@ -24,6 +25,7 @@
   let auditLog = $state<any[]>([]);
   let showPaymentModal = $state(false);
   let paymentRefreshKey = $state(0);
+  let showShareTicketDialog = $state(false);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -439,7 +441,20 @@
         >
           {m["orders.detail.printTicket"]()}
         </Button>
+        <Button
+          onclick={() => showShareTicketDialog = true}
+          variant="outline"
+          class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
+        >
+          {m["orders.detail.shareTicket"]()}
+        </Button>
       </div>
     </div>
+
+    <ShareTicketDialog
+      bind:open={showShareTicketDialog}
+      orderId={order.id}
+      ticketNumber={order.ticketNumber}
+    />
   </div>
 {/if}

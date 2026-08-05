@@ -49,6 +49,16 @@ function proxyError(errorCode: string, message: string, status: number): Respons
 	);
 }
 
+function isPublicApiEndpoint(apiPath: string): boolean {
+	return /\/(auth\/login|auth\/register)(\/|$|\?)/.test(apiPath)
+		|| apiPath.startsWith('sales/tickets/shared/')
+		|| apiPath === 'operations/establishment/public-receipt-settings';
+}
+
+function redactTargetUrl(targetUrl: string): string {
+	return targetUrl.replace(/\/tickets\/shared\/[^/?]+/, '/tickets/shared/[redacted]');
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const { request } = event;
 	const url = new URL(request.url);
@@ -93,8 +103,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		// with 401 even on paths marked "permit".
 		const cookie = request.headers.get('Cookie');
 		if (cookie) {
-			const isPublicAuth = /\/(auth\/login|auth\/register)(\/|$|\?)/.test(apiPath);
-			if (isPublicAuth) {
+			if (isPublicApiEndpoint(apiPath)) {
 				const filtered = cookie
 					.split(';')
 					.map(c => c.trim())
@@ -119,7 +128,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 				body = buffer.byteLength > 0 ? buffer : undefined;
 			} catch (err) {
 				console.error(
-					`[proxy] Failed to read request body for ${request.method} ${fullTargetUrl}:`,
+					`[proxy] Failed to read request body for ${request.method} ${redactTargetUrl(fullTargetUrl)}:`,
 					err,
 				);
 				return proxyError('INVALID_REQUEST_BODY', 'Failed to read request body', 400);
@@ -136,7 +145,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 				redirect: 'manual',
 			});
 		} catch (err) {
-			console.error(`[proxy] Network error reaching ${fullTargetUrl}:`, err);
+			console.error(`[proxy] Network error reaching ${redactTargetUrl(fullTargetUrl)}:`, err);
 			return proxyError(
 				'BACKEND_UNREACHABLE',
 				`Backend unreachable: ${(err as Error).message}`,
@@ -148,9 +157,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 		// so HttpOnly auth cookies are set correctly on the client.
 		const responseHeaders = new Headers();
 
-		const responseContentType = backendResponse.headers.get('Content-Type');
-		if (responseContentType) {
-			responseHeaders.set('Content-Type', responseContentType);
+		for (const headerName of [
+			'Content-Type',
+			'Cache-Control',
+			'Referrer-Policy',
+			'X-Robots-Tag',
+			'X-Content-Type-Options',
+		]) {
+			const value = backendResponse.headers.get(headerName);
+			if (value) responseHeaders.set(headerName, value);
 		}
 
 		const setCookie = backendResponse.headers.get('Set-Cookie');
