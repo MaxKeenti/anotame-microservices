@@ -10,9 +10,14 @@
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
+  import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
+  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import * as Table from "$lib/components/ui/table";
+  import type { ColumnDef, Row } from '@tanstack/table-core';
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
+  import { Pencil, Printer, Send, Share2, XCircle } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   let id = $derived($page.params.id);
@@ -24,6 +29,16 @@
   let auditLog = $state<any[]>([]);
   let showPaymentModal = $state(false);
   let paymentRefreshKey = $state(0);
+  let showShareTicketDialog = $state(false);
+  const mobile = useIsMobile();
+
+  let itemColumns = $derived<ColumnDef<OrderItemResponse>[]>([
+    { accessorKey: 'garmentName', header: m['orders.detail.description'](), enableSorting: false, meta: { cardGroup: 'header' } },
+    { accessorKey: 'quantity', header: m['orders.detail.qty'](), enableSorting: false, meta: { cardGroup: 'header' } },
+    { id: 'subtotal', accessorFn: (item) => `$${item.subtotal}`, header: m['orders.detail.subtotal'](), enableSorting: false, meta: { cardGroup: 'header' } },
+    { id: 'services', accessorFn: (item) => item.services.map((service) => service.serviceName).join(', '), header: m['orders.detail.service'](), enableSorting: false, meta: { cardGroup: 'body' } },
+    { accessorKey: 'notes', header: m['orders.detail.note'](), enableSorting: false, meta: { cardGroup: 'body' } },
+  ]);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -201,7 +216,7 @@
     </Button>
   </div>
 {:else}
-  <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-20">
+  <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in duration-150 pb-20">
     <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
       <a href="/dashboard/orders" class="shrink-0 text-muted-foreground hover:text-foreground touch-manipulation">
         &larr; {m["orders.detail.back"]()}
@@ -289,12 +304,66 @@
     {/if}
 
     <!-- Payment History -->
-    <PaymentHistoryPanel orderId={order.id} refreshKey={paymentRefreshKey} />
+    <PaymentHistoryPanel
+      orderId={order.id}
+      refreshKey={paymentRefreshKey}
+      onRecordPayment={order.status !== 'DELIVERED' && order.status !== 'CANCELLED'
+        ? () => showPaymentModal = true
+        : undefined}
+    />
 
     <!-- Items -->
     <div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
       <div class="wrap-break-word px-4 sm:px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.garmentsAndServices"]()}</div>
-      <div class="max-w-full overflow-x-auto overscroll-x-contain">
+      {#snippet garmentCell(row: Row<OrderItemResponse>)}
+        <div class="flex flex-wrap items-center gap-2">
+          <span>{row.original.garmentName}</span>
+          {#if row.original.source === 'CUSTOM'}
+            <span class="rounded-full bg-primary/10 px-2 py-1 text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+          {/if}
+        </div>
+      {/snippet}
+      {#snippet servicesCell(row: Row<OrderItemResponse>)}
+        <div class="space-y-2">
+          {#each row.original.services as service}
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <span class="font-medium text-foreground">{service.serviceName}</span>
+                <span class="font-mono text-foreground">${service.unitPrice}</span>
+              </div>
+              {#if service.instructions}
+                <p class="mt-1 text-sm text-muted-foreground">{service.instructions}</p>
+              {/if}
+              {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
+                <span class={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-mono font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'}`}>
+                  {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
+                  {service.adjustmentReason && ` (${service.adjustmentReason})`}
+                </span>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/snippet}
+      {#snippet notesCell(row: Row<OrderItemResponse>)}
+        {#if row.original.notes}
+          <span class="inline-block rounded-lg border border-warning/20 bg-warning/10 p-2 text-warning-text">{row.original.notes}</span>
+        {:else}
+          <span class="text-muted-foreground">—</span>
+        {/if}
+      {/snippet}
+
+      {#if mobile.current}
+        <div class="p-4">
+          <CardGridWrapper
+            columns={itemColumns}
+            data={order.items}
+            showFilter={false}
+            showPagination={false}
+            cellRenders={{ garmentName: garmentCell, services: servicesCell, notes: notesCell }}
+          />
+        </div>
+      {:else}
+        <div class="max-w-full overflow-x-auto overscroll-x-contain">
         <Table.Root class="w-full text-sm text-left">
           <Table.Header class="bg-muted/30 text-muted-foreground uppercase text-xs font-bold">
             <Table.Row class="hover:bg-transparent">
@@ -358,15 +427,51 @@
           </Table.Body>
         </Table.Root>
       </div>
+      {/if}
     </div>
 
-    <!-- Pickup Code -->
-    {#if order.pickupCode}
-      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm text-center">
+    <!-- Pickup code and ticket tools -->
+    <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm text-center">
+      {#if order.pickupCode}
         <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">{m["orders.detail.pickupCode"]()}</p>
         <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
+      {/if}
+      <div class="flex flex-col justify-center gap-2 sm:flex-row" class:mt-4={order.pickupCode}>
+        <Button onclick={() => showShareTicketDialog = true} variant="outline" class="h-10 touch-manipulation">
+          <Share2 />
+          {m["orders.detail.shareTicket"]()}
+        </Button>
+        <Button onclick={handlePrint} variant="outline" class="h-10 touch-manipulation">
+          <Printer />
+          {m["orders.detail.printTicket"]()}
+        </Button>
       </div>
-    {/if}
+    </div>
+
+    <!-- Order management -->
+    <div class="min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <div class="px-4 py-4 text-lg font-bold bg-secondary/20 sm:px-6">{m['common.actions']()}</div>
+      <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div class="flex flex-col gap-2 sm:flex-row">
+          {#if order.status === 'RECEIVED'}
+            <Button onclick={handleSendToOps} class="h-11 touch-manipulation">
+              <Send />
+              {m["orders.detail.sendToOps"]()}
+            </Button>
+          {/if}
+          {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
+            <Button href={`/dashboard/orders/${order.id}/edit`} variant="outline" class="h-11 touch-manipulation">
+              <Pencil />
+              {m["orders.detail.editOrder"]()}
+            </Button>
+          {/if}
+        </div>
+        <Button onclick={handleCancel} variant="destructive" class="h-11 touch-manipulation">
+          <XCircle />
+          {m["orders.detail.cancelOrder"]()}
+        </Button>
+      </div>
+    </div>
 
     <!-- Audit Log -->
     {#if auditLog.length > 0}
@@ -397,49 +502,10 @@
       onClose={() => showPaymentModal = false}
     />
 
-    <!-- Actions -->
-    <div class="flex min-w-0 flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-border mt-8">
-      <Button
-        onclick={handleCancel}
-        variant="ghost"
-        class="text-destructive hover:bg-destructive-muted hover:text-destructive h-14 rounded-xl text-lg touch-manipulation w-full sm:w-auto"
-      >
-        {m["orders.detail.cancelOrder"]()}
-      </Button>
-
-      <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-        {#if order.status === 'RECEIVED'}
-          <Button
-            onclick={handleSendToOps}
-            class="h-14 rounded-xl text-lg touch-manipulation shadow-md w-full sm:w-auto"
-          >
-            {m["orders.detail.sendToOps"]()}
-          </Button>
-        {/if}
-        {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
-          <Button
-            onclick={() => showPaymentModal = true}
-            variant="outline"
-            class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
-          >
-            {m["orders.payment.recordPayment"]()}
-          </Button>
-          <Button
-            href={`/dashboard/orders/${order.id}/edit`}
-            variant="outline"
-            class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
-          >
-            {m["orders.detail.editOrder"]()}
-          </Button>
-        {/if}
-        <Button
-          onclick={handlePrint}
-          variant="outline"
-          class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
-        >
-          {m["orders.detail.printTicket"]()}
-        </Button>
-      </div>
-    </div>
+    <ShareTicketDialog
+      bind:open={showShareTicketDialog}
+      orderId={order.id}
+      ticketNumber={order.ticketNumber}
+    />
   </div>
 {/if}

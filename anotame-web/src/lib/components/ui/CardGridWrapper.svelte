@@ -24,6 +24,7 @@
     emptyMessage,
     filterPlaceholder,
     showFilter = true,
+    showPagination = true,
     actionCell,
     cellRenders = {},
     bulkActions = false,
@@ -302,29 +303,31 @@
     </div>
   {/if}
 
-  <!-- Pagination -->
-  <div class="flex items-center justify-between px-2 py-1">
+  {#if showPagination}
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-2 py-1">
     <Button
       variant="outline"
       class="h-10 touch-manipulation"
       disabled={!state.table.getCanPreviousPage()}
       onclick={() => state.table.previousPage()}
     >
-      {m['common.previous']()}
-    </Button>
-    <span class="text-sm text-muted-foreground">
-      {m['common.pagination']({
-        current: String(state.table.getState().pagination.pageIndex + 1),
-        total: String(state.table.getPageCount() || 1),
-      })}
-    </span>
-    <Button
-      variant="outline"
-      class="h-10 touch-manipulation"
-      disabled={!state.table.getCanNextPage()}
-      onclick={() => state.table.nextPage()}
-    >
-      {m['common.next']()}
-    </Button>
-  </div>
+        {m['common.previous']()}
+      </Button>
+      <span class="text-sm text-muted-foreground">
+        {m['common.pagination']({
+          current: String(state.table.getState().pagination.pageIndex + 1),
+          total: String(state.table.getPageCount() || 1),
+        })}
+      </span>
+      <Button
+        variant="outline"
+        class="h-10 touch-manipulation"
+        disabled={!state.table.getCanNextPage()}
+        onclick={() => state.table.nextPage()}
+      >
+        {m['common.next']()}
+      </Button>
+    </div>
+  {/if}
 </div>

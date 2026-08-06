@@ -36,8 +36,9 @@ export type ResponsiveTableProps<TData> = {
 	pageSize?: number;
 	loading?: boolean;
 	emptyMessage?: string;
-	filterPlaceholder?: string;
-	showFilter?: boolean;
+  filterPlaceholder?: string;
+  showFilter?: boolean;
+  showPagination?: boolean;
 	actionCell?: import('svelte').Snippet<[Row<TData>]>;
 	cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
 	bulkActions?: boolean;

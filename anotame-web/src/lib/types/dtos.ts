@@ -89,6 +89,53 @@ export interface OrderResponse {
   priceListName?: string | null;
 }
 
+export interface TicketShareResponse {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  revokedAt?: string | null;
+}
+
+export interface CreatedTicketShareResponse {
+  id: string;
+  token: string;
+  expiresAt: string;
+}
+
+export interface PublicTicketResponse {
+  ticketNumber: string;
+  customerName: string;
+  phoneNumber?: string | null;
+  committedDeadline?: string | null;
+  status: string;
+  totalAmount: number;
+  amountPaid: number;
+  balance: number;
+  items: Array<{
+    garmentName: string;
+    quantity: number;
+    notes?: string | null;
+    services: Array<{
+      serviceName: string;
+      unitPrice: number;
+      adjustmentAmount: number;
+      adjustmentReason?: string | null;
+      instructions?: string | null;
+    }>;
+  }>;
+  pickupCode?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface PublicReceiptSettings {
+  name: string;
+  address?: string | null;
+  rfc?: string | null;
+  taxRegime?: string | null;
+  contactPhone?: string | null;
+}
+
 export interface OrderSummaryResponse {
   id: string;
   ticketNumber: string;
