@@ -203,7 +203,7 @@
     </Button>
   </div>
 {:else}
-  <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pb-20">
+  <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in duration-150 pb-20">
     <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
       <a href="/dashboard/orders" class="shrink-0 text-muted-foreground hover:text-foreground touch-manipulation">
         &larr; {m["orders.detail.back"]()}
