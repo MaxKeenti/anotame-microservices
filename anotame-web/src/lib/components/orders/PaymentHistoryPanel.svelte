@@ -1,6 +1,8 @@
 <script lang="ts">
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDateTime } from '$lib/utils/formatUtils';
+  import { Button } from '$lib/components/ui/button';
+  import { DollarSign } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   type Payment = {
@@ -16,9 +18,10 @@
   type Props = {
     orderId: string;
     refreshKey?: number;
+    onRecordPayment?: () => void;
   };
 
-  let { orderId, refreshKey = 0 }: Props = $props();
+  let { orderId, refreshKey = 0, onRecordPayment }: Props = $props();
 
   let payments = $state<Payment[]>([]);
   let loading = $state(true);
@@ -60,8 +63,14 @@
 </script>
 
 <div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-  <div class="wrap-break-word px-4 sm:px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">
-    {m['orders.payment.historyTitle']()}
+  <div class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-b border-border bg-secondary/20">
+    <div class="wrap-break-word font-bold text-lg">{m['orders.payment.historyTitle']()}</div>
+    {#if onRecordPayment}
+      <Button onclick={onRecordPayment} size="sm" class="h-10 touch-manipulation">
+        <DollarSign />
+        {m['orders.payment.recordPayment']()}
+      </Button>
+    {/if}
   </div>
 
   {#if loading}
