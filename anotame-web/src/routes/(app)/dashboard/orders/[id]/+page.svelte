@@ -364,9 +364,16 @@
 
     <!-- Pickup Code -->
     {#if order.pickupCode}
-      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm text-center">
+      <div class="relative min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm text-center">
         <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">{m["orders.detail.pickupCode"]()}</p>
         <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
+        <Button
+          onclick={() => showShareTicketDialog = true}
+          variant="outline"
+          class="mt-3 h-10 touch-manipulation sm:absolute sm:right-6 sm:top-1/2 sm:mt-0 sm:-translate-y-1/2"
+        >
+          {m["orders.detail.shareTicket"]()}
+        </Button>
       </div>
     {/if}
 
@@ -440,13 +447,6 @@
           class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
         >
           {m["orders.detail.printTicket"]()}
-        </Button>
-        <Button
-          onclick={() => showShareTicketDialog = true}
-          variant="outline"
-          class="h-14 rounded-xl text-lg touch-manipulation shadow-sm border-2 w-full sm:w-auto"
-        >
-          {m["orders.detail.shareTicket"]()}
         </Button>
       </div>
     </div>

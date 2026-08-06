@@ -23,6 +23,7 @@
   let creating = $state(false);
   let revokingId = $state<string | null>(null);
   let createdShare = $state<CreatedTicketShareResponse | null>(null);
+  let loadedForCurrentOpen = $state(false);
 
   const shareUrl = $derived(
     createdShare && typeof window !== 'undefined'
@@ -43,8 +44,21 @@
 
   async function handleOpenChange(nextOpen: boolean) {
     open = nextOpen;
-    if (nextOpen) await loadShares();
   }
+
+  // The parent opens this dialog through its bound `open` prop, which does not
+  // trigger Dialog.Root's onOpenChange callback. Load on the state transition
+  // so both parent-controlled and user-controlled opens show current links.
+  $effect(() => {
+    if (!open) {
+      loadedForCurrentOpen = false;
+      return;
+    }
+    if (!loadedForCurrentOpen) {
+      loadedForCurrentOpen = true;
+      void loadShares();
+    }
+  });
 
   async function createLink() {
     creating = true;
