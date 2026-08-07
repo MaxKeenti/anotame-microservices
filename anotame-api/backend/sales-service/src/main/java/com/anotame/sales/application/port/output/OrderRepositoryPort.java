@@ -31,11 +31,12 @@ public interface OrderRepositoryPort {
 
     long countByStatus(String status);
 
-    java.math.BigDecimal sumPaidAmountInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+    java.math.BigDecimal sumNetPaymentsInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
 
     java.math.BigDecimal sumPendingDebt();
 
-    java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start, String zoneId);
+    java.util.List<Object[]> getDailyNetPaymentData(java.time.OffsetDateTime start,
+            java.time.OffsetDateTime end, String zoneId);
 
     java.util.List<Object[]> getDailyWorkload(java.time.OffsetDateTime start, java.time.OffsetDateTime end, String zoneId);
 

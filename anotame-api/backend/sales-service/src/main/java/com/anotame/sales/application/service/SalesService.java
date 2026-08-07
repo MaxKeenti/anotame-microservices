@@ -627,13 +627,14 @@ public class SalesService {
         long totalActive = pendingPipeline + readyForPickup;
 
         // Finance Metrics
-        BigDecimal todayRevenue = orderRepository.sumPaidAmountInRange(startOfDay, startOfTomorrow);
-        BigDecimal monthlyRevenue = orderRepository.sumPaidAmountInRange(startOfMonth, startOfNextMonth);
+        BigDecimal todayRevenue = orderRepository.sumNetPaymentsInRange(startOfDay, startOfTomorrow);
+        BigDecimal monthlyRevenue = orderRepository.sumNetPaymentsInRange(startOfMonth, startOfNextMonth);
         BigDecimal pendingDebt = orderRepository.sumPendingDebt();
 
         // Chart Data — index raw rows by date (row[0]) for O(1) lookup while filling every day.
         // row[0] is Date (java.sql.Date) or LocalDate, row[1] is BigDecimal.
-        List<Object[]> rawChartData = orderRepository.getWeeklyRevenueData(sevenDaysAgo, zoneId);
+        List<Object[]> rawChartData = orderRepository.getDailyNetPaymentData(
+                sevenDaysAgo, startOfTomorrow, zoneId);
         Map<String, Object[]> chartByDate = rawChartData.stream()
                 .collect(Collectors.toMap(row -> row[0].toString(), row -> row, (a, b) -> a));
         List<DashboardMetricsResponse.WeeklyChartPoint> chartData = new ArrayList<>();

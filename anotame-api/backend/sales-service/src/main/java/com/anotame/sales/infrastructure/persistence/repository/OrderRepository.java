@@ -33,10 +33,11 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
 
     // Finance
     @SuppressWarnings("null")
-    public BigDecimal sumPaidAmountInRange(OffsetDateTime start, OffsetDateTime end) {
+    public BigDecimal sumNetPaymentsInRange(OffsetDateTime start, OffsetDateTime end) {
         return getEntityManager()
                 .createQuery(
-                        "SELECT SUM(o.amountPaid) FROM OrderEntity o WHERE o.createdAt >= :start AND o.createdAt < :end",
+                        "SELECT SUM(p.amount) FROM OrderPaymentEntity p " +
+                                "WHERE p.recordedAt >= :start AND p.recordedAt < :end",
                         BigDecimal.class)
                 .setParameter("start", start)
                 .setParameter("end", end)
@@ -61,15 +62,16 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
 
     // Chart
     @SuppressWarnings("unchecked")
-    public List<Object[]> getWeeklyRevenueData(OffsetDateTime start, String zoneId) {
+    public List<Object[]> getDailyNetPaymentData(OffsetDateTime start, OffsetDateTime end, String zoneId) {
         return getEntityManager()
                 .createNativeQuery(
-                        "SELECT (created_at AT TIME ZONE :zone)::date AS day, SUM(amount_paid) " +
-                                "FROM tco_order " +
-                                "WHERE created_at >= :start AND is_deleted = false " +
+                        "SELECT (recorded_at AT TIME ZONE :zone)::date AS day, SUM(amount) " +
+                                "FROM tco_order_payment " +
+                                "WHERE recorded_at >= :start AND recorded_at < :end " +
                                 "GROUP BY day ORDER BY day")
                 .setParameter("zone", zoneId)
                 .setParameter("start", start)
+                .setParameter("end", end)
                 .getResultList();
     }
 
