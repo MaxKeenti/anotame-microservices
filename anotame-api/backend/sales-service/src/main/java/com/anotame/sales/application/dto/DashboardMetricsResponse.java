@@ -25,7 +25,15 @@ public class DashboardMetricsResponse {
     public static class FinanceMetrics {
         private BigDecimal todayRevenue;
         private BigDecimal monthlyRevenue;
+        private List<PaymentMethodTotal> monthlyRevenueByPaymentMethod;
         private BigDecimal pendingDebt;
+    }
+
+    @Data
+    @Builder
+    public static class PaymentMethodTotal {
+        private String paymentMethod;
+        private BigDecimal total;
     }
 
     @Data

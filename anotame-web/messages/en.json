@@ -128,6 +128,7 @@
   "orders.detail.paymentCash": "Cash",
   "orders.detail.paymentCard": "Card",
   "orders.detail.paymentTransfer": "Transfer",
+  "kpi.paymentMethod.unspecified": "Unspecified",
   "orders.detail.total": "Total",
   "orders.detail.amountPaid": "Paid",
   "orders.detail.balance": "Outstanding Balance",

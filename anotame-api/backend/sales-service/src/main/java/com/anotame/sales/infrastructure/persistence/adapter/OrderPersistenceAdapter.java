@@ -199,8 +199,14 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.math.BigDecimal sumPaidAmountInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
-        return orderRepository.sumPaidAmountInRange(start, end);
+    public java.math.BigDecimal sumNetPaymentsInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.sumNetPaymentsInRange(start, end);
+    }
+
+    @Override
+    public java.util.List<Object[]> getNetPaymentTotalsByMethodInRange(
+            java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.getNetPaymentTotalsByMethodInRange(start, end);
     }
 
     @Override
@@ -209,8 +215,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.util.List<Object[]> getWeeklyRevenueData(java.time.OffsetDateTime start, String zoneId) {
-        return orderRepository.getWeeklyRevenueData(start, zoneId);
+    public java.util.List<Object[]> getDailyNetPaymentData(java.time.OffsetDateTime start,
+            java.time.OffsetDateTime end, String zoneId) {
+        return orderRepository.getDailyNetPaymentData(start, end, zoneId);
     }
 
     @Override

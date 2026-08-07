@@ -24,6 +24,10 @@
     finance: {
       todayRevenue: number;
       monthlyRevenue: number;
+      monthlyRevenueByPaymentMethod: {
+        paymentMethod: 'CASH' | 'CARD' | 'TRANSFER' | 'UNSPECIFIED';
+        total: number;
+      }[];
       pendingDebt: number;
     };
     weeklyRevenueChart: {
@@ -65,6 +69,9 @@
   let selectedFinanceMonthParam = $derived(getMonthParam(selectedFinanceYear, selectedFinanceMonth));
   let selectedFinanceMonthLabel = $derived(formatMonthLabel(selectedFinanceYear, selectedFinanceMonth));
   let selectedFinanceMonthlyRevenue = $derived(metrics?.finance.monthlyRevenue ?? 0);
+  let selectedFinancePaymentMethodTotals = $derived(
+    metrics?.finance.monthlyRevenueByPaymentMethod ?? []
+  );
   let financeMonthOptions = $derived(
     Array.from({ length: 12 }, (_, index) => {
       const monthValue = index + 1;
@@ -86,6 +93,13 @@
     return new Intl.DateTimeFormat(getLocale(), { month: 'long', year: 'numeric' }).format(
       new Date(yearValue, monthValue - 1, 1)
     );
+  }
+
+  function getPaymentMethodLabel(method: string): string {
+    if (method === 'CASH') return m['orders.detail.paymentCash']();
+    if (method === 'CARD') return m['orders.detail.paymentCard']();
+    if (method === 'TRANSFER') return m['orders.detail.paymentTransfer']();
+    return m['kpi.paymentMethod.unspecified']();
   }
 
   function isFutureFinanceMonth(yearValue: number, monthValue: number): boolean {
@@ -428,6 +442,18 @@
                   <p class="text-xs text-muted-foreground mt-1">
                     {m['kpi.card.monthRevenueSelectedDesc']({ month: selectedFinanceMonthLabel })}
                   </p>
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 pt-3 border-t border-border">
+                    {#each selectedFinancePaymentMethodTotals as category}
+                      <div class="min-w-0">
+                        <p class="text-xs text-muted-foreground truncate">
+                          {getPaymentMethodLabel(category.paymentMethod)}
+                        </p>
+                        <p class="text-sm font-mono font-semibold truncate">
+                          {formatCurrency(category.total)}
+                        </p>
+                      </div>
+                    {/each}
+                  </div>
                 </Card.Content>
               </Card.Root>
             {/snippet}

@@ -128,6 +128,7 @@
   "orders.detail.paymentCash": "Efectivo",
   "orders.detail.paymentCard": "Tarjeta",
   "orders.detail.paymentTransfer": "Transferencia",
+  "kpi.paymentMethod.unspecified": "Sin especificar",
   "orders.detail.total": "Total",
   "orders.detail.amountPaid": "A cuenta",
   "orders.detail.balance": "Saldo Pendiente",
