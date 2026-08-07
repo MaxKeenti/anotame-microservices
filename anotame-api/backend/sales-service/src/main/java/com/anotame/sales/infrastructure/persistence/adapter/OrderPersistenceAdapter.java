@@ -204,6 +204,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
+    public java.util.List<Object[]> getNetPaymentTotalsByMethodInRange(
+            java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.getNetPaymentTotalsByMethodInRange(start, end);
+    }
+
+    @Override
     public java.math.BigDecimal sumPendingDebt() {
         return orderRepository.sumPendingDebt();
     }

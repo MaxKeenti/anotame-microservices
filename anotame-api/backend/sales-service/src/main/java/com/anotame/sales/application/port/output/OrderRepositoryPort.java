@@ -33,6 +33,9 @@ public interface OrderRepositoryPort {
 
     java.math.BigDecimal sumNetPaymentsInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
 
+    java.util.List<Object[]> getNetPaymentTotalsByMethodInRange(
+            java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+
     java.math.BigDecimal sumPendingDebt();
 
     java.util.List<Object[]> getDailyNetPaymentData(java.time.OffsetDateTime start,

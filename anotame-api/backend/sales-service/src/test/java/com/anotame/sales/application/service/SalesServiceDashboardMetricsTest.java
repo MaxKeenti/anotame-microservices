@@ -41,6 +41,10 @@ class SalesServiceDashboardMetricsTest {
                                 ? new BigDecimal("5020.00")
                                 : new BigDecimal("84945.00");
                     }
+                    case "getNetPaymentTotalsByMethodInRange" -> List.of(
+                            new Object[] { "CASH", new BigDecimal("68540.00") },
+                            new Object[] { "CARD", new BigDecimal("14300.00") },
+                            new Object[] { "TRANSFER", new BigDecimal("2105.00") });
                     case "sumPendingDebt" -> new BigDecimal("20532.50");
                     case "getDailyNetPaymentData" -> Collections.singletonList(new Object[] {
                             Date.valueOf(today), new BigDecimal("5020.00")
@@ -60,6 +64,22 @@ class SalesServiceDashboardMetricsTest {
 
         assertEquals(new BigDecimal("5020.00"), metrics.getFinance().getTodayRevenue());
         assertEquals(new BigDecimal("84945.00"), metrics.getFinance().getMonthlyRevenue());
+        assertEquals(List.of("CASH", "CARD", "TRANSFER", "UNSPECIFIED"),
+                metrics.getFinance().getMonthlyRevenueByPaymentMethod().stream()
+                        .map(DashboardMetricsResponse.PaymentMethodTotal::getPaymentMethod)
+                        .toList());
+        assertEquals(List.of(
+                        new BigDecimal("68540.00"),
+                        new BigDecimal("14300.00"),
+                        new BigDecimal("2105.00"),
+                        BigDecimal.ZERO),
+                metrics.getFinance().getMonthlyRevenueByPaymentMethod().stream()
+                        .map(DashboardMetricsResponse.PaymentMethodTotal::getTotal)
+                        .toList());
+        assertEquals(metrics.getFinance().getMonthlyRevenue(),
+                metrics.getFinance().getMonthlyRevenueByPaymentMethod().stream()
+                        .map(DashboardMetricsResponse.PaymentMethodTotal::getTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
         assertEquals(new BigDecimal("20532.50"), metrics.getFinance().getPendingDebt());
         assertEquals(7, metrics.getWeeklyRevenueChart().size());
         assertEquals(today.toString(), metrics.getWeeklyRevenueChart().get(6).getDate());

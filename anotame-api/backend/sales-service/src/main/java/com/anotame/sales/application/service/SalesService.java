@@ -109,8 +109,11 @@ public class SalesService {
         order.setUpdatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
         // amountPaid is a denormalized cache backed by the payment ledger; seed it below
         // (before the single persist) when an initial payment is supplied.
-        BigDecimal initialPayment = request.getAmountPaid();
-        boolean hasInitialPayment = initialPayment != null && initialPayment.compareTo(BigDecimal.ZERO) > 0;
+        BigDecimal initialPayment = request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO;
+        if (initialPayment.compareTo(BigDecimal.ZERO) < 0) {
+            throw new SalesValidationException("El pago inicial no puede ser negativo");
+        }
+        boolean hasInitialPayment = initialPayment.compareTo(BigDecimal.ZERO) > 0;
         order.setAmountPaid(hasInitialPayment ? initialPayment : BigDecimal.ZERO);
         order.setPaymentMethod(request.getPaymentMethod());
         order.setPriceListId(request.getPriceListId());
@@ -129,6 +132,10 @@ public class SalesService {
         }
 
         order.setTotalAmount(total);
+        if (initialPayment.compareTo(total) > 0) {
+            throw new SalesValidationException(
+                    "OVERPAYMENT: El pago inicial no puede exceder el total del pedido");
+        }
         order.setTotalDurationMin(calculateTotalDuration(order));
 
         Order saved = orderRepository.save(order);
@@ -629,6 +636,19 @@ public class SalesService {
         // Finance Metrics
         BigDecimal todayRevenue = orderRepository.sumNetPaymentsInRange(startOfDay, startOfTomorrow);
         BigDecimal monthlyRevenue = orderRepository.sumNetPaymentsInRange(startOfMonth, startOfNextMonth);
+        Map<String, BigDecimal> monthlyRevenueByMethod = orderRepository
+                .getNetPaymentTotalsByMethodInRange(startOfMonth, startOfNextMonth).stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO,
+                        BigDecimal::add));
+        List<DashboardMetricsResponse.PaymentMethodTotal> monthlyPaymentMethodTotals =
+                List.of("CASH", "CARD", "TRANSFER", "UNSPECIFIED").stream()
+                        .map(method -> DashboardMetricsResponse.PaymentMethodTotal.builder()
+                                .paymentMethod(method)
+                                .total(monthlyRevenueByMethod.getOrDefault(method, BigDecimal.ZERO))
+                                .build())
+                        .toList();
         BigDecimal pendingDebt = orderRepository.sumPendingDebt();
 
         // Chart Data — index raw rows by date (row[0]) for O(1) lookup while filling every day.
@@ -679,6 +699,7 @@ public class SalesService {
                 .finance(DashboardMetricsResponse.FinanceMetrics.builder()
                         .todayRevenue(todayRevenue)
                         .monthlyRevenue(monthlyRevenue)
+                        .monthlyRevenueByPaymentMethod(monthlyPaymentMethodTotals)
                         .pendingDebt(pendingDebt)
                         .build())
                 .weeklyRevenueChart(chartData)

@@ -47,6 +47,22 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                 .orElse(BigDecimal.ZERO);
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getNetPaymentTotalsByMethodInRange(OffsetDateTime start, OffsetDateTime end) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT CASE " +
+                                "WHEN UPPER(BTRIM(payment_method)) IN ('CASH', 'CARD', 'TRANSFER') " +
+                                "THEN UPPER(BTRIM(payment_method)) ELSE 'UNSPECIFIED' END AS method, " +
+                                "SUM(amount) AS total " +
+                                "FROM tco_order_payment " +
+                                "WHERE recorded_at >= :start AND recorded_at < :end " +
+                                "GROUP BY method ORDER BY method")
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
+    }
+
     @SuppressWarnings("null")
     public BigDecimal sumPendingDebt() {
         // Pending debt calculated only for non-cancelled/non-delivered items
@@ -104,7 +120,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "SELECT TO_CHAR((top.recorded_at AT TIME ZONE :zone), :dateFormat) AS period, " +
                                 "SUM(top.amount) AS totalRevenue, COUNT(*) AS paymentCount " +
                                 "FROM tco_order_payment top " +
-                                "WHERE top.recorded_at >= :start AND top.amount > 0 " +
+                                "WHERE top.recorded_at >= :start " +
                                 "GROUP BY period ORDER BY period")
                 .setParameter("zone", zoneId)
                 .setParameter("start", start)
@@ -119,7 +135,9 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "SELECT " +
                         "  ois.service_source, " +
                         "  ois.service_name, " +
-                        "  COALESCE(SUM(top.amount * (ois.unit_price / NULLIF(oi.subtotal, 0))), 0) AS totalRevenue, " +
+                        "  COALESCE(SUM(top.amount * " +
+                        "    (((ois.unit_price + COALESCE(ois.adjustment_amount, 0)) * oi.quantity) " +
+                        "      / NULLIF(o.total_amount, 0))), 0) AS totalRevenue, " +
                         "  COUNT(DISTINCT top.id_order) AS orderCount, " +
                         "  COALESCE(SUM(ois.duration_min * oi.quantity), 0) AS totalDurationMin " +
                         "FROM tco_order_payment top " +
@@ -127,10 +145,9 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "JOIN tco_order_item oi ON o.id_order = oi.id_order " +
                         "JOIN tco_order_item_service ois ON oi.id_order_item = ois.id_order_item " +
                         "WHERE top.recorded_at >= :start AND top.recorded_at < :end " +
-                        "  AND top.amount > 0 " +
                         "  AND o.is_deleted = false " +
                         "  AND oi.is_deleted = false " +
-                        "  AND oi.subtotal > 0 " +
+                        "  AND o.total_amount > 0 " +
                         "GROUP BY ois.service_source, ois.service_name " +
                         "ORDER BY totalRevenue DESC NULLS LAST, ois.service_name ASC")
                 .setParameter("start", start)
@@ -165,7 +182,6 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "JOIN tco_order o ON top.id_order = o.id_order " +
                         "JOIN tco_customer c ON o.id_customer = c.id_customer " +
                         "WHERE top.recorded_at >= :start AND top.recorded_at < :end " +
-                        "  AND top.amount > 0 " +
                         "  AND o.is_deleted = false " +
                         "  AND c.is_deleted = false " +
                         "GROUP BY c.id_customer, c.first_name, c.last_name " +
