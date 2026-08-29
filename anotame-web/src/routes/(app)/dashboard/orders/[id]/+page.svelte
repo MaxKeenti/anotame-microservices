@@ -11,13 +11,14 @@
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
   import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
+  import GarmentTagDialog from "$lib/components/orders/GarmentTagDialog.svelte";
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import * as Table from "$lib/components/ui/table";
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
-  import { Pencil, Printer, Send, Share2, XCircle } from '@lucide/svelte';
+  import { Pencil, Printer, Send, Share2, Tags, XCircle } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   let id = $derived($page.params.id);
@@ -30,6 +31,7 @@
   let showPaymentModal = $state(false);
   let paymentRefreshKey = $state(0);
   let showShareTicketDialog = $state(false);
+  let showGarmentTagDialog = $state(false);
   const mobile = useIsMobile();
 
   let itemColumns = $derived<ColumnDef<OrderItemResponse>[]>([
@@ -445,6 +447,10 @@
           <Printer />
           {m["orders.detail.printTicket"]()}
         </Button>
+        <Button onclick={() => showGarmentTagDialog = true} variant="outline" class="h-10 touch-manipulation">
+          <Tags />
+          {m["orders.detail.printTags"]()}
+        </Button>
       </div>
     </div>
 
@@ -506,6 +512,12 @@
       bind:open={showShareTicketDialog}
       orderId={order.id}
       ticketNumber={order.ticketNumber}
+    />
+
+    <GarmentTagDialog
+      bind:open={showGarmentTagDialog}
+      {order}
+      establishmentName={establishment?.name || "ANOTAME"}
     />
   </div>
 {/if}

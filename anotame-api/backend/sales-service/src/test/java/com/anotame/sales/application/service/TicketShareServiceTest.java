@@ -1,13 +1,17 @@
 package com.anotame.sales.application.service;
 
 import com.anotame.sales.application.dto.CreatedTicketShareResponse;
+import com.anotame.sales.application.dto.PublicHandlingTicketResponse;
 import com.anotame.sales.application.dto.PublicTicketResponse;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
 import com.anotame.sales.application.port.output.TicketShareRepositoryPort;
 import com.anotame.sales.domain.exception.SalesNotFoundException;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
+import com.anotame.sales.domain.model.OrderItem;
+import com.anotame.sales.domain.model.OrderItemService;
 import com.anotame.sales.domain.model.TicketShare;
+import com.anotame.sales.domain.model.TicketShareScope;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
@@ -22,6 +26,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -69,6 +74,91 @@ class TicketShareServiceTest {
 
         assertThrows(SalesNotFoundException.class,
                 () -> service.create(order.getId(), UUID.randomUUID(), UUID.randomUUID()));
+    }
+
+    @Test
+    void handlingTokenCannotReadTheCustomerReceipt() {
+        Order order = order("READY");
+        FakeTicketShareRepository shares = sharesWith(order, TicketShareScope.HANDLING);
+        TicketShareService service = service(shares, order);
+
+        assertThrows(SalesNotFoundException.class, () -> service.getPublicTicket("a-handling-token"));
+    }
+
+    @Test
+    void customerTokenCannotReadTheHandlingView() {
+        Order order = order("READY");
+        FakeTicketShareRepository shares = sharesWith(order, TicketShareScope.CUSTOMER);
+        TicketShareService service = service(shares, order);
+
+        assertThrows(SalesNotFoundException.class, () -> service.getHandlingTicket("a-customer-token"));
+    }
+
+    @Test
+    void handlingTicketCarriesTheWorkButNeverThePickupCode() {
+        Order order = order("READY");
+        OrderItemService embroidery = new OrderItemService();
+        embroidery.setServiceName("Poner escudos");
+        embroidery.setInstructions("Escudo bordado, hilo azul");
+        embroidery.setUnitPrice(new BigDecimal("15.00"));
+        OrderItem item = new OrderItem();
+        item.setGarmentName("Camisa");
+        item.setQuantity(2);
+        item.setNotes("Va a bordado");
+        item.addService(embroidery);
+        order.addItem(item);
+
+        FakeTicketShareRepository shares = sharesWith(order, TicketShareScope.HANDLING);
+        TicketShareService service = service(shares, order);
+
+        PublicHandlingTicketResponse ticket = service.getHandlingTicket("a-handling-token");
+
+        assertEquals("ORD-00001", ticket.getTicketNumber());
+        assertEquals("Ada L.", ticket.getCustomerName());
+        assertEquals("•••• 7890", ticket.getPhoneNumber());
+        assertEquals(1, ticket.getItems().size());
+        assertEquals("Camisa", ticket.getItems().get(0).getGarmentName());
+        assertEquals("Va a bordado", ticket.getItems().get(0).getNotes());
+        assertEquals("Escudo bordado, hilo azul",
+                ticket.getItems().get(0).getServices().get(0).getInstructions());
+        // The pickup code is what a lost tag would leak; it has no field to land in.
+        assertNotNull(order.getPickupCode());
+        assertFalse(java.util.Arrays.stream(PublicHandlingTicketResponse.class.getDeclaredFields())
+                .anyMatch(field -> field.getName().toLowerCase().contains("pickup")
+                        || field.getName().toLowerCase().contains("amount")
+                        || field.getName().toLowerCase().contains("balance")));
+    }
+
+    @Test
+    void tagLinksAreMintedWithHandlingScope() {
+        Order order = order("READY");
+        FakeTicketShareRepository shares = new FakeTicketShareRepository();
+        TicketShareService service = service(shares, order);
+
+        service.create(order.getId(), UUID.randomUUID(), order.getBranchId(), TicketShareScope.HANDLING);
+
+        assertEquals(TicketShareScope.HANDLING, shares.saved.getScope());
+    }
+
+    @Test
+    void plainCreateStillMintsCustomerScope() {
+        Order order = order("READY");
+        FakeTicketShareRepository shares = new FakeTicketShareRepository();
+        TicketShareService service = service(shares, order);
+
+        service.create(order.getId(), UUID.randomUUID(), order.getBranchId());
+
+        assertEquals(TicketShareScope.CUSTOMER, shares.saved.getScope());
+    }
+
+    private FakeTicketShareRepository sharesWith(Order order, TicketShareScope scope) {
+        FakeTicketShareRepository shares = new FakeTicketShareRepository();
+        TicketShare share = new TicketShare();
+        share.setId(UUID.randomUUID());
+        share.setOrderId(order.getId());
+        share.setScope(scope);
+        shares.activeShare = share;
+        return shares;
     }
 
     private TicketShareService service(FakeTicketShareRepository shares, Order order) {

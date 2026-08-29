@@ -52,11 +52,12 @@ function proxyError(errorCode: string, message: string, status: number): Respons
 function isPublicApiEndpoint(apiPath: string): boolean {
 	return /\/(auth\/login|auth\/register)(\/|$|\?)/.test(apiPath)
 		|| apiPath.startsWith('sales/tickets/shared/')
+		|| apiPath.startsWith('sales/tickets/handling/')
 		|| apiPath === 'operations/establishment/public-receipt-settings';
 }
 
 function redactTargetUrl(targetUrl: string): string {
-	return targetUrl.replace(/\/tickets\/shared\/[^/?]+/, '/tickets/shared/[redacted]');
+	return targetUrl.replace(/\/tickets\/(shared|handling)\/[^/?]+/, '/tickets/$1/[redacted]');
 }
 
 export const handle: Handle = async ({ event, resolve }) => {

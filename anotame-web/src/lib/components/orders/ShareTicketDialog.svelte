@@ -173,7 +173,12 @@
             {#each shares as share}
               <div class="flex items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">
                 <div class="min-w-0">
-                  <p class="font-medium">{isActive(share) ? m['ticketShare.active']() : m['ticketShare.inactive']()}</p>
+                  <p class="font-medium">
+                    {isActive(share) ? m['ticketShare.active']() : m['ticketShare.inactive']()}
+                    <span class="ml-1 text-xs font-normal text-muted-foreground">
+                      {share.scope === 'HANDLING' ? m['ticketShare.scopeHandling']() : m['ticketShare.scopeCustomer']()}
+                    </span>
+                  </p>
                   <p class="text-xs text-muted-foreground">{m['ticketShare.expires']({ date: formatDateTime(share.expiresAt) })}</p>
                 </div>
                 {#if isActive(share)}

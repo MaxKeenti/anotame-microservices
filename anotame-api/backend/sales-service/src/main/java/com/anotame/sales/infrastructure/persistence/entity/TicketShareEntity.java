@@ -1,7 +1,10 @@
 package com.anotame.sales.infrastructure.persistence.entity;
 
 import jakarta.persistence.Column;
+import com.anotame.sales.domain.model.TicketShareScope;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,6 +37,10 @@ public class TicketShareEntity {
 
     @Column(name = "created_by_user_id", nullable = false)
     private UUID createdByUserId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "scope", nullable = false, length = 20)
+    private TicketShareScope scope = TicketShareScope.CUSTOMER;
 
     @Column(name = "expires_at", nullable = false)
     private OffsetDateTime expiresAt;

@@ -28,6 +28,7 @@ public class TicketSharePersistenceAdapter implements TicketShareRepositoryPort 
         entity.setOrderId(share.getOrderId());
         entity.setTokenHash(share.getTokenHash());
         entity.setCreatedByUserId(share.getCreatedByUserId());
+        entity.setScope(share.getScope());
         entity.setExpiresAt(share.getExpiresAt());
         entity.setRevokedAt(share.getRevokedAt());
         entity.setCreatedAt(share.getCreatedAt());
@@ -59,6 +60,7 @@ public class TicketSharePersistenceAdapter implements TicketShareRepositoryPort 
         share.setOrderId(entity.getOrderId());
         share.setTokenHash(entity.getTokenHash());
         share.setCreatedByUserId(entity.getCreatedByUserId());
+        share.setScope(entity.getScope());
         share.setExpiresAt(entity.getExpiresAt());
         share.setRevokedAt(entity.getRevokedAt());
         share.setCreatedAt(entity.getCreatedAt());
