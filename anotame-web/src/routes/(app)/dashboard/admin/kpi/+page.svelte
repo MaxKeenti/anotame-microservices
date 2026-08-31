@@ -260,7 +260,7 @@
             <Truck class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
-            <div class="text-2xl font-bold font-mono text-success">
+            <div class="text-2xl font-bold font-mono text-success-text">
               {metrics.workload.readyForPickup}
             </div>
             <p class="text-xs text-muted-foreground mt-1">
@@ -331,7 +331,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="h-10 w-10"
+              class="h-11 w-11 touch-manipulation"
               onclick={handlePreviousCalendarMonth}
               disabled={calendarLoading}
               aria-label={m["common.previous"]()}
@@ -344,7 +344,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="h-10 w-10"
+              class="h-11 w-11 touch-manipulation"
               onclick={handleNextCalendarMonth}
               disabled={calendarLoading}
               aria-label={m["common.next"]()}
@@ -401,7 +401,7 @@
     <!-- Finance (Revenue) -->
     <div>
       <h2 class="text-xl font-bold font-heading mb-4 mt-8 flex items-center gap-2">
-        <Banknote class="w-5 h-5 text-success" />
+        <Banknote class="w-5 h-5 text-success-text" />
         {m['kpi.section.finance']()}
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -464,7 +464,7 @@
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-10 w-10"
+                  class="h-11 w-11 touch-manipulation"
                   onclick={handlePreviousFinanceYear}
                   disabled={financeMonthLoading}
                   aria-label={m["common.previous"]()}
@@ -477,7 +477,7 @@
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-10 w-10"
+                  class="h-11 w-11 touch-manipulation"
                   onclick={handleNextFinanceYear}
                   disabled={financeMonthLoading || financePickerYear >= today.getFullYear()}
                   aria-label={m["common.next"]()}
@@ -514,7 +514,7 @@
             <Activity class="h-4 w-4 text-muted-foreground" />
           </Card.Header>
           <Card.Content>
-            <div class="text-3xl font-bold font-mono text-amber-500">
+            <div class="text-3xl font-bold font-mono text-amber-700 dark:text-amber-400">
               {formatCurrency(metrics.finance.pendingDebt)}
             </div>
             <p class="text-xs text-muted-foreground mt-1">{m['kpi.card.receivablesDesc']()}</p>
@@ -551,7 +551,7 @@
                   style="height: {heightPct}%"
                 ></div>
                 <!-- Date Label -->
-                <div class="text-[10px] mt-2 text-muted-foreground -rotate-45deg pb-2 uppercase truncate w-full text-center">
+                <div class="text-xs mt-2 text-muted-foreground -rotate-45deg pb-2 uppercase truncate w-full text-center">
                   {#if day.date}
                     {new Date(day.date).toLocaleDateString('es-ES', { weekday: 'short' })}
                   {/if}

@@ -58,15 +58,15 @@
         {#if draft?.customer}
             <div class="w-full bg-primary/5 border border-primary/20 rounded-xl p-6 text-center animate-in fade-in zoom-in-95">
                 <div class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User class="w-10 h-10" />
+                    <User class="w-11 h-11" />
                 </div>
                 <h3 class="text-2xl font-bold">{draft?.customer?.firstName} {draft?.customer?.lastName}</h3>
                 <p class="text-muted-foreground">{draft?.customer?.phoneNumber}</p>
                 <p class="text-muted-foreground text-sm">{draft?.customer?.email}</p>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <Button variant="outline" class="h-10 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
-                    <Button class="h-10 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onNext}>{m['common.continue']()}</Button>
+                    <Button variant="outline" class="h-11 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
+                    <Button class="h-11 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onNext}>{m['common.continue']()}</Button>
                 </div>
             </div>
         {:else}
@@ -75,6 +75,7 @@
                     <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-6 h-6" />
                     <Input
                         placeholder={m['orders.wizard.searchPlaceholder']()}
+                        aria-label={m['orders.wizard.searchPlaceholder']()}
                         class="pl-12 h-16 text-lg rounded-xl shadow-sm"
                         bind:value={query}
                         autofocus

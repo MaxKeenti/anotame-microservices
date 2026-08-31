@@ -37,6 +37,15 @@ public class GarmentPersistenceAdapter implements GarmentRepositoryPort {
     }
 
     @Override
+    public Optional<GarmentType> findActiveByName(String name) {
+        if (name == null || name.isBlank()) {
+            return Optional.empty();
+        }
+        return repository.findActiveByNameIgnoreCase(name.trim())
+                .map(CatalogPersistenceMapper::toDomain);
+    }
+
+    @Override
     @Transactional
     public GarmentType save(GarmentType garmentType) {
         if (garmentType == null) {

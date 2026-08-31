@@ -4,6 +4,11 @@
   import * as m from '$lib/paraglide/messages';
 </script>
 
+<svelte:head>
+  <title>{m["common.appName"]()}</title>
+  <meta name="description" content={m["landing.description"]()} />
+</svelte:head>
+
 <div class="flex flex-col items-center justify-center min-h-screen bg-background">
   <main class="flex flex-col items-center gap-8 text-center px-4 w-full">
     <h1 class="text-5xl md:text-6xl font-heading font-bold text-foreground">

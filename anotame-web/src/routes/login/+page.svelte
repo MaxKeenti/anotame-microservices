@@ -65,6 +65,10 @@
   const { form, enhance } = superform;
 </script>
 
+<svelte:head>
+  <title>{m["login.card.title"]()} · {m["common.appName"]()}</title>
+</svelte:head>
+
 {#if guard.allowed}
 <div class="flex min-h-screen flex-col items-center justify-center bg-muted/50 p-4">
   <Card.Root class="w-full max-w-md">
@@ -90,7 +94,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m["login.label.username"]()}</Form.Label>
-                <Input {...props} {...constraints} id="username" placeholder="admin" bind:value={$form.username} />
+                <Input {...props} {...constraints} autocomplete="username" bind:value={$form.username} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -102,7 +106,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m["login.label.password"]()}</Form.Label>
-                <Input {...props} {...constraints} id="password" type="password" placeholder="••••••••" bind:value={$form.password} />
+                <Input {...props} {...constraints} type="password" autocomplete="current-password" placeholder="••••••••" bind:value={$form.password} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -124,7 +128,7 @@
         </Button>
 
         <div class="text-center text-sm pt-4">
-          <a href="/" class="text-muted-foreground hover:text-primary transition-colors">
+          <a href="/" class="inline-flex min-h-11 items-center rounded-md px-3 text-muted-foreground hover:text-primary transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {m["login.link.back"]()}
           </a>
         </div>

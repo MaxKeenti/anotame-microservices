@@ -95,7 +95,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="h-10 px-4 touch-manipulation font-medium"
+          class="h-11 px-4 touch-manipulation font-medium"
           onclick={() => handleEditClick(row.original)}
         >
           <Edit class="w-4 h-4 mr-2" />
@@ -104,7 +104,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="h-10 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
           onclick={() => handleDeleteClick(row.original)}
         >
           <Trash2 class="w-4 h-4 mr-2" />

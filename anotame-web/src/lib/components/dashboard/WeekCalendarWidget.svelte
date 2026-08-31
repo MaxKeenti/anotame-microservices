@@ -61,11 +61,11 @@
     {#each days as day}
       {@const pct = Math.min(100, Math.round((day.totalMinutesUsed / capacity) * 100))}
       <div class="flex flex-col items-center gap-1">
-        <span class="text-[9px] font-bold text-muted-foreground uppercase leading-tight text-center">{fmtDay(day.date)}</span>
-        <div class="w-full h-10 rounded-md bg-muted/40 flex items-end overflow-hidden">
+        <span class="text-xs font-bold text-muted-foreground uppercase leading-tight text-center">{fmtDay(day.date)}</span>
+        <div class="w-full h-11 rounded-md bg-muted/40 flex items-end overflow-hidden">
           <div class="w-full transition-all duration-700 {getOccupancyColor(pct)}" style="height: {pct}%"></div>
         </div>
-        <span class="text-[9px] font-mono font-bold {pct >= 100 ? 'text-red-500' : pct >= thresholdAmber ? 'text-amber-500' : pct >= thresholdGreen ? 'text-amber-500' : 'text-green-500'}">{pct}%</span>
+        <span class="text-xs font-mono font-bold {pct >= 100 ? 'text-red-600 dark:text-red-400' : pct >= thresholdAmber ? 'text-amber-700 dark:text-amber-400' : pct >= thresholdGreen ? 'text-amber-700 dark:text-amber-400' : 'text-green-700 dark:text-green-400'}">{pct}%</span>
       </div>
     {/each}
   </div>

@@ -246,6 +246,7 @@
                 <input
                   type="text"
                   bind:value={$form.primaryColor}
+                  aria-label={m['settings.label.colorHex']({ name: m['adminSettings.label.color']() })}
                   placeholder="#FF6B6B"
                   class="flex-1 h-12 px-3 border border-input rounded text-xs font-mono"
                 />

@@ -7,6 +7,7 @@
 	import type { ComponentProps } from "svelte";
 	import { Button } from "$lib/components/ui/button/index.js";
 	import XIcon from '@lucide/svelte/icons/x';
+	import * as m from '$lib/paraglide/messages';
 
 	let {
 		ref = $bindable(null),
@@ -37,9 +38,9 @@
 		{#if showCloseButton}
 			<DialogPrimitive.Close data-slot="dialog-close">
 				{#snippet child({ props })}
-					<Button variant="ghost" class="absolute top-4 right-4" size="icon-sm" {...props}>
+					<Button variant="ghost" class="absolute top-2 right-2 size-11 touch-manipulation" size="icon-sm" {...props}>
 						<XIcon  />
-						<span class="sr-only">Close</span>
+						<span class="sr-only">{m["common.close"]()}</span>
 					</Button>
 				{/snippet}
 			</DialogPrimitive.Close>

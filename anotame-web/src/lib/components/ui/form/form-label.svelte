@@ -16,7 +16,7 @@
 	// with nested snippets). Falls back to plain label component if context is not available.
 	let hasControl = (() => {
 		try {
-			const FORM_CONTROL_CTX = Symbol.for("form:control");
+			const FORM_CONTROL_CTX = Symbol.for("formsnap.form-control");
 			return !!getContext(FORM_CONTROL_CTX);
 		} catch {
 			// getContext throws if not in component context, that's fine

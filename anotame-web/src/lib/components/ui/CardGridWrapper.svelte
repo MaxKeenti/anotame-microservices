@@ -168,16 +168,16 @@
   <!-- Divider -->
 
   {#if bulkActions && bulkMode && data.length > 0}
-    <div class="flex items-center gap-3 py-2 px-1">
+    <div class="flex min-h-11 items-center gap-3 py-2 px-1">
       <input
         type="checkbox"
         id="cgw-select-all"
-        class="h-5 w-5 cursor-pointer rounded"
+        class="h-6 w-6 cursor-pointer rounded touch-manipulation"
         aria-label={m['common.selectAll']()}
         checked={state.table.getIsAllRowsSelected()}
         onchange={state.table.getToggleAllRowsSelectedHandler()}
       />
-      <label for="cgw-select-all" class="text-sm font-medium cursor-pointer select-none">{m['common.selectAll']()}</label>
+      <label for="cgw-select-all" class="flex min-h-11 items-center text-sm font-medium cursor-pointer select-none touch-manipulation">{m['common.selectAll']()}</label>
     </div>
   {/if}
 
@@ -205,15 +205,15 @@
             <div class="flex min-w-0 items-start gap-3">
               <!-- Bulk selection checkbox -->
               {#if bulkActions && bulkMode}
-                <div class="flex items-center justify-center mt-0.5 shrink-0">
+                <label class="flex h-11 w-11 -m-2.5 items-center justify-center shrink-0 cursor-pointer touch-manipulation">
                   <input
                     type="checkbox"
-                    class="h-5 w-5 cursor-pointer rounded"
+                    class="h-6 w-6 cursor-pointer rounded"
                     aria-label={m['common.selectRow']()}
                     checked={row.getIsSelected()}
                     onchange={row.getToggleSelectedHandler()}
                   />
-                </div>
+                </label>
               {/if}
 
               <!-- Header fields -->
@@ -252,7 +252,7 @@
                 <Button
                   variant="ghost"
                   size="sm"
-                  class="h-8 w-8 p-0 shrink-0 touch-manipulation"
+                  class="h-11 w-11 p-0 shrink-0 touch-manipulation"
                   aria-label={isOpen ? m['cardGrid.collapseDetails']() : m['cardGrid.expandDetails']()}
                   onclick={() => toggleRow(row.id)}
                 >
@@ -308,7 +308,7 @@
     <div class="flex items-center justify-between px-2 py-1">
     <Button
       variant="outline"
-      class="h-10 touch-manipulation"
+      class="h-11 px-5 touch-manipulation"
       disabled={!state.table.getCanPreviousPage()}
       onclick={() => state.table.previousPage()}
     >
@@ -322,7 +322,7 @@
       </span>
       <Button
         variant="outline"
-        class="h-10 touch-manipulation"
+        class="h-11 px-5 touch-manipulation"
         disabled={!state.table.getCanNextPage()}
         onclick={() => state.table.nextPage()}
       >

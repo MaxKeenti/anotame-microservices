@@ -16,7 +16,7 @@
 
 <div class="space-y-8 pb-20 p-2 sm:p-0">
   <div class="mb-8">
-     <h2 class="text-3xl sm:text-4xl font-bold font-heading">{m["dashboard.greeting"]({ name: authService.user?.username || m["common.user"]() })}</h2>
+     <h1 class="text-3xl sm:text-4xl font-bold font-heading">{m["dashboard.greeting"]({ name: authService.user?.username || m["common.user"]() })}</h1>
      <p class="text-muted-foreground mt-2 sm:text-lg">{m["dashboard.welcome"]()}</p>
   </div>
 
@@ -35,7 +35,7 @@
             <IconComponent class="w-8 h-8" />
           </div>
           <div>
-            <h3 class="text-xl font-bold font-heading">{item.getName()}</h3>
+            <h2 class="text-xl font-bold font-heading">{item.getName()}</h2>
             <p class="text-sm text-muted-foreground mt-2">
               {item.getDescription()}
             </p>

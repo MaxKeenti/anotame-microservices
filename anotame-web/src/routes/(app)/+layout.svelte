@@ -53,6 +53,17 @@
     });
   });
 
+  // Longest-prefix match against the menu config gives every dashboard route --
+  // including detail pages like /dashboard/orders/[id] -- a stable document
+  // title, instead of each page inheriting whatever the last one set.
+  const pageTitle = $derived.by(() => {
+    const path = page.url.pathname;
+    const match = menuItems
+      .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
+      .sort((a, b) => b.href.length - a.href.length)[0];
+    return match ? `${match.getName()} · ${m["common.appName"]()}` : m["common.appName"]();
+  });
+
   const isMobile = $derived(windowWidth < 640);
   const maxRecents = $derived(isMobile ? 1 : 3);
 
@@ -161,6 +172,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>{pageTitle}</title>
+</svelte:head>
+
 {#if guard.checking}
   <div class="h-screen w-screen flex flex-col items-center justify-center bg-background text-muted-foreground gap-4">
     <!-- Inline simple spinner and text, relying on standard tailwind utility classes -->
@@ -170,6 +185,13 @@
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
   <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden">
+
+      <a
+        href="#main-content"
+        class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-100 focus:rounded-md focus:bg-background focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:ring-2 focus:ring-ring"
+      >
+        {m["common.skipToContent"]()}
+      </a>
 
       <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isCredentialsOpen = true; }} />
 
@@ -194,7 +216,7 @@
            output, so it silently overrides padding-bottom at >=md and wipes
            out the dock clearance. Keeping pb-28 the only padding-bottom rule
            makes it win at every breakpoint. -->
-      <main class="flex-1 w-full overflow-y-auto">
+      <main id="main-content" tabindex="-1" class="flex-1 w-full overflow-y-auto outline-none">
         <div class="flex flex-col min-h-full w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4 md:pt-6 lg:pt-8 pb-28">
           {@render children()}
         </div>

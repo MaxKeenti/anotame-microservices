@@ -296,7 +296,7 @@
                 </div>
             </div>
 
-            <Button variant="outline" class="h-10 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
+            <Button variant="outline" class="h-11 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
                 {m["common.cancel"]()}
             </Button>
         </div>

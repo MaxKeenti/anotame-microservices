@@ -169,7 +169,7 @@
               {#each workDays as day, index}
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 hover:bg-muted/10 transition-colors">
                   <div class="w-40 font-medium capitalize text-foreground flex items-center">
-                    <label class="flex items-center gap-3 cursor-pointer touch-manipulation">
+                    <label class="flex min-h-11 items-center gap-3 cursor-pointer touch-manipulation">
                       <input
                         type="checkbox"
                         class="checkbox-custom"
@@ -185,13 +185,15 @@
                         <Input
                           type="time"
                           bind:value={day.openTime}
-                          class="w-32 h-10 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
+                          aria-label={m['schedule.label.openTime']({ day: getDayName(day.dayOfWeek) })}
+                          class="w-32 h-11 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
                         />
                         <span class="text-muted-foreground text-sm font-medium">{m['schedule.label.to']()}</span>
                         <Input
                           type="time"
                           bind:value={day.closeTime}
-                          class="w-32 h-10 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
+                          aria-label={m['schedule.label.closeTime']({ day: getDayName(day.dayOfWeek) })}
+                          class="w-32 h-11 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
                         />
                       </div>
                     {:else}

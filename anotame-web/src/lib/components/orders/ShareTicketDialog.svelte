@@ -186,7 +186,7 @@
                     onclick={() => revokeLink(share)}
                     disabled={revokingId === share.id}
                     variant="ghost"
-                    class="h-10 shrink-0 text-destructive hover:text-destructive"
+                    class="h-11 shrink-0 text-destructive hover:text-destructive"
                   >
                     {m['ticketShare.revoke']()}
                   </Button>

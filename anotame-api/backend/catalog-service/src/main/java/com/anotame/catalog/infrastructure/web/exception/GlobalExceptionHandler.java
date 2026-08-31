@@ -1,5 +1,6 @@
 package com.anotame.catalog.infrastructure.web.exception;
 
+import com.anotame.catalog.domain.exception.CatalogConflictException;
 import com.anotame.catalog.domain.exception.CatalogNotFoundException;
 import com.anotame.catalog.infrastructure.web.dto.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
@@ -25,6 +26,11 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                     .toList();
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new ErrorResponse("VALIDATION_FAILED", "Validation failed", details))
+                    .build();
+        }
+        if (exception instanceof CatalogConflictException) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse("CONFLICT", exception.getMessage()))
                     .build();
         }
         if (hasCause(exception, org.hibernate.exception.ConstraintViolationException.class)) {

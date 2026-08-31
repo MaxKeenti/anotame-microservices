@@ -139,6 +139,7 @@
   }
 
   let ordersRequestId = 0;
+  let loadError = $state(false);
 
   async function fetchOrders(pageIndex = ordersPageIndex, pageSize = ordersPageSize) {
     loading = true;
@@ -148,13 +149,22 @@
         buildSummaryUrl(pageIndex, pageSize)
       );
       if (requestId !== ordersRequestId) return;
+      loadError = false;
       orders = page.items || [];
       ordersTotalPages = page.totalPages;
       selectedOrders = [];
-    } catch (e) {
+    } catch (e: any) {
       if (requestId !== ordersRequestId) return;
       console.error(e);
-      // Optional: Add toast error handling here
+      // Without this the list renders its "no orders" empty state, which is
+      // indistinguishable from the backend being down.
+      loadError = true;
+      orders = [];
+      ordersTotalPages = 0;
+      toast.error(m["orders.list.loadError"](), {
+        description: e?.message,
+        action: { label: m["orders.list.retry"](), onClick: () => fetchOrders(pageIndex, pageSize) },
+      });
     } finally {
       if (requestId === ordersRequestId) {
         loading = false;
@@ -354,11 +364,11 @@
 
         {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end gap-2 whitespace-nowrap">
-            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-10 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-11 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
               <SquarePen class="w-4 h-4 mr-2" />
               {m["common.edit"]()}
             </Button>
-            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-10 px-4 font-medium touch-manipulation">
+            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-11 px-4 font-medium touch-manipulation">
               <Eye class="w-4 h-4 mr-2" />
               {m["orders.details"]()}
             </Button>
@@ -370,7 +380,7 @@
             columns={activeColumns}
             data={orders}
             loading={loading}
-            emptyMessage={m["orders.empty"]()}
+            emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
             filterPlaceholder={m["orders.searchPlaceholder"]()}
             showFilter={false}
             cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
@@ -389,7 +399,7 @@
             columns={activeColumns}
             data={orders}
             loading={loading}
-            emptyMessage={m["orders.empty"]()}
+            emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
             filterPlaceholder={m["orders.searchPlaceholder"]()}
             showFilter={false}
             cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
@@ -415,11 +425,11 @@
       <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
         {#snippet draftActions(row: Row<DraftOrder>)}
           <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-10 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
+            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-11 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
               <SquarePen class="w-4 h-4 mr-2" />
               <span>{m["orders.editDraft"]()}</span>
             </Button>
-            <Button variant="ghost" class="h-10 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
+            <Button variant="ghost" class="h-11 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
               <Trash2 class="w-4 h-4 mr-2" />
               <span>{m["common.delete"]()}</span>
             </Button>
