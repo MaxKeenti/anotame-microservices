@@ -45,7 +45,10 @@ class SalesServiceDashboardMetricsTest {
                             new Object[] { "CASH", new BigDecimal("68540.00") },
                             new Object[] { "CARD", new BigDecimal("14300.00") },
                             new Object[] { "TRANSFER", new BigDecimal("2105.00") });
-                    case "sumPendingDebt" -> new BigDecimal("20532.50");
+                    case "sumOpenReceivable" -> new BigDecimal("20532.50");
+                    case "sumDeliveredUnpaid" -> new BigDecimal("3110.00");
+                    case "sumBilledInRange" -> new BigDecimal("91000.00");
+                    case "sumCollectedForCohort" -> new BigDecimal("77500.00");
                     case "getDailyNetPaymentData" -> Collections.singletonList(new Object[] {
                             Date.valueOf(today), new BigDecimal("5020.00")
                     });
@@ -80,7 +83,12 @@ class SalesServiceDashboardMetricsTest {
                 metrics.getFinance().getMonthlyRevenueByPaymentMethod().stream()
                         .map(DashboardMetricsResponse.PaymentMethodTotal::getTotal)
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
-        assertEquals(new BigDecimal("20532.50"), metrics.getFinance().getPendingDebt());
+        assertEquals(new BigDecimal("20532.50"), metrics.getFinance().getOpenReceivable());
+        assertEquals(new BigDecimal("3110.00"), metrics.getFinance().getDeliveredUnpaid());
+        // Cohort figures subtract cleanly; monthlyRevenue (cash-in) is deliberately not part of this.
+        assertEquals(new BigDecimal("91000.00"), metrics.getFinance().getMonthlyBilled());
+        assertEquals(new BigDecimal("77500.00"), metrics.getFinance().getMonthlyCollected());
+        assertEquals(new BigDecimal("13500.00"), metrics.getFinance().getMonthlyPending());
         assertEquals(7, metrics.getWeeklyRevenueChart().size());
         assertEquals(today.toString(), metrics.getWeeklyRevenueChart().get(6).getDate());
         assertEquals(new BigDecimal("5020.00"), metrics.getWeeklyRevenueChart().get(6).getTotalPaid());

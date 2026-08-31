@@ -24,9 +24,22 @@ public class DashboardMetricsResponse {
     @Builder
     public static class FinanceMetrics {
         private BigDecimal todayRevenue;
+        /** Cash actually received in the month, by payment date. */
         private BigDecimal monthlyRevenue;
         private List<PaymentMethodTotal> monthlyRevenueByPaymentMethod;
-        private BigDecimal pendingDebt;
+        /** Billed on tickets created in the month, excluding cancellations. */
+        private BigDecimal monthlyBilled;
+        /**
+         * Collected against tickets created in the month, whenever the payment landed. Not comparable
+         * to {@code monthlyRevenue}: a July ticket paid in August counts here in July, there in August.
+         */
+        private BigDecimal monthlyCollected;
+        /** {@code monthlyBilled - monthlyCollected}: still owed on that month's tickets. */
+        private BigDecimal monthlyPending;
+        /** Owed on tickets still in the shop. */
+        private BigDecimal openReceivable;
+        /** Owed on garments already handed over. Tracked separately because the leverage is gone. */
+        private BigDecimal deliveredUnpaid;
     }
 
     @Data

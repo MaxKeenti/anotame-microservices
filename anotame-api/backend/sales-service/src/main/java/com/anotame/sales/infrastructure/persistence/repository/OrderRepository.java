@@ -37,7 +37,10 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
         return getEntityManager()
                 .createQuery(
                         "SELECT SUM(p.amount) FROM OrderPaymentEntity p " +
-                                "WHERE p.recordedAt >= :start AND p.recordedAt < :end",
+                                "WHERE p.recordedAt >= :start AND p.recordedAt < :end " +
+                                // OrderEntity carries @SQLRestriction("is_deleted = false"), so this
+                                // EXISTS filters out payments whose ticket was soft-deleted.
+                                "AND EXISTS (SELECT 1 FROM OrderEntity o WHERE o.id = p.orderId)",
                         BigDecimal.class)
                 .setParameter("start", start)
                 .setParameter("end", end)
@@ -52,24 +55,161 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
         return getEntityManager()
                 .createNativeQuery(
                         "SELECT CASE " +
-                                "WHEN UPPER(BTRIM(payment_method)) IN ('CASH', 'CARD', 'TRANSFER') " +
-                                "THEN UPPER(BTRIM(payment_method)) ELSE 'UNSPECIFIED' END AS method, " +
-                                "SUM(amount) AS total " +
-                                "FROM tco_order_payment " +
-                                "WHERE recorded_at >= :start AND recorded_at < :end " +
+                                "WHEN UPPER(BTRIM(p.payment_method)) IN ('CASH', 'CARD', 'TRANSFER') " +
+                                "THEN UPPER(BTRIM(p.payment_method)) ELSE 'UNSPECIFIED' END AS method, " +
+                                "SUM(p.amount) AS total " +
+                                "FROM tco_order_payment p " +
+                                "JOIN tco_order o ON o.id_order = p.id_order AND o.is_deleted = false " +
+                                "WHERE p.recorded_at >= :start AND p.recorded_at < :end " +
                                 "GROUP BY method ORDER BY method")
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
     }
 
+    /**
+     * Receivable on tickets still in the shop: work is owed to the customer and money is owed to us.
+     * This is the figure historically surfaced as "Cuentas por Cobrar".
+     */
     @SuppressWarnings("null")
-    public BigDecimal sumPendingDebt() {
-        // Pending debt calculated only for non-cancelled/non-delivered items
+    public BigDecimal sumOpenReceivable() {
+        return sumScalar(
+                "SELECT SUM(o.totalAmount - o.amountPaid) FROM OrderEntity o " +
+                        "WHERE o.status NOT IN ('DELIVERED', 'CANCELLED') AND o.totalAmount > o.amountPaid");
+    }
+
+    /**
+     * Receivable on tickets already handed over. The garment is gone, so this is materially riskier
+     * than {@link #sumOpenReceivable()} and is reported as its own figure rather than merged into it.
+     */
+    @SuppressWarnings("null")
+    public BigDecimal sumDeliveredUnpaid() {
+        return sumScalar(
+                "SELECT SUM(o.totalAmount - o.amountPaid) FROM OrderEntity o " +
+                        "WHERE o.status = 'DELIVERED' AND o.totalAmount > o.amountPaid");
+    }
+
+    /** Total billed on tickets created in the range, excluding cancellations. */
+    @SuppressWarnings("null")
+    public BigDecimal sumBilledInRange(OffsetDateTime start, OffsetDateTime end) {
         return getEntityManager()
                 .createQuery(
-                        "SELECT SUM(o.totalAmount - o.amountPaid) FROM OrderEntity o WHERE o.status not in ('DELIVERED', 'CANCELLED') AND o.totalAmount > o.amountPaid",
+                        "SELECT SUM(o.totalAmount) FROM OrderEntity o " +
+                                "WHERE o.createdAt >= :start AND o.createdAt < :end " +
+                                "AND o.status <> 'CANCELLED'",
                         BigDecimal.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultStream()
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
+
+    /**
+     * Collected against the cohort of tickets created in the range, regardless of when the payment
+     * landed. Deliberately NOT comparable to {@link #sumNetPaymentsInRange} (cash-in by payment date):
+     * a July ticket paid in August counts here in July and there in August.
+     */
+    @SuppressWarnings("null")
+    public BigDecimal sumCollectedForCohort(OffsetDateTime start, OffsetDateTime end) {
+        return getEntityManager()
+                .createQuery(
+                        "SELECT SUM(p.amount) FROM OrderPaymentEntity p, OrderEntity o " +
+                                "WHERE o.id = p.orderId " +
+                                "AND o.createdAt >= :start AND o.createdAt < :end " +
+                                "AND o.status <> 'CANCELLED'",
+                        BigDecimal.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultStream()
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
+
+    /**
+     * Aging breakdown of everything with an outstanding balance, bucketed by days since creation and
+     * split by status and branch. Row shape: [bucket, status, branchId, orderCount, balance].
+     */
+    @SuppressWarnings("unchecked")
+    public List<Object[]> getReceivablesAging(OffsetDateTime now) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT CASE " +
+                        // CAST pins the bind type: Hibernate can otherwise send an untyped native
+                        // parameter as bytea, and Postgres rejects "bytea - interval".
+                        "    WHEN o.created_at > CAST(:now AS timestamptz) - INTERVAL '30 days' THEN '0_30' " +
+                        "    WHEN o.created_at > CAST(:now AS timestamptz) - INTERVAL '60 days' THEN '31_60' " +
+                        "    WHEN o.created_at > CAST(:now AS timestamptz) - INTERVAL '90 days' THEN '61_90' " +
+                        "    ELSE '90_PLUS' END AS bucket, " +
+                        "  o.status AS status, " +
+                        "  o.id_branch AS branch_id, " +
+                        "  COUNT(*) AS order_count, " +
+                        "  SUM(o.total_amount - o.amount_paid) AS balance " +
+                        "FROM tco_order o " +
+                        "WHERE o.is_deleted = false " +
+                        "  AND o.status <> 'CANCELLED' " +
+                        "  AND o.total_amount > o.amount_paid " +
+                        "GROUP BY bucket, o.status, o.id_branch " +
+                        "ORDER BY bucket, o.status")
+                .setParameter("now", now)
+                .getResultList();
+    }
+
+    /**
+     * Row-level detail behind the receivables figure, so the number can be audited.
+     * Row shape: [id, ticketNumber, branchId, firstName, lastName, createdAt, committedDeadline,
+     * totalAmount, amountPaid, balance, daysOutstanding, status].
+     */
+    @SuppressWarnings("unchecked")
+    public List<Object[]> findReceivableOrders(OffsetDateTime now, boolean delivered, int offset, int limit) {
+        return getEntityManager()
+                .createNativeQuery(
+                        "SELECT o.id_order, o.ticket_number, o.id_branch, c.first_name, c.last_name, " +
+                        "  o.created_at, o.committed_deadline, o.total_amount, o.amount_paid, " +
+                        "  (o.total_amount - o.amount_paid) AS balance, " +
+                        "  FLOOR(EXTRACT(EPOCH FROM (CAST(:now AS timestamptz) - o.created_at)) / 86400)::int " +
+                        "    AS days_outstanding, " +
+                        "  o.status " +
+                        "FROM tco_order o " +
+                        "LEFT JOIN tco_customer c ON c.id_customer = o.id_customer " +
+                        "WHERE o.is_deleted = false " +
+                        "  AND o.total_amount > o.amount_paid " +
+                        "  AND " + (delivered ? "o.status = 'DELIVERED' " : "o.status NOT IN ('DELIVERED', 'CANCELLED') ") +
+                        "ORDER BY o.created_at ASC " +
+                        "OFFSET :offset LIMIT :limit")
+                .setParameter("now", now)
+                .setParameter("offset", offset)
+                .setParameter("limit", limit)
+                .getResultList();
+    }
+
+    public long countReceivableOrders(boolean delivered) {
+        String statusPredicate = delivered
+                ? "status = 'DELIVERED'"
+                : "status not in ('DELIVERED', 'CANCELLED')";
+        return count(statusPredicate + " and totalAmount > amountPaid");
+    }
+
+    /**
+     * Reconciliation guard: compares the denormalized {@code amount_paid} column against the payment
+     * ledger. Row shape: [denormalizedTotal, ledgerTotal]. A mismatch means amountPaid has drifted.
+     */
+    public Object[] getPaymentReconciliation() {
+        return (Object[]) getEntityManager()
+                .createNativeQuery(
+                        "SELECT COALESCE(SUM(o.amount_paid), 0) AS denormalized, " +
+                        "  COALESCE((SELECT SUM(p.amount) FROM tco_order_payment p " +
+                        "    JOIN tco_order po ON po.id_order = p.id_order AND po.is_deleted = false), 0) AS ledger " +
+                        "FROM tco_order o WHERE o.is_deleted = false")
+                .getSingleResult();
+    }
+
+    @SuppressWarnings("null")
+    private BigDecimal sumScalar(String jpql) {
+        return getEntityManager()
+                .createQuery(jpql, BigDecimal.class)
                 .getResultStream()
                 .filter(java.util.Objects::nonNull)
                 .findFirst()
@@ -81,9 +221,10 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
     public List<Object[]> getDailyNetPaymentData(OffsetDateTime start, OffsetDateTime end, String zoneId) {
         return getEntityManager()
                 .createNativeQuery(
-                        "SELECT (recorded_at AT TIME ZONE :zone)::date AS day, SUM(amount) " +
-                                "FROM tco_order_payment " +
-                                "WHERE recorded_at >= :start AND recorded_at < :end " +
+                        "SELECT (p.recorded_at AT TIME ZONE :zone)::date AS day, SUM(p.amount) " +
+                                "FROM tco_order_payment p " +
+                                "JOIN tco_order o ON o.id_order = p.id_order AND o.is_deleted = false " +
+                                "WHERE p.recorded_at >= :start AND p.recorded_at < :end " +
                                 "GROUP BY day ORDER BY day")
                 .setParameter("zone", zoneId)
                 .setParameter("start", start)
@@ -120,6 +261,7 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "SELECT TO_CHAR((top.recorded_at AT TIME ZONE :zone), :dateFormat) AS period, " +
                                 "SUM(top.amount) AS totalRevenue, COUNT(*) AS paymentCount " +
                                 "FROM tco_order_payment top " +
+                                "JOIN tco_order o ON o.id_order = top.id_order AND o.is_deleted = false " +
                                 "WHERE top.recorded_at >= :start " +
                                 "GROUP BY period ORDER BY period")
                 .setParameter("zone", zoneId)

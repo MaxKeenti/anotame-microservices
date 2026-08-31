@@ -15,6 +15,9 @@ import com.anotame.sales.application.dto.OrderItemServiceDto;
 import com.anotame.sales.application.dto.OrderResponse;
 import com.anotame.sales.application.dto.OrderSummaryPageResponse;
 import com.anotame.sales.application.dto.OrderSummaryResponse;
+import com.anotame.sales.application.dto.ReceivableOrderItem;
+import com.anotame.sales.application.dto.ReceivableOrderPageResponse;
+import com.anotame.sales.application.dto.ReceivablesResponse;
 import com.anotame.sales.domain.model.Customer;
 import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderContentSource;
@@ -46,6 +49,8 @@ import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -54,6 +59,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.anotame.sales.application.dto.AtRiskCustomerItem;
 import com.anotame.sales.application.dto.DashboardMetricsResponse;
@@ -72,6 +78,9 @@ public class SalesService {
     private static final Set<String> VALID_PAYMENT_METHODS = Set.of("CASH", "CARD", "TRANSFER");
     private static final String DEFAULT_PAYMENT_METHOD = "CASH";
     private static final String DELIVERY_SETTLEMENT_NOTE = "DELIVERY_SETTLEMENT";
+
+    /** Aging buckets, in display order. Kept in sync with the CASE in {@code getReceivablesAging}. */
+    private static final List<String> AGING_BUCKETS = List.of("0_30", "31_60", "61_90", "90_PLUS");
 
     private final OrderRepositoryPort orderRepository;
     private final CustomerRepositoryPort customerRepository;
@@ -649,7 +658,14 @@ public class SalesService {
                                 .total(monthlyRevenueByMethod.getOrDefault(method, BigDecimal.ZERO))
                                 .build())
                         .toList();
-        BigDecimal pendingDebt = orderRepository.sumPendingDebt();
+        BigDecimal openReceivable = orderRepository.sumOpenReceivable();
+        BigDecimal deliveredUnpaid = orderRepository.sumDeliveredUnpaid();
+
+        // Cohort attribution: billed and collected are both scoped to tickets *created* in the month,
+        // so they subtract cleanly. monthlyRevenue above is cash-in by payment date and does not.
+        BigDecimal monthlyBilled = orderRepository.sumBilledInRange(startOfMonth, startOfNextMonth);
+        BigDecimal monthlyCollected = orderRepository.sumCollectedForCohort(startOfMonth, startOfNextMonth);
+        BigDecimal monthlyPending = monthlyBilled.subtract(monthlyCollected);
 
         // Chart Data — index raw rows by date (row[0]) for O(1) lookup while filling every day.
         // row[0] is Date (java.sql.Date) or LocalDate, row[1] is BigDecimal.
@@ -700,11 +716,167 @@ public class SalesService {
                         .todayRevenue(todayRevenue)
                         .monthlyRevenue(monthlyRevenue)
                         .monthlyRevenueByPaymentMethod(monthlyPaymentMethodTotals)
-                        .pendingDebt(pendingDebt)
+                        .monthlyBilled(monthlyBilled)
+                        .monthlyCollected(monthlyCollected)
+                        .monthlyPending(monthlyPending)
+                        .openReceivable(openReceivable)
+                        .deliveredUnpaid(deliveredUnpaid)
                         .build())
                 .weeklyRevenueChart(chartData)
                 .dailyWorkload(dailyWorkload)
                 .build();
+    }
+
+    /**
+     * Breakdown behind the receivables figure: the two headline sums, an aging split, and per-status
+     * and per-branch attribution over the same predicate.
+     */
+    @Transactional
+    public ReceivablesResponse getReceivables() {
+        OffsetDateTime now = OffsetDateTime.now(ZoneId.of(appTimezone));
+
+        // Row shape: [bucket, status, branchId, orderCount, balance]
+        List<Object[]> rows = orderRepository.getReceivablesAging(now);
+
+        Map<String, long[]> countsByBucket = new LinkedHashMap<>();
+        Map<String, BigDecimal> balanceByBucket = new LinkedHashMap<>();
+        Map<String, long[]> countsByStatus = new LinkedHashMap<>();
+        Map<String, BigDecimal> balanceByStatus = new LinkedHashMap<>();
+        Map<UUID, long[]> countsByBranch = new LinkedHashMap<>();
+        Map<UUID, BigDecimal> balanceByBranch = new LinkedHashMap<>();
+
+        for (Object[] row : rows) {
+            String bucket = (String) row[0];
+            String status = (String) row[1];
+            UUID branchId = row[2] instanceof UUID uuid ? uuid : UUID.fromString(String.valueOf(row[2]));
+            long count = ((Number) row[3]).longValue();
+            BigDecimal balance = row[4] != null ? (BigDecimal) row[4] : BigDecimal.ZERO;
+
+            countsByBucket.computeIfAbsent(bucket, k -> new long[1])[0] += count;
+            balanceByBucket.merge(bucket, balance, BigDecimal::add);
+            countsByStatus.computeIfAbsent(status, k -> new long[1])[0] += count;
+            balanceByStatus.merge(status, balance, BigDecimal::add);
+            countsByBranch.computeIfAbsent(branchId, k -> new long[1])[0] += count;
+            balanceByBranch.merge(branchId, balance, BigDecimal::add);
+        }
+
+        // Emit every bucket so the frontend renders a stable four-bar axis even when empty.
+        List<ReceivablesResponse.AgingBucket> aging = AGING_BUCKETS.stream()
+                .map(bucket -> ReceivablesResponse.AgingBucket.builder()
+                        .bucket(bucket)
+                        .orderCount(countsByBucket.containsKey(bucket) ? countsByBucket.get(bucket)[0] : 0)
+                        .balance(balanceByBucket.getOrDefault(bucket, BigDecimal.ZERO))
+                        .build())
+                .toList();
+
+        List<ReceivablesResponse.StatusBreakdown> byStatus = balanceByStatus.entrySet().stream()
+                .map(e -> ReceivablesResponse.StatusBreakdown.builder()
+                        .status(e.getKey())
+                        .orderCount(countsByStatus.get(e.getKey())[0])
+                        .balance(e.getValue())
+                        .build())
+                .sorted(Comparator.comparing(ReceivablesResponse.StatusBreakdown::getBalance).reversed())
+                .toList();
+
+        List<ReceivablesResponse.BranchBreakdown> byBranch = balanceByBranch.entrySet().stream()
+                .map(e -> ReceivablesResponse.BranchBreakdown.builder()
+                        .branchId(e.getKey())
+                        .orderCount(countsByBranch.get(e.getKey())[0])
+                        .balance(e.getValue())
+                        .build())
+                .sorted(Comparator.comparing(ReceivablesResponse.BranchBreakdown::getBalance).reversed())
+                .toList();
+
+        // amount_paid is denormalized off the payment ledger. Every write path recomputes it, but a
+        // silent drift would make the receivable wrong at the source, so surface the comparison.
+        Object[] reconciliation = orderRepository.getPaymentReconciliation();
+        BigDecimal denormalized = toBigDecimal(reconciliation[0]);
+        BigDecimal ledger = toBigDecimal(reconciliation[1]);
+        BigDecimal difference = denormalized.subtract(ledger);
+
+        return ReceivablesResponse.builder()
+                .openReceivable(orderRepository.sumOpenReceivable())
+                .deliveredUnpaid(orderRepository.sumDeliveredUnpaid())
+                .openOrderCount(orderRepository.countReceivableOrders(false))
+                .deliveredUnpaidOrderCount(orderRepository.countReceivableOrders(true))
+                .aging(aging)
+                .byStatus(byStatus)
+                .byBranch(byBranch)
+                .ledgerReconciled(difference.compareTo(BigDecimal.ZERO) == 0)
+                .ledgerDifference(difference)
+                .build();
+    }
+
+    /** The ticket rows behind the receivable, so the headline figure can be audited. */
+    @Transactional
+    public ReceivableOrderPageResponse getReceivableOrders(int page, int size, boolean delivered) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        OffsetDateTime now = OffsetDateTime.now(ZoneId.of(appTimezone));
+
+        long total = orderRepository.countReceivableOrders(delivered);
+        List<ReceivableOrderItem> items = orderRepository
+                .findReceivableOrders(now, delivered, safePage * safeSize, safeSize).stream()
+                .map(this::toReceivableOrderItem)
+                .toList();
+
+        BigDecimal totalBalance = delivered
+                ? orderRepository.sumDeliveredUnpaid()
+                : orderRepository.sumOpenReceivable();
+
+        return ReceivableOrderPageResponse.builder()
+                .items(items)
+                .page(safePage)
+                .size(safeSize)
+                .total(total)
+                .totalPages((int) Math.ceil((double) total / safeSize))
+                .totalBalance(totalBalance)
+                .build();
+    }
+
+    private ReceivableOrderItem toReceivableOrderItem(Object[] row) {
+        String firstName = (String) row[3];
+        String lastName = (String) row[4];
+        String customerName = Stream.of(firstName, lastName)
+                .filter(part -> part != null && !part.isBlank())
+                .collect(Collectors.joining(" "));
+
+        return ReceivableOrderItem.builder()
+                .id(row[0] instanceof UUID uuid ? uuid : UUID.fromString(String.valueOf(row[0])))
+                .ticketNumber((String) row[1])
+                .branchId(row[2] instanceof UUID uuid ? uuid : UUID.fromString(String.valueOf(row[2])))
+                .customerName(customerName.isBlank() ? null : customerName)
+                .createdAt(toOffsetDateTime(row[5]))
+                .committedDeadline(toOffsetDateTime(row[6]))
+                .totalAmount(toBigDecimal(row[7]))
+                .amountPaid(toBigDecimal(row[8]))
+                .balance(toBigDecimal(row[9]))
+                .daysOutstanding(row[10] != null ? ((Number) row[10]).intValue() : 0)
+                .status((String) row[11])
+                .build();
+    }
+
+    private static BigDecimal toBigDecimal(Object value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        return value instanceof BigDecimal decimal ? decimal : new BigDecimal(value.toString());
+    }
+
+    private static OffsetDateTime toOffsetDateTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof OffsetDateTime offsetDateTime) {
+            return offsetDateTime;
+        }
+        if (value instanceof java.sql.Timestamp timestamp) {
+            return timestamp.toInstant().atOffset(java.time.ZoneOffset.UTC);
+        }
+        if (value instanceof java.time.Instant instant) {
+            return instant.atOffset(java.time.ZoneOffset.UTC);
+        }
+        return OffsetDateTime.parse(value.toString());
     }
 
     public FinancialKpiResponse getFinancialKpis(String granularity, int atRiskDays) {
