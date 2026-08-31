@@ -137,9 +137,11 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
         return getEntityManager()
                 .createNativeQuery(
                         "SELECT CASE " +
-                        "    WHEN o.created_at > :now - INTERVAL '30 days' THEN '0_30' " +
-                        "    WHEN o.created_at > :now - INTERVAL '60 days' THEN '31_60' " +
-                        "    WHEN o.created_at > :now - INTERVAL '90 days' THEN '61_90' " +
+                        // CAST pins the bind type: Hibernate can otherwise send an untyped native
+                        // parameter as bytea, and Postgres rejects "bytea - interval".
+                        "    WHEN o.created_at > CAST(:now AS timestamptz) - INTERVAL '30 days' THEN '0_30' " +
+                        "    WHEN o.created_at > CAST(:now AS timestamptz) - INTERVAL '60 days' THEN '31_60' " +
+                        "    WHEN o.created_at > CAST(:now AS timestamptz) - INTERVAL '90 days' THEN '61_90' " +
                         "    ELSE '90_PLUS' END AS bucket, " +
                         "  o.status AS status, " +
                         "  o.id_branch AS branch_id, " +
@@ -167,7 +169,8 @@ public class OrderRepository implements PanacheRepositoryBase<OrderEntity, UUID>
                         "SELECT o.id_order, o.ticket_number, o.id_branch, c.first_name, c.last_name, " +
                         "  o.created_at, o.committed_deadline, o.total_amount, o.amount_paid, " +
                         "  (o.total_amount - o.amount_paid) AS balance, " +
-                        "  FLOOR(EXTRACT(EPOCH FROM (:now - o.created_at)) / 86400)::int AS days_outstanding, " +
+                        "  FLOOR(EXTRACT(EPOCH FROM (CAST(:now AS timestamptz) - o.created_at)) / 86400)::int " +
+                        "    AS days_outstanding, " +
                         "  o.status " +
                         "FROM tco_order o " +
                         "LEFT JOIN tco_customer c ON c.id_customer = o.id_customer " +
