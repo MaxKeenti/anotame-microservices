@@ -36,7 +36,22 @@ public interface OrderRepositoryPort {
     java.util.List<Object[]> getNetPaymentTotalsByMethodInRange(
             java.time.OffsetDateTime start, java.time.OffsetDateTime end);
 
-    java.math.BigDecimal sumPendingDebt();
+    java.math.BigDecimal sumOpenReceivable();
+
+    java.math.BigDecimal sumDeliveredUnpaid();
+
+    java.math.BigDecimal sumBilledInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+
+    java.math.BigDecimal sumCollectedForCohort(java.time.OffsetDateTime start, java.time.OffsetDateTime end);
+
+    java.util.List<Object[]> getReceivablesAging(java.time.OffsetDateTime now);
+
+    java.util.List<Object[]> findReceivableOrders(java.time.OffsetDateTime now, boolean delivered,
+            int offset, int limit);
+
+    long countReceivableOrders(boolean delivered);
+
+    Object[] getPaymentReconciliation();
 
     java.util.List<Object[]> getDailyNetPaymentData(java.time.OffsetDateTime start,
             java.time.OffsetDateTime end, String zoneId);

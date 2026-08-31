@@ -210,8 +210,44 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public java.math.BigDecimal sumPendingDebt() {
-        return orderRepository.sumPendingDebt();
+    public java.math.BigDecimal sumOpenReceivable() {
+        return orderRepository.sumOpenReceivable();
+    }
+
+    @Override
+    public java.math.BigDecimal sumDeliveredUnpaid() {
+        return orderRepository.sumDeliveredUnpaid();
+    }
+
+    @Override
+    public java.math.BigDecimal sumBilledInRange(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.sumBilledInRange(start, end);
+    }
+
+    @Override
+    public java.math.BigDecimal sumCollectedForCohort(java.time.OffsetDateTime start, java.time.OffsetDateTime end) {
+        return orderRepository.sumCollectedForCohort(start, end);
+    }
+
+    @Override
+    public java.util.List<Object[]> getReceivablesAging(java.time.OffsetDateTime now) {
+        return orderRepository.getReceivablesAging(now);
+    }
+
+    @Override
+    public java.util.List<Object[]> findReceivableOrders(java.time.OffsetDateTime now, boolean delivered,
+            int offset, int limit) {
+        return orderRepository.findReceivableOrders(now, delivered, offset, limit);
+    }
+
+    @Override
+    public long countReceivableOrders(boolean delivered) {
+        return orderRepository.countReceivableOrders(delivered);
+    }
+
+    @Override
+    public Object[] getPaymentReconciliation() {
+        return orderRepository.getPaymentReconciliation();
     }
 
     @Override
