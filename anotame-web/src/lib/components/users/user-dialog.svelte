@@ -147,7 +147,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['userDialog.label.username']()} <span class="text-destructive">*</span></Form.Label>
-                <Input {...props} {...constraints} id="u-username" bind:value={$form.username} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.username} class="h-12" />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -160,7 +160,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['userDialog.label.password']()} <span class="text-destructive">*</span></Form.Label>
-                <Input {...props} {...constraints} id="u-password" type="password" bind:value={$form.password} class="h-12" />
+                <Input {...props} {...constraints} type="password" bind:value={$form.password} class="h-12" />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -190,7 +190,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['common.firstName']()}</Form.Label>
-                <Input {...props} {...constraints} id="u-firstname" bind:value={$form.firstName} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.firstName} class="h-12" />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -201,7 +201,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['common.lastName']()}</Form.Label>
-                <Input {...props} {...constraints} id="u-lastname" bind:value={$form.lastName} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.lastName} class="h-12" />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -214,7 +214,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['userDialog.label.email']()}</Form.Label>
-              <Input {...props} {...constraints} id="u-email" type="email" bind:value={$form.email} class="h-12" />
+              <Input {...props} {...constraints} type="email" bind:value={$form.email} class="h-12" />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />

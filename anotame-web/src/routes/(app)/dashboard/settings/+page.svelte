@@ -114,7 +114,8 @@
           <span class="w-28 text-sm font-medium shrink-0">{label()}</span>
           <input
             type="text"
-            class="flex-1 h-9 px-3 border border-input rounded-md bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+            class="flex-1 h-11 px-3 border border-input rounded-md bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+            aria-label={m['settings.label.colorHex']({ name: label() })}
             placeholder={defaultHex}
             value={paletteStore.current[key] ?? ''}
             oninput={(e) => handleInput(key, e.currentTarget.value)}

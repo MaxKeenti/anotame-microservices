@@ -66,7 +66,7 @@
   <div class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-b border-border bg-secondary/20">
     <div class="wrap-break-word font-bold text-lg">{m['orders.payment.historyTitle']()}</div>
     {#if onRecordPayment}
-      <Button onclick={onRecordPayment} size="sm" class="h-10 touch-manipulation">
+      <Button onclick={onRecordPayment} size="sm" class="h-11 touch-manipulation">
         <DollarSign />
         {m['orders.payment.recordPayment']()}
       </Button>
@@ -86,7 +86,7 @@
       {#each payments as payment}
         <div class="min-w-0 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
           <!-- Amount -->
-          <span class={`font-bold text-base font-mono w-24 shrink-0 ${payment.amount < 0 ? 'text-destructive' : 'text-success'}`}>
+          <span class={`font-bold text-base font-mono w-24 shrink-0 ${payment.amount < 0 ? 'text-destructive' : 'text-success-text'}`}>
             {payment.amount < 0 ? '' : '+'}{formatCurrency(payment.amount)}
           </span>
 

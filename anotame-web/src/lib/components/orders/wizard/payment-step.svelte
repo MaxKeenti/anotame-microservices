@@ -460,7 +460,7 @@
 							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
 							<div>
 								<h5 class="text-xs font-bold text-destructive">{m['paymentStep.dayFull']()}</h5>
-								<p class="text-[10px] text-destructive/80 leading-relaxed font-medium">
+								<p class="text-xs text-destructive/80 leading-relaxed font-medium">
 									{m['paymentStep.dayFullHint']()}
 								</p>
 							</div>
@@ -484,7 +484,7 @@
 			type="button"
 			variant="outline"
 			onclick={props.onBack}
-			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg touch-manipulation"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg touch-manipulation"
 			disabled={isSubmitting}
 		>
 			{m['orders.detail.back']()}
@@ -492,7 +492,7 @@
 		<Button
 			type="submit"
 			disabled={isSubmitting}
-			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
 		>
 			{#if isSubmitting}
 				<Loader2 class="w-4 h-4 mr-2 animate-spin" />

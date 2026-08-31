@@ -6,6 +6,7 @@
   import { Loader2 } from '@lucide/svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
+  import { isApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
 
   import { superForm, defaults, setError } from 'sveltekit-superforms';
@@ -16,8 +17,10 @@
 
   const serviceSchema = z.object({
     id: z.string().nullable().optional(),
-    name: z.string().min(2, m['serviceDialog.zod.nameRequired']()),
-    description: z.string().optional().or(z.literal('')),
+    // Trim before validating: an untrimmed name creates a catalogue row that
+    // looks identical to its twin in every picker.
+    name: z.string().trim().min(2, m['serviceDialog.zod.nameRequired']()),
+    description: z.string().trim().optional().or(z.literal('')),
     basePrice: z.number().min(0, m['serviceDialog.zod.priceMin']()),
     defaultDurationMin: z.number().min(1, m['serviceDialog.zod.minDuration']()),
     garmentTypeId: z.string().min(1, m['serviceDialog.zod.garmentRequired']()),
@@ -74,6 +77,12 @@
             setError(form, field as keyof typeof form.data, message);
           }
           toast.error(m['common.checkMarkedFields']());
+        } else if (isApiError(e) && e.status === 409) {
+          // The backend's conflict message is English-only, so localise it here
+          // and attach it to the field the user has to change.
+          const message = m['serviceDialog.error.duplicateName']();
+          setError(form, 'name', message);
+          toast.error(message);
         } else {
           toast.error(e.message || m['serviceDialog.toast.saveError']());
         }

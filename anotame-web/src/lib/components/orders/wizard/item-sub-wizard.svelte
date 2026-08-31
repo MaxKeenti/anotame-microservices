@@ -390,7 +390,7 @@
                 {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
                 {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
             </h3>
-            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-10 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
+            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-11 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
@@ -640,7 +640,7 @@
                             min="5"
                             max="300"
                             step="5"
-                            class="h-10 cursor-pointer accent-primary"
+                            class="h-11 cursor-pointer accent-primary"
                             bind:value={duration}
                         />
                         <p class="text-xs text-muted-foreground italic text-center">{m['itemSubWizard.effortHint']()}</p>

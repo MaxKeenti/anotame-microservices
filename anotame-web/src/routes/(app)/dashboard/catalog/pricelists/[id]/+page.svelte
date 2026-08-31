@@ -188,7 +188,7 @@
         <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.editTitle"]()}</h1>
         <p class="text-muted-foreground wrap-break-word">{m["catalog.pricelist.editSubtitle"]({ name: $form.name })}</p>
       </div>
-      <Button variant="outline" class="h-10 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
     </div>
 
     <form method="POST" use:enhance class="space-y-6">
@@ -202,7 +202,7 @@
               <Form.Control>
                 {#snippet children({ props })}
                   <Form.Label>{m["catalog.pricelist.nameLabel"]()} <span class="text-destructive">*</span></Form.Label>
-                  <Input {...props} {...constraints} id="pl-name" placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} class="h-12" />
+                  <Input {...props} {...constraints} placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} class="h-12" />
                 {/snippet}
               </Form.Control>
               <Form.FieldErrors />
@@ -215,7 +215,7 @@
                 <Form.Control>
                   {#snippet children({ props })}
                     <Form.Label>{m["catalog.pricelist.priorityLabel"]()}</Form.Label>
-                    <Input {...props} {...constraints} id="pl-priority" type="number" bind:value={$form.priority} class="h-12 font-mono" />
+                    <Input {...props} {...constraints} type="number" bind:value={$form.priority} class="h-12 font-mono" />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -269,7 +269,7 @@
             <span class="text-sm font-bold mr-2 uppercase tracking-wide opacity-70">{m["catalog.pricelist.bulkAdjust"]()}</span>
             <div class="flex gap-2">
               {#each [5, 10, 15, 20] as amount (amount)}
-                <Button type="button" variant="outline" size="sm" class="font-mono text-success hover:text-success hover:bg-success/10 border-success/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(amount)}>
+                <Button type="button" variant="outline" size="sm" class="font-mono text-success-text hover:text-success-text hover:bg-success/10 border-success/30 touch-manipulation h-11" onclick={() => handleBulkAdjustment(amount)}>
                   +${amount}
                 </Button>
               {/each}
@@ -277,13 +277,13 @@
             <div class="hidden sm:block w-px h-6 bg-border mx-2"></div>
             <div class="flex gap-2">
               {#each [5, 10, 15, 20] as amount (amount)}
-                <Button type="button" variant="outline" size="sm" class="font-mono text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 touch-manipulation h-10" onclick={() => handleBulkAdjustment(-amount)}>
+                <Button type="button" variant="outline" size="sm" class="font-mono text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 touch-manipulation h-11" onclick={() => handleBulkAdjustment(-amount)}>
                   -${amount}
                 </Button>
               {/each}
             </div>
             <div class="w-full sm:w-px sm:h-6 bg-border mx-0 sm:mx-2 my-2 sm:my-0"></div>
-            <Button type="button" variant="ghost" size="sm" class="h-10 text-muted-foreground w-full sm:w-auto" onclick={handleReset}>
+            <Button type="button" variant="ghost" size="sm" class="h-11 text-muted-foreground w-full sm:w-auto" onclick={handleReset}>
               {m["catalog.pricelist.restoreButton"]()}
             </Button>
           </div>

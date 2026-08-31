@@ -226,7 +226,7 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div class="flex items-center gap-3">
       <div class="p-2 bg-success/10 rounded-lg">
-        <TrendingUp class="w-5 h-5 text-success" />
+        <TrendingUp class="w-5 h-5 text-success-text" />
       </div>
       <div>
         <h2 class="text-2xl font-bold font-heading text-foreground">
@@ -243,6 +243,7 @@
       <Button
         variant={granularity === 'day' ? 'default' : 'outline'}
         size="sm"
+        class="h-11 px-4 touch-manipulation"
         onclick={() => setGranularity('day')}
         aria-label={m['kpi.financial.granularity.day']()}
       >
@@ -251,6 +252,7 @@
       <Button
         variant={granularity === 'week' ? 'default' : 'outline'}
         size="sm"
+        class="h-11 px-4 touch-manipulation"
         onclick={() => setGranularity('week')}
         aria-label={m['kpi.financial.granularity.week']()}
       >
@@ -259,6 +261,7 @@
       <Button
         variant={granularity === 'month' ? 'default' : 'outline'}
         size="sm"
+        class="h-11 px-4 touch-manipulation"
         onclick={() => setGranularity('month')}
         aria-label={m['kpi.financial.granularity.month']()}
       >
@@ -333,7 +336,7 @@
                 style="height: {heightPct}%"
               ></div>
               <!-- Label -->
-              <div class="text-[10px] mt-2 text-muted-foreground -rotate-45deg pb-2 uppercase truncate w-full text-center origin-center">
+              <div class="text-xs mt-2 text-muted-foreground -rotate-45deg pb-2 uppercase truncate w-full text-center origin-center">
                 {getPeriodLabel(point.period)}
               </div>
             </div>
@@ -423,7 +426,7 @@
               <div class="flex items-center justify-between px-2 pt-4">
                 <Button
                   variant="outline"
-                  class="h-10 touch-manipulation"
+                  class="h-11 px-5 touch-manipulation"
                   disabled={servicePageIndex === 0}
                   onclick={previousServicePage}
                 >
@@ -434,7 +437,7 @@
                 </span>
                 <Button
                   variant="outline"
-                  class="h-10 touch-manipulation"
+                  class="h-11 px-5 touch-manipulation"
                   disabled={servicePageIndex >= servicePageCount - 1}
                   onclick={nextServicePage}
                 >
@@ -478,7 +481,7 @@
                         {customer.orderCount} {m['kpi.financial.topCustomers.orders']()}
                       </p>
                     </div>
-                    <span class="text-sm font-mono font-bold text-success shrink-0">
+                    <span class="text-sm font-mono font-bold text-success-text shrink-0">
                       {formatCurrency(customer.totalSpend)}
                     </span>
                   </div>
@@ -497,7 +500,7 @@
               <div class="flex items-center justify-between px-2 pt-4">
                 <Button
                   variant="outline"
-                  class="h-10 touch-manipulation"
+                  class="h-11 px-5 touch-manipulation"
                   disabled={topCustomerPageIndex === 0}
                   onclick={previousTopCustomerPage}
                 >
@@ -508,7 +511,7 @@
                 </span>
                 <Button
                   variant="outline"
-                  class="h-10 touch-manipulation"
+                  class="h-11 px-5 touch-manipulation"
                   disabled={topCustomerPageIndex >= topCustomerPageCount - 1}
                   onclick={nextTopCustomerPage}
                 >
@@ -558,11 +561,11 @@
       <Card.Header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <AlertTriangle class="w-4 h-4 text-amber-500" />
+            <AlertTriangle class="w-4 h-4 text-amber-700 dark:text-amber-400" />
             <Card.Title>{m['kpi.financial.atRisk.title']()}</Card.Title>
           </div>
           {#if data.atRiskCustomers && data.atRiskCustomers.length > 0}
-            <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-600 rounded-full">
+            <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full">
               {data.atRiskCustomers.length}
             </span>
           {/if}
@@ -584,7 +587,7 @@
                   <p class="text-sm font-semibold text-foreground truncate">
                     {getAtRiskName(customer)}
                   </p>
-                  <span class="text-xs font-mono font-bold text-amber-600 shrink-0">
+                  <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400 shrink-0">
                     {getAtRiskAgeLabel(customer)}
                   </span>
                 </div>
@@ -607,7 +610,7 @@
             <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
               {m['kpi.financial.summary.total']()}
             </p>
-            <p class="text-2xl font-bold font-mono text-success mt-2">
+            <p class="text-2xl font-bold font-mono text-success-text mt-2">
               {formatCurrency(totalRevenue)}
             </p>
           </div>

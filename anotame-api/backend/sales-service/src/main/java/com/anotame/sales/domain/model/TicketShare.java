@@ -11,6 +11,7 @@ public class TicketShare {
     private UUID orderId;
     private String tokenHash;
     private UUID createdByUserId;
+    private TicketShareScope scope = TicketShareScope.CUSTOMER;
     private OffsetDateTime expiresAt;
     private OffsetDateTime revokedAt;
     private OffsetDateTime createdAt;

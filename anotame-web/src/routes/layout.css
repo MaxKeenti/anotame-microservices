@@ -14,25 +14,25 @@
 	--card-foreground: oklch(0.147 0.004 49.3);
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.147 0.004 49.3);
-	--primary: oklch(0.660 0.229 35.403);
+	--primary: oklch(0.57 0.229 35.403);
 	--primary-foreground: oklch(0.98 0.016 73.684);
 	--secondary: oklch(0.967 0.001 286.375);
 	--secondary-foreground: oklch(0.21 0.006 285.885);
 	--muted: oklch(0.96 0.002 17.2);
-	--muted-foreground: oklch(0.547 0.021 43.1);
-	--accent: oklch(0.660 0.229 35.403);
+	--muted-foreground: oklch(0.53 0.021 43.1);
+	--accent: oklch(0.57 0.229 35.403);
 	--accent-foreground: oklch(0.98 0.016 73.684);
 	--destructive: oklch(0.577 0.245 27.325);
 	--success: oklch(0.696 0.17 162);
-	--success-foreground: oklch(1 0 0);
+	--success-foreground: oklch(0.145 0 0);
 	--success-muted: oklch(0.948 0.052 162);
 	--success-text: oklch(0.37 0.12 162);
 	--warning: oklch(0.75 0.15 75);
-	--warning-foreground: oklch(1 0 0);
+	--warning-foreground: oklch(0.145 0 0);
 	--warning-muted: oklch(0.97 0.05 90);
 	--warning-text: oklch(0.40 0.13 75);
 	--info: oklch(0.65 0.15 250);
-	--info-foreground: oklch(1 0 0);
+	--info-foreground: oklch(0.145 0 0);
 	--info-muted: oklch(0.94 0.04 250);
 	--info-text: oklch(0.4 0.12 250);
 	--destructive-muted: oklch(0.95 0.04 25);
@@ -68,7 +68,7 @@
 	--radius: 0.875rem;
 	--sidebar: oklch(0.986 0.002 67.8);
 	--sidebar-foreground: oklch(0.147 0.004 49.3);
-	--sidebar-primary: oklch(0.646 0.222 41.116);
+	--sidebar-primary: oklch(0.57 0.229 35.403);
 	--sidebar-primary-foreground: oklch(0.98 0.016 73.684);
 	--sidebar-accent: oklch(0.96 0.002 17.2);
 	--sidebar-accent-foreground: oklch(0.214 0.009 43.1);
@@ -83,14 +83,14 @@
 	--card-foreground: oklch(0.986 0.002 67.8);
 	--popover: oklch(0.214 0.009 43.1);
 	--popover-foreground: oklch(0.986 0.002 67.8);
-	--primary: oklch(0.62 0.205 35.403);
-	--primary-foreground: oklch(0.98 0.016 73.684);
+	--primary: oklch(0.70 0.19 35.403);
+	--primary-foreground: oklch(0.145 0 0);
 	--secondary: oklch(0.274 0.006 286.033);
 	--secondary-foreground: oklch(0.985 0 0);
 	--muted: oklch(0.268 0.011 36.5);
 	--muted-foreground: oklch(0.714 0.014 41.2);
-	--accent: oklch(0.62 0.205 35.403);
-	--accent-foreground: oklch(0.98 0.016 73.684);
+	--accent: oklch(0.70 0.19 35.403);
+	--accent-foreground: oklch(0.145 0 0);
 	--destructive: oklch(0.704 0.191 22.216);
 	--success: oklch(0.75 0.16 162);
 	--success-foreground: oklch(0.145 0 0);
@@ -117,8 +117,8 @@
 	--chart-5: oklch(0.443 0.11 240.79);
 	--sidebar: oklch(0.214 0.009 43.1);
 	--sidebar-foreground: oklch(0.986 0.002 67.8);
-	--sidebar-primary: oklch(0.705 0.213 47.604);
-	--sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+	--sidebar-primary: oklch(0.70 0.19 35.403);
+	--sidebar-primary-foreground: oklch(0.145 0 0);
 	--sidebar-accent: oklch(0.268 0.011 36.5);
 	--sidebar-accent-foreground: oklch(0.986 0.002 67.8);
 	--sidebar-border: oklch(1 0 0 / 10%);
@@ -304,6 +304,34 @@
 	}
 
 	.checkbox-custom {
-		@apply w-5 h-5 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none after:content-['✓'] after:text-white after:font-bold after:hidden checked:after:block after:text-xs;
+		@apply relative w-6 h-6 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none after:content-['✓'] after:text-primary-foreground after:font-bold after:hidden checked:after:block after:text-sm;
+	}
+
+	/* Keep the box visually compact but give it a 44px touch target. */
+	.checkbox-custom::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		width: 44px;
+		height: 44px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	/* Neutralise the hover/press scaling used on nav tiles and cards. */
+	.hover\:scale-105:hover,
+	.active\:scale-95:active {
+		scale: 1 !important;
 	}
 }

@@ -3,11 +3,14 @@ package com.anotame.sales.infrastructure.web.controller;
 import com.anotame.sales.application.dto.CreatedTicketShareResponse;
 import com.anotame.sales.application.dto.TicketShareResponse;
 import com.anotame.sales.application.service.TicketShareService;
+import com.anotame.sales.domain.model.TicketShareScope;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -30,8 +33,18 @@ public class TicketShareController {
     UUID defaultBranchId;
 
     @POST
-    public CreatedTicketShareResponse create(@PathParam("orderId") UUID orderId) {
-        return ticketShareService.create(orderId, requireUserId(), branchIdFromJwtOrDefault());
+    public CreatedTicketShareResponse create(
+            @PathParam("orderId") UUID orderId,
+            @QueryParam("scope") @DefaultValue("CUSTOMER") String scope) {
+        return ticketShareService.create(orderId, requireUserId(), branchIdFromJwtOrDefault(), parseScope(scope));
+    }
+
+    private TicketShareScope parseScope(String scope) {
+        try {
+            return TicketShareScope.valueOf(scope.toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            throw new jakarta.ws.rs.BadRequestException("Invalid scope: " + scope);
+        }
     }
 
     @GET

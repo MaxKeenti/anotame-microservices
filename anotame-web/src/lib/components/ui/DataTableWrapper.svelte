@@ -75,7 +75,7 @@
               >
                 {#if !header.isPlaceholder}
                   {#if header.column.id === '__select__'}
-                    <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                    <label class="flex items-center justify-center h-12 w-12 -ml-3 cursor-pointer touch-manipulation">
                       <input
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
@@ -83,10 +83,10 @@
                         checked={state.table.getIsAllRowsSelected()}
                         onchange={state.table.getToggleAllRowsSelectedHandler()}
                       />
-                    </div>
+                    </label>
                   {:else if header.column.getCanSort()}
                     <button
-                      class="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none"
+                      class="flex items-center gap-1 hover:text-foreground transition-colors rounded-md -mx-2 px-2 min-h-11 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       onclick={header.column.getToggleSortingHandler()}
                       aria-label={m["common.sortBy"]({ column: header.column.columnDef.header as string })}
                     >
@@ -96,7 +96,7 @@
                       {:else if header.column.getIsSorted() === 'desc'}
                         <span aria-hidden="true">↓</span>
                       {:else}
-                        <span aria-hidden="true" class="opacity-20 flex flex-col -space-y-1.5 text-[8px] leading-none">
+                        <span aria-hidden="true" class="opacity-40 flex flex-col -space-y-1 text-[10px] leading-none">
                           <span>▲</span>
                           <span>▼</span>
                         </span>
@@ -130,7 +130,7 @@
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell class="py-4 {cell.column.id === '__select__' ? 'px-0' : 'px-6'}">
                   {#if cell.column.id === '__select__'}
-                    <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                    <label class="flex items-center justify-center h-12 w-12 -ml-3 cursor-pointer touch-manipulation">
                       <input
                         type="checkbox"
                         class="h-8 w-8 cursor-pointer"
@@ -138,7 +138,7 @@
                         checked={cell.row.getIsSelected()}
                         onchange={cell.row.getToggleSelectedHandler()}
                       />
-                    </div>
+                    </label>
                   {:else if cellRenders && cellRenders[cell.column.id]}
                     {@render cellRenders[cell.column.id](row)}
                   {:else if cell.column.id === 'actions' && actionCell}
@@ -159,7 +159,7 @@
   <div class="flex items-center justify-between px-2 py-1">
     <Button
       variant="outline"
-      class="h-10 touch-manipulation"
+      class="h-11 px-5 touch-manipulation"
       disabled={!state.table.getCanPreviousPage()}
       onclick={() => state.table.previousPage()}
     >
@@ -170,7 +170,7 @@
     </span>
     <Button
       variant="outline"
-      class="h-10 touch-manipulation"
+      class="h-11 px-5 touch-manipulation"
       disabled={!state.table.getCanNextPage()}
       onclick={() => state.table.nextPage()}
     >

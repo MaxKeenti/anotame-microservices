@@ -2,6 +2,7 @@ package com.anotame.catalog.application.service;
 
 import com.anotame.catalog.application.port.output.GarmentRepositoryPort;
 import com.anotame.catalog.application.port.output.ServiceRepositoryPort;
+import com.anotame.catalog.domain.exception.CatalogConflictException;
 import com.anotame.catalog.domain.exception.CatalogNotFoundException;
 import com.anotame.catalog.domain.model.GarmentType;
 import com.anotame.catalog.application.dto.GarmentTypeRequest;
@@ -34,9 +35,10 @@ public class CatalogService {
     // --- Garments ---
 
     public GarmentType createGarment(GarmentTypeRequest request) {
+        requireUniqueGarmentName(request.getName(), null);
         GarmentType garment = new GarmentType();
-        garment.setName(request.getName());
-        garment.setDescription(request.getDescription());
+        garment.setName(normalize(request.getName()));
+        garment.setDescription(normalize(request.getDescription()));
         garment.setActive(true);
         return garmentRepository.save(garment);
     }
@@ -44,10 +46,40 @@ public class CatalogService {
     @Transactional
     public GarmentType updateGarment(UUID id, GarmentTypeRequest request) {
         return garmentRepository.findById(id).map(garment -> {
-            garment.setName(request.getName());
-            garment.setDescription(request.getDescription());
+            requireUniqueGarmentName(request.getName(), id);
+            garment.setName(normalize(request.getName()));
+            garment.setDescription(normalize(request.getDescription()));
             return garmentRepository.save(garment);
         }).orElseThrow(() -> new CatalogNotFoundException("Garment"));
+    }
+
+    /**
+     * Names arrive from free-text inputs, and an untrimmed one creates a row that is
+     * indistinguishable from its trimmed twin in every picker while slipping past both
+     * the uniqueness check below and the V5 unique index on services.
+     */
+    private static String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * Garment names have no database-level unique index (unlike services, see V5), so
+     * duplicates are rejected here. Scoped to active garments so a name freed by a
+     * deactivated garment can be reused.
+     */
+    private void requireUniqueGarmentName(String name, UUID selfId) {
+        if (name == null || name.isBlank()) {
+            return;
+        }
+        garmentRepository.findActiveByName(name).ifPresent(existing -> {
+            if (selfId == null || !selfId.equals(existing.getId())) {
+                throw new CatalogConflictException("A garment type named '" + name.trim() + "' already exists");
+            }
+        });
     }
 
     public void deleteGarment(UUID id) {
@@ -59,8 +91,8 @@ public class CatalogService {
     public com.anotame.catalog.domain.model.Service createService(ServiceRequest request) {
         com.anotame.catalog.domain.model.Service service = new com.anotame.catalog.domain.model.Service();
 
-        service.setName(request.getName());
-        service.setDescription(request.getDescription());
+        service.setName(normalize(request.getName()));
+        service.setDescription(normalize(request.getDescription()));
         service.setDefaultDurationMin(request.getDefaultDurationMin());
         service.setBasePrice(request.getBasePrice());
         service.setActive(true);
@@ -78,8 +110,8 @@ public class CatalogService {
     @Transactional
     public com.anotame.catalog.domain.model.Service updateService(UUID id, ServiceRequest request) {
         return serviceRepository.findById(id).map(service -> {
-            service.setName(request.getName());
-            service.setDescription(request.getDescription());
+            service.setName(normalize(request.getName()));
+            service.setDescription(normalize(request.getDescription()));
             service.setDefaultDurationMin(request.getDefaultDurationMin());
             service.setBasePrice(request.getBasePrice());
 

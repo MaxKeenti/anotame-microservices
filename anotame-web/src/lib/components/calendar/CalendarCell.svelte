@@ -52,8 +52,8 @@
 
   function getPercentTextColor() {
     if (capacityPercent >= thresholdAmber) return 'text-red-600 dark:text-red-400';
-    if (capacityPercent >= thresholdGreen) return 'text-amber-600 dark:text-amber-400';
-    if (capacityPercent > 0) return 'text-green-600 dark:text-green-400';
+    if (capacityPercent >= thresholdGreen) return 'text-amber-700 dark:text-amber-400';
+    if (capacityPercent > 0) return 'text-green-700 dark:text-green-400';
     return 'text-muted-foreground';
   }
 </script>
@@ -78,7 +78,7 @@
           <div class="space-y-2">
             <div class="flex items-baseline justify-between gap-2">
               <span class="font-mono text-sm font-bold text-foreground">
-                {totalMinutesUsed} <span class="text-[10px] font-semibold text-muted-foreground">min</span>
+                {totalMinutesUsed} <span class="text-xs font-semibold text-muted-foreground">min</span>
               </span>
               <span class="text-sm font-black {getPercentTextColor()}">{capacityPercent.toFixed(0)}%</span>
             </div>
@@ -120,7 +120,7 @@
               style="width: {Math.min(100, capacityPercent)}%"
             ></div>
           </div>
-          <div class="text-[10px] text-muted-foreground mt-0.5">
+          <div class="text-xs text-muted-foreground mt-0.5">
             {m["calendar.day.minutes"]({ used: String(totalMinutesUsed), total: String(dailyCapacity) })}
           </div>
         </div>

@@ -167,10 +167,6 @@
   });
 </script>
 
-<svelte:head>
-  <title>{m['help.page.title']()}</title>
-</svelte:head>
-
 <div class="mx-auto max-w-7xl space-y-6 pb-24 animate-in fade-in duration-300">
   <div class="space-y-2">
     <div class="flex items-center gap-3">
@@ -198,7 +194,7 @@
           <Button
             variant={category === 'all' ? 'default' : 'outline'}
             size="sm"
-            class="h-10 touch-manipulation"
+            class="h-11 touch-manipulation"
             onclick={() => category = 'all'}
           >
             {m['help.category.all']()}
@@ -207,7 +203,7 @@
             <Button
               variant={category === item.id ? 'default' : 'outline'}
               size="sm"
-              class="h-10 touch-manipulation"
+              class="h-11 touch-manipulation"
               onclick={() => category = item.id}
             >
               {item.label()}
@@ -224,7 +220,7 @@
           {#each visibleTopics as topic (topic.id)}
             <a
               href={`#${topic.id}`}
-              class="block rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted/70 {activeSection === topic.id ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}"
+              class="flex min-h-11 items-center rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted/70 touch-manipulation {activeSection === topic.id ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}"
             >
               {topic.title()}
             </a>
@@ -266,7 +262,7 @@
                 {#if item.appHref}
                   <a
                     href={item.appHref}
-                    class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                    class="inline-flex h-11 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
                     {m['help.action.openPage']()}
                     <ExternalLink class="ml-2 h-4 w-4" />
@@ -274,7 +270,7 @@
                 {/if}
                 <a
                   href={`#${item.topicId}`}
-                  class="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                  class="inline-flex h-11 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                 >
                   {m['help.action.readSteps']()}
                 </a>
@@ -304,7 +300,7 @@
               {#if topic.appHref && (!topic.adminOnly || isAdmin)}
                 <a
                   href={topic.appHref}
-                  class="inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                  class="inline-flex h-11 shrink-0 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                 >
                   {m['help.action.openPage']()}
                   <ExternalLink class="ml-2 h-4 w-4" />
@@ -381,7 +377,7 @@
                   {#each topic.related as relatedId}
                     <a
                       href={`#${relatedId}`}
-                      class="rounded-full border border-border px-3 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                      class="inline-flex min-h-11 items-center rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground touch-manipulation"
                     >
                       {relatedTopicTitle(relatedId)}
                     </a>

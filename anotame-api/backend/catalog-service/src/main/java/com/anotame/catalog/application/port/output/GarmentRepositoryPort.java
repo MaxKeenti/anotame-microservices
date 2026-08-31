@@ -10,6 +10,9 @@ public interface GarmentRepositoryPort {
 
     Optional<GarmentType> findById(UUID id);
 
+    /** Case-insensitive lookup among active garments, used to reject duplicate names. */
+    Optional<GarmentType> findActiveByName(String name);
+
     GarmentType save(GarmentType garmentType);
 
     void delete(UUID id);

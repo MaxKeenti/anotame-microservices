@@ -78,7 +78,7 @@
                         {draft?.isEditing ? m["orders.edit.editOrder"]() : m["orders.new.title"]()}
                     </h1>
                     {#if draft?.id && !draft?.isEditing}
-                        <span class="hidden sm:inline text-xs text-muted-foreground font-mono bg-muted px-2 py-1 rounded shrink-0">Draft: {draft.id.slice(0, 4)}...</span>
+                        <span class="hidden sm:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">{m["orders.new.draftBadge"]()}</span>
                     {/if}
                 </div>
 

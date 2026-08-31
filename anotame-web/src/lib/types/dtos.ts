@@ -89,8 +89,11 @@ export interface OrderResponse {
   priceListName?: string | null;
 }
 
+export type TicketShareScope = 'CUSTOMER' | 'HANDLING';
+
 export interface TicketShareResponse {
   id: string;
+  scope: TicketShareScope;
   createdAt: string;
   expiresAt: string;
   revokedAt?: string | null;
@@ -100,6 +103,28 @@ export interface CreatedTicketShareResponse {
   id: string;
   token: string;
   expiresAt: string;
+}
+
+/**
+ * Backing type for the garment-handling view (`/g/<token>`). Mirrors the
+ * backend DTO: no pickup code and no amounts, because the tag carrying this
+ * link leaves the premises.
+ */
+export interface PublicHandlingTicketResponse {
+  ticketNumber: string;
+  customerName: string;
+  phoneNumber?: string | null;
+  committedDeadline?: string | null;
+  status: string;
+  items: Array<{
+    garmentName: string;
+    quantity: number;
+    notes?: string | null;
+    services: Array<{
+      serviceName: string;
+      instructions?: string | null;
+    }>;
+  }>;
 }
 
 export interface PublicTicketResponse {

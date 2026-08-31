@@ -1,6 +1,7 @@
 package com.anotame.sales.application.service;
 
 import com.anotame.sales.application.dto.CreatedTicketShareResponse;
+import com.anotame.sales.application.dto.PublicHandlingTicketResponse;
 import com.anotame.sales.application.dto.PublicTicketResponse;
 import com.anotame.sales.application.dto.TicketShareResponse;
 import com.anotame.sales.application.port.output.OrderRepositoryPort;
@@ -10,6 +11,7 @@ import com.anotame.sales.domain.model.Order;
 import com.anotame.sales.domain.model.OrderItem;
 import com.anotame.sales.domain.model.OrderItemService;
 import com.anotame.sales.domain.model.TicketShare;
+import com.anotame.sales.domain.model.TicketShareScope;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,11 @@ public class TicketShareService {
 
     @Transactional
     public CreatedTicketShareResponse create(UUID orderId, UUID userId, UUID branchId) {
+        return create(orderId, userId, branchId, TicketShareScope.CUSTOMER);
+    }
+
+    @Transactional
+    public CreatedTicketShareResponse create(UUID orderId, UUID userId, UUID branchId, TicketShareScope scope) {
         Order order = requireAccessibleOrder(orderId, branchId);
         OffsetDateTime now = OffsetDateTime.now(ZoneId.of(appTimezone));
         String token = generateToken();
@@ -55,6 +62,7 @@ public class TicketShareService {
         share.setOrderId(order.getId());
         share.setTokenHash(hashToken(token));
         share.setCreatedByUserId(userId);
+        share.setScope(scope);
         share.setCreatedAt(now);
         share.setUpdatedAt(now);
         share.setExpiresAt(resolveExpiry(order, now));
@@ -73,6 +81,7 @@ public class TicketShareService {
         return ticketShareRepository.findByOrderId(orderId).stream()
                 .map(share -> TicketShareResponse.builder()
                         .id(share.getId())
+                        .scope(share.getScope())
                         .createdAt(share.getCreatedAt())
                         .expiresAt(share.getExpiresAt())
                         .revokedAt(share.getRevokedAt())
@@ -95,12 +104,28 @@ public class TicketShareService {
 
     @Transactional
     public PublicTicketResponse getPublicTicket(String token) {
+        return mapPublicTicket(requireOrderForScope(token, TicketShareScope.CUSTOMER));
+    }
+
+    @Transactional
+    public PublicHandlingTicketResponse getHandlingTicket(String token) {
+        return mapHandlingTicket(requireOrderForScope(token, TicketShareScope.HANDLING));
+    }
+
+    /**
+     * Resolves a share token, refusing tokens minted for a different audience.
+     * Without this check a handling QR would read the customer receipt (and its
+     * pickup code) simply by being pointed at the other endpoint.
+     */
+    private Order requireOrderForScope(String token, TicketShareScope requiredScope) {
         OffsetDateTime now = OffsetDateTime.now(ZoneId.of(appTimezone));
         TicketShare share = ticketShareRepository.findActiveByTokenHash(hashToken(token), now)
                 .orElseThrow(this::ticketNotFound);
-        Order order = orderRepository.findById(share.getOrderId())
+        if (share.getScope() != requiredScope) {
+            throw ticketNotFound();
+        }
+        return orderRepository.findById(share.getOrderId())
                 .orElseThrow(this::ticketNotFound);
-        return mapPublicTicket(order);
     }
 
     private Order requireAccessibleOrder(UUID orderId, UUID branchId) {
@@ -165,6 +190,32 @@ public class TicketShareService {
                 .pickupCode(ACTIVE_STATUSES.contains(order.getStatus()) ? order.getPickupCode() : null)
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
+                .build();
+    }
+
+    private PublicHandlingTicketResponse mapHandlingTicket(Order order) {
+        return PublicHandlingTicketResponse.builder()
+                .ticketNumber(order.getTicketNumber())
+                .customerName(displayCustomerName(order))
+                .phoneNumber(maskPhone(order))
+                .committedDeadline(order.getCommittedDeadline())
+                .status(order.getStatus())
+                .items(order.getItems().stream().map(this::mapHandlingItem).toList())
+                .build();
+    }
+
+    private PublicHandlingTicketResponse.PublicHandlingItem mapHandlingItem(OrderItem item) {
+        List<PublicHandlingTicketResponse.PublicHandlingService> services = item.getServices().stream()
+                .map(service -> PublicHandlingTicketResponse.PublicHandlingService.builder()
+                        .serviceName(service.getServiceName())
+                        .instructions(service.getInstructions())
+                        .build())
+                .toList();
+        return PublicHandlingTicketResponse.PublicHandlingItem.builder()
+                .garmentName(item.getGarmentName())
+                .quantity(item.getQuantity())
+                .notes(item.getNotes())
+                .services(services)
                 .build();
     }
 

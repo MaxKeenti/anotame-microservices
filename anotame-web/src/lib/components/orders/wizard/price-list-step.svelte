@@ -157,7 +157,7 @@
 						<div
 							class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4"
 						>
-							<Tag class="w-10 h-10" />
+							<Tag class="w-11 h-11" />
 						</div>
 						<h3 class="text-2xl font-semibold">{selectedPriceListName}</h3>
 						<p class="text-muted-foreground mt-2">{m['priceListStep.activeForOrder']()}</p>
@@ -177,13 +177,13 @@
 		<Button
 			variant="outline"
 			onclick={onBack}
-			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg touch-manipulation"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg touch-manipulation"
 		>
 			{m['orders.detail.back']()}
 		</Button>
 		<Button
 			type="submit"
-			class="flex-1 rounded-xl h-10 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation"
 			onclick={handleContinue}
 		>
 			{m['common.continue']()}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { page } from '$app/state';
   import XIcon from '@lucide/svelte/icons/x';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
@@ -17,33 +17,104 @@
 
   let sortedMenuItems = $derived([...menuItems].sort((a, b) => a.getName().localeCompare(b.getName())));
 
+  let dialogEl = $state<HTMLElement | null>(null);
+
   function handleClose() {
     isOpen = false;
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape" && isOpen) {
-      handleClose();
+  // Only the elements actually rendered inside the panel are reachable while
+  // the menu is open; everything behind it is inert via the focus trap below.
+  function focusables(): HTMLElement[] {
+    if (!dialogEl) return [];
+    const selector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    return Array.from(dialogEl.querySelectorAll<HTMLElement>(selector)).filter(
+      (el) => el.offsetWidth > 0 || el.offsetHeight > 0
+    );
+  }
+
+  function trapFocus(e: KeyboardEvent) {
+    const els = focusables();
+    if (els.length === 0) {
+      e.preventDefault();
+      dialogEl?.focus();
+      return;
     }
+    const first = els[0];
+    const last = els[els.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+    const inside = !!active && !!dialogEl && dialogEl.contains(active);
+
+    if (e.shiftKey && (!inside || active === first)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && (!inside || active === last)) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (!isOpen) return;
+    if (e.key === "Escape") {
+      handleClose();
+    } else if (e.key === "Tab") {
+      trapFocus(e);
+    }
+  }
+
+  function handleBackdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) handleClose();
   }
 
   onMount(() => {
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
   });
+
+  // While the menu is open, move focus into it, lock background scrolling, and
+  // restore both when it closes.
+  $effect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    tick().then(() => {
+      if (isOpen) (focusables()[0] ?? dialogEl)?.focus();
+    });
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.();
+    };
+  });
 </script>
 
 {#if isOpen}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-    <div class="relative w-full max-w-5xl bg-card border shadow-2xl rounded-xl overflow-hidden flex flex-col max-h-[90vh]">
+  <div
+    role="presentation"
+    onclick={handleBackdropClick}
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
+  >
+    <div
+      bind:this={dialogEl}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="menu-modal-title"
+      tabindex="-1"
+      class="relative w-full max-w-5xl bg-card border shadow-2xl rounded-xl overflow-hidden flex flex-col max-h-[90vh] outline-none"
+    >
 
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b">
         <div>
-          <h2 class="text-2xl font-bold font-heading">{m["nav.menu.title"]()}</h2>
+          <h2 id="menu-modal-title" class="text-2xl font-bold font-heading">{m["nav.menu.title"]()}</h2>
           <p class="text-muted-foreground">{m["nav.menu.subtitle"]()}</p>
         </div>
-        <Button variant="ghost" size="icon" onclick={handleClose} class="h-12 w-12 rounded-full">
+        <Button variant="ghost" size="icon" onclick={handleClose} class="h-12 w-12 rounded-full" aria-label={m["common.close"]()}>
           <XIcon class="h-8 w-8" />
         </Button>
       </div>
@@ -77,7 +148,7 @@
       <!-- Footer -->
       <div class="p-6 border-t bg-muted/20 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
+          <div class="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
             {user?.username?.charAt(0).toUpperCase() || "U"}
           </div>
           <div>

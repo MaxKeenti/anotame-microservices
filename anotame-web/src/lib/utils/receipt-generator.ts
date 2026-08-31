@@ -1,5 +1,6 @@
 import * as m from '$lib/paraglide/messages';
 import { getLocale } from '$lib/paraglide/runtime';
+import { escapeHtml } from '$lib/utils/html';
 
 const localeMap: Record<string, string> = {
   es: 'es-MX',
@@ -8,15 +9,6 @@ const localeMap: Record<string, string> = {
 
 function getIntlLocale(): string {
   return localeMap[getLocale()] ?? 'es-MX';
-}
-
-function escapeHtml(value: unknown): string {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
 }
 
 export const generateReceiptHtml = (data: {

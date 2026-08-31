@@ -11,13 +11,14 @@
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
   import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
+  import GarmentTagDialog from "$lib/components/orders/GarmentTagDialog.svelte";
   import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import * as Table from "$lib/components/ui/table";
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
-  import { Pencil, Printer, Send, Share2, XCircle } from '@lucide/svelte';
+  import { Pencil, Printer, Send, Share2, Tags, XCircle } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   let id = $derived($page.params.id);
@@ -30,6 +31,7 @@
   let showPaymentModal = $state(false);
   let paymentRefreshKey = $state(0);
   let showShareTicketDialog = $state(false);
+  let showGarmentTagDialog = $state(false);
   const mobile = useIsMobile();
 
   let itemColumns = $derived<ColumnDef<OrderItemResponse>[]>([
@@ -218,7 +220,10 @@
 {:else}
   <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in duration-150 pb-20">
     <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-      <a href="/dashboard/orders" class="shrink-0 text-muted-foreground hover:text-foreground touch-manipulation">
+      <a
+        href="/dashboard/orders"
+        class="-ml-2 inline-flex min-h-11 shrink-0 items-center rounded-md px-2 text-muted-foreground hover:text-foreground touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
         &larr; {m["orders.detail.back"]()}
       </a>
       <h1 class="min-w-0 max-w-full text-xl sm:text-2xl font-bold wrap-break-word">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
@@ -228,7 +233,7 @@
     <div class="grid min-w-0 grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Customer Info -->
       <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm">
-        <h3 class="font-bold mb-4 text-lg">{m["orders.detail.customer"]()}</h3>
+        <h2 class="font-bold mb-4 text-lg">{m["orders.detail.customer"]()}</h2>
         <div class="space-y-4 text-sm">
           <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
             <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.name"]()}:</span>
@@ -247,7 +252,7 @@
 
       <!-- Order Info & Payment -->
       <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm">
-        <h3 class="font-bold mb-4 text-lg">{m["orders.detail.orderDetails"]()}</h3>
+        <h2 class="font-bold mb-4 text-lg">{m["orders.detail.orderDetails"]()}</h2>
         <div class="space-y-3 text-sm">
           <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.created"]()}:</span>
@@ -283,7 +288,7 @@
           </div>
           <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.amountPaid"]()}:</span>
-            <span class="font-bold text-success text-lg">-{formatCurrency(order.amountPaid)}</span>
+            <span class="font-bold text-success-text text-lg">-{formatCurrency(order.amountPaid)}</span>
           </div>
           <div class="border-t border-border pt-3 mt-1 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span class="shrink-0 font-bold uppercase tracking-wider text-muted-foreground">{m["orders.detail.balance"]()}:</span>
@@ -298,7 +303,7 @@
     <!-- Order Notes -->
     {#if order.notes}
       <div class="min-w-0 bg-warning/10 p-4 sm:p-5 rounded-2xl border-2 border-warning/30 text-warning-text shadow-sm">
-        <h3 class="font-bold mb-2 text-sm uppercase tracking-wider opacity-80 flex items-center gap-2">{m["orders.detail.generalNotes"]()}</h3>
+        <h2 class="font-bold mb-2 text-sm uppercase tracking-wider opacity-80 flex items-center gap-2">{m["orders.detail.generalNotes"]()}</h2>
         <p class="wrap-break-word text-base font-medium">{order.notes}</p>
       </div>
     {/if}
@@ -335,7 +340,7 @@
                 <p class="mt-1 text-sm text-muted-foreground">{service.instructions}</p>
               {/if}
               {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
-                <span class={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-mono font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'}`}>
+                <span class={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-mono font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success-text'}`}>
                   {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
                   {service.adjustmentReason && ` (${service.adjustmentReason})`}
                 </span>
@@ -410,7 +415,7 @@
                           <Table.Cell class="px-6 py-3 w-1/3">
                             <div class="font-mono text-foreground">${service.unitPrice}</div>
                             {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
-                              <div class={`text-xs mt-1 font-mono font-bold ${service.adjustmentAmount > 0 ? 'text-destructive bg-destructive/10' : 'text-success bg-success/10'} px-2 py-0.5 rounded-md inline-block`}>
+                              <div class={`text-xs mt-1 font-mono font-bold ${service.adjustmentAmount > 0 ? 'text-destructive bg-destructive/10' : 'text-success-text bg-success/10'} px-2 py-0.5 rounded-md inline-block`}>
                                 {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
                                 {service.adjustmentReason && ` (${service.adjustmentReason})`}
                               </div>
@@ -437,13 +442,17 @@
         <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
       {/if}
       <div class="flex flex-col justify-center gap-2 sm:flex-row" class:mt-4={order.pickupCode}>
-        <Button onclick={() => showShareTicketDialog = true} variant="outline" class="h-10 touch-manipulation">
+        <Button onclick={() => showShareTicketDialog = true} variant="outline" class="h-11 touch-manipulation">
           <Share2 />
           {m["orders.detail.shareTicket"]()}
         </Button>
-        <Button onclick={handlePrint} variant="outline" class="h-10 touch-manipulation">
+        <Button onclick={handlePrint} variant="outline" class="h-11 touch-manipulation">
           <Printer />
           {m["orders.detail.printTicket"]()}
+        </Button>
+        <Button onclick={() => showGarmentTagDialog = true} variant="outline" class="h-11 touch-manipulation">
+          <Tags />
+          {m["orders.detail.printTags"]()}
         </Button>
       </div>
     </div>
@@ -506,6 +515,12 @@
       bind:open={showShareTicketDialog}
       orderId={order.id}
       ticketNumber={order.ticketNumber}
+    />
+
+    <GarmentTagDialog
+      bind:open={showGarmentTagDialog}
+      {order}
+      establishmentName={establishment?.name || "ANOTAME"}
     />
   </div>
 {/if}
