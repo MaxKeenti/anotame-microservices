@@ -7,7 +7,6 @@ import com.anotame.sales.domain.exception.SalesNotFoundException;
 import com.anotame.sales.domain.exception.SalesUnprocessableException;
 import com.anotame.sales.domain.exception.SalesValidationException;
 import com.anotame.sales.infrastructure.web.dto.ErrorResponse;
-import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -56,10 +55,13 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                                         .entity(new ErrorResponse("REQUEST_FAILED", "Request could not be processed"))
                                         .build();
                 }
-                // 5. Database relational conflicts (FK constraint, Unique constraint)
-                if (exception instanceof PersistenceException
-                                || exception.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-                        log.error("Database conflict detected: ", exception);
+                // 5. Database relational conflicts (FK constraint, Unique constraint).
+                // Only genuine constraint violations belong here. PersistenceException is the
+                // superclass of almost every Hibernate failure — malformed SQL, lost connections,
+                // query timeouts — and reporting those as 409 tells the client the request clashed
+                // with existing data when the server is actually at fault. They fall through to 500.
+                if (isConstraintViolation(exception)) {
+                        log.error("Database constraint violation: ", exception);
                         return Response.status(Response.Status.CONFLICT)
                                         .entity(new ErrorResponse("CONFLICT",
                                                         "Database conflict: unique constraint violation or record has associated data"))
@@ -70,6 +72,26 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                 .entity(new ErrorResponse("INTERNAL_ERROR", "Internal server error"))
                                 .build();
+        }
+
+        /**
+         * Walks the cause chain: Hibernate usually wraps the constraint violation a few levels below
+         * the exception that reaches the mapper.
+         */
+        private static boolean isConstraintViolation(Throwable exception) {
+                Throwable current = exception;
+                while (current != null) {
+                        if (current instanceof org.hibernate.exception.ConstraintViolationException
+                                        || current instanceof jakarta.persistence.EntityExistsException) {
+                                return true;
+                        }
+                        // Defensive: a self-referential cause would otherwise spin forever.
+                        if (current.getCause() == current) {
+                                break;
+                        }
+                        current = current.getCause();
+                }
+                return false;
         }
 
         private int statusFor(SalesException exception) {
