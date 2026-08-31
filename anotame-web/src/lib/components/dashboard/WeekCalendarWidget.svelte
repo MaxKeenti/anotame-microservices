@@ -5,7 +5,7 @@
   import type { Establishment, WorkloadDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
-  let { href = '/dashboard/admin/kpi#workload-calendar' } = $props<{
+  let { href = '/dashboard/admin/kpi/operacion#workload-calendar' } = $props<{
     href?: string;
   }>();
 
