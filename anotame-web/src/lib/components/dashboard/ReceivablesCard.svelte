@@ -140,7 +140,7 @@
 </Card.Root>
 
 <Dialog.Root bind:open={detailOpen}>
-  <Dialog.Content class="max-h-[85vh] max-w-3xl overflow-y-auto">
+  <Dialog.Content class="max-h-[85vh] overflow-y-auto sm:max-w-3xl lg:max-w-5xl">
     <Dialog.Header>
       <Dialog.Title>{m['kpi.receivables.detailTitle']()}</Dialog.Title>
       <Dialog.Description>{m['kpi.receivables.detailDesc']()}</Dialog.Description>
@@ -225,7 +225,7 @@
           <table class="w-full text-sm">
             <thead class="text-xs text-muted-foreground">
               <tr class="border-b">
-                <th class="p-2 text-left">{m['kpi.receivables.colTicket']()}</th>
+                <th class="p-2 text-left whitespace-nowrap">{m['kpi.receivables.colTicket']()}</th>
                 <th class="p-2 text-left">{m['kpi.receivables.colCustomer']()}</th>
                 <th class="p-2 text-right">{m['kpi.receivables.colTotal']()}</th>
                 <th class="p-2 text-right">{m['kpi.receivables.colPaid']()}</th>
@@ -236,7 +236,7 @@
             <tbody>
               {#each orders.items as order (order.id)}
                 <tr class="border-b last:border-0">
-                  <td class="p-2 font-mono text-xs">{order.ticketNumber}</td>
+                  <td class="p-2 font-mono text-xs whitespace-nowrap">{order.ticketNumber}</td>
                   <td class="p-2">{order.customerName ?? '—'}</td>
                   <td class="p-2 text-right font-mono">{formatCurrency(order.totalAmount)}</td>
                   <td class="p-2 text-right font-mono">{formatCurrency(order.amountPaid)}</td>
