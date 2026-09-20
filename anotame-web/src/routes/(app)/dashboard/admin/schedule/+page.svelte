@@ -275,10 +275,7 @@
             </Card.Header>
             <Card.Content>
               {#if holidays.length === 0}
-                <div class="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
-                  <AlertTriangle class="w-8 h-8 mx-auto mb-3 opacity-50" />
-                  <p>{m['schedule.holiday.empty']()}</p>
-                </div>
+                <StatePanel message={m['schedule.holiday.empty']()} class="h-auto border-2 border-dashed bg-muted/10 py-12" />
               {:else}
                 <div class="border rounded-md overflow-x-auto">
                   <Table.Root class="min-w-100">

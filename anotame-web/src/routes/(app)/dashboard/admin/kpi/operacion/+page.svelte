@@ -1,10 +1,11 @@
 <script lang="ts">
   import { apiService, API_SALES } from '$lib/services/api.svelte';
-  import { StatePanel } from '$lib/components/common';
+  import { InlineAlert, StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Progress } from '$lib/components/ui/progress';
   import KpiStatCard from '$lib/components/dashboard/kpi-stat-card.svelte';
+  import KpiLegend from '$lib/components/dashboard/kpi-legend.svelte';
   import { Skeleton } from '$lib/components/ui/skeleton';
   import { Truck, AlertCircle, Clock, Calendar, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import ReceivablesCard from '$lib/components/dashboard/ReceivablesCard.svelte';
@@ -181,9 +182,7 @@
       </Card.Header>
       <Card.Content class="space-y-6">
         {#if calendarError}
-          <div class="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-            {calendarError}
-          </div>
+          <InlineAlert text={calendarError} showIcon={false} class="rounded-lg p-4 font-normal" />
         {/if}
 
         {#if calendarLoading}
@@ -199,29 +198,25 @@
             showHeader={false}
           />
 
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div class="flex items-center gap-3">
-              <div class="h-4 w-4 rounded bg-green-200"></div>
-              <span class="text-sm text-muted-foreground">
-                {m['calendar.capacity.low']({ green: String(dashboard.thresholdGreen) })}
-              </span>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="h-4 w-4 rounded bg-amber-200"></div>
-              <span class="text-sm text-muted-foreground">
-                {m['calendar.capacity.medium']({
+          <KpiLegend
+            entries={[
+              {
+                swatch: 'bg-green-200',
+                label: m['calendar.capacity.low']({ green: String(dashboard.thresholdGreen) }),
+              },
+              {
+                swatch: 'bg-amber-200',
+                label: m['calendar.capacity.medium']({
                   green: String(dashboard.thresholdGreen),
-                  amber: String(dashboard.thresholdAmber)
-                })}
-              </span>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="h-4 w-4 rounded bg-red-200"></div>
-              <span class="text-sm text-muted-foreground">
-                {m['calendar.capacity.high']({ amber: String(dashboard.thresholdAmber) })}
-              </span>
-            </div>
-          </div>
+                  amber: String(dashboard.thresholdAmber),
+                }),
+              },
+              {
+                swatch: 'bg-red-200',
+                label: m['calendar.capacity.high']({ amber: String(dashboard.thresholdAmber) }),
+              },
+            ]}
+          />
         {/if}
       </Card.Content>
     </Card.Root>

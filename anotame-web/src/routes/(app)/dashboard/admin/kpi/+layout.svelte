@@ -7,7 +7,7 @@
   import { Activity, Banknote, Users } from '@lucide/svelte';
   import type { Establishment } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
-  import { Skeleton } from '$lib/components/ui/skeleton';
+  import KpiSummaryStrip from '$lib/components/dashboard/kpi-summary-strip.svelte';
   import { toast } from 'svelte-sonner';
   import {
     getMonthParam,
@@ -168,22 +168,7 @@
 
   <!-- Always-visible numbers, so moving the detail behind tabs does not cost
        the at-a-glance read the old hero provided. -->
-  <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4">
-    {#each summaryItems as item (item.label)}
-      <div class="bg-card px-4 py-3">
-        <p class="truncate text-xs uppercase tracking-[0.12em] text-muted-foreground">
-          {item.label}
-        </p>
-        {#if isLoading}
-          <Skeleton class="mt-1 h-7 w-20" />
-        {:else}
-          <p class={`mt-1 truncate text-xl font-mono font-bold md:text-2xl ${item.toneClass}`}>
-            {item.value}
-          </p>
-        {/if}
-      </div>
-    {/each}
-  </div>
+  <KpiSummaryStrip items={summaryItems} loading={isLoading} />
 
   <nav
     aria-label={m['kpi.tabs.ariaLabel']()}
