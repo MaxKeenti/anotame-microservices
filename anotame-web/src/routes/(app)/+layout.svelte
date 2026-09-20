@@ -11,7 +11,7 @@
   import * as m from '$lib/paraglide/messages';
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-  import FloatingActionBar from '$lib/components/ui/FloatingActionBar.svelte';
+  import { FloatingActionBar } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();

@@ -9,8 +9,7 @@
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';

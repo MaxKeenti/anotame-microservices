@@ -5,14 +5,13 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import StatusBadge from "$lib/components/ui/StatusBadge.svelte";
+  import { CardGridWrapper, StatusBadge } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
   import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
   import GarmentTagDialog from "$lib/components/orders/GarmentTagDialog.svelte";
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import * as Table from "$lib/components/ui/table";
   import type { ColumnDef, Row } from '@tanstack/table-core';

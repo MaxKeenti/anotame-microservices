@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+  import { StatusBadge } from '$lib/components/common';
   import { formatDate } from '$lib/utils/formatUtils';
   import type { PublicHandlingTicketResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';

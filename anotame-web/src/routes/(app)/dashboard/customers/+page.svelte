@@ -7,8 +7,7 @@
   import { toast } from 'svelte-sonner';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { CustomerDto } from '$lib/types/dtos';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import * as m from '$lib/paraglide/messages';
 

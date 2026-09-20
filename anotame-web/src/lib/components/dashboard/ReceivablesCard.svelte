@@ -4,7 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+  import { StatusBadge } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
   import { Banknote, Loader2, AlertTriangle } from '@lucide/svelte';
 

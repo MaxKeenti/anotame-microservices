@@ -9,8 +9,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';

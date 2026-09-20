@@ -5,15 +5,13 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+  import { CardGridWrapper, DataTableWrapper, StatusBadge } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import { ApiError } from '$lib/services/ApiError';
 

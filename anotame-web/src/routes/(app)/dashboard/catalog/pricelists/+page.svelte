@@ -8,8 +8,7 @@
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';

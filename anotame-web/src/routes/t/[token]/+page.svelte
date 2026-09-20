@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
-  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+  import { StatusBadge } from '$lib/components/common';
   import { formatCurrency, formatDate, formatDateTime } from '$lib/utils/formatUtils';
   import { generateReceiptHtml } from '$lib/utils/receipt-generator';
   import type { PublicReceiptSettings, PublicTicketResponse } from '$lib/types/dtos';

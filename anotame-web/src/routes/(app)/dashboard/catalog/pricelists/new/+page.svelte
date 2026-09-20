@@ -9,8 +9,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
+  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import { toast } from 'svelte-sonner';
   import { Loader2 } from '@lucide/svelte';
