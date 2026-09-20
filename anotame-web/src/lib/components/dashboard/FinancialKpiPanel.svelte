@@ -467,7 +467,7 @@
                   <div class="flex items-start justify-between gap-2 mb-2">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded min-w-[20px] text-center">
+                        <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded min-w-5 text-center">
                           {topCustomerPageIndex * pageSize + i + 1}
                         </span>
                         <p class="text-sm font-semibold text-foreground truncate">
@@ -562,7 +562,7 @@
             <Card.Title>{m['kpi.financial.atRisk.title']()}</Card.Title>
           </div>
           {#if data.atRiskCustomers && data.atRiskCustomers.length > 0}
-            <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full">
+            <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full">
               {data.atRiskCustomers.length}
             </span>
           {/if}
@@ -600,7 +600,7 @@
     </Card.Root>
 
     <!-- Total Revenue Summary -->
-    <Card.Root class="bg-gradient-to-br from-success/10 to-primary/10 border border-success/30">
+    <Card.Root class="bg-linear-to-br from-success/10 to-primary/10 border border-success/30">
       <Card.Content class="pt-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>

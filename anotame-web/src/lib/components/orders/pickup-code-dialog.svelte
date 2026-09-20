@@ -166,7 +166,7 @@
                   class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'CASH' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                 >
                   <DollarSign class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center break-words">{m["orders.detail.paymentCash"]()}</span>
+                  <span class="text-xs font-semibold leading-tight text-center wrap-break-word">{m["orders.detail.paymentCash"]()}</span>
                 </Button>
                 <Button
                   type="button"
@@ -176,7 +176,7 @@
                   class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                 >
                   <CreditCard class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center break-words">{m["orders.detail.paymentCard"]()}</span>
+                  <span class="text-xs font-semibold leading-tight text-center wrap-break-word">{m["orders.detail.paymentCard"]()}</span>
                 </Button>
                 <Button
                   type="button"
@@ -186,7 +186,7 @@
                   class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
                 >
                   <Wallet class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center break-words">{m["orders.detail.paymentTransfer"]()}</span>
+                  <span class="text-xs font-semibold leading-tight text-center wrap-break-word">{m["orders.detail.paymentTransfer"]()}</span>
                 </Button>
               </div>
             </div>
