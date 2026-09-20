@@ -29,8 +29,16 @@
   let ordersPageIndex = $state(0);
   let ordersTotalPages = $state(0);
 
-  // Bulk selection state
+  // Bulk selection state. The row selection itself lives inside the data view,
+  // so clearing it has to go through the view — resetting this mirror alone
+  // leaves the checkboxes ticked and the view pushes the rows straight back.
   let selectedOrders = $state<OrderSummaryResponse[]>([]);
+  let activeOrdersView = $state<ReturnType<typeof ResponsiveDataView> | undefined>();
+
+  function clearOrderSelection() {
+    activeOrdersView?.clearSelection();
+    selectedOrders = [];
+  }
 
   // Filters
   let searchQuery = $state("");
@@ -231,7 +239,7 @@
     if (successCount > 0) {
       toast.success(m["orders.bulk.updateSuccess"]({ count: String(successCount) }));
     }
-    selectedOrders = [];
+    clearOrderSelection();
     fetchOrders();
   }
 
@@ -263,13 +271,13 @@
     if (successCount > 0) {
       toast.success(m["orders.bulk.updateSuccess"]({ count: String(successCount) }));
     }
-    selectedOrders = [];
+    clearOrderSelection();
     ordersPageIndex = 0;
     fetchOrders(0, ordersPageSize);
   }
 
   function handleBulkCancel() {
-    selectedOrders = [];
+    clearOrderSelection();
   }
 </script>
 
@@ -332,7 +340,7 @@
           <Button
             variant="ghost"
             class="h-12 px-4 touch-manipulation text-muted-foreground hover:text-foreground"
-            onclick={() => { selectedOrders = []; }}
+            onclick={clearOrderSelection}
           >
             {m["orders.clearSelection"]({ count: String(selectedOrders.length) })}
           </Button>
@@ -374,6 +382,7 @@
         {/snippet}
 
         <ResponsiveDataView
+          bind:this={activeOrdersView}
           columns={activeColumns}
           data={orders}
           loading={loading}

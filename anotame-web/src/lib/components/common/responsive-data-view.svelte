@@ -71,6 +71,11 @@
     onSelectionChange: () => onSelectionChange,
   });
 
+  /** Clear the row selection from the outside, e.g. a "clear selection" button. */
+  export function clearSelection() {
+    state.clearSelection();
+  }
+
   // The card presentation has no column headers to click, so it needs an explicit
   // sort control. The desktop table sorts through its headers instead.
   let sortableColumns = $derived(

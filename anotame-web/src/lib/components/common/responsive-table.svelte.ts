@@ -103,6 +103,8 @@ export interface ResponsiveTableState<TData> {
 	readonly effectiveColumns: ColumnDef<TData>[];
 	globalFilter: string;
 	sorting: SortingState;
+	/** Drop every selected row. Selection lives here, so callers cannot clear it alone. */
+	clearSelection(): void;
 }
 
 /**
@@ -247,6 +249,9 @@ export function createResponsiveTable<TData>(
 		},
 		set sorting(v: SortingState) {
 			sorting = v;
+		},
+		clearSelection() {
+			rowSelection = {};
 		},
 	};
 }
