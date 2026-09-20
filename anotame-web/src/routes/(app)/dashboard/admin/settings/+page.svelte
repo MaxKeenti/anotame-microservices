@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { PageHeader } from '$lib/components/common';
+  import { PageHeader, StatePanel } from '$lib/components/common';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -115,9 +115,7 @@
   />
 
   {#if isLoading}
-    <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-      {m['adminSettings.loading']()}
-    </div>
+    <StatePanel message={m['adminSettings.loading']()} />
   {:else}
     <form method="POST" use:enhance class="space-y-6">
 

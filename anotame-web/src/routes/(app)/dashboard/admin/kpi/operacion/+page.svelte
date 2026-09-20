@@ -1,5 +1,6 @@
 <script lang="ts">
   import { apiService, API_SALES } from '$lib/services/api.svelte';
+  import { StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Skeleton } from '$lib/components/ui/skeleton';
@@ -71,9 +72,7 @@
 </script>
 
 {#if dashboard.isLoading || !metrics}
-  <div class="flex h-64 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
-    {m['kpi.loading']()}
-  </div>
+  <StatePanel message={m['kpi.loading']()} />
 {:else}
   <div class="space-y-6">
     <p class="max-w-3xl text-sm text-muted-foreground">

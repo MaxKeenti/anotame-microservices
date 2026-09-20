@@ -9,7 +9,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView, StatePanel } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -161,9 +161,7 @@
 </script>
 
 {#if isLoading}
-  <div class="h-64 flex items-center justify-center text-muted-foreground animate-pulse">
-    {m["catalog.pricelist.loadingStrategy"]()}
-  </div>
+  <StatePanel message={m["catalog.pricelist.loadingStrategy"]()} loading class="border-0" />
 {:else}
   {#snippet overrideCellRender(row: Row<ServiceResponse>)}
     <Input

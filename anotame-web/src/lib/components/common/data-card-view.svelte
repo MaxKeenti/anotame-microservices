@@ -13,6 +13,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { ChevronDown, ChevronUp } from '@lucide/svelte';
+  import StatePanel from './state-panel.svelte';
   import * as m from '$lib/paraglide/messages';
 
   /** Mobile card-list presentation for a table owned by ResponsiveDataView. */
@@ -89,13 +90,9 @@
 {/if}
 
 {#if loading}
-  <div class="h-32 flex items-center justify-center text-muted-foreground animate-pulse font-medium text-base">
-    {m['common.loading']()}
-  </div>
+  <StatePanel message={m['common.loading']()} loading class="h-32 border-0" />
 {:else if state.table.getRowModel().rows.length === 0}
-  <div class="h-32 flex items-center justify-center text-muted-foreground font-medium text-base">
-    {emptyMessage}
-  </div>
+  <StatePanel message={emptyMessage} class="h-32 border-0" />
 {:else}
   <div class="grid grid-cols-1 gap-3">
     {#each state.table.getRowModel().rows as row (row.id)}

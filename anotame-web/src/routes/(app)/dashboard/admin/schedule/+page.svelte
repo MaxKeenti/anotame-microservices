@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { PageHeader } from '$lib/components/common';
+  import { PageHeader, StatePanel } from '$lib/components/common';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -133,9 +133,7 @@
 </script>
 
 {#if guard.checking}
-  <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-    {m['schedule.validating']()}
-  </div>
+  <StatePanel message={m['schedule.validating']()} />
 {:else if guard.allowed}
 <div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
   <PageHeader title={m['schedule.page.title']()} />
@@ -153,9 +151,7 @@
     </Tabs.List>
 
     {#if isLoading && workDays.length === 0}
-      <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-        {m['schedule.loading']()}
-      </div>
+      <StatePanel message={m['schedule.loading']()} />
     {:else}
       <!-- Tab 1: Weekly Schedule -->
       <Tabs.Content value="weekly">

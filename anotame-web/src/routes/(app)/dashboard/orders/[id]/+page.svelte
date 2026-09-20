@@ -5,15 +5,13 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { ResponsiveDataView, StatusBadge } from '$lib/components/common';
+  import { ResponsiveDataView, StatePanel, StatusBadge } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
   import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
   import GarmentTagDialog from "$lib/components/orders/GarmentTagDialog.svelte";
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
-  import * as Table from "$lib/components/ui/table";
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
@@ -31,13 +29,13 @@
   let paymentRefreshKey = $state(0);
   let showShareTicketDialog = $state(false);
   let showGarmentTagDialog = $state(false);
-  const mobile = useIsMobile();
 
+  // Declaration order drives the desktop column order; `cardGroup` drives the mobile card.
   let itemColumns = $derived<ColumnDef<OrderItemResponse>[]>([
     { accessorKey: 'garmentName', header: m['orders.detail.description'](), enableSorting: false, meta: { cardGroup: 'header' } },
+    { id: 'services', accessorFn: (item) => item.services.map((service) => service.serviceName).join(', '), header: m['orders.detail.service'](), enableSorting: false, meta: { cardGroup: 'body' } },
     { accessorKey: 'quantity', header: m['orders.detail.qty'](), enableSorting: false, meta: { cardGroup: 'header' } },
     { id: 'subtotal', accessorFn: (item) => `$${item.subtotal}`, header: m['orders.detail.subtotal'](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'services', accessorFn: (item) => item.services.map((service) => service.serviceName).join(', '), header: m['orders.detail.service'](), enableSorting: false, meta: { cardGroup: 'body' } },
     { accessorKey: 'notes', header: m['orders.detail.note'](), enableSorting: false, meta: { cardGroup: 'body' } },
   ]);
 
@@ -196,11 +194,12 @@
 </script>
 
 {#if loading}
-  <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center text-muted-foreground animate-pulse gap-4">
-    <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-    <div class="text-lg font-medium">{m["orders.detail.loading"]()}</div>
-    <div class="text-sm opacity-50 font-mono">ID: {id}</div>
-  </div>
+  <StatePanel
+    message={m["orders.detail.loading"]()}
+    detail={`ID: ${id}`}
+    spinner
+    class="h-[60vh] border-0"
+  />
 {:else if !order}
   <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
     <div class="bg-destructive/10 p-6 rounded-full">
@@ -356,82 +355,15 @@
         {/if}
       {/snippet}
 
-      {#if mobile.current}
-        <div class="p-4">
-          <ResponsiveDataView
-            columns={itemColumns}
-            data={order.items}
-            showFilter={false}
-            showPagination={false}
-            cellRenders={{ garmentName: garmentCell, services: servicesCell, notes: notesCell }}
-          />
-        </div>
-      {:else}
-        <div class="max-w-full overflow-x-auto overscroll-x-contain">
-        <Table.Root class="w-full text-sm text-left">
-          <Table.Header class="bg-muted/30 text-muted-foreground uppercase text-xs font-bold">
-            <Table.Row class="hover:bg-transparent">
-              <Table.Head class="px-6 py-4 font-bold h-auto">{m["orders.detail.description"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 font-bold h-auto">{m["orders.detail.service"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 font-bold h-auto text-center">{m["orders.detail.qty"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 font-bold h-auto">{m["orders.detail.price"]()}</Table.Head>
-              <Table.Head class="px-6 py-4 font-bold h-auto text-right">{m["orders.detail.subtotal"]()}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body class="divide-y divide-border">
-            {#each order.items as item}
-              <Table.Row class="hover:bg-muted/10 transition-colors">
-                <Table.Cell class="px-6 py-4 align-top">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <div class="font-bold text-base">{item.garmentName}</div>
-                    {#if item.source === 'CUSTOM'}
-                      <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
-                    {/if}
-                  </div>
-                  {#if item.notes}
-                    <div class="text-sm mt-2 bg-warning/10 text-warning-text p-2 rounded-lg border border-warning/20 inline-block">
-                      <span class="font-bold mr-1">{m["orders.detail.note"]()}:</span>{item.notes}
-                    </div>
-                  {/if}
-                </Table.Cell>
-                <Table.Cell colspan={3} class="px-0 py-0 align-top">
-                  <Table.Root class="w-full">
-                    <Table.Body class="divide-y divide-border/20">
-                      {#each item.services as service}
-                        <Table.Row class="hover:bg-transparent border-0">
-                          <Table.Cell class="px-6 py-3 w-1/3 text-muted-foreground font-medium">
-                            <div class="flex flex-wrap items-center gap-2">
-                              <span>{service.serviceName}</span>
-                              {#if service.source === 'CUSTOM'}
-                                <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
-                              {/if}
-                            </div>
-                            {#if service.instructions}
-                              <div class="text-sm font-normal mt-1">{service.instructions}</div>
-                            {/if}
-                          </Table.Cell>
-                          <Table.Cell class="px-6 py-3 w-1/3 text-center font-mono bg-secondary/10">{item.quantity}</Table.Cell>
-                          <Table.Cell class="px-6 py-3 w-1/3">
-                            <div class="font-mono text-foreground">${service.unitPrice}</div>
-                            {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
-                              <div class={`text-xs mt-1 font-mono font-bold ${service.adjustmentAmount > 0 ? 'text-destructive bg-destructive/10' : 'text-success-text bg-success/10'} px-2 py-0.5 rounded-md inline-block`}>
-                                {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
-                                {service.adjustmentReason && ` (${service.adjustmentReason})`}
-                              </div>
-                            {/if}
-                          </Table.Cell>
-                        </Table.Row>
-                      {/each}
-                    </Table.Body>
-                  </Table.Root>
-                </Table.Cell>
-                <Table.Cell class="px-6 py-4 font-bold text-lg font-mono align-top text-right text-primary">${item.subtotal}</Table.Cell>
-              </Table.Row>
-            {/each}
-          </Table.Body>
-        </Table.Root>
+      <div class="p-4">
+        <ResponsiveDataView
+          columns={itemColumns}
+          data={order.items}
+          showFilter={false}
+          showPagination={false}
+          cellRenders={{ garmentName: garmentCell, services: servicesCell, notes: notesCell }}
+        />
       </div>
-      {/if}
     </div>
 
     <!-- Pickup code and ticket tools -->

@@ -8,7 +8,7 @@
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView, StatePanel } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -78,7 +78,7 @@
 </script>
 
 {#if guard.checking}
-  <div class="p-8 text-center text-muted-foreground animate-pulse">{m["catalog.pricelists.verifyingAccess"]()}</div>
+  <StatePanel message={m["catalog.pricelists.verifyingAccess"]()} loading class="h-auto border-0 p-8" />
 {:else if guard.allowed}
   <div class="space-y-6 animate-in fade-in duration-300">
     <PageHeader

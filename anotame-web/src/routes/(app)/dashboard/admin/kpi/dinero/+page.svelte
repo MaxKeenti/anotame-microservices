@@ -1,5 +1,6 @@
 <script lang="ts">
   import { formatCurrency } from '$lib/utils/formatUtils';
+  import { StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import * as Popover from '$lib/components/ui/popover';
@@ -75,9 +76,7 @@
 </script>
 
 {#if dashboard.isLoading || !metrics}
-  <div class="flex h-64 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
-    {m['kpi.loading']()}
-  </div>
+  <StatePanel message={m['kpi.loading']()} />
 {:else}
   <div class="space-y-6">
     <!-- One period control governs everything below it, instead of each card

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { StatePanel } from '$lib/components/common';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -165,10 +166,7 @@
 </script>
 
 {#if isLoading}
-    <div class="flex flex-col h-[60vh] items-center justify-center text-muted-foreground gap-4 animate-pulse">
-        <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-        <div class="text-lg font-medium">{m["orders.detail.loading"]()}</div>
-    </div>
+    <StatePanel message={m["orders.detail.loading"]()} spinner class="h-[60vh] border-0" />
 {:else if notFound}
     <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
         <div class="bg-destructive/10 p-6 rounded-full">
