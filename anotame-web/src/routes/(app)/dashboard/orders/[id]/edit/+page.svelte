@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { StatePanel } from '$lib/components/common';
+    import { ErrorState, StatePanel } from '$lib/components/common';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -168,20 +168,14 @@
 {#if isLoading}
     <StatePanel message={m["orders.detail.loading"]()} spinner class="h-[60vh] border-0" />
 {:else if notFound}
-    <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
-        <div class="bg-destructive/10 p-6 rounded-full">
-            <svg class="w-16 h-16 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-        </div>
-        <div>
-            <h2 class="text-2xl font-bold text-destructive">{m["orders.detail.notFound"]()}</h2>
-            <p class="text-muted-foreground mt-2 max-w-md">{m["orders.edit.notFoundDescription"]()}</p>
-        </div>
+    <ErrorState
+        title={m["orders.detail.notFound"]()}
+        description={m["orders.edit.notFoundDescription"]()}
+    >
         <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
             {m["orders.detail.backToList"]()}
         </Button>
-    </div>
+    </ErrorState>
 {:else if !isAdmin}
     <div class="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">

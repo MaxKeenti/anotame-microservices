@@ -1,20 +1,23 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as Card from '$lib/components/ui/card';
-  import { Separator } from '$lib/components/ui/separator';
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { DetailRow, ResponsiveDataView, StatePanel, StatusBadge } from '$lib/components/common';
+  import { ErrorState, StatePanel, StatusBadge } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
   import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
   import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
   import GarmentTagDialog from "$lib/components/orders/GarmentTagDialog.svelte";
-  import type { ColumnDef, Row } from '@tanstack/table-core';
+  import PanelHeading from "$lib/components/orders/panel-heading.svelte";
+  import NotesCallout from "$lib/components/orders/notes-callout.svelte";
+  import OrderSummaryPanels from "$lib/components/orders/order-summary-panels.svelte";
+  import OrderItemsPanel from "$lib/components/orders/order-items-panel.svelte";
+  import AuditLogPanel, { type AuditLogEntry } from "$lib/components/orders/audit-log-panel.svelte";
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
   import { Pencil, Printer, Send, Share2, Tags, XCircle } from '@lucide/svelte';
@@ -26,20 +29,12 @@
   let order = $state<OrderResponse | null>(null);
   let loading = $state(true);
   let establishment = $state<Establishment | null>(null);
-  let auditLog = $state<any[]>([]);
+  let auditLog = $state<AuditLogEntry[]>([]);
   let showPaymentModal = $state(false);
   let paymentRefreshKey = $state(0);
   let showShareTicketDialog = $state(false);
   let showGarmentTagDialog = $state(false);
 
-  // Declaration order drives the desktop column order; `cardGroup` drives the mobile card.
-  let itemColumns = $derived<ColumnDef<OrderItemResponse>[]>([
-    { accessorKey: 'garmentName', header: m['orders.detail.description'](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'services', accessorFn: (item) => item.services.map((service) => service.serviceName).join(', '), header: m['orders.detail.service'](), enableSorting: false, meta: { cardGroup: 'body' } },
-    { accessorKey: 'quantity', header: m['orders.detail.qty'](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'subtotal', accessorFn: (item) => `$${item.subtotal}`, header: m['orders.detail.subtotal'](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { accessorKey: 'notes', header: m['orders.detail.note'](), enableSorting: false, meta: { cardGroup: 'body' } },
-  ]);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -203,20 +198,14 @@
     class="h-[60vh] border-0"
   />
 {:else if !order}
-  <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
-    <div class="bg-destructive/10 p-6 rounded-full">
-      <svg class="w-16 h-16 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-      </svg>
-    </div>
-    <div>
-      <h2 class="text-2xl font-bold text-destructive">{m["orders.detail.notFound"]()}</h2>
-      <p class="text-muted-foreground mt-2 max-w-md">{m["orders.detail.notFoundDescription"]()}</p>
-    </div>
+  <ErrorState
+    title={m["orders.detail.notFound"]()}
+    description={m["orders.detail.notFoundDescription"]()}
+  >
     <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
       {m["orders.detail.backToList"]()}
     </Button>
-  </div>
+  </ErrorState>
 {:else}
   <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in duration-150 pb-20">
     <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
@@ -230,71 +219,11 @@
       <StatusBadge status={order.status} />
     </div>
 
-    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Customer Info -->
-      <Card.Root class="p-4 sm:p-6">
-        <Card.Title class="mb-4 text-lg font-bold">{m["orders.detail.customer"]()}</Card.Title>
-        <div class="space-y-4 text-sm">
-          <DetailRow label={m["orders.detail.name"]()}>
-            <span class="min-w-0 wrap-break-word font-semibold">{order.customer.firstName} {order.customer.lastName}</span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.email"]()}>
-            <span class="min-w-0 wrap-break-word">{order.customer.email || '-'}</span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.phone"]()}>
-            <span class="min-w-0 wrap-break-word">{order.customer.phoneNumber || "-"}</span>
-          </DetailRow>
-        </div>
-      </Card.Root>
-
-      <!-- Order Info & Payment -->
-      <Card.Root class="p-4 sm:p-6">
-        <Card.Title class="mb-4 text-lg font-bold">{m["orders.detail.orderDetails"]()}</Card.Title>
-        <div class="space-y-3 text-sm">
-          <DetailRow label={m["orders.detail.created"]()} layout="spread">
-            <span class="max-w-full wrap-break-word whitespace-normal font-mono bg-secondary/30 px-2 py-1 rounded sm:text-right">{formatDateTime(order.createdAt)}</span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.estimatedDelivery"]()} layout="spread">
-            <span class="max-w-full wrap-break-word whitespace-normal font-medium bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20 sm:text-right">{formatDateTime(order.committedDeadline)}</span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.workload"]()} layout="spread">
-            <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>
-          </DetailRow>
-
-          {#if order.priceListName}
-            <DetailRow label={m["orders.detail.priceList"]()} layout="spread">
-              <span class="min-w-0 wrap-break-word font-medium sm:text-right">{order.priceListName}</span>
-            </DetailRow>
-          {/if}
-
-          <Separator class="my-4" />
-
-          <DetailRow label={m["orders.detail.paymentMethod"]()} layout="spread">
-            <span class="font-bold text-foreground">
-              {order.paymentMethod === 'CASH' ? m["orders.detail.paymentCash"]() : order.paymentMethod === 'CARD' ? m["orders.detail.paymentCard"]() : order.paymentMethod === 'TRANSFER' ? m["orders.detail.paymentTransfer"]() : order.paymentMethod || '-'}
-            </span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.total"]()} layout="spread">
-            <span class="font-medium text-lg">{formatCurrency(order.totalAmount)}</span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.amountPaid"]()} layout="spread">
-            <span class="font-bold text-success-text text-lg">-{formatCurrency(order.amountPaid)}</span>
-          </DetailRow>
-          <DetailRow label={m["orders.detail.balance"]()} layout="spread" emphasis class="border-t border-border pt-3 mt-1">
-            <span class={`text-2xl font-black ${((order.totalAmount || 0) - (order.amountPaid || 0)) > 0.01 ? 'text-destructive' : 'text-primary'}`}>
-              {formatCurrency(Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)))}
-            </span>
-          </DetailRow>
-        </div>
-      </Card.Root>
-    </div>
+    <OrderSummaryPanels {order} />
 
     <!-- Order Notes -->
     {#if order.notes}
-      <div class="min-w-0 bg-warning/10 p-4 sm:p-5 rounded-2xl border-2 border-warning/30 text-warning-text shadow-sm">
-        <Card.Title class="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider opacity-80">{m["orders.detail.generalNotes"]()}</Card.Title>
-        <p class="wrap-break-word text-base font-medium">{order.notes}</p>
-      </div>
+      <NotesCallout title={m["orders.detail.generalNotes"]()} notes={order.notes} />
     {/if}
 
     <!-- Payment History -->
@@ -306,20 +235,7 @@
         : undefined}
     />
 
-    <!-- Items -->
-    <Card.Root class="gap-0 p-0">
-      <div class="wrap-break-word px-4 sm:px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.garmentsAndServices"]()}</div>
-
-      <div class="p-4">
-        <ResponsiveDataView
-          columns={itemColumns}
-          data={order.items}
-          showFilter={false}
-          showPagination={false}
-          cellRenders={{ garmentName: garmentCell, services: servicesCell, notes: notesCell }}
-        />
-      </div>
-    </Card.Root>
+    <OrderItemsPanel items={order.items} />
 
     <!-- Pickup code and ticket tools -->
     <Card.Root class="p-4 sm:p-6 text-center">
@@ -345,7 +261,7 @@
 
     <!-- Order management -->
     <Card.Root class="gap-0 p-0">
-      <div class="px-4 py-4 text-lg font-bold bg-secondary/20 sm:px-6">{m['common.actions']()}</div>
+      <PanelHeading title={m['common.actions']()} divider={false} />
       <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div class="flex flex-col gap-2 sm:flex-row">
           {#if order.status === 'RECEIVED'}
@@ -370,22 +286,7 @@
 
     <!-- Audit Log -->
     {#if auditLog.length > 0}
-      <Card.Root class="gap-0 p-0">
-        <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.auditLog"]()}</div>
-        <div class="divide-y divide-border">
-          {#each auditLog as entry}
-            <div class="px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm">
-              <span class="text-muted-foreground font-mono text-xs whitespace-nowrap">{formatDateTime(entry.changedAt)}</span>
-              <span class="font-semibold capitalize">{entry.fieldName}</span>
-              <span class="text-muted-foreground flex-1">
-                <span class="line-through opacity-60">{entry.oldValue ?? '—'}</span>
-                <span class="mx-2">→</span>
-                <span class="text-foreground font-medium">{entry.newValue ?? '—'}</span>
-              </span>
-            </div>
-          {/each}
-        </div>
-      </Card.Root>
+      <AuditLogPanel entries={auditLog} />
     {/if}
 
     <AddPaymentModal
@@ -410,43 +311,3 @@
     />
   </div>
 {/if}
-
-<!-- Item cell renderers, shared by both presentations. -->
-{#snippet garmentCell(row: Row<OrderItemResponse>)}
-  <div class="flex flex-wrap items-center gap-2">
-    <span>{row.original.garmentName}</span>
-    {#if row.original.source === 'CUSTOM'}
-      <span class="rounded-full bg-primary/10 px-2 py-1 text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
-    {/if}
-  </div>
-{/snippet}
-
-{#snippet servicesCell(row: Row<OrderItemResponse>)}
-  <div class="space-y-2">
-    {#each row.original.services as service}
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <span class="font-medium text-foreground">{service.serviceName}</span>
-          <span class="font-mono text-foreground">${service.unitPrice}</span>
-        </div>
-        {#if service.instructions}
-          <p class="mt-1 text-sm text-muted-foreground">{service.instructions}</p>
-        {/if}
-        {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
-          <span class={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-mono font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success-text'}`}>
-            {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
-            {service.adjustmentReason && ` (${service.adjustmentReason})`}
-          </span>
-        {/if}
-      </div>
-    {/each}
-  </div>
-{/snippet}
-
-{#snippet notesCell(row: Row<OrderItemResponse>)}
-  {#if row.original.notes}
-    <span class="inline-block rounded-lg border border-warning/20 bg-warning/10 p-2 text-warning-text">{row.original.notes}</span>
-  {:else}
-    <span class="text-muted-foreground">—</span>
-  {/if}
-{/snippet}
