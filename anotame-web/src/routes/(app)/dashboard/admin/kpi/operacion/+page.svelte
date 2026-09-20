@@ -2,6 +2,7 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
+  import { Skeleton } from '$lib/components/ui/skeleton';
   import { Truck, AlertCircle, Clock, Calendar, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import ReceivablesCard from '$lib/components/dashboard/ReceivablesCard.svelte';
   import CalendarGrid from '$lib/components/calendar/CalendarGrid.svelte';
@@ -205,7 +206,7 @@
         {/if}
 
         {#if calendarLoading}
-          <div class="h-96 animate-pulse rounded-lg border border-border bg-muted/40"></div>
+          <Skeleton class="h-96 rounded-lg" />
         {:else}
           <CalendarGrid
             year={calendarYear}

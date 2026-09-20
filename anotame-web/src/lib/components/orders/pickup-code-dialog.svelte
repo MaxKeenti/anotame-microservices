@@ -7,6 +7,7 @@
   import { toast } from 'svelte-sonner';
   import { CreditCard, DollarSign, Wallet } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
   type PaymentMethod = 'CASH' | 'CARD' | 'TRANSFER';
@@ -137,16 +138,20 @@
               </p>
             </div>
 
-            <label for="pickup-mark-fully-paid" class="flex items-center gap-3 cursor-pointer touch-manipulation">
-              <input
+            <div class="flex items-center gap-3">
+              <Checkbox
                 id="pickup-mark-fully-paid"
-                type="checkbox"
-                class="checkbox-custom"
+                class="size-5"
                 bind:checked={markFullyPaid}
                 disabled={submitting}
               />
-              <span class="text-sm font-semibold">{m["orders.pickup.markFullyPaid"]()}</span>
-            </label>
+              <label
+                for="pickup-mark-fully-paid"
+                class="flex min-h-11 items-center text-sm font-semibold cursor-pointer touch-manipulation"
+              >
+                {m["orders.pickup.markFullyPaid"]()}
+              </label>
+            </div>
           </div>
 
           {#if markFullyPaid}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AlertCircle } from '@lucide/svelte';
   import * as Popover from '$lib/components/ui/popover';
+  import { Progress } from '$lib/components/ui/progress';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
@@ -83,12 +84,12 @@
               <span class="text-sm font-black {getPercentTextColor()}">{capacityPercent.toFixed(0)}%</span>
             </div>
 
-            <div class="h-2 w-full rounded-full bg-background/80 shadow-inner overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all {getBarColor()}"
-                style="width: {Math.min(100, capacityPercent)}%"
-              ></div>
-            </div>
+            <Progress
+              value={Math.min(100, capacityPercent)}
+              class="h-2 bg-background/80 shadow-inner"
+              indicatorClass={getBarColor()}
+              aria-label={m["calendar.day.capacity"]()}
+            />
 
             {#if orderCount > 0}
               <div class="text-xs text-muted-foreground">
@@ -114,12 +115,12 @@
             <span class="text-muted-foreground">{m["calendar.day.capacity"]()}</span>
             <span class="font-semibold">{capacityPercent.toFixed(0)}%</span>
           </div>
-          <div class="h-2 w-full rounded-full bg-muted overflow-hidden">
-            <div
-              class="h-full rounded-full transition-all {getBarColor()}"
-              style="width: {Math.min(100, capacityPercent)}%"
-            ></div>
-          </div>
+          <Progress
+            value={Math.min(100, capacityPercent)}
+            class="h-2"
+            indicatorClass={getBarColor()}
+            aria-label={m["calendar.day.capacity"]()}
+          />
           <div class="text-xs text-muted-foreground mt-0.5">
             {m["calendar.day.minutes"]({ used: String(totalMinutesUsed), total: String(dailyCapacity) })}
           </div>

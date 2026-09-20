@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Badge, type BadgeVariant } from "$lib/components/ui/badge";
   import { cn } from "$lib/utils";
   import * as m from '$lib/paraglide/messages';
 
@@ -18,12 +19,25 @@
     'UNPAID': () => 'NO PAGADO'
   };
 
+  const STATUS_VARIANTS: Record<string, BadgeVariant> = {
+    'PENDING': 'warning',
+    'RECEIVED': 'info',
+    'IN_PROGRESS': 'info',
+    'READY': 'success',
+    'PAID': 'success',
+    'DELIVERED': 'muted',
+    'CANCELLED': 'danger',
+    'UNPAID': 'danger'
+  };
+
   const label = $derived(STATUS_TRANSLATIONS[status]?.() || status);
+  const variant = $derived(STATUS_VARIANTS[status] ?? 'muted');
 </script>
 
-<span 
-  class={cn("status-badge", className)} 
+<Badge
+  {variant}
   data-status={status}
+  class={cn("rounded-full font-bold uppercase tracking-wide shadow-sm", className)}
 >
   {label}
-</span>
+</Badge>

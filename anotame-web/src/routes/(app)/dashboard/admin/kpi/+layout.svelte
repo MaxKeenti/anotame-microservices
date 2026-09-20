@@ -6,6 +6,7 @@
   import { Activity, Banknote, Users } from '@lucide/svelte';
   import type { Establishment } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
+  import { Skeleton } from '$lib/components/ui/skeleton';
   import { toast } from 'svelte-sonner';
   import {
     getMonthParam,
@@ -177,7 +178,7 @@
           {item.label}
         </p>
         {#if isLoading}
-          <div class="mt-1 h-7 w-20 animate-pulse rounded bg-muted"></div>
+          <Skeleton class="mt-1 h-7 w-20" />
         {:else}
           <p class={`mt-1 truncate text-xl font-mono font-bold md:text-2xl ${item.toneClass}`}>
             {item.value}

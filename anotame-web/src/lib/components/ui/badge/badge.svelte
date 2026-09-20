@@ -11,6 +11,11 @@
 				outline: "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
 				ghost: "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
 				link: "text-primary underline-offset-4 hover:underline",
+				success: "bg-success-muted text-success-text border-success/20",
+				warning: "bg-warning-muted text-warning-text border-warning/20",
+				info: "bg-info-muted text-info-text border-info/20",
+				danger: "bg-destructive-muted text-destructive-text border-destructive/20",
+				muted: "bg-muted text-muted-foreground border-border",
 			},
 		},
 		defaultVariants: {

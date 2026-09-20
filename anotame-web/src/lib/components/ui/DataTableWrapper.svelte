@@ -5,6 +5,7 @@
   import * as Table from '$lib/components/ui/table';
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import * as m from '$lib/paraglide/messages';
 
   let {
@@ -75,15 +76,15 @@
               >
                 {#if !header.isPlaceholder}
                   {#if header.column.id === '__select__'}
-                    <label class="flex items-center justify-center h-12 w-12 -ml-3 cursor-pointer touch-manipulation">
-                      <input
-                        type="checkbox"
-                        class="h-8 w-8 cursor-pointer"
+                    <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                      <Checkbox
+                        class="size-5"
                         aria-label={m["common.selectAll"]()}
                         checked={state.table.getIsAllRowsSelected()}
-                        onchange={state.table.getToggleAllRowsSelectedHandler()}
+                        indeterminate={state.table.getIsSomeRowsSelected()}
+                        onCheckedChange={(v) => state.table.toggleAllRowsSelected(v === true)}
                       />
-                    </label>
+                    </div>
                   {:else if header.column.getCanSort()}
                     <button
                       class="flex items-center gap-1 hover:text-foreground transition-colors rounded-md -mx-2 px-2 min-h-11 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -130,15 +131,14 @@
               {#each row.getVisibleCells() as cell (cell.id)}
                 <Table.Cell class="py-4 {cell.column.id === '__select__' ? 'px-0' : 'px-6'}">
                   {#if cell.column.id === '__select__'}
-                    <label class="flex items-center justify-center h-12 w-12 -ml-3 cursor-pointer touch-manipulation">
-                      <input
-                        type="checkbox"
-                        class="h-8 w-8 cursor-pointer"
+                    <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                      <Checkbox
+                        class="size-5"
                         aria-label={m["common.selectRow"]()}
                         checked={cell.row.getIsSelected()}
-                        onchange={cell.row.getToggleSelectedHandler()}
+                        onCheckedChange={(v) => cell.row.toggleSelected(v === true)}
                       />
-                    </label>
+                    </div>
                   {:else if cellRenders && cellRenders[cell.column.id]}
                     {@render cellRenders[cell.column.id](row)}
                   {:else if cell.column.id === 'actions' && actionCell}

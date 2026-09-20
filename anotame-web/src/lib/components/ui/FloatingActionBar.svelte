@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import { X } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
@@ -69,16 +70,36 @@
     </Button>
   </div>
 
-  <Button
-    variant="destructive"
-    size="sm"
-    class="h-9 touch-manipulation whitespace-nowrap"
-    disabled={!allDraft}
-    title={!allDraft ? m["order.bulk.deleteTooltip"]() : undefined}
-    onclick={onDelete}
-  >
-    {m["order.bulk.deleteOrders"]()}
-  </Button>
+  {#snippet deleteButton()}
+    <Button
+      variant="destructive"
+      size="sm"
+      class="h-9 touch-manipulation whitespace-nowrap"
+      disabled={!allDraft}
+      onclick={onDelete}
+    >
+      {m["order.bulk.deleteOrders"]()}
+    </Button>
+  {/snippet}
+
+  {#if allDraft}
+    {@render deleteButton()}
+  {:else}
+    <!--
+      The button is disabled, so it swallows pointer events: the tooltip
+      trigger has to live on a wrapper that can still receive them.
+    -->
+    <Tooltip.Provider>
+      <Tooltip.Root>
+        <Tooltip.Trigger tabindex={0} class="shrink-0 cursor-not-allowed">
+          {@render deleteButton()}
+        </Tooltip.Trigger>
+        <Tooltip.Content side="top">
+          {m["order.bulk.deleteTooltip"]()}
+        </Tooltip.Content>
+      </Tooltip.Root>
+    </Tooltip.Provider>
+  {/if}
 
   <Button
     variant="ghost"

@@ -12,6 +12,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { ChevronDown, ChevronUp } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
@@ -169,13 +170,13 @@
 
   {#if bulkActions && bulkMode && data.length > 0}
     <div class="flex min-h-11 items-center gap-3 py-2 px-1">
-      <input
-        type="checkbox"
+      <Checkbox
         id="cgw-select-all"
-        class="h-6 w-6 cursor-pointer rounded touch-manipulation"
+        class="size-5"
         aria-label={m['common.selectAll']()}
         checked={state.table.getIsAllRowsSelected()}
-        onchange={state.table.getToggleAllRowsSelectedHandler()}
+        indeterminate={state.table.getIsSomeRowsSelected()}
+        onCheckedChange={(v) => state.table.toggleAllRowsSelected(v === true)}
       />
       <label for="cgw-select-all" class="flex min-h-11 items-center text-sm font-medium cursor-pointer select-none touch-manipulation">{m['common.selectAll']()}</label>
     </div>
@@ -205,15 +206,14 @@
             <div class="flex min-w-0 items-start gap-3">
               <!-- Bulk selection checkbox -->
               {#if bulkActions && bulkMode}
-                <label class="flex h-11 w-11 -m-2.5 items-center justify-center shrink-0 cursor-pointer touch-manipulation">
-                  <input
-                    type="checkbox"
-                    class="h-6 w-6 cursor-pointer rounded"
+                <div class="flex h-11 w-11 -m-2.5 items-center justify-center shrink-0">
+                  <Checkbox
+                    class="size-5"
                     aria-label={m['common.selectRow']()}
                     checked={row.getIsSelected()}
-                    onchange={row.getToggleSelectedHandler()}
+                    onCheckedChange={(v) => row.toggleSelected(v === true)}
                   />
-                </label>
+                </div>
               {/if}
 
               <!-- Header fields -->

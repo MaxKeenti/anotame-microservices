@@ -3,6 +3,8 @@
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
+  import { Progress } from '$lib/components/ui/progress';
+  import { Skeleton } from '$lib/components/ui/skeleton';
   import * as m from '$lib/paraglide/messages';
   import { tablePreferences } from '$lib/stores/table-preferences.svelte';
   import { getFinancialKpiPeriodLabel } from '$lib/utils/kpiPeriodLabel';
@@ -272,10 +274,10 @@
 
   {#if loading}
     <div class="space-y-4">
-      <div class="h-64 bg-card border border-border rounded-2xl animate-pulse"></div>
+      <Skeleton class="h-64 rounded-2xl" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="h-48 bg-card border border-border rounded-2xl animate-pulse"></div>
-        <div class="h-48 bg-card border border-border rounded-2xl animate-pulse"></div>
+        <Skeleton class="h-48 rounded-2xl" />
+        <Skeleton class="h-48 rounded-2xl" />
       </div>
     </div>
   {:else if error}
@@ -401,17 +403,12 @@
                     </span>
                   </div>
                   <!-- Percentage Bar -->
-                  <div class="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      class="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 ease-out rounded-full"
-                      style="width: {service.percentShare}%"
-                      role="progressbar"
-                      aria-valuenow={service.percentShare}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-label={`${service.serviceName}: ${service.percentShare.toFixed(1)}%`}
-                    ></div>
-                  </div>
+                  <Progress
+                    value={service.percentShare}
+                    class="h-2"
+                    indicatorClass="bg-gradient-to-r from-primary to-primary/60 duration-500 ease-out"
+                    aria-label={`${service.serviceName}: ${service.percentShare.toFixed(1)}%`}
+                  />
                   <!-- Percentage Label -->
                   <div class="text-right">
                     <span class="text-xs font-mono text-muted-foreground">

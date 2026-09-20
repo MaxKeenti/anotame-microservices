@@ -7,6 +7,7 @@
   import * as Card from '$lib/components/ui/card';
   import * as Table from '$lib/components/ui/table';
   import * as Form from '$lib/components/ui/form';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
   import { CalendarDays, AlertTriangle, Trash2, Loader2 } from '@lucide/svelte';
@@ -169,14 +170,19 @@
               {#each workDays as day, index}
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 hover:bg-muted/10 transition-colors">
                   <div class="w-40 font-medium capitalize text-foreground flex items-center">
-                    <label class="flex min-h-11 items-center gap-3 cursor-pointer touch-manipulation">
-                      <input
-                        type="checkbox"
-                        class="checkbox-custom"
+                    <div class="flex min-h-11 items-center gap-3">
+                      <Checkbox
+                        id={`workday-open-${day.dayOfWeek}`}
+                        class="size-5"
                         bind:checked={day.open}
                       />
-                      {getDayName(day.dayOfWeek)}
-                    </label>
+                      <label
+                        for={`workday-open-${day.dayOfWeek}`}
+                        class="flex min-h-11 items-center cursor-pointer touch-manipulation"
+                      >
+                        {getDayName(day.dayOfWeek)}
+                      </label>
+                    </div>
                   </div>
 
                   <div class="flex-1 flex flex-wrap items-center gap-3">

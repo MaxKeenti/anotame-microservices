@@ -6,6 +6,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import * as Form from '$lib/components/ui/form';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
   import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
@@ -223,17 +224,17 @@
             </Form.Field>
 
             <Form.Field form={superform} name="active">
-              {#snippet children({ constraints })}
-                <div class="flex items-center gap-2 pt-8">
-                  <label class="flex items-center gap-3 cursor-pointer touch-manipulation font-medium">
-                    <input
-                      type="checkbox"
-                      class="checkbox-custom"
-                      bind:checked={$form.active}
-                    />
-                    {m["catalog.pricelist.activeLabel"]()}
-                  </label>
-                </div>
+              {#snippet children()}
+                <Form.Control>
+                  {#snippet children({ props })}
+                    <div class="flex items-center gap-3 pt-8">
+                      <Checkbox {...props} class="size-5" bind:checked={$form.active} />
+                      <Form.Label class="flex min-h-11 items-center font-medium cursor-pointer touch-manipulation">
+                        {m["catalog.pricelist.activeLabel"]()}
+                      </Form.Label>
+                    </div>
+                  {/snippet}
+                </Form.Control>
                 <Form.FieldErrors />
               {/snippet}
             </Form.Field>

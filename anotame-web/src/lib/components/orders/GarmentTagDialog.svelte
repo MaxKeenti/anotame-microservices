@@ -9,6 +9,7 @@
   import QRCode from 'qrcode';
   import { Minus, Plus } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
+  import { Checkbox } from '$lib/components/ui/checkbox';
 
   const MAX_COPIES = 6;
 
@@ -118,12 +119,11 @@
         <div class="space-y-2">
           {#each order.items as item, index (item.id)}
             <div class="flex items-center gap-3 rounded-lg border border-border p-3">
-              <input
+              <Checkbox
                 id={`garment-tag-${item.id}`}
-                type="checkbox"
-                class="size-5 shrink-0 accent-primary touch-manipulation"
+                class="size-5 shrink-0"
                 checked={selectedIds.includes(item.id)}
-                onchange={() => toggleItem(item.id)}
+                onCheckedChange={() => toggleItem(item.id)}
               />
               <label for={`garment-tag-${item.id}`} class="min-w-0 flex-1 text-sm">
                 <span class="font-medium">{item.garmentName}</span>
@@ -163,12 +163,7 @@
 
       <div class="space-y-2 border-t border-border pt-4">
         <div class="flex items-center gap-3">
-          <input
-            id="garment-tag-qr"
-            type="checkbox"
-            class="size-5 shrink-0 accent-primary touch-manipulation"
-            bind:checked={includeQr}
-          />
+          <Checkbox id="garment-tag-qr" class="size-5 shrink-0" bind:checked={includeQr} />
           <label for="garment-tag-qr" class="text-sm font-medium">{m['garmentTag.includeQr']()}</label>
         </div>
         <p class="text-xs text-muted-foreground">{m['garmentTag.qrNotice']()}</p>
