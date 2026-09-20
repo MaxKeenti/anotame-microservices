@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { PageHeader, StatePanel } from '$lib/components/common';
+  import { FormField, PageHeader, StatePanel } from '$lib/components/common';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -131,8 +131,7 @@
           </Card.Description>
         </Card.Header>
         <Card.Content class="space-y-4">
-          <div class="space-y-2">
-            <label for="est-name" class="text-sm font-medium">{m['adminSettings.label.name']()} <span class="text-destructive">*</span></label>
+          <FormField label={m['adminSettings.label.name']()} for="est-name" required error={$errors.name}>
             <Input
               id="est-name"
               bind:value={$form.name}
@@ -140,19 +139,16 @@
               class="h-12"
               placeholder={m['adminSettings.placeholder.name']()}
             />
-            {#if $errors.name}<span class="text-xs text-destructive">{$errors.name}</span>{/if}
-          </div>
-          <div class="space-y-2">
-            <label for="est-owner" class="text-sm font-medium">{m['adminSettings.label.owner']()}</label>
+          </FormField>
+          <FormField label={m['adminSettings.label.owner']()} for="est-owner">
             <Input
               id="est-owner"
               bind:value={$form.ownerName}
               class="h-12"
               placeholder={m["adminSettings.ownerPlaceholder"]()}
             />
-          </div>
-          <div class="space-y-2">
-            <label for="est-capacity" class="text-sm font-medium">{m['adminSettings.label.capacity']()}</label>
+          </FormField>
+          <FormField label={m['adminSettings.label.capacity']()} for="est-capacity" error={$errors.dailyCapacityMinutes} hint={m['adminSettings.hint.capacity']()}>
             <Input
               id="est-capacity"
               type="number"
@@ -160,9 +156,7 @@
               class="h-12 font-mono"
               placeholder={m["adminSettings.capacityPlaceholder"]()}
             />
-            {#if $errors.dailyCapacityMinutes}<span class="text-xs text-destructive">{$errors.dailyCapacityMinutes}</span>{/if}
-            <p class="text-xs text-muted-foreground">{m['adminSettings.hint.capacity']()}</p>
-          </div>
+          </FormField>
         </Card.Content>
       </Card.Root>
 
@@ -179,43 +173,39 @@
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label for="tax-rfc" class="text-sm font-medium">{m['adminSettings.label.rfc']()}</label>
+            <FormField label={m['adminSettings.label.rfc']()} for="tax-rfc">
               <Input
                 id="tax-rfc"
                 bind:value={$form.rfc}
                 class="h-12 uppercase"
                 placeholder="ABCD123456XYZ"
               />
-            </div>
-            <div class="space-y-2">
-              <label for="tax-regime" class="text-sm font-medium">{m['adminSettings.label.regime']()}</label>
+            </FormField>
+            <FormField label={m['adminSettings.label.regime']()} for="tax-regime">
               <Input
                 id="tax-regime"
                 bind:value={$form.regime}
                 class="h-12"
                 placeholder={m["adminSettings.regimePlaceholder"]()}
               />
-            </div>
+            </FormField>
           </div>
-          <div class="space-y-2">
-            <label for="tax-address" class="text-sm font-medium">{m['adminSettings.label.address']()}</label>
+          <FormField label={m['adminSettings.label.address']()} for="tax-address">
             <Input
               id="tax-address"
               bind:value={$form.address}
               class="h-12"
               placeholder={m['adminSettings.placeholder.address']()}
             />
-          </div>
-          <div class="space-y-2">
-            <label for="tax-phone" class="text-sm font-medium">{m['adminSettings.label.phone']()}</label>
+          </FormField>
+          <FormField label={m['adminSettings.label.phone']()} for="tax-phone">
             <Input
               id="tax-phone"
               bind:value={$form.contactPhone}
               class="h-12"
               placeholder={m["adminSettings.phonePlaceholder"]()}
             />
-          </div>
+          </FormField>
         </Card.Content>
       </Card.Root>
 
@@ -233,8 +223,7 @@
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Brand Color Picker -->
-            <div class="space-y-2">
-              <label for="brand-color" class="text-sm font-medium">{m['adminSettings.label.color']()}</label>
+            <FormField label={m['adminSettings.label.color']()} for="brand-color" hint={m["adminSettings.colorHint"]()}>
               <div class="flex items-center gap-3">
                 <input
                   id="brand-color"
@@ -253,12 +242,10 @@
               {#if $errors.primaryColor}
                 <span class="text-xs text-destructive">{$errors.primaryColor}</span>
               {/if}
-              <p class="text-xs text-muted-foreground">{m["adminSettings.colorHint"]()}</p>
-            </div>
+            </FormField>
 
             <!-- Font Family Dropdown -->
-            <div class="space-y-2">
-              <label for="font-family" class="text-sm font-medium">{m['adminSettings.label.font']()}</label>
+            <FormField label={m['adminSettings.label.font']()} for="font-family">
               <Select.Root
                 type="single"
                 value={$form.fontFamily || ''}
@@ -282,7 +269,7 @@
               {#if $errors.fontFamily}
                 <span class="text-xs text-destructive">{$errors.fontFamily}</span>
               {/if}
-            </div>
+            </FormField>
           </div>
         </Card.Content>
       </Card.Root>
@@ -300,8 +287,7 @@
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="space-y-2">
-              <label for="threshold-green" class="text-sm font-medium">{m['adminSettings.threshold.label.green']()}</label>
+            <FormField label={m['adminSettings.threshold.label.green']()} for="threshold-green" error={$errors.capacityThresholdGreen} hint={m['adminSettings.threshold.hint.green']()}>
               <Input
                 id="threshold-green"
                 type="number"
@@ -310,11 +296,8 @@
                 bind:value={$form.capacityThresholdGreen}
                 class="h-12 font-mono"
               />
-              {#if $errors.capacityThresholdGreen}<span class="text-xs text-destructive">{$errors.capacityThresholdGreen}</span>{/if}
-              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.green']()}</p>
-            </div>
-            <div class="space-y-2">
-              <label for="threshold-amber" class="text-sm font-medium">{m['adminSettings.threshold.label.amber']()}</label>
+            </FormField>
+            <FormField label={m['adminSettings.threshold.label.amber']()} for="threshold-amber" error={$errors.capacityThresholdAmber} hint={m['adminSettings.threshold.hint.amber']()}>
               <Input
                 id="threshold-amber"
                 type="number"
@@ -323,11 +306,8 @@
                 bind:value={$form.capacityThresholdAmber}
                 class="h-12 font-mono"
               />
-              {#if $errors.capacityThresholdAmber}<span class="text-xs text-destructive">{$errors.capacityThresholdAmber}</span>{/if}
-              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.amber']()}</p>
-            </div>
-            <div class="space-y-2">
-              <label for="threshold-atrisk" class="text-sm font-medium">{m['adminSettings.threshold.label.atRisk']()}</label>
+            </FormField>
+            <FormField label={m['adminSettings.threshold.label.atRisk']()} for="threshold-atrisk" error={$errors.atRiskDaysThreshold} hint={m['adminSettings.threshold.hint.atRisk']()}>
               <Input
                 id="threshold-atrisk"
                 type="number"
@@ -335,9 +315,7 @@
                 bind:value={$form.atRiskDaysThreshold}
                 class="h-12 font-mono"
               />
-              {#if $errors.atRiskDaysThreshold}<span class="text-xs text-destructive">{$errors.atRiskDaysThreshold}</span>{/if}
-              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.atRisk']()}</p>
-            </div>
+            </FormField>
           </div>
         </Card.Content>
       </Card.Root>

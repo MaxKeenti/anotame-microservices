@@ -13,6 +13,10 @@
     type HelpCategory,
     type HelpTopic,
   } from '$lib/config/help';
+  import * as Card from '$lib/components/ui/card';
+  import { PageHeader, StatePanel } from '$lib/components/common';
+  import HelpTopicSection from '$lib/components/help/help-topic-section.svelte';
+  import HelpTile from '$lib/components/help/help-tile.svelte';
   import * as m from '$lib/paraglide/messages';
   import {
     AlertTriangle,
@@ -93,27 +97,9 @@
     return !topic.adminOnly || isAdmin;
   }
 
-  function relatedTopicTitle(id: string): string {
-    return helpTopics.find((topic) => topic.id === id)?.title() ?? id;
-  }
 
-  function calloutLabel(kind: CalloutKind): string {
-    if (kind === 'important') return m['help.callout.important']();
-    if (kind === 'admin') return m['help.callout.admin']();
-    return m['help.callout.tip']();
-  }
 
-  function calloutClass(kind: CalloutKind): string {
-    if (kind === 'important') return 'border-warning-border bg-warning-background text-warning-background-foreground';
-    if (kind === 'admin') return 'border-info-border bg-info-background text-info-background-foreground';
-    return 'border-success-border bg-success-background text-success-background-foreground';
-  }
 
-  function calloutIcon(kind: CalloutKind) {
-    if (kind === 'important') return AlertTriangle;
-    if (kind === 'admin') return ShieldCheck;
-    return Info;
-  }
 
   let observer: IntersectionObserver | null = null;
 
@@ -168,17 +154,15 @@
 </script>
 
 <div class="mx-auto max-w-7xl space-y-6 pb-24 animate-in fade-in duration-300">
-  <div class="space-y-2">
-    <div class="flex items-center gap-3">
-      <CircleHelp class="h-8 w-8 text-primary" />
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m['help.page.title']()}</h1>
-    </div>
-    <p class="max-w-3xl text-muted-foreground">{m['help.page.description']()}</p>
-  </div>
+  <PageHeader
+    title={m['help.page.title']()}
+    description={m['help.page.description']()}
+    icon={CircleHelp}
+  />
 
   <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)] lg:items-start">
     <aside class="lg:sticky lg:top-0 space-y-4">
-      <div class="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <Card.Root class="gap-0 p-4">
         <label for="help-search" class="sr-only">{m['common.search']()}</label>
         <div class="relative">
           <Search class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -210,7 +194,7 @@
             </Button>
           {/each}
         </div>
-      </div>
+      </Card.Root>
 
       <nav class="hidden lg:block rounded-xl border border-border bg-card p-3 shadow-sm" aria-label={m['help.toc.title']()}>
         <div class="px-2 pb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -248,16 +232,14 @@
         </div>
       </nav>
 
-      <section class="rounded-xl border border-border bg-card p-4 shadow-sm" data-help-id="quick-start">
-        <div class="mb-4 flex items-center gap-2">
+      <Card.Root class="gap-0 p-4" data-help-id="quick-start">
+        <Card.Title class="mb-4 flex items-center gap-2 font-heading text-xl font-bold">
           <BookOpen class="h-5 w-5 text-primary" />
-          <h2 class="text-xl font-bold font-heading">{m['help.quick.title']()}</h2>
-        </div>
+          {m['help.quick.title']()}
+        </Card.Title>
         <div class="grid gap-3 md:grid-cols-2">
           {#each visibleQuickStarts as item (item.id)}
-            <div class="rounded-lg border border-border bg-background p-4">
-              <h3 class="font-semibold">{item.title()}</h3>
-              <p class="mt-1 text-sm text-muted-foreground">{item.summary()}</p>
+            <HelpTile title={item.title()} description={item.summary()}>
               <div class="mt-4 flex flex-wrap gap-2">
                 {#if item.appHref}
                   <a
@@ -275,117 +257,16 @@
                   {m['help.action.readSteps']()}
                 </a>
               </div>
-            </div>
+            </HelpTile>
           {/each}
         </div>
-      </section>
+      </Card.Root>
 
       {#if visibleTopics.length === 0}
-        <div class="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
-          {m['help.search.noResults']()}
-        </div>
+        <StatePanel message={m['help.search.noResults']()} class="h-auto p-8" />
       {:else}
         {#each visibleTopics as topic (topic.id)}
-          <section
-            id={topic.id}
-            data-help-section
-            data-help-id={topic.id}
-            class="scroll-mt-24 rounded-xl border border-border bg-card p-5 shadow-sm lg:scroll-mt-6"
-          >
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div class="min-w-0">
-                <h2 class="text-2xl font-bold font-heading">{topic.title()}</h2>
-                <p class="mt-2 text-muted-foreground">{topicSummary(topic)}</p>
-              </div>
-              {#if topic.appHref && (!topic.adminOnly || isAdmin)}
-                <a
-                  href={topic.appHref}
-                  class="inline-flex h-11 shrink-0 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                >
-                  {m['help.action.openPage']()}
-                  <ExternalLink class="ml-2 h-4 w-4" />
-                </a>
-              {/if}
-            </div>
-
-            {#if shouldShowSteps(topic) && topic.steps?.length}
-              <ol class="mt-5 space-y-3">
-                {#each topic.steps as step, index}
-                  <li class="grid grid-cols-[2rem_1fr] gap-3">
-                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      {index + 1}
-                    </span>
-                    <span class="pt-1 text-sm leading-6 text-foreground">{step()}</span>
-                  </li>
-                {/each}
-              </ol>
-            {:else if topic.employeeBullets?.length}
-              <div class="mt-5 rounded-lg border border-info-border bg-info-background p-4 text-info-background-foreground">
-                <div class="mb-2 flex items-center gap-2 text-sm font-bold">
-                  <ShieldCheck class="h-4 w-4" />
-                  {m['help.callout.admin']()}
-                </div>
-                <ul class="space-y-2 text-sm leading-6">
-                  {#each topic.employeeBullets as bullet}
-                    <li>{bullet()}</li>
-                  {/each}
-                </ul>
-              </div>
-            {/if}
-
-            {#if topic.id === 'key-terms'}
-              <div class="mt-5 grid gap-3 md:grid-cols-2">
-                {#each helpTerms as term (term.id)}
-                  <div class="rounded-lg border border-border bg-background p-3">
-                    <h3 class="font-semibold">{term.term()}</h3>
-                    <p class="mt-1 text-sm leading-6 text-muted-foreground">{term.description()}</p>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            {#if topic.id === 'troubleshooting'}
-              <div class="mt-5 space-y-3">
-                {#each helpTroubleItems as item (item.id)}
-                  <div class="rounded-lg border border-border bg-background p-4">
-                    <h3 class="font-semibold">{item.title()}</h3>
-                    <p class="mt-1 text-sm leading-6 text-muted-foreground">{item.resolution()}</p>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            {#if shouldShowSteps(topic) && topic.callouts?.length}
-              <div class="mt-5 space-y-3">
-                {#each topic.callouts as callout}
-                  {@const Icon = calloutIcon(callout.kind)}
-                  <div class="rounded-lg border p-4 text-sm leading-6 {calloutClass(callout.kind)}">
-                    <div class="mb-1 flex items-center gap-2 font-bold">
-                      <Icon class="h-4 w-4" />
-                      {calloutLabel(callout.kind)}
-                    </div>
-                    <p>{callout.text()}</p>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            {#if topic.related?.length}
-              <div class="mt-5 border-t border-border pt-4">
-                <div class="text-xs font-bold uppercase tracking-wide text-muted-foreground">{m['help.related.title']()}</div>
-                <div class="mt-2 flex flex-wrap gap-2">
-                  {#each topic.related as relatedId}
-                    <a
-                      href={`#${relatedId}`}
-                      class="inline-flex min-h-11 items-center rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground touch-manipulation"
-                    >
-                      {relatedTopicTitle(relatedId)}
-                    </a>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-          </section>
+          <HelpTopicSection {topic} {isAdmin} />
         {/each}
       {/if}
     </div>
