@@ -5,13 +5,11 @@
   import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { UserResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
-  const mobile = useIsMobile();
 
   import UserDialog from '$lib/components/users/user-dialog.svelte';
 
@@ -112,25 +110,14 @@
       </div>
     {/snippet}
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={users}
-        {loading}
-        emptyMessage={m['common.noData']()}
-        filterPlaceholder={m['common.searchEllipsis']()}
-        actionCell={userActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={users}
-        {loading}
-        emptyMessage={m['common.noData']()}
-        filterPlaceholder={m['common.searchEllipsis']()}
-        actionCell={userActions}
-      />
-    {/if}
+    <ResponsiveDataView
+      {columns}
+      data={users}
+      {loading}
+      emptyMessage={m['common.noData']()}
+      filterPlaceholder={m['common.searchEllipsis']()}
+      actionCell={userActions}
+    />
   </div>
 
   <UserDialog

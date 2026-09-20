@@ -9,12 +9,10 @@
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
 
-  const mobile = useIsMobile();
 
   import ServiceDialog from '$lib/components/catalog/service-dialog.svelte';
 
@@ -181,26 +179,15 @@
       </div>
     {/snippet}
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={filteredServices}
-        {loading}
-        showFilter={false}
-        emptyMessage={m["catalog.services.emptyMessage"]()}
-        actionCell={serviceActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={filteredServices}
-        {loading}
-        showFilter={false}
-        emptyMessage={m["catalog.services.emptyMessage"]()}
-        filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
-        actionCell={serviceActions}
-      />
-    {/if}
+    <ResponsiveDataView
+      {columns}
+      data={filteredServices}
+      {loading}
+      showFilter={false}
+      emptyMessage={m["catalog.services.emptyMessage"]()}
+      actionCell={serviceActions}
+      filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
+    />
   </div>
 
   <ServiceDialog

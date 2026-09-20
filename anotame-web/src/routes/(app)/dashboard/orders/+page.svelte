@@ -5,7 +5,7 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { CardGridWrapper, DataTableWrapper, StatusBadge } from '$lib/components/common';
+  import { ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
@@ -373,48 +373,25 @@
           </div>
         {/snippet}
 
-        {#if mobile.current}
-          <CardGridWrapper
-            columns={activeColumns}
-            data={orders}
-            loading={loading}
-            emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
-            filterPlaceholder={m["orders.searchPlaceholder"]()}
-            showFilter={false}
-            cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
-            bulkActions={true}
-            bulkMode={true}
-            manualPagination={true}
-            pageIndex={ordersPageIndex}
-            pageCount={ordersTotalPages}
-            pageSize={ordersPageSize}
-            onPageChange={(page) => { ordersPageIndex = page; }}
-            onSelectionChange={(rows) => { selectedOrders = rows; }}
-            actionCell={activeOrderActions}
-          />
-        {:else}
-          <DataTableWrapper
-            columns={activeColumns}
-            data={orders}
-            loading={loading}
-            emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
-            filterPlaceholder={m["orders.searchPlaceholder"]()}
-            showFilter={false}
-            cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
-            bulkActions={true}
-            bulkMode={true}
-            manualPagination={true}
-            pageIndex={ordersPageIndex}
-            pageCount={ordersTotalPages}
-            pageSize={ordersPageSize}
-            onPageChange={(page) => { ordersPageIndex = page; }}
-            onSelectionChange={(rows) => { selectedOrders = rows; }}
-          >
-            {#snippet actionCell(row)}
-              {@render activeOrderActions(row)}
-            {/snippet}
-          </DataTableWrapper>
-        {/if}
+        <ResponsiveDataView
+          columns={activeColumns}
+          data={orders}
+          loading={loading}
+          emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
+          filterPlaceholder={m["orders.searchPlaceholder"]()}
+          showFilter={false}
+          cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
+          bulkActions={true}
+          bulkMode={true}
+          manualPagination={true}
+          pageSize={ordersPageSize}
+          mobilePageSize={ordersPageSize}
+          pageIndex={ordersPageIndex}
+          pageCount={ordersTotalPages}
+          onPageChange={(page) => { ordersPageIndex = page; }}
+          onSelectionChange={(rows) => { selectedOrders = rows; }}
+          actionCell={activeOrderActions}
+        />
       </div>
 
     </Tabs.Content>
@@ -434,28 +411,14 @@
           </div>
         {/snippet}
 
-        {#if mobile.current}
-          <CardGridWrapper
-            columns={draftsColumns}
-            data={drafts}
-            emptyMessage={m["orders.drafts.empty"]()}
-            filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
-            showFilter={false}
-            actionCell={draftActions}
-          />
-        {:else}
-          <DataTableWrapper
-            columns={draftsColumns}
-            data={drafts}
-            emptyMessage={m["orders.drafts.empty"]()}
-            filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
-            showFilter={false}
-          >
-            {#snippet actionCell(row)}
-              {@render draftActions(row)}
-            {/snippet}
-          </DataTableWrapper>
-        {/if}
+        <ResponsiveDataView
+          columns={draftsColumns}
+          data={drafts}
+          emptyMessage={m["orders.drafts.empty"]()}
+          filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
+          showFilter={false}
+          actionCell={draftActions}
+        />
       </div>
     </Tabs.Content>
   </Tabs.Root>

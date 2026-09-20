@@ -8,8 +8,7 @@
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
-  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -17,7 +16,6 @@
   // Guard: Protect this route, strictly checking 'ADMIN'
   const guard = useAuthGuard(true, '/dashboard');
 
-  const mobile = useIsMobile();
 
   let lists = $state<PriceListResponse[]>([]);
   let isLoading = $state(true);
@@ -131,25 +129,14 @@
         <Card.Description>{m["catalog.pricelists.cardDescription"]()}</Card.Description>
       </Card.Header>
       <Card.Content>
-        {#if mobile.current}
-          <CardGridWrapper
-            {columns}
-            data={lists}
-            loading={isLoading}
-            emptyMessage={m["catalog.pricelists.emptyMessage"]()}
-            filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
-            actionCell={pricelistActions}
-          />
-        {:else}
-          <DataTableWrapper
-            {columns}
-            data={lists}
-            loading={isLoading}
-            emptyMessage={m["catalog.pricelists.emptyMessage"]()}
-            filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
-            actionCell={pricelistActions}
-          />
-        {/if}
+        <ResponsiveDataView
+          {columns}
+          data={lists}
+          loading={isLoading}
+          emptyMessage={m["catalog.pricelists.emptyMessage"]()}
+          filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
+          actionCell={pricelistActions}
+        />
       </Card.Content>
     </Card.Root>
   </div>

@@ -7,12 +7,10 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Edit, Trash2 } from '@lucide/svelte';
-  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse } from '$lib/types/dtos';
 
-  const mobile = useIsMobile();
 
   import GarmentDialog from '$lib/components/catalog/garment-dialog.svelte';
 
@@ -111,25 +109,14 @@
       </div>
     {/snippet}
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={garments}
-        {loading}
-        emptyMessage={m["catalog.garments.emptyMessage"]()}
-        filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
-        actionCell={garmentActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={garments}
-        {loading}
-        emptyMessage={m["catalog.garments.emptyMessage"]()}
-        filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
-        actionCell={garmentActions}
-      />
-    {/if}
+    <ResponsiveDataView
+      {columns}
+      data={garments}
+      {loading}
+      emptyMessage={m["catalog.garments.emptyMessage"]()}
+      filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
+      actionCell={garmentActions}
+    />
   </div>
 
   <GarmentDialog item={editingGarment} onClose={() => editingGarment = null} onSuccess={handleFormSuccess} />

@@ -1,5 +1,4 @@
-export { default as CardGridWrapper } from "./CardGridWrapper.svelte";
-export { default as DataTableWrapper } from "./DataTableWrapper.svelte";
+export { default as ResponsiveDataView } from "./responsive-data-view.svelte";
 export { default as FloatingActionBar } from "./FloatingActionBar.svelte";
 export { default as StatusBadge } from "./StatusBadge.svelte";
 export {

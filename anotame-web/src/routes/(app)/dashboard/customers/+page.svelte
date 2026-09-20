@@ -7,13 +7,11 @@
   import { toast } from 'svelte-sonner';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { CustomerDto } from '$lib/types/dtos';
-  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { ResponsiveDataView } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
 
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
 
-  const mobile = useIsMobile();
 
   type CustomerEditorItem = Omit<Partial<CustomerDto>, 'id'> & { id?: string | null };
 
@@ -108,27 +106,15 @@
       </div>
     {/snippet}
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={customers}
-        loading={loading}
-        emptyMessage={m["customers.empty"]()}
-        filterPlaceholder={m["customers.filter.placeholder"]()}
-        showFilter={true}
-        actionCell={customerActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={customers}
-        loading={loading}
-        emptyMessage={m["customers.empty"]()}
-        filterPlaceholder={m["customers.filter.placeholder"]()}
-        showFilter={true}
-        actionCell={customerActions}
-      />
-    {/if}
+    <ResponsiveDataView
+      {columns}
+      data={customers}
+      loading={loading}
+      emptyMessage={m["customers.empty"]()}
+      filterPlaceholder={m["customers.filter.placeholder"]()}
+      showFilter={true}
+      actionCell={customerActions}
+    />
   </div>
 
   <CustomerDialog item={editingCustomer} onClose={() => editingCustomer = null} onSuccess={handleFormSuccess} />

@@ -5,7 +5,7 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { CardGridWrapper, StatusBadge } from '$lib/components/common';
+  import { ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
@@ -358,7 +358,7 @@
 
       {#if mobile.current}
         <div class="p-4">
-          <CardGridWrapper
+          <ResponsiveDataView
             columns={itemColumns}
             data={order.items}
             showFilter={false}

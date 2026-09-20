@@ -285,10 +285,4 @@
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
-
-	/* Neutralise the hover/press scaling used on nav tiles and cards. */
-	.hover\:scale-105:hover,
-	.active\:scale-95:active {
-		scale: 1 !important;
-	}
 }

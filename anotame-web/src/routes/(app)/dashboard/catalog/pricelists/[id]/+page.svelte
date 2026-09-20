@@ -9,8 +9,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { CardGridWrapper, DataTableWrapper } from '$lib/components/common';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -24,7 +23,6 @@
   // Derived ID
   let listId = $derived($page.params.id);
 
-  const mobile = useIsMobile();
 
   // State
   let isLoading = $state(true);
@@ -290,25 +288,13 @@
 
           <!-- Overrides Table -->
           <div class="border rounded-md overflow-x-auto">
-            {#if mobile.current}
-              <CardGridWrapper
-                columns={overrideColumns}
-                data={services}
-                loading={false}
-                emptyMessage={m["catalog.pricelist.noServices"]()}
-                pageSize={100}
-                {cellRenders}
-              />
-            {:else}
-              <DataTableWrapper
-                columns={overrideColumns}
-                data={services}
-                loading={false}
-                emptyMessage={m["catalog.pricelist.noServices"]()}
-                pageSize={100}
-                {cellRenders}
-              />
-            {/if}
+            <ResponsiveDataView
+              columns={overrideColumns}
+              data={services}
+              loading={false}
+              emptyMessage={m["catalog.pricelist.noServices"]()}
+              {cellRenders}
+            />
           </div>
         </Card.Content>
       </Card.Root>

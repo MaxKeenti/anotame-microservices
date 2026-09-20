@@ -42,7 +42,7 @@
             <a
               href={item.href}
               onclick={handleClose}
-              class="flex flex-col items-center justify-center gap-4 p-8 rounded-xl border-2 transition-all hover:scale-105 active:scale-95
+              class="flex flex-col items-center justify-center gap-4 p-8 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100
                 {isActive
                   ? 'border-primary bg-primary/5 text-primary shadow-sm'
                   : 'border-border bg-card hover:border-primary/50 hover:bg-secondary/50 text-muted-foreground hover:text-foreground'
