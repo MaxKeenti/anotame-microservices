@@ -6,7 +6,7 @@
   import { Input } from '$lib/components/ui/input';
   import * as Tabs from '$lib/components/ui/tabs';
   import * as Popover from '$lib/components/ui/popover';
-  import { PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
+  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { Badge } from '$lib/components/ui/badge';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
@@ -235,15 +235,14 @@
     {/snippet}
   </PageHeader>
 
-  <div class="space-y-1.5">
-    <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-operations">{m["common.search"]()}</label>
+  <FilterField label={m["common.search"]()} for="search-operations">
     <Input
       id="search-operations"
       placeholder={m["operations.searchPlaceholder"]()}
       bind:value={searchQuery}
       class="h-12 text-base touch-manipulation"
     />
-  </div>
+  </FilterField>
 
   <Tabs.Root value="in-progress" class="space-y-4">
     <Tabs.List class="shadow-sm border border-border/50">

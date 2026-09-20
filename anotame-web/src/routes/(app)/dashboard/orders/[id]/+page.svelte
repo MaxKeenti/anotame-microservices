@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import * as Card from '$lib/components/ui/card';
+  import { Separator } from '$lib/components/ui/separator';
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { ResponsiveDataView, StatePanel, StatusBadge } from '$lib/components/common';
+  import { DetailRow, ResponsiveDataView, StatePanel, StatusBadge } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
@@ -230,78 +232,67 @@
 
     <div class="grid min-w-0 grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Customer Info -->
-      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm">
-        <h2 class="font-bold mb-4 text-lg">{m["orders.detail.customer"]()}</h2>
+      <Card.Root class="p-4 sm:p-6">
+        <Card.Title class="mb-4 text-lg font-bold">{m["orders.detail.customer"]()}</Card.Title>
         <div class="space-y-4 text-sm">
-          <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.name"]()}:</span>
+          <DetailRow label={m["orders.detail.name"]()}>
             <span class="min-w-0 wrap-break-word font-semibold">{order.customer.firstName} {order.customer.lastName}</span>
-          </p>
-          <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.email"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.email"]()}>
             <span class="min-w-0 wrap-break-word">{order.customer.email || '-'}</span>
-          </p>
-          <p class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.phone"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.phone"]()}>
             <span class="min-w-0 wrap-break-word">{order.customer.phoneNumber || "-"}</span>
-          </p>
+          </DetailRow>
         </div>
-      </div>
+      </Card.Root>
 
       <!-- Order Info & Payment -->
-      <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm">
-        <h2 class="font-bold mb-4 text-lg">{m["orders.detail.orderDetails"]()}</h2>
+      <Card.Root class="p-4 sm:p-6">
+        <Card.Title class="mb-4 text-lg font-bold">{m["orders.detail.orderDetails"]()}</Card.Title>
         <div class="space-y-3 text-sm">
-          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.created"]()}:</span>
+          <DetailRow label={m["orders.detail.created"]()} layout="spread">
             <span class="max-w-full wrap-break-word whitespace-normal font-mono bg-secondary/30 px-2 py-1 rounded sm:text-right">{formatDateTime(order.createdAt)}</span>
-          </div>
-          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.estimatedDelivery"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.estimatedDelivery"]()} layout="spread">
             <span class="max-w-full wrap-break-word whitespace-normal font-medium bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20 sm:text-right">{formatDateTime(order.committedDeadline)}</span>
-          </div>
-          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.workload"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.workload"]()} layout="spread">
             <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>
-          </div>
+          </DetailRow>
 
           {#if order.priceListName}
-            <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.priceList"]()}:</span>
+            <DetailRow label={m["orders.detail.priceList"]()} layout="spread">
               <span class="min-w-0 wrap-break-word font-medium sm:text-right">{order.priceListName}</span>
-            </div>
+            </DetailRow>
           {/if}
 
-          <div class="h-px bg-border my-4"></div>
+          <Separator class="my-4" />
 
-          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.paymentMethod"]()}:</span>
+          <DetailRow label={m["orders.detail.paymentMethod"]()} layout="spread">
             <span class="font-bold text-foreground">
               {order.paymentMethod === 'CASH' ? m["orders.detail.paymentCash"]() : order.paymentMethod === 'CARD' ? m["orders.detail.paymentCard"]() : order.paymentMethod === 'TRANSFER' ? m["orders.detail.paymentTransfer"]() : order.paymentMethod || '-'}
             </span>
-          </div>
-          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.total"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.total"]()} layout="spread">
             <span class="font-medium text-lg">{formatCurrency(order.totalAmount)}</span>
-          </div>
-          <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 text-muted-foreground font-medium">{m["orders.detail.amountPaid"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.amountPaid"]()} layout="spread">
             <span class="font-bold text-success-text text-lg">-{formatCurrency(order.amountPaid)}</span>
-          </div>
-          <div class="border-t border-border pt-3 mt-1 flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <span class="shrink-0 font-bold uppercase tracking-wider text-muted-foreground">{m["orders.detail.balance"]()}:</span>
+          </DetailRow>
+          <DetailRow label={m["orders.detail.balance"]()} layout="spread" emphasis class="border-t border-border pt-3 mt-1">
             <span class={`text-2xl font-black ${((order.totalAmount || 0) - (order.amountPaid || 0)) > 0.01 ? 'text-destructive' : 'text-primary'}`}>
               {formatCurrency(Math.max(0, (order.totalAmount || 0) - (order.amountPaid || 0)))}
             </span>
-          </div>
+          </DetailRow>
         </div>
-      </div>
+      </Card.Root>
     </div>
 
     <!-- Order Notes -->
     {#if order.notes}
       <div class="min-w-0 bg-warning/10 p-4 sm:p-5 rounded-2xl border-2 border-warning/30 text-warning-text shadow-sm">
-        <h2 class="font-bold mb-2 text-sm uppercase tracking-wider opacity-80 flex items-center gap-2">{m["orders.detail.generalNotes"]()}</h2>
+        <Card.Title class="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider opacity-80">{m["orders.detail.generalNotes"]()}</Card.Title>
         <p class="wrap-break-word text-base font-medium">{order.notes}</p>
       </div>
     {/if}
@@ -316,44 +307,8 @@
     />
 
     <!-- Items -->
-    <div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+    <Card.Root class="gap-0 p-0">
       <div class="wrap-break-word px-4 sm:px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.garmentsAndServices"]()}</div>
-      {#snippet garmentCell(row: Row<OrderItemResponse>)}
-        <div class="flex flex-wrap items-center gap-2">
-          <span>{row.original.garmentName}</span>
-          {#if row.original.source === 'CUSTOM'}
-            <span class="rounded-full bg-primary/10 px-2 py-1 text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
-          {/if}
-        </div>
-      {/snippet}
-      {#snippet servicesCell(row: Row<OrderItemResponse>)}
-        <div class="space-y-2">
-          {#each row.original.services as service}
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                <span class="font-medium text-foreground">{service.serviceName}</span>
-                <span class="font-mono text-foreground">${service.unitPrice}</span>
-              </div>
-              {#if service.instructions}
-                <p class="mt-1 text-sm text-muted-foreground">{service.instructions}</p>
-              {/if}
-              {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
-                <span class={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-mono font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success-text'}`}>
-                  {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
-                  {service.adjustmentReason && ` (${service.adjustmentReason})`}
-                </span>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      {/snippet}
-      {#snippet notesCell(row: Row<OrderItemResponse>)}
-        {#if row.original.notes}
-          <span class="inline-block rounded-lg border border-warning/20 bg-warning/10 p-2 text-warning-text">{row.original.notes}</span>
-        {:else}
-          <span class="text-muted-foreground">—</span>
-        {/if}
-      {/snippet}
 
       <div class="p-4">
         <ResponsiveDataView
@@ -364,10 +319,10 @@
           cellRenders={{ garmentName: garmentCell, services: servicesCell, notes: notesCell }}
         />
       </div>
-    </div>
+    </Card.Root>
 
     <!-- Pickup code and ticket tools -->
-    <div class="min-w-0 bg-card p-4 sm:p-6 rounded-2xl border border-border shadow-sm text-center">
+    <Card.Root class="p-4 sm:p-6 text-center">
       {#if order.pickupCode}
         <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">{m["orders.detail.pickupCode"]()}</p>
         <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
@@ -386,10 +341,10 @@
           {m["orders.detail.printTags"]()}
         </Button>
       </div>
-    </div>
+    </Card.Root>
 
     <!-- Order management -->
-    <div class="min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <Card.Root class="gap-0 p-0">
       <div class="px-4 py-4 text-lg font-bold bg-secondary/20 sm:px-6">{m['common.actions']()}</div>
       <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div class="flex flex-col gap-2 sm:flex-row">
@@ -411,11 +366,11 @@
           {m["orders.detail.cancelOrder"]()}
         </Button>
       </div>
-    </div>
+    </Card.Root>
 
     <!-- Audit Log -->
     {#if auditLog.length > 0}
-      <div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <Card.Root class="gap-0 p-0">
         <div class="px-6 py-4 border-b border-border font-bold text-lg bg-secondary/20">{m["orders.detail.auditLog"]()}</div>
         <div class="divide-y divide-border">
           {#each auditLog as entry}
@@ -430,7 +385,7 @@
             </div>
           {/each}
         </div>
-      </div>
+      </Card.Root>
     {/if}
 
     <AddPaymentModal
@@ -455,3 +410,43 @@
     />
   </div>
 {/if}
+
+<!-- Item cell renderers, shared by both presentations. -->
+{#snippet garmentCell(row: Row<OrderItemResponse>)}
+  <div class="flex flex-wrap items-center gap-2">
+    <span>{row.original.garmentName}</span>
+    {#if row.original.source === 'CUSTOM'}
+      <span class="rounded-full bg-primary/10 px-2 py-1 text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+    {/if}
+  </div>
+{/snippet}
+
+{#snippet servicesCell(row: Row<OrderItemResponse>)}
+  <div class="space-y-2">
+    {#each row.original.services as service}
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <span class="font-medium text-foreground">{service.serviceName}</span>
+          <span class="font-mono text-foreground">${service.unitPrice}</span>
+        </div>
+        {#if service.instructions}
+          <p class="mt-1 text-sm text-muted-foreground">{service.instructions}</p>
+        {/if}
+        {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
+          <span class={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-mono font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success-text'}`}>
+            {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
+            {service.adjustmentReason && ` (${service.adjustmentReason})`}
+          </span>
+        {/if}
+      </div>
+    {/each}
+  </div>
+{/snippet}
+
+{#snippet notesCell(row: Row<OrderItemResponse>)}
+  {#if row.original.notes}
+    <span class="inline-block rounded-lg border border-warning/20 bg-warning/10 p-2 text-warning-text">{row.original.notes}</span>
+  {:else}
+    <span class="text-muted-foreground">—</span>
+  {/if}
+{/snippet}

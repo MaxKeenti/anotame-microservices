@@ -10,7 +10,7 @@
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { FilterField, PageHeader, ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
 
@@ -133,18 +133,16 @@
   </PageHeader>
 
   <!-- External Filters -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
-    <div class="col-span-1 md:col-span-2 space-y-1.5">
-      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-services">{m["catalog.services.searchLabel"]()}</label>
+  <Card.Root class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+    <FilterField label={m["catalog.services.searchLabel"]()} for="search-services" class="col-span-1 md:col-span-2">
       <Input
         id="search-services"
         placeholder={m["catalog.services.searchPlaceholder"]()}
         bind:value={searchQuery}
         class="h-12 text-base touch-manipulation"
       />
-    </div>
-    <div class="space-y-1.5">
-      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment-service">{m["catalog.services.filterGarmentLabel"]()}</label>
+    </FilterField>
+    <FilterField label={m["catalog.services.filterGarmentLabel"]()} for="filter-garment-service">
       <AdaptiveSelect
         id="filter-garment-service"
         bind:value={garmentFilter}
@@ -153,8 +151,8 @@
         allowClear={true}
         clearText={m["catalog.services.filterGarmentClear"]()}
       />
-    </div>
-  </div>
+    </FilterField>
+  </Card.Root>
 
   <!-- Table / Cards -->
   {#snippet serviceActions(row: Row<ServiceResponse>)}

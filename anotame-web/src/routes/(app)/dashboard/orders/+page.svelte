@@ -6,7 +6,7 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { ResponsiveDataView, StatusBadge } from '$lib/components/common';
+  import { FilterField, ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
@@ -300,18 +300,16 @@
     </Tabs.List>
 
     <Tabs.Content value="active" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
-        <div class="col-span-1 md:col-span-2 space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-orders">{m["common.search"]()}</label>
+      <Card.Root class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5">
+        <FilterField label={m["common.search"]()} for="search-orders" class="col-span-1 md:col-span-2">
           <Input
             id="search-orders"
             placeholder={m["orders.filter.searchPlaceholder"]()}
             bind:value={searchQuery}
             class="h-12 text-base touch-manipulation"
           />
-        </div>
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">{m["orders.filter.garment"]()}</label>
+        </FilterField>
+        <FilterField label={m["orders.filter.garment"]()} for="filter-garment">
           <AdaptiveSelect
             id="filter-garment"
             bind:value={garmentFilter}
@@ -324,16 +322,15 @@
             clearText={m["orders.filter.allGarments"]()}
             class=""
           />
-        </div>
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">{m["orders.filter.deadline"]()}</label>
+        </FilterField>
+        <FilterField label={m["orders.filter.deadline"]()} for="filter-date">
           <AdaptiveDatePicker
             id="filter-date"
             bind:value={dateFilter}
             placeholder={m["orders.filter.selectDate"]()}
           />
-        </div>
-      </div>
+        </FilterField>
+      </Card.Root>
 
       <!-- Clear selection button -->
       {#if selectedOrders.length > 0}

@@ -1,4 +1,6 @@
 export { default as PageHeader } from "./page-header.svelte";
+export { default as DetailRow } from "./detail-row.svelte";
+export { default as FilterField } from "./filter-field.svelte";
 export { default as StatePanel } from "./state-panel.svelte";
 export { default as ResponsiveDataView } from "./responsive-data-view.svelte";
 export { default as FloatingActionBar } from "./FloatingActionBar.svelte";
