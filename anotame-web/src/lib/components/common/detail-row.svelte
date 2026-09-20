@@ -4,7 +4,7 @@
 
   /** A label/value pair in a detail panel, stacking on narrow screens. */
   interface Props {
-    /** Localized field label. A trailing colon is added by the component. */
+    /** Localized field label. A colon is appended by the component. */
     label: string;
     /**
      * `baseline` sits the value next to its label; `spread` pushes it to the
@@ -19,13 +19,7 @@
     children: Snippet;
   }
 
-  let {
-    label,
-    layout = 'baseline',
-    emphasis = false,
-    class: className,
-    children,
-  }: Props = $props();
+  let { label, layout = 'baseline', emphasis = false, class: className, children }: Props = $props();
 </script>
 
 <div
