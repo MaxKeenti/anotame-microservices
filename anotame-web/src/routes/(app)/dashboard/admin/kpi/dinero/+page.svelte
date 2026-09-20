@@ -3,6 +3,9 @@
   import { StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
+  import { Progress } from '$lib/components/ui/progress';
+  import KpiStatCard from '$lib/components/dashboard/kpi-stat-card.svelte';
+  import KpiBreakdown from '$lib/components/dashboard/kpi-breakdown.svelte';
   import * as Popover from '$lib/components/ui/popover';
   import { TrendingUp, Calendar, ChevronLeft, ChevronRight, Check, Loader2 } from '@lucide/svelte';
   import { getLocale } from '$lib/paraglide/runtime';
@@ -157,72 +160,43 @@
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.todayRevenue']()}</Card.Title>
-          <TrendingUp class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">
-            {formatCurrency(metrics.finance.todayRevenue)}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">{m['kpi.card.todayRevenueDesc']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.todayRevenue']()}
+        value={formatCurrency(metrics.finance.todayRevenue)}
+        description={m['kpi.card.todayRevenueDesc']()}
+        icon={TrendingUp}
+      />
 
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.monthRevenueSelectable']()}</Card.Title>
-          <Calendar class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">
-            {formatCurrency(metrics.finance.monthlyRevenue)}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">
-            {m['kpi.card.monthRevenueSelectedDesc']({ month: selectedMonthLabel })}
-          </p>
-          <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-3">
-            {#each metrics.finance.monthlyRevenueByPaymentMethod as category (category.paymentMethod)}
-              <div class="min-w-0">
-                <p class="truncate text-xs text-muted-foreground">
-                  {getPaymentMethodLabel(category.paymentMethod)}
-                </p>
-                <p class="truncate text-sm font-mono font-semibold">
-                  {formatCurrency(category.total)}
-                </p>
-              </div>
-            {/each}
-          </div>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.monthRevenueSelectable']()}
+        value={formatCurrency(metrics.finance.monthlyRevenue)}
+        description={m['kpi.card.monthRevenueSelectedDesc']({ month: selectedMonthLabel })}
+        icon={Calendar}
+      >
+        <KpiBreakdown
+          class="mt-4 gap-y-2"
+          entries={metrics.finance.monthlyRevenueByPaymentMethod.map((category) => ({
+            label: getPaymentMethodLabel(category.paymentMethod),
+            value: formatCurrency(category.total),
+          }))}
+        />
+      </KpiStatCard>
 
-      <Card.Root>
-        <Card.Header class="pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.finance.billed']()}</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">{formatCurrency(billed)}</div>
-          <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div class="h-full rounded-full bg-success" style="width: {collectedPct}%"></div>
-          </div>
-          <div class="mt-3 grid grid-cols-2 gap-x-4 border-t border-border pt-3">
-            <div class="min-w-0">
-              <p class="truncate text-xs text-muted-foreground">{m['kpi.finance.collected']()}</p>
-              <p class="truncate text-sm font-mono font-semibold text-success">
-                {formatCurrency(collected)}
-              </p>
-            </div>
-            <div class="min-w-0">
-              <p class="truncate text-xs text-muted-foreground">{m['kpi.finance.pending']()}</p>
-              <p class="truncate text-sm font-mono font-semibold text-amber-500">
-                {formatCurrency(pending)}
-              </p>
-            </div>
-          </div>
-          <p class="mt-3 text-xs text-muted-foreground">{m['kpi.finance.cohortNote']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard title={m['kpi.finance.billed']()} value={formatCurrency(billed)}>
+        <Progress
+          value={collectedPct}
+          class="mt-3 h-2"
+          indicatorClass="bg-success"
+          aria-label={m['kpi.finance.collected']()}
+        />
+        <KpiBreakdown
+          entries={[
+            { label: m['kpi.finance.collected'](), value: formatCurrency(collected), tone: 'text-success' },
+            { label: m['kpi.finance.pending'](), value: formatCurrency(pending), tone: 'text-amber-500' },
+          ]}
+        />
+        <p class="mt-3 text-xs text-muted-foreground">{m['kpi.finance.cohortNote']()}</p>
+      </KpiStatCard>
     </div>
 
     <Card.Root>

@@ -3,6 +3,8 @@
   import { StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
+  import { Progress } from '$lib/components/ui/progress';
+  import KpiStatCard from '$lib/components/dashboard/kpi-stat-card.svelte';
   import { Skeleton } from '$lib/components/ui/skeleton';
   import { Truck, AlertCircle, Clock, Calendar, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import ReceivablesCard from '$lib/components/dashboard/ReceivablesCard.svelte';
@@ -22,6 +24,12 @@
   let calendarError = $state<string | null>(null);
 
   let metrics = $derived(dashboard.metrics);
+  let hasActiveWorkload = $derived((metrics?.workload.totalActive ?? 0) > 0);
+  let readyPct = $derived(
+    metrics && hasActiveWorkload
+      ? (metrics.workload.readyForPickup / metrics.workload.totalActive) * 100
+      : 0
+  );
   let calendarMonthLabel = $derived(
     new Intl.DateTimeFormat(getLocale(), { month: 'long', year: 'numeric' }).format(
       new Date(calendarYear, calendarMonth - 1, 1)
@@ -80,59 +88,36 @@
     </p>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.ready']()}</Card.Title>
-          <Truck class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono text-success">
-            {metrics.workload.readyForPickup}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">{m['kpi.card.readyDesc']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.ready']()}
+        value={metrics.workload.readyForPickup}
+        description={m['kpi.card.readyDesc']()}
+        icon={Truck}
+        tone="success"
+      />
 
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.todayDeliveries']()}</Card.Title>
-          <AlertCircle class="h-4 w-4 text-destructive" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono text-destructive">
-            {metrics.workload.todayDeliveries}
-          </div>
-          <p class="mt-1 text-xs font-medium text-destructive/80">
-            {m['kpi.card.todayDeliveriesDesc']()}
-          </p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.todayDeliveries']()}
+        value={metrics.workload.todayDeliveries}
+        description={m['kpi.card.todayDeliveriesDesc']()}
+        icon={AlertCircle}
+        tone="destructive"
+      />
 
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.pipeline']()}</Card.Title>
-          <Clock class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono text-primary">
-            {metrics.workload.pendingPipeline}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">{m['kpi.card.pipelineDesc']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.pipeline']()}
+        value={metrics.workload.pendingPipeline}
+        description={m['kpi.card.pipelineDesc']()}
+        icon={Clock}
+        tone="primary"
+      />
 
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.upcoming']()}</Card.Title>
-          <Calendar class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">
-            {metrics.workload.comingDeliveries}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">{m['kpi.card.upcomingDesc']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.upcoming']()}
+        value={metrics.workload.comingDeliveries}
+        description={m['kpi.card.upcomingDesc']()}
+        icon={Calendar}
+      />
     </div>
 
     <ReceivablesCard
@@ -140,27 +125,24 @@
       deliveredUnpaid={metrics.finance.deliveredUnpaid}
     />
 
-    <div class="rounded-xl border bg-card p-4">
+    <Card.Root class="p-4">
       <div class="mb-2 flex items-center justify-between">
-        <span class="text-sm font-medium">{m['kpi.workload.progress']()}</span>
-        <span class="text-sm text-foreground/70">
-          {metrics.workload.readyForPickup} de {metrics.workload.totalActive} terminados
-        </span>
+        <Card.Title class="text-sm font-medium">{m['kpi.workload.progress']()}</Card.Title>
+        <Card.Description class="text-sm text-foreground/70">
+          {m['kpi.workload.progressCount']({
+            ready: metrics.workload.readyForPickup,
+            total: metrics.workload.totalActive,
+          })}
+        </Card.Description>
       </div>
-      <div class="flex h-3 w-full overflow-hidden rounded-full bg-muted">
-        {#if metrics.workload.totalActive > 0}
-          {@const pctReady = (metrics.workload.readyForPickup / metrics.workload.totalActive) * 100}
-          <div
-            class="h-full bg-success transition-all duration-1000 ease-out"
-            style={`width: ${pctReady}%`}
-          ></div>
-          <div
-            class="h-full bg-primary/40 transition-all duration-1000 ease-out"
-            style={`width: ${100 - pctReady}%`}
-          ></div>
-        {/if}
-      </div>
-    </div>
+      <!-- The unfinished remainder is the track, so the two segments always meet. -->
+      <Progress
+        value={readyPct}
+        class={hasActiveWorkload ? 'h-3 bg-primary/40' : 'h-3'}
+        indicatorClass="bg-success transition-all duration-1000 ease-out"
+        aria-label={m['kpi.workload.progress']()}
+      />
+    </Card.Root>
 
     <Card.Root id="workload-calendar" class="scroll-mt-24">
       <Card.Header class="gap-4 md:flex md:flex-row md:items-center md:justify-between">

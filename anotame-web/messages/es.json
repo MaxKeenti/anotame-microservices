@@ -334,6 +334,7 @@
   "kpi.card.upcoming": "Próximos Días",
   "kpi.card.upcomingDesc": "Vencimientos futuros",
   "kpi.workload.progress": "Progreso del Workload Activo",
+  "kpi.workload.progressCount": "{ready} de {total} terminados",
   "kpi.section.finance": "Finanzas y Ventas",
   "kpi.card.todayRevenue": "Ingresos Hoy",
   "kpi.card.todayRevenueDesc": "Pagos recibidos en el día",

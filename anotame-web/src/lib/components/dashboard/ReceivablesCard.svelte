@@ -1,5 +1,6 @@
 <script lang="ts">
   import { apiService, API_SALES } from '$lib/services/api.svelte';
+  import { Progress } from '$lib/components/ui/progress';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -179,9 +180,12 @@
                 <span class="ml-1 text-muted-foreground">({bucket.orderCount})</span>
               </span>
             </div>
-            <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div class="h-full rounded-full bg-amber-500" style="width: {widthPct}%"></div>
-            </div>
+            <Progress
+              value={widthPct}
+              class="h-2"
+              indicatorClass="bg-amber-500"
+              aria-label={BUCKET_LABELS[bucket.bucket]()}
+            />
           </div>
         {/each}
       </div>
