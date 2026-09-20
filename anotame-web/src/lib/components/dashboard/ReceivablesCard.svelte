@@ -4,6 +4,7 @@
   import * as Card from '$lib/components/ui/card';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
+  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
   import * as m from '$lib/paraglide/messages';
   import { Banknote, Loader2, AlertTriangle } from '@lucide/svelte';
 
@@ -190,9 +191,9 @@
           <h3 class="text-sm font-medium">{m['kpi.receivables.byStatusTitle']()}</h3>
           <div class="flex flex-wrap gap-2">
             {#each breakdown.byStatus as entry (entry.status)}
-              <span class="rounded-md border px-2 py-1 text-xs">
-                {entry.status}
-                <span class="ml-1 font-mono">{formatCurrency(entry.balance)}</span>
+              <span class="flex items-center gap-2 rounded-md border px-2 py-1">
+                <StatusBadge status={entry.status} />
+                <span class="font-mono text-xs">{formatCurrency(entry.balance)}</span>
               </span>
             {/each}
           </div>
