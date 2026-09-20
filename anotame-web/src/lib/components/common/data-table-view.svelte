@@ -1,7 +1,12 @@
 <script lang="ts" generics="TData">
   import type { Snippet } from 'svelte';
   import type { Row } from '@tanstack/table-core';
-  import type { ResponsiveTableState } from './responsive-table.svelte';
+  import {
+    SELECT_CHECKBOX_CLASS,
+    SELECT_COLUMN_CELL_CLASS,
+    SELECT_CONTROL_CLASS,
+    type ResponsiveTableState,
+  } from './responsive-table.svelte';
   import * as Table from '$lib/components/ui/table';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import * as m from '$lib/paraglide/messages';
@@ -26,13 +31,13 @@
         <Table.Row class="hover:bg-transparent">
           {#each headerGroup.headers as header (header.id)}
             <Table.Head
-              class="py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? 'px-0 w-16' : 'px-6'} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
+              class="py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? SELECT_COLUMN_CELL_CLASS : 'px-6'} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
             >
               {#if !header.isPlaceholder}
                 {#if header.column.id === '__select__'}
-                  <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                  <div class={SELECT_CONTROL_CLASS}>
                     <Checkbox
-                      class="size-5"
+                      class={SELECT_CHECKBOX_CLASS}
                       aria-label={m["common.selectAll"]()}
                       checked={state.table.getIsAllRowsSelected()}
                       indeterminate={state.table.getIsSomeRowsSelected()}
@@ -83,11 +88,11 @@
         {#each state.table.getRowModel().rows as row (row.id)}
           <Table.Row class="hover:bg-muted/10 transition-colors">
             {#each row.getVisibleCells() as cell (cell.id)}
-              <Table.Cell class="py-4 {cell.column.id === '__select__' ? 'px-0' : 'px-6'}">
+              <Table.Cell class="py-4 {cell.column.id === '__select__' ? SELECT_COLUMN_CELL_CLASS : 'px-6'}">
                 {#if cell.column.id === '__select__'}
-                  <div class="flex items-center justify-center h-12 w-12 -ml-3">
+                  <div class={SELECT_CONTROL_CLASS}>
                     <Checkbox
-                      class="size-5"
+                      class={SELECT_CHECKBOX_CLASS}
                       aria-label={m["common.selectRow"]()}
                       checked={cell.row.getIsSelected()}
                       onCheckedChange={(v) => cell.row.toggleSelected(v === true)}

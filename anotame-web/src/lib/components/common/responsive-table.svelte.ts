@@ -50,6 +50,16 @@ export type ResponsiveTableProps<TData> = {
 	onPageChange?: (pageIndex: number) => void;
 };
 
+/**
+ * Geometry of the bulk-selection column, defined once so the header checkbox and
+ * the row checkboxes below it occupy the exact same box. Header and body cells
+ * must carry `SELECT_COLUMN_CELL_CLASS` and wrap their control in
+ * `SELECT_CONTROL_CLASS`; nothing else should hand-tune their padding.
+ */
+export const SELECT_COLUMN_CELL_CLASS = 'w-12 px-0';
+export const SELECT_CONTROL_CLASS = 'flex size-12 items-center justify-center';
+export const SELECT_CHECKBOX_CLASS = 'size-5';
+
 /** Column ids that, when present, are picked as the default sort. */
 const NAME_COLUMN_IDS = ['name', 'title', 'customer', 'ticketNumber', 'nombre'];
 

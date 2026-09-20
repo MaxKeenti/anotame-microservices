@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import { apiService, API_IDENTITY } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { UserResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -76,18 +77,18 @@
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h1 class="text-3xl font-heading font-bold text-foreground">{m['nav.users.name']()}</h1>
-        <p class="text-muted-foreground">{m['users.page.desc']()}</p>
-      </div>
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+    <PageHeader
+      title={m['nav.users.name']()}
+      description={m['users.page.desc']()}
+    >
+      {#snippet actions()}
+        <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
         {m['users.button.new']()}
-      </Button>
-    </div>
+        </Button>
+      {/snippet}
+    </PageHeader>
 
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet userActions(row: Row<UserResponse>)}
+  {#snippet userActions(row: Row<UserResponse>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -110,6 +111,9 @@
       </div>
     {/snippet}
 
+  <Card.Root class="p-4">
+    
+
     <ResponsiveDataView
       {columns}
       data={users}
@@ -118,7 +122,7 @@
       filterPlaceholder={m['common.searchEllipsis']()}
       actionCell={userActions}
     />
-  </div>
+  </Card.Root>
 
   <UserDialog
     item={editingUser}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
+  import { PageHeader } from '$lib/components/common';
   import { page } from '$app/state';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
@@ -160,14 +161,10 @@
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
-  <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">
-      {m['nav.kpi.name']()}
-    </h1>
-    <p class="text-muted-foreground">
-      {m['kpi.page.desc']()}
-    </p>
-  </div>
+  <PageHeader
+    title={m['nav.kpi.name']()}
+    description={m['kpi.page.desc']()}
+  />
 
   <!-- Always-visible numbers, so moving the detail behind tabs does not cost
        the at-a-glance read the old hero provided. -->

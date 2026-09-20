@@ -9,7 +9,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
   import { toast } from 'svelte-sonner';
   import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
@@ -237,10 +237,11 @@
 {/snippet}
 
 <div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.newTitle"]()}</h1>
-    <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
-  </div>
+  <PageHeader title={m["catalog.pricelist.newTitle"]()}>
+    {#snippet actions()}
+      <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+    {/snippet}
+  </PageHeader>
 
   <form method="POST" use:enhance class="space-y-6">
     <Card.Root>

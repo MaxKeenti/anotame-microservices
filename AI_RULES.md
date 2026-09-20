@@ -32,14 +32,17 @@ The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns.
 - **State & Logic**: Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 - **Services**: Use a class-based singleton pattern leveraging `runed` (e.g., `PersistedState`) for stateful logic, placed in `src/lib/services/`.
 - **Auth Guards**: Protect client routes using guards (`useAuthGuard`, `useGuestGuard`) stored in `src/lib/guards/`.
-- **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components placed in `src/lib/components/ui/`. For forms, use the `sveltekit-superforms` single-dialog pattern. For data management pages, use `DataTableWrapper` on desktop and `CardGridWrapper` on mobile as described in `docs/adr/0004-responsive-data-grids.md`.
+- **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components. `src/lib/components/ui/` holds **only** shadcn-generated primitives and must stay regenerable — never put hand-written components there. Hand-written cross-feature compositions live in `src/lib/components/common/` (exported via its barrel); feature-specific components live in `src/lib/components/<feature>/`. For forms, use the `sveltekit-superforms` single-dialog pattern. For data management pages, use `ResponsiveDataView` from `$lib/components/common` as described in `docs/adr/0004-responsive-data-grids.md`.
+- **Route Pages Compose, They Do Not Style**: Route files under `src/routes/` compose primitives and compositions; they must not put visual utilities (`text-*`, `bg-*`, `border*`, `rounded*`, `shadow*`, `font-*`) on bare HTML elements. Layout utilities (`flex`, `grid`, `gap-*`, spacing) on a wrapper are fine. Extract visual treatments into a component. See `docs/adr/0006-route-pages-compose.md`.
+- **File Naming**: Component files use `kebab-case.svelte`, matching what `shadcn-svelte add` generates.
+- **Component Props**: Declare a documented `interface Props` and destructure with `let { ... }: Props = $props()`. Do not use the `$props<{ ... }>()` generic form — it loses the named, documentable interface.
 - **i18n**: All text must be internationalized using Paraglide.
 
 ### UI/UX Rules & Accessibility
 - **Touch-First Design**: UI must be heavily optimized for touchscreen interactions (large touch targets, responsive layouts) and screens ≤ 1024x768px.
 - **Wizards over Long Forms**: Complex actions like Order Creation must be split into logical wizard steps (e.g., 1. Customer, 2. Garment/Service, 3. Payment).
 - **Navigation**: Use a modal "Menu" accessible from the top bar instead of a permanent sidebar.
-- **Styling**: Use **Tailwind CSS v4**. Avoid arbitrary values when theme values exist.
+- **Styling**: Use **Tailwind CSS v4** only. No `<style>` blocks and no new custom CSS. `src/routes/layout.css` is the theme boundary: design tokens, shadcn-generated `@layer base` / `@custom-variant` blocks, and Tailwind v4 `@utility` definitions only — no component classes or `@apply` blobs. Prefer a Tailwind variant (`motion-reduce:`, `dark:`, `data-*:`) over a CSS selector; never write CSS that targets Tailwind's generated class names. Avoid arbitrary values when theme values exist.
 
 ### Adaptive UI Components (`src/lib/components/ui/responsive/`)
 The project uses **adaptive wrapper components** that render styled shadcn-svelte on desktop and native browser primitives on mobile. This ensures premium desktop UX while leveraging superior OS-native pickers on mobile.

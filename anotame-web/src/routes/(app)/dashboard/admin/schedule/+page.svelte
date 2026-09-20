@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PageHeader } from '$lib/components/common';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -137,9 +138,7 @@
   </div>
 {:else if guard.allowed}
 <div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
-  <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m['schedule.page.title']()}</h1>
-  </div>
+  <PageHeader title={m['schedule.page.title']()} />
 
   <Tabs.Root bind:value={activeTab} class="space-y-6">
     <Tabs.List class="shadow-sm border border-border/50">

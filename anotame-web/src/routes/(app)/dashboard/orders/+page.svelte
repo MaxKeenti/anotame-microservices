@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import { apiService, API_SALES, API_CATALOG } from '$lib/services/api.svelte';
   import { orderWizardState, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
   import { authService } from '$lib/services/auth.svelte';
@@ -348,38 +349,13 @@
       {/if}
 
       <!-- Active Orders Table / Card Grid -->
-      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet statusCell(row: Row<OrderSummaryResponse>)}
-          <StatusBadge status={row.original.status} />
-        {/snippet}
 
-        {#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
-          <div class="max-w-sm min-w-0 whitespace-normal wrap-break-word leading-6" title={formatNames(row.original.garmentNames)}>
-            {#if cleanGarmentNames(row.original.garmentNames).length > 0}
-              {visibleGarmentNames(row.original.garmentNames).join(', ')}
-              {#if hiddenGarmentCount(row.original.garmentNames) > 0}
-                <span class="ml-1 inline-flex whitespace-nowrap rounded-sm bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                  +{hiddenGarmentCount(row.original.garmentNames)}
-                </span>
-              {/if}
-            {:else}
-              -
-            {/if}
-          </div>
-        {/snippet}
+      <Card.Root class="p-4">
+        
 
-        {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
-          <div class="flex justify-end gap-2 whitespace-nowrap">
-            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-11 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
-              <SquarePen class="w-4 h-4 mr-2" />
-              {m["common.edit"]()}
-            </Button>
-            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-11 px-4 font-medium touch-manipulation">
-              <Eye class="w-4 h-4 mr-2" />
-              {m["orders.details"]()}
-            </Button>
-          </div>
-        {/snippet}
+        
+
+        
 
         <ResponsiveDataView
           bind:this={activeOrdersView}
@@ -401,24 +377,14 @@
           onSelectionChange={(rows) => { selectedOrders = rows; }}
           actionCell={activeOrderActions}
         />
-      </div>
+      </Card.Root>
 
     </Tabs.Content>
 
     <Tabs.Content value="drafts" class="space-y-6">
-      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet draftActions(row: Row<DraftOrder>)}
-          <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-11 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
-              <SquarePen class="w-4 h-4 mr-2" />
-              <span>{m["orders.editDraft"]()}</span>
-            </Button>
-            <Button variant="ghost" class="h-11 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
-              <Trash2 class="w-4 h-4 mr-2" />
-              <span>{m["common.delete"]()}</span>
-            </Button>
-          </div>
-        {/snippet}
+
+      <Card.Root class="p-4">
+        
 
         <ResponsiveDataView
           columns={draftsColumns}
@@ -428,7 +394,53 @@
           showFilter={false}
           actionCell={draftActions}
         />
-      </div>
+      </Card.Root>
     </Tabs.Content>
   </Tabs.Root>
 </div>
+
+<!-- Cell renderers shared by the views above. -->
+{#snippet draftActions(row: Row<DraftOrder>)}
+<div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+  <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-11 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
+    <SquarePen class="w-4 h-4 mr-2" />
+    <span>{m["orders.editDraft"]()}</span>
+  </Button>
+  <Button variant="ghost" class="h-11 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
+    <Trash2 class="w-4 h-4 mr-2" />
+    <span>{m["common.delete"]()}</span>
+  </Button>
+</div>
+{/snippet}
+
+{#snippet statusCell(row: Row<OrderSummaryResponse>)}
+    <StatusBadge status={row.original.status} />
+  {/snippet}
+
+{#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
+          <div class="max-w-sm min-w-0 whitespace-normal wrap-break-word leading-6" title={formatNames(row.original.garmentNames)}>
+            {#if cleanGarmentNames(row.original.garmentNames).length > 0}
+              {visibleGarmentNames(row.original.garmentNames).join(', ')}
+              {#if hiddenGarmentCount(row.original.garmentNames) > 0}
+                <span class="ml-1 inline-flex whitespace-nowrap rounded-sm bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                  +{hiddenGarmentCount(row.original.garmentNames)}
+                </span>
+              {/if}
+            {:else}
+              -
+            {/if}
+          </div>
+        {/snippet}
+
+{#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
+          <div class="flex justify-end gap-2 whitespace-nowrap">
+            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-11 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+              <SquarePen class="w-4 h-4 mr-2" />
+              {m["common.edit"]()}
+            </Button>
+            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-11 px-4 font-medium touch-manipulation">
+              <Eye class="w-4 h-4 mr-2" />
+              {m["orders.details"]()}
+            </Button>
+          </div>
+        {/snippet}

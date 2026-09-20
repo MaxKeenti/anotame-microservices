@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mode, setMode, resetMode } from 'mode-watcher';
+  import { PageHeader } from '$lib/components/common';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import SunIcon from '@lucide/svelte/icons/sun';
@@ -57,10 +58,10 @@
 </script>
 
 <div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
-  <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m["settings.page.title"]()}</h1>
-    <p class="text-muted-foreground">{m["settings.page.description"]()}</p>
-  </div>
+  <PageHeader
+    title={m["settings.page.title"]()}
+    description={m["settings.page.description"]()}
+  />
 
   <Card.Root>
     <Card.Header>

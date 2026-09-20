@@ -8,7 +8,7 @@
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
-  import { ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -81,15 +81,16 @@
   <div class="p-8 text-center text-muted-foreground animate-pulse">{m["catalog.pricelists.verifyingAccess"]()}</div>
 {:else if guard.allowed}
   <div class="space-y-6 animate-in fade-in duration-300">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelists.title"]()}</h1>
-        <p class="text-muted-foreground">{m["catalog.pricelists.description"]()}</p>
-      </div>
-      <Button href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+    <PageHeader
+      title={m["catalog.pricelists.title"]()}
+      description={m["catalog.pricelists.description"]()}
+    >
+      {#snippet actions()}
+        <Button href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
         {m["catalog.pricelists.addButton"]()}
-      </Button>
-    </div>
+        </Button>
+      {/snippet}
+    </PageHeader>
 
     {#snippet pricelistActions(row: Row<PriceListResponse>)}
       <div class="flex justify-end gap-2">

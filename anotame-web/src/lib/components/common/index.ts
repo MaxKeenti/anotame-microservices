@@ -1,3 +1,4 @@
+export { default as PageHeader } from "./page-header.svelte";
 export { default as ResponsiveDataView } from "./responsive-data-view.svelte";
 export { default as FloatingActionBar } from "./FloatingActionBar.svelte";
 export { default as StatusBadge } from "./StatusBadge.svelte";

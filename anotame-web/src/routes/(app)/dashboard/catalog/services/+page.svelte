@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { authService } from '$lib/services/auth.svelte';
@@ -9,7 +10,7 @@
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
 
@@ -118,17 +119,18 @@
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.services.title"]()}</h1>
-      <p class="text-muted-foreground">{m["catalog.services.description"]()}</p>
-    </div>
-    {#if isAdmin}
+  <PageHeader
+    title={m["catalog.services.title"]()}
+    description={m["catalog.services.description"]()}
+  >
+    {#snippet actions()}
+      {#if isAdmin}
       <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">
-        {m["catalog.services.addButton"]()}
+      {m["catalog.services.addButton"]()}
       </Button>
-    {/if}
-  </div>
+      {/if}
+    {/snippet}
+  </PageHeader>
 
   <!-- External Filters -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
@@ -155,8 +157,7 @@
   </div>
 
   <!-- Table / Cards -->
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet serviceActions(row: Row<ServiceResponse>)}
+  {#snippet serviceActions(row: Row<ServiceResponse>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -179,6 +180,9 @@
       </div>
     {/snippet}
 
+  <Card.Root class="p-4">
+    
+
     <ResponsiveDataView
       {columns}
       data={filteredServices}
@@ -188,7 +192,7 @@
       actionCell={serviceActions}
       filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
     />
-  </div>
+  </Card.Root>
 
   <ServiceDialog
     item={editingService}

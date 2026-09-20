@@ -5,6 +5,7 @@
   import {
     getColumnId,
     getColumnHeader,
+    SELECT_CHECKBOX_CLASS,
     type CardGroup,
     type ResponsiveTableState,
   } from './responsive-table.svelte';
@@ -77,7 +78,7 @@
   <div class="flex min-h-11 items-center gap-3 py-2 px-1">
     <Checkbox
       id="cgw-select-all"
-      class="size-5"
+      class={SELECT_CHECKBOX_CLASS}
       aria-label={m['common.selectAll']()}
       checked={state.table.getIsAllRowsSelected()}
       indeterminate={state.table.getIsSomeRowsSelected()}
@@ -107,7 +108,7 @@
             {#if bulkActions && bulkMode}
               <div class="flex h-11 w-11 -m-2.5 items-center justify-center shrink-0">
                 <Checkbox
-                  class="size-5"
+                  class={SELECT_CHECKBOX_CLASS}
                   aria-label={m['common.selectRow']()}
                   checked={row.getIsSelected()}
                   onCheckedChange={(v) => row.toggleSelected(v === true)}

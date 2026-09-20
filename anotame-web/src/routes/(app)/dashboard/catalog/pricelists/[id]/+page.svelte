@@ -9,7 +9,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -181,13 +181,14 @@
   }}
 
   <div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-      <div class="min-w-0">
-        <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelist.editTitle"]()}</h1>
-        <p class="text-muted-foreground wrap-break-word">{m["catalog.pricelist.editSubtitle"]({ name: $form.name })}</p>
-      </div>
-      <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
-    </div>
+    <PageHeader
+      title={m["catalog.pricelist.editTitle"]()}
+      description={m["catalog.pricelist.editSubtitle"]({ name: $form.name })}
+    >
+      {#snippet actions()}
+        <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      {/snippet}
+    </PageHeader>
 
     <form method="POST" use:enhance class="space-y-6">
       <Card.Root>

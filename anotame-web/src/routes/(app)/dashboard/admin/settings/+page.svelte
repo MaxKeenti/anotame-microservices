@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PageHeader } from '$lib/components/common';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -108,10 +109,10 @@
 </script>
 
 <div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
-  <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m['adminSettings.page.title']()}</h1>
-    <p class="text-muted-foreground">{m['adminSettings.page.desc']()}</p>
-  </div>
+  <PageHeader
+    title={m['adminSettings.page.title']()}
+    description={m['adminSettings.page.desc']()}
+  />
 
   {#if isLoading}
     <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
