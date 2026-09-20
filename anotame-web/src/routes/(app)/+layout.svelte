@@ -1,5 +1,6 @@
 <script lang="ts">
   import { type Snippet, untrack } from 'svelte';
+  import AppDock from '$lib/components/layout/app-dock.svelte';
   import { page } from '$app/state';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
@@ -11,7 +12,7 @@
   import * as m from '$lib/paraglide/messages';
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-  import { FloatingActionBar } from '$lib/components/common';
+  import { FloatingActionBar, StatePanel } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -91,39 +92,6 @@
     return recents.slice(0, maxRecents);
   });
 
-  // macOS-style dock magnification: each icon's width follows a cosine bell
-  // centered on the cursor, so neighbors swell too and push each other apart
-  // while their bottoms stay anchored to the shelf. Width (not transform) is
-  // animated so siblings genuinely displace, like the real dock.
-  const MAGNIFY = 0.7; // extra scale at the cursor (1x -> 1.7x)
-  const MAGNIFY_RANGE = 130; // px of influence to each side of the cursor
-  let dockEl = $state<HTMLElement | undefined>(undefined);
-  let magnifyRaf = 0;
-
-  function magnifyDock(e: PointerEvent) {
-    if (e.pointerType !== 'mouse' || !dockEl) return;
-    const x = e.clientX;
-    cancelAnimationFrame(magnifyRaf);
-    magnifyRaf = requestAnimationFrame(() => {
-      if (!dockEl) return;
-      for (const el of dockEl.querySelectorAll<HTMLElement>('[data-dock-icon]')) {
-        const rect = el.getBoundingClientRect();
-        const t = Math.min(Math.abs(x - rect.left - rect.width / 2) / MAGNIFY_RANGE, 1);
-        const scale = 1 + MAGNIFY * Math.cos((t * Math.PI) / 2) ** 2;
-        el.style.setProperty('--scale', scale.toFixed(3));
-      }
-    });
-  }
-
-  function resetDockMagnify() {
-    cancelAnimationFrame(magnifyRaf);
-    if (!dockEl) return;
-    for (const el of dockEl.querySelectorAll<HTMLElement>('[data-dock-icon]')) {
-      el.style.removeProperty('--scale');
-    }
-  }
-
-  $effect(() => () => cancelAnimationFrame(magnifyRaf));
 
   // Initialize store with server-loaded theme during hydration
   // We use untrack to avoid dependency tracking on the store itself, preventing hydration loops
@@ -177,11 +145,7 @@
 </svelte:head>
 
 {#if guard.checking}
-  <div class="h-screen w-screen flex flex-col items-center justify-center bg-background text-muted-foreground gap-4">
-    <!-- Inline simple spinner and text, relying on standard tailwind utility classes -->
-    <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-    <p class="text-sm font-medium">{m["layout.validatingSession"]()}</p>
-  </div>
+  <StatePanel message={m["layout.validatingSession"]()} spinner class="h-screen border-0" />
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
   <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden">
@@ -236,72 +200,7 @@
             onCancel={bulkAction.onCancel}
           />
         {:else}
-        <nav
-          bind:this={dockEl}
-          onpointermove={magnifyDock}
-          onpointerleave={resetDockMagnify}
-          aria-label={m["layout.menuButton"]()}
-          class="pointer-events-auto flex h-16 sm:h-18 items-end gap-2 px-3.5 pb-2.5 max-w-[calc(100vw-2rem)] rounded-3xl bg-background/40 backdrop-blur-2xl backdrop-saturate-150 border border-border/40 shadow-2xl shadow-black/15"
-        >
-          {#snippet dockIconWrapper(item: any)}
-            {@const Icon = item.icon}
-            {@const active = page.url.pathname.startsWith(item.href)}
-            <a
-              data-dock-icon
-              href={item.href}
-              aria-label={item.getName()}
-              class="group relative flex w-[calc(var(--scale,1)*44px)] sm:w-[calc(var(--scale,1)*52px)] shrink-0 flex-col items-center justify-end outline-none transition-[width] duration-150 ease-out will-change-[width]"
-            >
-              <!-- macOS-style name label above the magnified icon -->
-              <span
-                aria-hidden="true"
-                class="pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg border border-border/50 bg-popover/90 px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
-              >
-                {item.getName()}
-                <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-xs border-b border-r border-border/50 bg-popover/90"></span>
-              </span>
-              <div class="flex aspect-square w-full items-center justify-center rounded-[22%] border transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring {active ? 'bg-linear-to-b from-primary to-primary/85 border-primary/50 shadow-md' : 'bg-linear-to-b from-card to-muted border-border/50 shadow-sm'}">
-                <Icon class="size-1/2 {active ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'}" />
-              </div>
-              {#if active}
-                <!-- Running-app dot, neutral like macOS -->
-                <span class="absolute -bottom-1.25 left-1/2 size-1 -translate-x-1/2 rounded-full bg-foreground/60"></span>
-              {/if}
-            </a>
-          {/snippet}
-
-          {#each dockItems as item (item.key)}
-            {@render dockIconWrapper(item)}
-          {/each}
-
-          {#if recentItems.length > 0}
-            <div class="w-px h-8 sm:h-9 shrink-0 self-center bg-border/60"></div>
-            {#each recentItems as item (item.key)}
-              {@render dockIconWrapper(item)}
-            {/each}
-          {/if}
-
-          <div class="w-px h-8 sm:h-9 shrink-0 self-center bg-border/60"></div>
-
-          <!-- Full Menu Button -->
-          <button
-            data-dock-icon
-            onclick={() => isMenuOpen = true}
-            aria-label={m["layout.menuButton"]()}
-            class="group relative flex w-[calc(var(--scale,1)*44px)] sm:w-[calc(var(--scale,1)*52px)] shrink-0 flex-col items-center justify-end outline-none transition-[width] duration-150 ease-out will-change-[width]"
-          >
-            <span
-              aria-hidden="true"
-              class="pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg border border-border/50 bg-popover/90 px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg opacity-0 transition-all duration-150 group-hover:scale-100 group-hover:opacity-100"
-            >
-              {m["layout.menuButton"]()}
-              <span class="absolute left-1/2 top-full -mt-1 size-2 -translate-x-1/2 rotate-45 rounded-xs border-b border-r border-border/50 bg-popover/90"></span>
-            </span>
-            <div class="flex aspect-square w-full items-center justify-center rounded-[22%] bg-linear-to-b from-card to-muted shadow-sm border border-border/50 transition-shadow group-hover:shadow-md group-active:brightness-90 group-focus-visible:ring-2 group-focus-visible:ring-ring">
-              <LayoutGridIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
-            </div>
-          </button>
-        </nav>
+        <AppDock items={dockItems} recent={recentItems} onOpenMenu={() => (isMenuOpen = true)} />
         {/if}
       </div>
 

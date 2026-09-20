@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Separator } from '$lib/components/ui/separator';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
@@ -270,7 +271,7 @@
                   <Input {...props} {...constraints} type="number" bind:value={$form.priority} class="h-12 font-mono" />
                 {/snippet}
               </Form.Control>
-              <p class="text-xs text-muted-foreground mt-1">{m["catalog.pricelist.priorityHint"]()}</p>
+              <Form.Description class="mt-1 text-xs">{m["catalog.pricelist.priorityHint"]()}</Form.Description>
               <Form.FieldErrors />
             {/snippet}
           </Form.Field>
@@ -338,7 +339,7 @@
                   placeholder={m["catalog.pricelist.baseListPlaceholder"]()}
                   items={availableListItems}
                 />
-            <p class="text-xs text-muted-foreground mt-1">{m["catalog.pricelist.baseListHint"]()}</p>
+            <Form.Description class="mt-1 text-xs">{m["catalog.pricelist.baseListHint"]()}</Form.Description>
             <Form.FieldErrors />
           {/snippet}
         </Form.Field>
@@ -361,7 +362,7 @@
               </Button>
             {/each}
           </div>
-          <div class="hidden sm:block w-px h-6 bg-border mx-2"></div>
+          <Separator orientation="vertical" class="mx-2 hidden h-6 sm:block" />
           <div class="flex gap-2">
             {#each [5, 10, 15, 20] as amount (amount)}
               <Button type="button" variant="outline" size="sm" class="font-mono text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 touch-manipulation h-11" onclick={() => handleBulkAdjustment(-amount)}>
@@ -369,7 +370,7 @@
               </Button>
             {/each}
           </div>
-          <div class="w-full sm:w-px sm:h-6 bg-border mx-0 sm:mx-2 my-2 sm:my-0"></div>
+          <Separator class="my-2 w-full sm:mx-2 sm:my-0 sm:h-6 sm:w-px" />
           <Button type="button" variant="ghost" size="sm" class="h-11 text-muted-foreground w-full sm:w-auto" onclick={handleReset} disabled={isFetchingBase}>
             {isFetchingBase ? m["common.loading"]() : m["catalog.pricelist.revertOriginals"]()}
           </Button>

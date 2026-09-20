@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { ErrorState, StatePanel } from '$lib/components/common';
+    import * as Card from '$lib/components/ui/card';
+    import { ErrorState, FormField, InlineAlert, PageHeader, StatePanel } from '$lib/components/common';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -178,33 +179,28 @@
     </ErrorState>
 {:else if !isAdmin}
     <div class="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold font-heading">
-                    {m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
-                </h1>
-                <p class="text-muted-foreground mt-1">{m['orders.edit.employeeDescription']()}</p>
-            </div>
-            <Button variant="outline" class="h-12 px-6 touch-manipulation" onclick={() => goto(`/dashboard/orders/${id}`)}>
-                {m["common.cancel"]()}
-            </Button>
-        </div>
+        <PageHeader
+            title={m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
+            description={m['orders.edit.employeeDescription']()}
+        >
+            {#snippet actions()}
+                <Button variant="outline" class="h-12 px-6 touch-manipulation" onclick={() => goto(`/dashboard/orders/${id}`)}>
+                    {m["common.cancel"]()}
+                </Button>
+            {/snippet}
+        </PageHeader>
 
         {#if isLocked}
-            <div
-                role="alert"
-                class="p-4 bg-destructive/10 border border-destructive/30 rounded-xl text-destructive text-sm font-medium flex items-start gap-2"
-            >
-                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>{m["orders.edit.lockedBanner"]()}</span>
-            </div>
+            <InlineAlert text={m["orders.edit.lockedBanner"]()} />
         {/if}
 
-        <form class="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-sm space-y-6" onsubmit={(e) => { e.preventDefault(); handleEmployeeEditSubmit(); }}>
-            <div class="space-y-2 {isLocked || employeeSaving ? 'pointer-events-none opacity-70' : ''}">
-                <label for="employee-delivery-date" class="text-sm font-medium">{m['orders.wizard.deliveryDate']()}</label>
+        <Card.Root class="p-5 sm:p-6">
+        <form class="space-y-6" onsubmit={(e) => { e.preventDefault(); handleEmployeeEditSubmit(); }}>
+            <FormField
+                label={m['orders.wizard.deliveryDate']()}
+                for="employee-delivery-date"
+                class={isLocked || employeeSaving ? 'pointer-events-none opacity-70' : ''}
+            >
                 <AdaptiveDateTimePicker
                     id="employee-delivery-date"
                     value={employeeDeadline}
@@ -213,10 +209,9 @@
                     placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
                     class="rounded-xl text-lg"
                 />
-            </div>
+            </FormField>
 
-            <div class="space-y-2">
-                <label for="employee-order-notes" class="text-sm font-medium">{m['orders.wizard.orderNotes']()}</label>
+            <FormField label={m['orders.wizard.orderNotes']()} for="employee-order-notes">
                 <Textarea
                     id="employee-order-notes"
                     bind:value={employeeNotes}
@@ -224,12 +219,10 @@
                     class="min-h-32 resize-none text-base"
                     disabled={isLocked || employeeSaving}
                 />
-            </div>
+            </FormField>
 
             {#if employeeEditError}
-                <p class="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2" role="alert">
-                    {employeeEditError}
-                </p>
+                <InlineAlert text={employeeEditError} showIcon={false} class="rounded-lg px-3 py-2" />
             {/if}
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
@@ -241,6 +234,7 @@
                 </Button>
             </div>
         </form>
+        </Card.Root>
     </div>
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
