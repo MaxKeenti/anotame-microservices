@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { FormField } from '$lib/components/common';
+    import { Slider } from '$lib/components/ui/slider';
     import * as Card from '$lib/components/ui/card';
     import IconMedallion from '$lib/components/common/icon-medallion.svelte';
     import { formatCurrency } from '$lib/utils/formatUtils';
@@ -586,87 +588,88 @@
 
             <!-- STEP 2 -->
             {#if step === 2 && tempService}
-                <div class="max-w-md mx-auto space-y-8 py-6">
-                    <div class="text-center space-y-2">
-                        {#if tempService.source === 'CUSTOM'}
-                            <div class="space-y-3 text-left">
-                                <label class="text-base font-medium" for="custom-service-name">{m['itemSubWizard.customService.nameLabel']()}</label>
-                                <Input
-                                    id="custom-service-name"
-                                    class="h-14 text-lg rounded-xl"
-                                    placeholder={m['itemSubWizard.customService.namePlaceholder']()}
-                                    bind:value={tempService.name}
-                                />
-                            </div>
-                        {:else}
+                <div class="space-y-6 py-6">
+                    {#if tempService.source === 'CUSTOM'}
+                        <FormField label={m['itemSubWizard.customService.nameLabel']()} for="custom-service-name">
+                            <Input
+                                id="custom-service-name"
+                                class="h-14 text-lg rounded-xl"
+                                placeholder={m['itemSubWizard.customService.namePlaceholder']()}
+                                bind:value={tempService.name}
+                            />
+                        </FormField>
+                    {:else}
+                        <div class="space-y-2 text-center md:text-left">
                             <Heading level={2} as="h4">{tempService.name}</Heading>
                             <p class="text-base text-muted-foreground">{tempService.description}</p>
-                        {/if}
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="text-base font-medium" for="precio-base">{m['itemSubWizard.label.basePrice']()}</label>
-                        <InputGroup.Root class="h-20 rounded-xl">
-                            <InputGroup.Input
-                                id="precio-base"
-                                type="number"
-                                class="text-4xl font-bold text-center"
-                                bind:value={price}
-                            />
-                            <InputGroup.Addon><span class="text-2xl">$</span></InputGroup.Addon>
-                        </InputGroup.Root>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="space-y-3">
-                            <label class="text-base font-medium" for="ajuste">{m['itemSubWizard.label.adjustment']()}</label>
-                            <Input
-                                id="ajuste"
-                                type="number"
-                                class="h-16 text-xl text-center rounded-xl"
-                                placeholder={m['itemSubWizard.placeholder.adjustment']()}
-                                bind:value={adj}
-                            />
                         </div>
-                        <div class="space-y-3">
-                            <label class="text-base font-medium" for="razon-ajuste">{m['orders.wizard.adjustmentReason']()}</label>
-                            <Input
-                                id="razon-ajuste"
-                                class="h-16 text-lg rounded-xl"
-                                placeholder={m['orders.wizard.reasonPlaceholder']()}
-                                bind:value={adjReason}
-                            />
+                    {/if}
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div class="space-y-6">
+                            <FormField label={m['itemSubWizard.label.basePrice']()} for="precio-base">
+                                <InputGroup.Root class="h-20 rounded-xl">
+                                    <InputGroup.Input
+                                        id="precio-base"
+                                        type="number"
+                                        class="text-4xl font-bold text-center"
+                                        bind:value={price}
+                                    />
+                                    <InputGroup.Addon><span class="text-2xl">$</span></InputGroup.Addon>
+                                </InputGroup.Root>
+                            </FormField>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <FormField label={m['itemSubWizard.label.adjustment']()} for="ajuste">
+                                    <Input
+                                        id="ajuste"
+                                        type="number"
+                                        class="h-16 text-xl text-center rounded-xl"
+                                        placeholder={m['itemSubWizard.placeholder.adjustment']()}
+                                        bind:value={adj}
+                                    />
+                                </FormField>
+                                <FormField label={m['orders.wizard.adjustmentReason']()} for="razon-ajuste">
+                                    <Input
+                                        id="razon-ajuste"
+                                        class="h-16 text-lg rounded-xl"
+                                        placeholder={m['orders.wizard.reasonPlaceholder']()}
+                                        bind:value={adjReason}
+                                    />
+                                </FormField>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <Card.Root tone="highlight" size="sm" class="gap-5">
+                                <div class="flex items-center justify-between">
+                                    <span id="duracion-label" class="text-base font-bold text-primary">{m['itemSubWizard.label.effort']()}</span>
+                                    <Text variant="metric" as="span" class="text-primary">{duration}m</Text>
+                                </div>
+                                <Slider
+                                    type="single"
+                                    min={5}
+                                    max={300}
+                                    step={5}
+                                    bind:value={duration}
+                                    aria-labelledby="duracion-label"
+                                    class="py-4 **:data-[slot=slider-thumb]:size-7 **:data-[slot=slider-track]:h-2"
+                                />
+                                <Text variant="small" class="italic text-center">{m['itemSubWizard.effortHint']()}</Text>
+                            </Card.Root>
+
+                            <FormField label={m['itemSubWizard.customService.instructionsLabel']()} for="service-instructions">
+                                <Textarea
+                                    id="service-instructions"
+                                    class="min-h-28 resize-none text-base p-4 rounded-xl"
+                                    placeholder={m['itemSubWizard.customService.instructionsPlaceholder']()}
+                                    bind:value={instructions}
+                                />
+                            </FormField>
                         </div>
                     </div>
 
-                    <div class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
-                        <div class="flex justify-between items-center">
-                            <label class="text-base font-bold text-primary" for="duracion">{m['itemSubWizard.label.effort']()}</label>
-                            <Text variant="metric" as="span" class="text-primary">{duration}m</Text>
-                        </div>
-                        <Input
-                            id="duracion"
-                            type="range"
-                            min="5"
-                            max="300"
-                            step="5"
-                            class="h-11 cursor-pointer accent-primary"
-                            bind:value={duration}
-                        />
-                        <Text variant="small" class="italic text-center">{m['itemSubWizard.effortHint']()}</Text>
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="text-base font-medium" for="service-instructions">{m['itemSubWizard.customService.instructionsLabel']()}</label>
-                        <Textarea
-                            id="service-instructions"
-                            class="min-h-28 resize-none text-base p-4 rounded-xl"
-                            placeholder={m['itemSubWizard.customService.instructionsPlaceholder']()}
-                            bind:value={instructions}
-                        />
-                    </div>
-
-                    <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12" onclick={handleAddService}>
+                    <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-6" onclick={handleAddService}>
                         {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
                 </div>

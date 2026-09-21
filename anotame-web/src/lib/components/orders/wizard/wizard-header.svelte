@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
   import { Heading } from '$lib/components/ui/typography';
@@ -74,15 +75,16 @@
 
       <!-- The step names do not fit beside the circles on phones, so they move into a tray. -->
       {#if showTray}
-      <button
-        type="button"
-        class="ml-1 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/50 touch-manipulation sm:hidden"
+      <Button
+        variant="ghost"
+        size="icon-touch"
+        class="ml-1 text-muted-foreground sm:hidden"
         onclick={() => (stepsExpanded = !stepsExpanded)}
         aria-label={stepsExpanded ? m['orders.new.stepsHide']() : m['orders.new.stepsShow']()}
         aria-expanded={stepsExpanded}
       >
-        <ChevronDownIcon class="h-4 w-4 transition-transform {stepsExpanded ? 'rotate-180' : ''}" />
-      </button>
+        <ChevronDownIcon class="transition-transform {stepsExpanded ? 'rotate-180' : ''}" />
+      </Button>
       {/if}
     </div>
 
