@@ -3,6 +3,8 @@
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Tooltip from '$lib/components/ui/tooltip';
   import { X } from '@lucide/svelte';
+  import { DOCK_SURFACE } from '$lib/components/layout/dock-surface';
+  import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
 
   type Props = {
@@ -48,7 +50,7 @@
 <div
   role="toolbar"
   aria-label={m["order.bulk.title"]()}
-  class="pointer-events-auto flex items-center gap-3 bg-background/85 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl px-4 py-2 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
+  class={cn(DOCK_SURFACE, 'no-scrollbar items-center gap-3 overflow-x-auto')}
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 

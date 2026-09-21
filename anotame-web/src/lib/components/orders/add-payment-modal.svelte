@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Card from '$lib/components/ui/card';
   import { Spinner } from '$lib/components/ui/spinner';
   import * as InputGroup from '$lib/components/ui/input-group';
   import { FormField, InlineAlert } from '$lib/components/common';
@@ -104,12 +105,12 @@
 
     <div class="space-y-5 py-2">
       <!-- Balance info -->
-      <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center text-sm">
+      <Card.Root tone="muted" size="sm" class="flex-row items-center justify-between py-3 px-3">
         <span class="text-muted-foreground font-medium">{m['orders.payment.currentBalance']()}</span>
         <span class={`font-bold text-lg ${remaining > 0.001 ? 'text-destructive' : 'text-primary'}`}>
           {formatCurrency(remaining)}
         </span>
-      </div>
+      </Card.Root>
 
       <!-- Amount -->
       <FormField label={m['orders.payment.amountLabel']()} for="payment-amount" hint={m['orders.payment.refundHint']()}>

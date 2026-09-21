@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
@@ -79,7 +80,7 @@
     description={m["customers.page.subtitle"]()}
   >
     {#snippet actions()}
-      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto">{m["customers.button.new"]()}</Button>
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto"><PlusIcon data-icon="inline-start" />{m["customers.button.new"]()}</Button>
     {/snippet}
   </PageHeader>
 

@@ -28,7 +28,7 @@
 
 <nav
   aria-label={m['kpi.tabs.ariaLabel']()}
-  class="sticky top-0 z-20 -mx-2 overflow-x-auto bg-background/95 px-2 py-2 backdrop-blur"
+  class="sticky top-0 z-20 -mx-4 overflow-x-auto bg-background/95 px-4 py-2 backdrop-blur md:-mx-6 md:px-6 lg:-mx-8 lg:px-8"
 >
   <div class="flex w-max min-w-full gap-1 rounded-xl border border-border bg-muted/40 p-1">
     {#each tabs as tab (tab.href)}

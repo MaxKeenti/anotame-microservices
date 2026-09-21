@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { cn } from '$lib/utils';
   import { Text } from '$lib/components/ui/typography';
   import { Skeleton } from '$lib/components/ui/skeleton';
 
@@ -30,9 +31,9 @@
       {#if loading}
         <Skeleton class="mt-1 h-7 w-20" />
       {:else}
-        <p class={`mt-1 truncate font-mono text-xl font-bold md:text-2xl ${item.toneClass ?? ''}`}>
+        <Text variant="metric" size="sm" class={cn('mt-1 truncate md:text-2xl', item.toneClass)}>
           {item.value}
-        </p>
+        </Text>
       {/if}
     </div>
   {/each}

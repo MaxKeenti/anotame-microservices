@@ -94,7 +94,7 @@
   <!-- Month Header -->
   {#if showHeader}
     <div class="flex items-center justify-between">
-      <Heading level={1} as="h2" class="capitalize">
+      <Heading level={2} class="capitalize">
         {monthLabel}
       </Heading>
     </div>
@@ -151,7 +151,7 @@
         {@const isTodayDate = day.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`}
         <div class="flex items-center gap-3 p-3 rounded-lg border {isTodayDate ? 'ring-2 ring-info border-info-border bg-info-muted' : 'bg-card'}">
           <!-- Capacity indicator -->
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-end overflow-hidden">
+          <div class="shrink-0 w-10 h-10 rounded-lg bg-muted flex items-end overflow-hidden">
             <div
               class="w-full transition-all {capacityTone(day.capacityPercent, thresholds).bar}"
               style="height: {Math.min(100, day.capacityPercent)}%"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import { apiService, API_IDENTITY } from '$lib/services/api.svelte';
@@ -81,7 +82,8 @@
       description={m['users.page.desc']()}
     >
       {#snippet actions()}
-        <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto shadow-sm">
+        <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto">
+        <PlusIcon data-icon="inline-start" />
         {m['users.button.new']()}
         </Button>
       {/snippet}

@@ -185,7 +185,7 @@
             description={m['orders.edit.employeeDescription']()}
         >
             {#snippet actions()}
-                <Button size="touch-lg" variant="outline" class="px-6" onclick={() => goto(`/dashboard/orders/${id}`)}>
+                <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto(`/dashboard/orders/${id}`)}>
                     {m["common.cancel"]()}
                 </Button>
             {/snippet}
@@ -195,7 +195,7 @@
             <InlineAlert text={m["orders.edit.lockedBanner"]()} />
         {/if}
 
-        <Card.Root class="p-5 sm:p-6">
+        <Card.Root class="p-4 sm:p-6">
         <form class="space-y-6" onsubmit={(e) => { e.preventDefault(); handleEmployeeEditSubmit(); }}>
             <FormField
                 label={m['orders.wizard.deliveryDate']()}

@@ -5,6 +5,7 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
+  import { headingVariants } from '$lib/components/ui/typography';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as m from '$lib/paraglide/messages';
 
@@ -28,7 +29,7 @@
   <Dialog.Content class="sm:max-w-5xl max-h-[90dvh] gap-0 p-0 overflow-hidden flex flex-col">
     <!-- Header -->
     <Dialog.Header class="p-6 border-b text-left">
-      <Dialog.Title class="text-2xl font-bold font-heading">{m["nav.menu.title"]()}</Dialog.Title>
+      <Dialog.Title class={headingVariants({ level: 1 })}>{m["nav.menu.title"]()}</Dialog.Title>
       <Dialog.Description class="text-muted-foreground">{m["nav.menu.subtitle"]()}</Dialog.Description>
     </Dialog.Header>
 

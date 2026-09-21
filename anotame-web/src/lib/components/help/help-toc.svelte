@@ -45,7 +45,7 @@
   </nav>
 {:else}
   <nav
-    class="sticky top-0 z-30 rounded-xl border border-border bg-background/90 p-2 shadow-sm backdrop-blur lg:hidden"
+    class="sticky top-0 z-20 rounded-xl border border-border bg-background/90 p-2 shadow-sm backdrop-blur lg:hidden"
     aria-label={m['help.toc.title']()}
   >
     <div

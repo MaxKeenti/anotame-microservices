@@ -1,4 +1,5 @@
 <script lang="ts">
+    import * as Card from '$lib/components/ui/card';
     import IconMedallion from '$lib/components/common/icon-medallion.svelte';
     import * as InputGroup from '$lib/components/ui/input-group';
    import { Heading, Text } from '$lib/components/ui/typography';
@@ -64,7 +65,7 @@
 
     <div class="flex-1 flex flex-col items-center justify-start max-w-2xl mx-auto w-full gap-8 pt-4">
         {#if draft?.customer}
-            <div class="w-full bg-primary/5 border border-primary/20 rounded-xl p-6 text-center animate-in fade-in zoom-in-95">
+            <Card.Root tone="highlight" class="w-full gap-0 text-center animate-in fade-in zoom-in-95">
                 <IconMedallion size="xl" class="mx-auto mb-4"><User /></IconMedallion>
                 <Heading level={2} as="h3">{draft?.customer?.firstName} {draft?.customer?.lastName}</Heading>
                 <p class="text-muted-foreground">{draft?.customer?.phoneNumber}</p>
@@ -74,7 +75,7 @@
                     <Button variant="outline" class="h-11 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
                     <Button class="h-11 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl" onclick={onNext}>{m['common.continue']()}</Button>
                 </div>
-            </div>
+            </Card.Root>
         {:else}
             <div class="w-full space-y-6 relative">
                 <div class="relative">

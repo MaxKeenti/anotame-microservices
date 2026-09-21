@@ -235,19 +235,22 @@
     {/snippet}
   </PageHeader>
 
-  <FilterField label={m["common.search"]()} for="search-operations">
-    <Input
-      id="search-operations"
-      placeholder={m["operations.searchPlaceholder"]()}
-      bind:value={searchQuery}
-      class="h-12 text-base touch-manipulation"
-    />
-  </FilterField>
+  <Card.Root class="p-4">
+    <FilterField label={m["common.search"]()} for="search-operations">
+      <Input
+        id="search-operations"
+        placeholder={m["operations.searchPlaceholder"]()}
+        bind:value={searchQuery}
+        class="h-12 text-base touch-manipulation"
+      />
+    </FilterField>
+
+  </Card.Root>
 
   <Tabs.Root value="in-progress" class="space-y-4">
-    <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="in-progress" class="px-6 font-bold">{m["operations.tab.inProgress"]()}</Tabs.Trigger>
-      <Tabs.Trigger value="ready" class="px-6 font-bold">{m["operations.tab.ready"]()}</Tabs.Trigger>
+    <Tabs.List variant="bordered">
+      <Tabs.Trigger value="in-progress">{m["operations.tab.inProgress"]()}</Tabs.Trigger>
+      <Tabs.Trigger value="ready">{m["operations.tab.ready"]()}</Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="in-progress">

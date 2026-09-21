@@ -2,6 +2,7 @@
   import IconMedallion from './icon-medallion.svelte';
   import { Heading, Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
 
   /** Centred card carrying a single message, used by standalone pages. */
   interface Props {
@@ -19,7 +20,7 @@
   let { title, body, icon, children, footnote }: Props = $props();
 </script>
 
-<div class="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+<Card.Root class="w-full max-w-md gap-0 p-8 text-center">
   {#if icon}
     <IconMedallion tone="muted" class="mx-auto mb-5">
       {@render icon()}
@@ -34,4 +35,4 @@
   {#if footnote}
     <p class="mt-6 font-mono text-xs text-muted-foreground/70">{footnote}</p>
   {/if}
-</div>
+</Card.Root>

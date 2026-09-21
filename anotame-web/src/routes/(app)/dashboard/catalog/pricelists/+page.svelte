@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -100,7 +101,8 @@
       description={m["catalog.pricelists.description"]()}
     >
       {#snippet actions()}
-        <Button size="touch-lg" href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto shadow-sm">
+        <Button size="touch-lg" href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto">
+        <PlusIcon data-icon="inline-start" />
         {m["catalog.pricelists.addButton"]()}
         </Button>
       {/snippet}

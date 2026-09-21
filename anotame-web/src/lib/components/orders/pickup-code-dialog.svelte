@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Card from '$lib/components/ui/card';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -130,7 +131,7 @@
       {/if}
 
       {#if hasRemainingBalance}
-        <div class="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+        <Card.Root tone="muted" size="sm" class="gap-3 rounded-lg py-3 px-3">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p class="text-sm font-medium text-muted-foreground">
@@ -163,7 +164,7 @@
               <PaymentMethodPicker bind:value={paymentMethod} label={m["orders.pickup.paymentMethod"]()} disabled={submitting} />
             </div>
           {/if}
-        </div>
+        </Card.Root>
       {/if}
     </div>
 

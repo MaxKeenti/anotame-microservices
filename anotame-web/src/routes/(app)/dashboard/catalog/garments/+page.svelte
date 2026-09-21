@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import * as m from '$lib/paraglide/messages';
@@ -81,7 +82,7 @@
   >
     {#snippet actions()}
       {#if isAdmin}
-      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto px-6 text-lg font-bold shadow-md">{m["catalog.garments.addButton"]()}</Button>
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto"><PlusIcon data-icon="inline-start" />{m["catalog.garments.addButton"]()}</Button>
       {/if}
     {/snippet}
   </PageHeader>

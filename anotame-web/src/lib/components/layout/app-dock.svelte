@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { menuItems } from '$lib/config/menu';
   import DockTile from './dock-tile.svelte';
+  import { DOCK_SURFACE } from './dock-surface';
+  import { cn } from '$lib/utils';
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
   import { page } from '$app/state';
   import * as m from '$lib/paraglide/messages';
@@ -60,7 +62,7 @@
   onpointermove={magnifyDock}
   onpointerleave={resetDockMagnify}
   aria-label={m['layout.menuButton']()}
-  class="pointer-events-auto flex h-16 max-w-[calc(100vw-2rem)] items-end gap-2 rounded-3xl border border-border/40 bg-background/40 px-3.5 pb-2.5 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150 sm:h-18"
+  class={cn(DOCK_SURFACE, 'items-end pb-2.5')}
 >
   {#snippet tile(item: DockItem)}
     {@const Icon = item.icon}

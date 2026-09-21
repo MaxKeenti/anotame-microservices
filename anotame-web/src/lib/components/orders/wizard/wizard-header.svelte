@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
   import { Heading } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
@@ -40,7 +41,7 @@
 <div class="mb-4 sm:mb-6">
   <div class="flex items-center gap-2">
     <div class="flex min-w-0 flex-1 items-center gap-2">
-      <Heading level={1} class="truncate text-lg sm:text-2xl">{title}</Heading>
+      <Heading level={2} as="h1" class="truncate">{title}</Heading>
       {#if isDraft}
         <Badge variant="muted" class="hidden sm:inline-flex">
           {m['orders.new.draftBadge']()}
@@ -89,7 +90,7 @@
   </div>
 
   {#if showTray && stepsExpanded}
-    <div class="mt-2 rounded-lg border border-border bg-muted/30 p-3 sm:hidden">
+    <Card.Root tone="muted" size="sm" class="mt-2 rounded-lg py-3 px-3 sm:hidden">
       <ol class="flex flex-col gap-2">
         {#each steps as step, i}
           <li
@@ -115,6 +116,6 @@
           </li>
         {/each}
       </ol>
-    </div>
+    </Card.Root>
   {/if}
 </div>

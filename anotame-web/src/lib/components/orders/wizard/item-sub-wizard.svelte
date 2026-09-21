@@ -1,4 +1,5 @@
 <script lang="ts">
+    import * as Card from '$lib/components/ui/card';
     import IconMedallion from '$lib/components/common/icon-medallion.svelte';
     import { formatCurrency } from '$lib/utils/formatUtils';
     import * as Item from '$lib/components/ui/item';
@@ -407,7 +408,7 @@
             {#if step === 0}
                 <div class="space-y-4">
                     {#if showCustomGarmentForm}
-                        <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-4">
+                        <Card.Root tone="highlight" class="py-5 px-5 gap-4">
                             <div class="space-y-2">
                                 <label class="font-medium" for="custom-garment-name">{m['itemSubWizard.customGarment.nameLabel']()}</label>
                                 <Input
@@ -420,7 +421,7 @@
                             <Button size="xl" class="w-full rounded-xl" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
                                 {m['itemSubWizard.customGarment.continue']()}
                             </Button>
-                        </div>
+                        </Card.Root>
                     {/if}
 
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -708,7 +709,7 @@
                         <label class="text-base font-medium" for="notas-prenda">{m['orders.wizard.garmentNotes']()}</label>
                         <Textarea
                             id="notas-prenda"
-                            class="min-h-[160px] resize-none text-lg p-4 rounded-xl"
+                            class="min-h-40 resize-none text-lg p-4 rounded-xl"
                             placeholder={m['orders.wizard.notesPlaceholder']()}
                             bind:value={notes}
                         />

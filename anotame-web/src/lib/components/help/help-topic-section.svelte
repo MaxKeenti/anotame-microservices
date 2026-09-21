@@ -33,7 +33,7 @@
   id={topic.id}
   data-help-section
   data-help-id={topic.id}
-  class="scroll-mt-24 gap-0 p-5 lg:scroll-mt-6"
+  class="scroll-mt-24 gap-0 p-4 sm:p-6 lg:scroll-mt-6"
 >
   <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div class="min-w-0">

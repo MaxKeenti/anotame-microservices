@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   // Typed against a concrete icon, matching `lib/config/menu.ts`; the generic
   // `Icon` type requires an `iconNode` prop that concrete icons already supply.
@@ -45,7 +46,7 @@
     {/if}
   </Card.Header>
   <Card.Content>
-    <div class={cn('font-mono text-3xl font-bold', VALUE_TONE[tone])}>{value}</div>
+    <Text variant="metric" size="lg" as="div" class={VALUE_TONE[tone]}>{value}</Text>
     {#if description}
       <p
         class={cn(

@@ -199,7 +199,7 @@
     <div class="space-y-6 min-w-0">
       <HelpToc topics={visibleTopics} activeId={activeSection} layout="chips" />
 
-      <Card.Root class="gap-0 p-4" data-help-id="quick-start">
+      <Card.Root class="gap-0 p-4 sm:p-6" data-help-id="quick-start">
         <Card.Title class="mb-4">
           <Heading level={2} class="flex items-center gap-2">
             <BookOpen class="h-5 w-5 text-primary" />

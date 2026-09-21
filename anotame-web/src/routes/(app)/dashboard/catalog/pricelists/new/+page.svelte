@@ -13,7 +13,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, RequiredMark, ResponsiveDataView, TableFrame, PageContainer } from '$lib/components/common';
+  import { PageHeader, RequiredMark, ResponsiveDataView, PageContainer } from '$lib/components/common';
   import { toast } from 'svelte-sonner';
   import * as m from '$lib/paraglide/messages';
   import { superForm, defaults } from 'sveltekit-superforms';
@@ -242,7 +242,7 @@
 <PageContainer width="form">
   <PageHeader title={m["catalog.pricelist.newTitle"]()}>
     {#snippet actions()}
-      <Button size="touch" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
     {/snippet}
   </PageHeader>
 
@@ -364,8 +364,7 @@
         </BulkAdjustBar>
 
         <!-- Overrides Table -->
-        <TableFrame>
-          <ResponsiveDataView
+        <ResponsiveDataView
             showColumnToggle={false}
             columns={overrideColumns}
             data={services}
@@ -373,7 +372,6 @@
             emptyMessage={m["catalog.pricelist.noServices"]()}
             cellRenders={{ override: overrideCellRender }}
           />
-        </TableFrame>
       </Card.Content>
     </Card.Root>
 

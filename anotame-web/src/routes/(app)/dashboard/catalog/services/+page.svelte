@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
@@ -125,7 +126,8 @@
   >
     {#snippet actions()}
       {#if isAdmin}
-      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto px-6 text-lg font-bold shadow-md">
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto">
+      <PlusIcon data-icon="inline-start" />
       {m["catalog.services.addButton"]()}
       </Button>
       {/if}
@@ -133,7 +135,7 @@
   </PageHeader>
 
   <!-- External Filters -->
-  <Card.Root class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+  <Card.Root class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
     <FilterField label={m["catalog.services.searchLabel"]()} for="search-services" class="col-span-1 md:col-span-2">
       <Input
         id="search-services"

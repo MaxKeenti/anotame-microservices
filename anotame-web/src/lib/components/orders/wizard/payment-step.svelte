@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as Card from '$lib/components/ui/card';
 	import { formatCurrency } from '$lib/utils/formatUtils';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import * as InputGroup from '$lib/components/ui/input-group';
@@ -19,6 +20,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
 	import { AlertTriangle } from '@lucide/svelte';
+	import { cn } from '$lib/utils';
 	import * as Alert from '$lib/components/ui/alert';
 	import { InlineAlert } from '$lib/components/common';
 	import PaymentMethodPicker from '$lib/components/common/payment-method-picker.svelte';
@@ -293,7 +295,7 @@
 			<Text variant="label" as="div">
 				{m['paymentStep.totalToPay']()}
 			</Text>
-			<div class="text-5xl font-bold font-mono mt-2">{formatCurrency(total)}</div>
+			<Text variant="metric" size="2xl" as="div" class="mt-2">{formatCurrency(total)}</Text>
 		</div>
 
 		{#if !draft?.isEditing}
@@ -364,16 +366,16 @@
 				class="bg-card border border-border p-4 rounded-xl flex flex-col justify-center items-center shadow-sm"
 			>
 				<div class="text-sm text-muted-foreground">{m['orders.wizard.balanceDue']()}</div>
-				<div class={`text-4xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-primary'}`}>
+				<Text variant="metric" size="xl" as="div" class={cn('mt-1', balance > 0 ? 'text-destructive' : 'text-primary')}>
 					{formatCurrency(balance)}
-				</div>
+				</Text>
 			</div>
 		</div>
 		{:else}
 		<!-- Edit mode: payments managed via order detail page -->
-		<div class="bg-muted/30 border border-border rounded-xl px-5 py-4 text-sm text-muted-foreground">
+		<Card.Root tone="muted" size="sm" class="text-muted-foreground">
 			{m['orders.payment.editModeInfo']()}
-		</div>
+		</Card.Root>
 		{/if}
 
 		<!-- Deadline & Notes -->
@@ -415,9 +417,7 @@
 			</Form.Field>
 
 			{#if draft?.committedDeadline}
-				<div
-					class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
-				>
+				<Card.Root tone="muted" size="sm" class="mt-3 gap-3 animate-in fade-in slide-in-from-top-2">
 					<div class="flex justify-between items-center text-sm">
 						<span class="font-medium">{m['paymentStep.occupancyForDay']()}</span>
 						<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
@@ -440,7 +440,7 @@
 							<Alert.Description>{m['paymentStep.dayFullHint']()}</Alert.Description>
 						</Alert.Root>
 					{/if}
-				</div>
+				</Card.Root>
 			{/if}
 		</div>
 	</div>

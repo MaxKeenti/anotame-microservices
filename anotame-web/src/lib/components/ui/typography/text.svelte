@@ -17,12 +17,16 @@
 				sm: "",
 				md: "",
 				lg: "",
+				xl: "",
+				"2xl": "",
 			},
 		},
 		compoundVariants: [
 			{ variant: "metric", size: "sm", class: "text-lg" },
 			{ variant: "metric", size: "md", class: "text-2xl" },
 			{ variant: "metric", size: "lg", class: "text-3xl" },
+			{ variant: "metric", size: "xl", class: "text-4xl" },
+			{ variant: "metric", size: "2xl", class: "text-5xl" },
 		],
 		defaultVariants: {
 			variant: "default",

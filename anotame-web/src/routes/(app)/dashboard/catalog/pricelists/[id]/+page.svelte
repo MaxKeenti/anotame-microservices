@@ -13,7 +13,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, RequiredMark, ResponsiveDataView, StatePanel, TableFrame, PageContainer } from '$lib/components/common';
+  import { PageHeader, RequiredMark, ResponsiveDataView, StatePanel, PageContainer } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -187,7 +187,7 @@
       description={m["catalog.pricelist.editSubtitle"]({ name: $form.name })}
     >
       {#snippet actions()}
-        <Button size="touch" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+        <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       {/snippet}
     </PageHeader>
 
@@ -274,8 +274,7 @@
           </BulkAdjustBar>
 
           <!-- Overrides Table -->
-          <TableFrame>
-            <ResponsiveDataView
+          <ResponsiveDataView
               showColumnToggle={false}
               columns={overrideColumns}
               data={services}
@@ -283,7 +282,6 @@
               emptyMessage={m["catalog.pricelist.noServices"]()}
               {cellRenders}
             />
-          </TableFrame>
         </Card.Content>
       </Card.Root>
 

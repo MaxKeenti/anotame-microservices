@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
   import GarmentNamesSummary from '$lib/components/orders/garment-names-summary.svelte';
   import * as Card from '$lib/components/ui/card';
@@ -277,20 +278,20 @@
 <PageContainer>
   <PageHeader title={m["orders.page.title"]()} description={m["orders.page.description"]()}>
     {#snippet actions()}
-      <Button size="touch-lg" href="/dashboard/orders/new" class="w-full sm:w-auto px-6 text-lg font-bold shadow-md">+ {m["orders.new"]()}</Button>
+      <Button size="touch-lg" href="/dashboard/orders/new" class="w-full sm:w-auto"><PlusIcon data-icon="inline-start" />{m["orders.new"]()}</Button>
     {/snippet}
   </PageHeader>
 
   <Tabs.Root bind:value={view} class="space-y-6">
-    <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="active" class="px-6 font-bold">{m["orders.tab.active"]()}</Tabs.Trigger>
-      <Tabs.Trigger value="drafts" class="px-6 font-bold">
+    <Tabs.List variant="bordered">
+      <Tabs.Trigger value="active">{m["orders.tab.active"]()}</Tabs.Trigger>
+      <Tabs.Trigger value="drafts">
         {m["orders.tab.drafts"]()} {drafts.length > 0 ? `(${drafts.length})` : ''}
       </Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="active" class="space-y-6">
-      <Card.Root class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5">
+      <Card.Root class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
         <FilterField label={m["common.search"]()} for="search-orders" class="col-span-1 md:col-span-2">
           <Input
             id="search-orders"

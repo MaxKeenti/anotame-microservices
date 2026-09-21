@@ -236,7 +236,7 @@
         <TrendingUp class="w-5 h-5 text-success-text" />
       </div>
       <div>
-        <Heading level={1} as="h2">
+        <Heading level={2}>
           {m['kpi.financial.title']()}
         </Heading>
         <Text variant="muted" class="mt-1">
@@ -263,10 +263,10 @@
 
   {#if loading}
     <div class="space-y-4">
-      <Skeleton class="h-64 rounded-2xl" />
+      <Skeleton class="h-64 rounded-xl" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Skeleton class="h-48 rounded-2xl" />
-        <Skeleton class="h-48 rounded-2xl" />
+        <Skeleton class="h-48 rounded-xl" />
+        <Skeleton class="h-48 rounded-xl" />
       </div>
     </div>
   {:else if error}
@@ -289,7 +289,7 @@
     </Card.Root>
   {:else}
     <!-- Revenue Trend Chart -->
-    <Card.Root class="border border-border">
+    <Card.Root>
       <Card.Header>
         <Card.Title>{m['kpi.financial.revenue.title']()}</Card.Title>
         <Card.Description>
@@ -316,7 +316,7 @@
     <!-- Service Breakdown Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Service Revenue Breakdown -->
-      <Card.Root class="border border-border">
+      <Card.Root>
         <Card.Header>
           <Card.Title>{m['kpi.financial.services.title']()}</Card.Title>
           <Card.Description>
@@ -378,7 +378,7 @@
       </Card.Root>
 
       <!-- Top Customers -->
-      <Card.Root class="border border-border">
+      <Card.Root>
         <Card.Header>
           <Card.Title>{m['kpi.financial.topCustomers.title']()}</Card.Title>
           <Card.Description>
@@ -419,7 +419,7 @@
     </div>
 
     <!-- Repeat Rate -->
-    <Card.Root class="border border-border">
+    <Card.Root>
       <Card.Header>
         <div class="flex items-center gap-2">
           <Users class="w-4 h-4 text-primary" />

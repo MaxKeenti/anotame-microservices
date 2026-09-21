@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as Card from '$lib/components/ui/card';
 	import IconMedallion from '$lib/components/common/icon-medallion.svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import StatePanel from '$lib/components/common/state-panel.svelte';
@@ -117,13 +118,13 @@
 			<div class="w-full space-y-4">
 				<p class="block text-sm font-medium">{m['priceListStep.label']()}</p>
 				{#if currentPriceList}
-					<div class="w-full bg-muted rounded-lg p-4 border border-border">
+					<Card.Root tone="muted" size="sm">
 						<p class="text-base font-medium">{currentPriceList.name}</p>
-					</div>
+					</Card.Root>
 				{:else}
-					<div class="w-full bg-muted rounded-lg p-4 border border-border">
+					<Card.Root tone="muted" size="sm">
 						<p class="text-base text-muted-foreground">{m['priceListStep.none']()}</p>
-					</div>
+					</Card.Root>
 				{/if}
 			</div>
 		{:else}
@@ -154,13 +155,11 @@
 
 				<!-- Confirmation card (shown when price list selected) -->
 				{#if selectedPriceListId && selectedPriceListName && !isLoading}
-					<div
-						class="w-full bg-primary/5 border border-primary/20 rounded-xl p-6 text-center animate-in fade-in zoom-in-95"
-					>
+					<Card.Root tone="highlight" class="text-center animate-in fade-in zoom-in-95">
 						<IconMedallion size="xl" class="mx-auto mb-4"><Tag /></IconMedallion>
 						<Heading level={2} as="h3">{selectedPriceListName}</Heading>
 						<p class="text-muted-foreground mt-2">{m['priceListStep.activeForOrder']()}</p>
-					</div>
+					</Card.Root>
 				{:else if !selectedPriceListId && !isLoading}
 					<!-- Message when "Sin lista de precios" selected -->
 					<div class="text-center py-8 text-muted-foreground">

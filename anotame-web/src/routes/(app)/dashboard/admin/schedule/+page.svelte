@@ -141,12 +141,12 @@
   <PageHeader title={m['schedule.page.title']()} />
 
   <Tabs.Root bind:value={activeTab} class="space-y-6">
-    <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="weekly" class="px-6 font-bold flex items-center gap-2">
+    <Tabs.List variant="bordered">
+      <Tabs.Trigger value="weekly">
         <CalendarDays class="w-4 h-4" />
         {m['schedule.tab.weekly']()}
       </Tabs.Trigger>
-      <Tabs.Trigger value="holidays" class="px-6 font-bold flex items-center gap-2">
+      <Tabs.Trigger value="holidays">
         <AlertTriangle class="w-4 h-4" />
         {m['schedule.tab.holidays']()}
       </Tabs.Trigger>

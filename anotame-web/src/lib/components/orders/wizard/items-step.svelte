@@ -164,7 +164,7 @@
            <!-- Desktop: total row then full-width buttons -->
            <div class="hidden sm:flex justify-between items-center mb-6 px-2">
                <span class="text-xl font-medium">{m['itemsStep.totalEstimated']()}</span>
-               <span class="text-4xl font-bold font-mono text-primary">{formatCurrency(total)}</span>
+               <Text variant="metric" size="xl" as="span" class="text-primary">{formatCurrency(total)}</Text>
            </div>
            <div class="hidden sm:flex gap-4">
                <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl" onclick={onBack}>{m['orders.detail.back']()}</Button>
@@ -174,12 +174,12 @@
            </div>
            <!-- Mobile: single compact row — back | total | continue -->
            <div class="flex sm:hidden items-center gap-2">
-               <Button size="touch" variant="outline" class="px-3 text-sm rounded-xl flex-shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
+               <Button size="touch" variant="outline" class="px-3 text-sm rounded-xl shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <div class="flex-1 flex flex-col items-center leading-tight">
                    <span class="text-xs text-muted-foreground">{m['orders.wizard.total']()}</span>
                    <Text variant="metric" size="sm" as="span" class="text-primary">{formatCurrency(total)}</Text>
                </div>
-               <Button size="touch" class="px-3 text-sm rounded-xl shadow-lg flex-shrink-0" onclick={onNext} disabled={items.length === 0}>
+               <Button size="touch" class="px-3 text-sm rounded-xl shadow-lg shrink-0" onclick={onNext} disabled={items.length === 0}>
                    {m['common.continue']()}
                </Button>
            </div>

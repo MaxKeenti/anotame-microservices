@@ -19,7 +19,7 @@
 </script>
 
 <main class="min-h-screen bg-muted/40 px-4 py-6 sm:py-10">
-  <article class="mx-auto max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+  <article class="mx-auto max-w-xl overflow-hidden rounded-xl border border-border bg-card shadow-sm">
     <header class="border-b border-border bg-primary px-5 py-6 text-primary-foreground sm:px-8">
       <p class="text-sm font-medium opacity-90">{eyebrow}</p>
       <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
