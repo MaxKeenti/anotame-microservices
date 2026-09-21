@@ -5,6 +5,7 @@
    import { apiService, API_SALES } from '$lib/services/api.svelte';
    import { Button } from '$lib/components/ui/button';
    import { Search, User, Plus } from '@lucide/svelte';
+   import * as Field from '$lib/components/ui/field';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
    import type { CustomerDto } from '$lib/types/dtos';
@@ -43,7 +44,12 @@
        orderWizardState.updateActiveDraft({ customer: undefined });
    }
 
-   let { onNext, onBack } = $props<{ onNext: () => void, onBack: () => void }>();
+   interface Props {
+     onNext: () => void;
+     onBack: () => void;
+   }
+
+   let { onNext, onBack }: Props = $props();
    
    // Derived safe reference
    let draft = $derived(orderWizardState.activeDraft);
@@ -103,7 +109,7 @@
                     {/if}
                 </div>
 
-                <div class="text-center text-muted-foreground py-4">- O -</div>
+                <Field.Separator class="my-4">{m['common.or']()}</Field.Separator>
 
                 <Button href="/dashboard/customers" variant="secondary" class="w-full h-16 text-lg rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 gap-2">
                     <Plus class="w-6 h-6" />

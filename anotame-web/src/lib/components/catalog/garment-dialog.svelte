@@ -21,11 +21,13 @@
     description: z.string().trim().optional().or(z.literal(''))
   });
 
-  let { item, onClose, onSuccess } = $props<{
+  interface Props {
     item: any | null;
     onClose: () => void;
     onSuccess?: () => void;
-  }>();
+  }
+
+  let { item, onClose, onSuccess }: Props = $props();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatCurrency } from '$lib/utils/formatUtils';
   import { Spinner } from '$lib/components/ui/spinner';
   import { onMount } from 'svelte';
   import BulkAdjustBar from '$lib/components/catalog/bulk-adjust-bar.svelte';
@@ -99,7 +100,7 @@
       accessorKey: 'basePrice',
       header: m["catalog.pricelist.columnBasePrice"](),
       enableSorting: false,
-      accessorFn: (row) => `$${row.basePrice.toFixed(2)}`,
+      accessorFn: (row) => formatCurrency(row.basePrice),
       meta: { cardGroup: 'body' },
     },
     {

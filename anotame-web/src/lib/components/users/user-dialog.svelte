@@ -25,12 +25,14 @@
     email: z.string().email(m['userDialog.zod.emailInvalid']()),
   });
 
-  let { item, onClose, onSuccess, id: formId = 'user-dialog' } = $props<{
+  interface Props {
     item: any | null;
     onClose: () => void;
     onSuccess?: () => void;
     id?: string;
-  }>();
+  }
+
+  let { item, onClose, onSuccess, id: formId = 'user-dialog' }: Props = $props();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);

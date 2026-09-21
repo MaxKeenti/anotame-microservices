@@ -5,7 +5,8 @@ const localeMap: Record<string, string> = {
     en: 'en-US',
 };
 
-function getIntlLocale(): string {
+/** BCP 47 tag for the active Paraglide locale, for Intl formatting. */
+export function getIntlLocale(): string {
     return localeMap[getLocale()] ?? 'es-MX';
 }
 

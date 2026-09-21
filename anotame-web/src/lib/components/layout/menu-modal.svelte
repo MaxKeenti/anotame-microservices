@@ -8,10 +8,12 @@
   import * as Avatar from '$lib/components/ui/avatar';
   import * as m from '$lib/paraglide/messages';
 
-  let { isOpen = $bindable(false), onOpenProfile } = $props<{
+  interface Props {
     isOpen: boolean;
     onOpenProfile?: () => void;
-  }>();
+  }
+
+  let { isOpen = $bindable(false), onOpenProfile }: Props = $props();
 
   const user = $derived(authService.user);
 

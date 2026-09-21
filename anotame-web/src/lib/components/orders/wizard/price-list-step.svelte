@@ -18,11 +18,13 @@
 	let selectedPriceListId = $state<string>('');
 	let selectedPriceListName = $state<string>('');
 
-	let { onNext, onBack, isEditMode = false } = $props<{
+	interface Props {
 		onNext: () => void;
 		onBack: () => void;
 		isEditMode?: boolean;
-	}>();
+	}
+
+	let { onNext, onBack, isEditMode = false }: Props = $props();
 
 	let draft = $derived(orderWizardState.activeDraft);
 	let currentPriceList = $derived(orderWizardState.getPriceList());

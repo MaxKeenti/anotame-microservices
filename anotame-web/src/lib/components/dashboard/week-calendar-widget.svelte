@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getIntlLocale } from '$lib/utils/formatUtils';
   import { Text } from '$lib/components/ui/typography';
   import { onMount } from 'svelte';
   import { capacityTone } from '$lib/utils/capacity';
@@ -7,9 +8,11 @@
   import type { Establishment, WorkloadDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
-  let { href = '/dashboard/admin/kpi/operacion#workload-calendar' } = $props<{
+  interface Props {
     href?: string;
-  }>();
+  }
+
+  let { href = '/dashboard/admin/kpi/operacion#workload-calendar' }: Props = $props();
 
   let days = $state<WorkloadDayResponse[]>([]);
   let capacity = $state(480);
@@ -29,7 +32,7 @@
 
 
   function fmtDay(dateStr: string): string {
-    return new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric' })
+    return new Intl.DateTimeFormat(getIntlLocale(), { weekday: 'short', day: 'numeric' })
       .format(new Date(dateStr + 'T12:00:00'));
   }
 

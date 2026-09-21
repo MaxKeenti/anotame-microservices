@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatCurrency } from '$lib/utils/formatUtils';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Heading, Text } from '$lib/components/ui/typography';
@@ -31,7 +32,12 @@
 
 	type DraftService = DraftOrderItem['services'][number];
 
-	let props = $props<{ onNext: () => void; onBack: () => void }>();
+	interface Props {
+		onNext: () => void;
+		onBack: () => void;
+	}
+
+	let props: Props = $props();
 
 	let isSubmitting = $state(false);
 	let error = $state<string | null>(null);
@@ -287,7 +293,7 @@
 			<Text variant="label" as="div">
 				{m['paymentStep.totalToPay']()}
 			</Text>
-			<div class="text-5xl font-bold font-mono mt-2">${total.toFixed(2)}</div>
+			<div class="text-5xl font-bold font-mono mt-2">{formatCurrency(total)}</div>
 		</div>
 
 		{#if !draft?.isEditing}
@@ -359,7 +365,7 @@
 			>
 				<div class="text-sm text-muted-foreground">{m['orders.wizard.balanceDue']()}</div>
 				<div class={`text-4xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-primary'}`}>
-					${balance.toFixed(2)}
+					{formatCurrency(balance)}
 				</div>
 			</div>
 		</div>

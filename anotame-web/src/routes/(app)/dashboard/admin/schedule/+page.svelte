@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getIntlLocale } from '$lib/utils/formatUtils';
   import { Spinner } from '$lib/components/ui/spinner';
   import { onMount } from 'svelte';
   import WorkdayRow from '$lib/components/schedule/workday-row.svelte';
@@ -253,7 +254,7 @@
                       {#each holidays as h}
                         <Table.Row class="hover:bg-muted/30">
                           <Table.Cell class="p-4 font-medium tabular-nums">
-                            {new Date(h.date).toLocaleDateString('es-ES', {
+                            {new Date(h.date).toLocaleDateString(getIntlLocale(), {
                               weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
                             })}
                           </Table.Cell>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getIntlLocale } from '$lib/utils/formatUtils';
   import * as Popover from '$lib/components/ui/popover';
   import { Calendar } from '$lib/components/ui/calendar';
   import { Button } from '$lib/components/ui/button';
@@ -67,7 +68,7 @@
     if (!value || !datePart) return '';
     try {
       const date = new Date(datePart + 'T' + timePart);
-      return date.toLocaleDateString('es-MX', {
+      return date.toLocaleDateString(getIntlLocale(), {
         weekday: 'short',
         year: 'numeric',
         month: 'short',

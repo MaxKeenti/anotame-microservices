@@ -1140,5 +1140,9 @@
   "common.hideColumn": "Ocultar",
   "common.allOption": "Todos",
   "kpi.financial.granularity.label": "Agrupar por periodo",
-  "help.category.label": "Filtrar por categoría"
+  "help.category.label": "Filtrar por categoría",
+  "payment.status.pending": "Pendiente",
+  "payment.status.paid": "Pagado",
+  "payment.status.unpaid": "No pagado",
+  "common.or": "o"
 }

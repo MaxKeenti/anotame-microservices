@@ -27,12 +27,14 @@
     garmentTypeId: z.string().min(1, m['serviceDialog.zod.garmentRequired']()),
   });
 
-  let { item, garments = [], onClose, onSuccess } = $props<{
+  interface Props {
     item: any | null;
     garments?: GarmentTypeResponse[];
     onClose: () => void;
     onSuccess?: () => void;
-  }>();
+  }
+
+  let { item, garments = [], onClose, onSuccess }: Props = $props();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);

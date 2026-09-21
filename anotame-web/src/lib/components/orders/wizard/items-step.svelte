@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { formatCurrency } from '$lib/utils/formatUtils';
     import * as Empty from '$lib/components/ui/empty';
     import * as Item from '$lib/components/ui/item';
     import * as ButtonGroup from '$lib/components/ui/button-group';
@@ -11,7 +12,12 @@
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
 
-   let { onNext, onBack } = $props<{ onNext: () => void, onBack: () => void }>();
+   interface Props {
+     onNext: () => void;
+     onBack: () => void;
+   }
+
+   let { onNext, onBack }: Props = $props();
 
    let isAddingItem = $state(false);
    let editingIndex = $state<number | null>(null);
@@ -116,8 +122,8 @@
                                                <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                            {/if}
                                            <Badge variant="secondary" class="font-mono">
-                                               ${(s.unitPrice + (s.adjustmentAmount || 0)).toFixed(2)}
-                                               {s.adjustmentAmount ? ` (Adj: ${s.adjustmentAmount})` : ''}
+                                               {formatCurrency(s.unitPrice + (s.adjustmentAmount || 0))}
+                                               {s.adjustmentAmount ? ` (${m['orders.wizard.adjustmentShort']()} ${formatCurrency(s.adjustmentAmount)})` : ''}
                                            </Badge>
                                        </div>
                                        {#if s.instructions}
@@ -135,7 +141,7 @@
 
                        <Item.Actions class="w-full justify-between border-t border-border pt-4 sm:w-auto sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
                            <Text variant="metric" size="md" as="span" class="text-primary">
-                               ${(item.services || []).reduce((acc: number, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
+                               {formatCurrency((item.services || []).reduce((acc: number, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0))}
                            </Text>
                            <ButtonGroup.Root>
                                <Button variant="outline" size="icon-touch" aria-label={m['common.duplicate']()} title={m['common.duplicate']()} onclick={() => handleDuplicateItem(idx)}>
@@ -158,7 +164,7 @@
            <!-- Desktop: total row then full-width buttons -->
            <div class="hidden sm:flex justify-between items-center mb-6 px-2">
                <span class="text-xl font-medium">{m['itemsStep.totalEstimated']()}</span>
-               <span class="text-4xl font-bold font-mono text-primary">${total.toFixed(2)}</span>
+               <span class="text-4xl font-bold font-mono text-primary">{formatCurrency(total)}</span>
            </div>
            <div class="hidden sm:flex gap-4">
                <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl" onclick={onBack}>{m['orders.detail.back']()}</Button>
@@ -171,7 +177,7 @@
                <Button size="touch" variant="outline" class="px-3 text-sm rounded-xl flex-shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <div class="flex-1 flex flex-col items-center leading-tight">
                    <span class="text-xs text-muted-foreground">{m['orders.wizard.total']()}</span>
-                   <Text variant="metric" size="sm" as="span" class="text-primary">${total.toFixed(2)}</Text>
+                   <Text variant="metric" size="sm" as="span" class="text-primary">{formatCurrency(total)}</Text>
                </div>
                <Button size="touch" class="px-3 text-sm rounded-xl shadow-lg flex-shrink-0" onclick={onNext} disabled={items.length === 0}>
                    {m['common.continue']()}

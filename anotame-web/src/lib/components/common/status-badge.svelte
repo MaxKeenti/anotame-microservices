@@ -18,9 +18,9 @@
     'READY': () => m['order.status.ready'](),
     'DELIVERED': () => m['order.status.delivered'](),
     'CANCELLED': () => m['order.status.cancelled'](),
-    'PENDING': () => 'PENDIENTE',
-    'PAID': () => 'PAGADO',
-    'UNPAID': () => 'NO PAGADO'
+    'PENDING': () => m['payment.status.pending'](),
+    'PAID': () => m['payment.status.paid'](),
+    'UNPAID': () => m['payment.status.unpaid']()
   };
 
   const STATUS_VARIANTS: Record<string, BadgeVariant> = {

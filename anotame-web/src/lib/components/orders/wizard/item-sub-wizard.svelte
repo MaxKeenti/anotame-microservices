@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { formatCurrency } from '$lib/utils/formatUtils';
     import * as Item from '$lib/components/ui/item';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import * as InputGroup from '$lib/components/ui/input-group';
@@ -10,7 +11,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Clock, Pencil, Plus, X } from '@lucide/svelte';
+	import { ArrowLeft, CheckCircle2, Clock, Pencil, Plus, Shirt, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
 	import type { GarmentTypeResponse, OrderContentSource, ServiceResponse } from '$lib/types/dtos';
@@ -33,11 +34,13 @@
 		effectivePrice?: number;
 	};
 
-	let props = $props<{
-		initialItem?: DraftOrderItem,
-		onSave: (item: DraftOrderItem) => void,
-		onCancel: () => void
-	}>();
+	interface Props {
+		initialItem?: DraftOrderItem;
+		onSave: (item: DraftOrderItem) => void;
+		onCancel: () => void;
+	}
+
+	let props: Props = $props();
 
 	function getInitialStep() {
 		return props.initialItem ? 1 : 0;
@@ -448,7 +451,7 @@
             {#if step === 1 && selectedGarment}
                 <div class="space-y-6">
                     <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
-                        <div class="w-14 h-14 bg-background rounded-full flex items-center justify-center text-3xl shadow-sm">👕</div>
+                        <div class="flex size-14 items-center justify-center rounded-full bg-background text-primary shadow-sm"><Shirt class="size-7" aria-hidden="true" /></div>
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="font-bold text-2xl">{selectedGarment.name}</div>
@@ -485,7 +488,7 @@
                                         {/if}
                                     </Item.Content>
                                     <Item.Actions>
-                                        <Text variant="metric" size="sm" as="span">${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)}</Text>
+                                        <Text variant="metric" size="sm" as="span">{formatCurrency(s.unitPrice + (s.adjustmentAmount ?? 0))}</Text>
                                         <ButtonGroup.Root>
                                             <Button variant="outline" size="icon-touch" aria-label={m['common.edit']()} onclick={() => handleEditService(idx)}>
                                                 <Pencil class="size-5" />
@@ -498,7 +501,7 @@
                                 </Item.Root>
                             {/each}
                             <div class="text-right font-bold pt-3 border-t text-xl">
-                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: {formatCurrency(addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0))}
                             </div>
                         </div>
                     {/if}
@@ -553,17 +556,17 @@
                                         {#if priceListMap.size > 0}
                                             {@const plPrice = priceListMap.get(s.id)}
                                             {#if plPrice !== undefined}
-                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
-                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">${plPrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">{formatCurrency(s.basePrice)}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">{formatCurrency(plPrice)}</span>
                                             {:else}
-                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-muted-foreground">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-muted-foreground">{formatCurrency(s.basePrice)}</span>
                                             {/if}
                                         {:else}
                                             {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
-                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">{formatCurrency(s.basePrice)}</span>
                                             {/if}
                                             <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">
-                                                ${s.effectivePrice ?? s.basePrice}
+                                                {formatCurrency(s.effectivePrice ?? s.basePrice)}
                                             </span>
                                         {/if}
                                     </div>
@@ -680,14 +683,14 @@
                         <ul class="space-y-2 text-base text-muted-foreground">
                             {#each addedServices as s}
                                 <li>
-                                    • {s.serviceName} (${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)})
+                                    • {s.serviceName} ({formatCurrency(s.unitPrice + (s.adjustmentAmount ?? 0))})
                                     {#if s.source === 'CUSTOM'}<span class="ml-1 text-primary">· {m['orders.custom.badge']()}</span>{/if}
                                 </li>
                             {/each}
                         </ul>
                         <div class="mt-4 pt-4 border-t border-dashed border-foreground/20 flex flex-col items-end gap-3">
                             <div class="font-bold text-xl">
-                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: {formatCurrency(addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0))}
                             </div>
                             <Button size="touch-lg"
                                 variant="outline"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatCurrency } from '$lib/utils/formatUtils';
   import { Text } from '$lib/components/ui/typography';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import * as Card from '$lib/components/ui/card';
@@ -20,7 +21,7 @@
     { accessorKey: 'garmentName', header: m['orders.detail.description'](), enableSorting: false, meta: { cardGroup: 'header' } },
     { id: 'services', accessorFn: (item) => item.services.map((service) => service.serviceName).join(', '), header: m['orders.detail.service'](), enableSorting: false, meta: { cardGroup: 'body' } },
     { accessorKey: 'quantity', header: m['orders.detail.qty'](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'subtotal', accessorFn: (item) => `$${item.subtotal}`, header: m['orders.detail.subtotal'](), enableSorting: false, meta: { cardGroup: 'header' } },
+    { id: 'subtotal', accessorFn: (item) => formatCurrency(item.subtotal), header: m['orders.detail.subtotal'](), enableSorting: false, meta: { cardGroup: 'header' } },
     { accessorKey: 'notes', header: m['orders.detail.note'](), enableSorting: false, meta: { cardGroup: 'body' } },
   ]);
 </script>
@@ -55,7 +56,7 @@
       <div class="min-w-0">
         <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <span class="font-medium text-foreground">{service.serviceName}</span>
-          <span class="font-mono text-foreground">${service.unitPrice}</span>
+          <span class="font-mono text-foreground">{formatCurrency(service.unitPrice)}</span>
         </div>
         {#if service.instructions}
           <Text variant="muted" class="mt-1">{service.instructions}</Text>

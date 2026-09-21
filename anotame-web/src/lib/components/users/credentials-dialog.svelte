@@ -48,17 +48,19 @@
     }
   });
 
+  interface Props {
+    open: boolean;
+    onClose: () => void;
+    onSuccess?: () => void;
+    id?: string;
+  }
+
   let {
     open = $bindable(false),
     onClose,
     onSuccess,
     id: formId = 'credentials-dialog',
-  } = $props<{
-    open: boolean;
-    onClose: () => void;
-    onSuccess?: () => void;
-    id?: string;
-  }>();
+  }: Props = $props();
 
   let isSubmitting = $state(false);
   let wasOpen = $state(false);

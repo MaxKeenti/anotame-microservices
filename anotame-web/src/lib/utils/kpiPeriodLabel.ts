@@ -1,3 +1,5 @@
+import { getIntlLocale } from '$lib/utils/formatUtils';
+
 export type KpiGranularity = 'day' | 'week' | 'month';
 
 const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -7,7 +9,7 @@ const ISO_WEEK = /^(?:\d{4}-)?W?(\d{1,2})$/i;
 export function getFinancialKpiPeriodLabel(
   period: string,
   granularity: KpiGranularity,
-  locale = 'es-MX'
+  locale = getIntlLocale()
 ): string {
   const normalized = period.trim();
 
