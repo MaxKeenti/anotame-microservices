@@ -5,6 +5,7 @@
   import {
     getColumnId,
     getColumnHeader,
+    formatColumnValue,
     SELECT_CHECKBOX_CLASS,
     type CardGroup,
     type ResponsiveTableState,
@@ -68,11 +69,6 @@
   let bodyColumns = $derived(columns.filter((c, i) => getCardGroup(c, i) === 'body'));
   // 'hidden' columns (typically 'actions') are rendered in the accordion via actionCell
 
-  function getCellFromRow(row: Row<TData>, colId: string): string {
-    const cell = row.getAllCells().find((c) => c.column.id === colId);
-    if (!cell) return '';
-    return (cell.getValue() as string) ?? '';
-  }
 </script>
 
 {#if bulkActions && bulkMode && state.table.getRowModel().rows.length > 0}
@@ -116,7 +112,7 @@
             <div class="flex-1 min-w-0">
               {#each headerColumns as col, i (getColumnId(col))}
                 {@const colId = getColumnId(col)}
-                {@const value = cellRenders[colId] ? null : getCellFromRow(row, colId)}
+                {@const value = cellRenders[colId] ? null : formatColumnValue(row, colId)}
 
                 {#if i === 0}
                   <Card.Title class="text-base font-semibold leading-tight whitespace-normal break-words">
@@ -171,7 +167,7 @@
                       {#if cellRenders[colId]}
                         {@render cellRenders[colId](row)}
                       {:else}
-                        {getCellFromRow(row, colId)}
+                        {formatColumnValue(row, colId)}
                       {/if}
                     </dd>
                   </div>

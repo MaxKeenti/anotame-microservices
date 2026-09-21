@@ -18,7 +18,14 @@ export const formatCurrency = (amount: number | undefined | null): string => {
     }).format(amount);
 };
 
-export const formatDate = (date: string | Date | undefined | null): string => {
+/** Epoch millis for sorting date columns by value; undefined when there is no date. */
+export const toTimestamp = (date: string | Date | undefined | null): number | undefined => {
+    if (!date) return undefined;
+    const ms = new Date(date).getTime();
+    return Number.isNaN(ms) ? undefined : ms;
+};
+
+export const formatDate = (date: string | number | Date | undefined | null): string => {
     if (!date) return "-";
     return new Date(date).toLocaleDateString(getIntlLocale(), {
         year: 'numeric',

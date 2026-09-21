@@ -10,6 +10,7 @@
   } from './responsive-table.svelte';
   import DataTableView from './data-table-view.svelte';
   import DataCardView from './data-card-view.svelte';
+  import DataTableViewOptions from './data-table-view-options.svelte';
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
@@ -38,6 +39,7 @@
     filterPlaceholder,
     showFilter = true,
     showPagination = true,
+    showColumnToggle = true,
     actionCell,
     cellRenders = {},
     bulkActions = false,
@@ -86,6 +88,9 @@
   );
   let currentSortId = $derived(state.sorting[0]?.id ?? '');
   let currentSortDesc = $derived(state.sorting[0]?.desc ?? false);
+  // Columns that declare `meta.filterOptions` get a select in the toolbar.
+  let filterableColumns = $derived(columns.filter((c) => c.meta?.filterOptions?.length));
+
   let sortItems = $derived(
     sortableColumns.map((col) => ({ value: getColumnId(col), label: getColumnHeader(col) }))
   );
@@ -93,7 +98,7 @@
 
 <div class="space-y-4">
   <!-- Toolbar -->
-  {#if showFilter || (mobile.current && sortableColumns.length > 0)}
+  {#if showFilter || filterableColumns.length > 0 || (mobile.current ? sortableColumns.length > 0 : showColumnToggle)}
     <div class="flex flex-col sm:flex-row gap-3">
       {#if showFilter}
         <div class="flex-1">
@@ -105,6 +110,26 @@
             class="h-12 touch-manipulation"
           />
         </div>
+      {/if}
+
+      {#each filterableColumns as col (getColumnId(col))}
+        {@const colId = getColumnId(col)}
+        <div class="shrink-0">
+          <AdaptiveSelect
+            value={state.getColumnFilter(colId)}
+            onValueChange={(v) => state.setColumnFilter(colId, v)}
+            placeholder={getColumnHeader(col)}
+            ariaLabel={getColumnHeader(col)}
+            items={col.meta?.filterOptions ?? []}
+            allowClear
+            clearText={m['common.allOption']()}
+            class="min-w-40 h-12 text-sm"
+          />
+        </div>
+      {/each}
+
+      {#if !mobile.current && showColumnToggle}
+        <DataTableViewOptions table={state.table} />
       {/if}
 
       {#if mobile.current && sortableColumns.length > 0}

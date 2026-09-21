@@ -33,6 +33,7 @@
       data={items}
       showFilter={false}
       showPagination={false}
+      showColumnToggle={false}
       cellRenders={{ garmentName: garmentCell, services: servicesCell, notes: notesCell }}
     />
   </div>

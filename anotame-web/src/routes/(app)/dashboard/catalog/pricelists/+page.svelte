@@ -12,6 +12,7 @@
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
+  import { formatDate, toTimestamp } from '$lib/utils/formatUtils';
 
   // Guard: Protect this route, strictly checking 'ADMIN'
   const guard = useAuthGuard(true, '/dashboard');
@@ -25,10 +26,23 @@
 
   const columns: ColumnDef<PriceListResponse>[] = [
     { accessorKey: 'name', header: m["catalog.pricelists.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'status', accessorFn: (row) => row.active ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"](), header: m["catalog.pricelists.colStatus"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    {
+      id: 'status',
+      accessorFn: (row) => (row.active ? 'active' : 'inactive'),
+      header: m["catalog.pricelists.colStatus"](),
+      enableSorting: true,
+      meta: {
+        cardGroup: 'header',
+        format: (v) => (v === 'active' ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"]()),
+        filterOptions: [
+          { value: 'active', label: m["catalog.pricelists.colActive"]() },
+          { value: 'inactive', label: m["catalog.pricelists.colInactive"]() },
+        ],
+      },
+    },
     { accessorKey: 'priority', header: m["catalog.pricelists.colPriority"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'validFrom', accessorFn: (row) => new Date(row.validFrom).toLocaleDateString('es-ES'), header: m["catalog.pricelists.colValidFrom"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'validTo', accessorFn: (row) => row.validTo ? new Date(row.validTo).toLocaleDateString('es-ES') : m["catalog.pricelists.colPermanent"](), header: m["catalog.pricelists.colValidTo"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'validFrom', accessorFn: (row) => toTimestamp(row.validFrom), header: m["catalog.pricelists.colValidFrom"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatDate(v as number | undefined) } },
+    { id: 'validTo', accessorFn: (row) => toTimestamp(row.validTo), header: m["catalog.pricelists.colValidTo"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => (v == null ? m["catalog.pricelists.colPermanent"]() : formatDate(v as number)) } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 

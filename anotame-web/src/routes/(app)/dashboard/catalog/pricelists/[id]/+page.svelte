@@ -275,6 +275,7 @@
           <!-- Overrides Table -->
           <TableFrame>
             <ResponsiveDataView
+              showColumnToggle={false}
               columns={overrideColumns}
               data={services}
               loading={false}

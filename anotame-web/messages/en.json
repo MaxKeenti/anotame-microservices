@@ -1134,5 +1134,9 @@
   "kpi.tab.money": "Money",
   "kpi.tab.customers": "Customers",
   "kpi.tabs.ariaLabel": "KPI dashboard sections",
-  "kpi.tabs.needsAttention": "Needs attention"
+  "kpi.tabs.needsAttention": "Needs attention",
+  "common.columns": "Columns",
+  "common.toggleColumns": "Show columns",
+  "common.hideColumn": "Hide",
+  "common.allOption": "All"
 }

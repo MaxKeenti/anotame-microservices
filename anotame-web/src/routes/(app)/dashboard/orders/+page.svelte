@@ -9,7 +9,7 @@
   import { Input } from '$lib/components/ui/input';
   import { FilterField, PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
-  import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
+  import { formatCurrency, formatDate, toTimestamp } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
@@ -81,15 +81,15 @@
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["orders.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garments', accessorFn: (row) => formatNames(row.garmentNames), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
-    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'deadline', accessorFn: (row) => toTimestamp(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatDate(v as number | undefined) } },
+    { id: 'total', accessorFn: (row) => row.totalAmount, header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatCurrency(v as number | undefined) } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   const draftsColumns: ColumnDef<DraftOrder>[] = [
     { id: 'customer', accessorFn: (row) => formatDraftCustomer(row), header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garments', accessorFn: (row) => formatDraftGarments(row), header: m["orders.column.garments"](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: m["orders.column.lastModified"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'lastModified', accessorFn: (row) => row.lastModified, header: m["orders.column.lastModified"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => (v == null ? '-' : new Date(v as number).toLocaleString()) } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 

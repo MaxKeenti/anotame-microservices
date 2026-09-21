@@ -10,6 +10,10 @@ import {
 	type PaginationState,
 	type ColumnPinningState,
 	type RowSelectionState,
+	type VisibilityState,
+	type ColumnFiltersState,
+	type FilterFn,
+	type Cell,
 	type Row,
 	type Table,
 	type Updater,
@@ -26,6 +30,16 @@ declare module '@tanstack/table-core' {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	interface ColumnMeta<TData extends RowData, TValue> {
 		cardGroup?: CardGroup;
+		/**
+		 * Turn the raw accessor value into display text. Keep accessors returning raw
+		 * values (numbers, timestamps) so sorting compares values, not formatted text.
+		 */
+		format?: (value: TValue) => string;
+		/**
+		 * Offer a toolbar select that filters this column to one exact raw value.
+		 * Only meaningful for client-side pagination, where every row is loaded.
+		 */
+		filterOptions?: { value: string; label: string }[];
 	}
 }
 
@@ -39,6 +53,8 @@ export type ResponsiveTableProps<TData> = {
   filterPlaceholder?: string;
   showFilter?: boolean;
   showPagination?: boolean;
+	/** Offer the desktop "Columns" menu for hiding columns. */
+	showColumnToggle?: boolean;
 	actionCell?: import('svelte').Snippet<[Row<TData>]>;
 	cellRenders?: Record<string, import('svelte').Snippet<[Row<TData>]>>;
 	bulkActions?: boolean;
@@ -73,6 +89,46 @@ export function getColumnId<TData>(col: ColumnDef<TData>): string {
 export function getColumnHeader<TData>(col: ColumnDef<TData>): string {
 	return typeof col.header === 'string' ? col.header : '';
 }
+
+/** Column ids the table owns; they can never be hidden, filtered or sorted by the user. */
+const STRUCTURAL_COLUMN_IDS = ['__select__', 'actions'];
+
+/** True for data columns the user may hide or filter (not selection/actions). */
+export function isDataColumn(columnId: string): boolean {
+	return !STRUCTURAL_COLUMN_IDS.includes(columnId);
+}
+
+/** Display text for a row's column: `meta.format` over the raw value, else the value itself. */
+export function formatColumnValue<TData>(row: Row<TData>, columnId: string): string {
+	const value = row.getValue(columnId);
+	const format = row
+		.getAllCells()
+		.find((c) => c.column.id === columnId)?.column.columnDef.meta?.format;
+	if (format) return format(value as never);
+	return value == null ? '' : String(value);
+}
+
+/** Display text for a single cell. */
+export function formatCellValue<TData>(cell: Cell<TData, unknown>): string {
+	const value = cell.getValue();
+	const format = cell.column.columnDef.meta?.format;
+	if (format) return format(value as never);
+	return value == null ? '' : String(value);
+}
+
+/**
+ * Global search matches what the user sees, so a formatted date or amount is
+ * searchable even though the column's raw value is a timestamp or a number.
+ */
+const displayTextFilter: FilterFn<unknown> = (row, columnId, filterValue: string) => {
+	const needle = String(filterValue ?? '').trim().toLowerCase();
+	if (!needle) return true;
+	return formatColumnValue(row, columnId).toLowerCase().includes(needle);
+};
+
+/** Exact match on the raw value, for `meta.filterOptions` selects. */
+const exactValueFilter: FilterFn<unknown> = (row, columnId, filterValue: string) =>
+	!filterValue || String(row.getValue(columnId) ?? '') === filterValue;
 
 /** Apply a tanstack updater (value or callback) against the current value. */
 function resolveUpdater<T>(updater: Updater<T>, current: T): T {
@@ -113,6 +169,9 @@ export interface ResponsiveTableState<TData> {
 	readonly effectiveColumns: ColumnDef<TData>[];
 	globalFilter: string;
 	sorting: SortingState;
+	/** Current value of a column's `meta.filterOptions` select ('' when unfiltered). */
+	getColumnFilter(columnId: string): string;
+	setColumnFilter(columnId: string, value: string): void;
 	/** Drop every selected row. Selection lives here, so callers cannot clear it alone. */
 	clearSelection(): void;
 }
@@ -130,6 +189,8 @@ export function createResponsiveTable<TData>(
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: config.initialPageSize });
 	let columnPinning = $state<ColumnPinningState>({ left: [], right: [] });
 	let rowSelection = $state<RowSelectionState>({});
+	let columnVisibility = $state<VisibilityState>({});
+	let columnFilters = $state<ColumnFiltersState>([]);
 
 	const effectivePagination = $derived(
 		config.manualPagination()
@@ -141,6 +202,7 @@ export function createResponsiveTable<TData>(
 		id: '__select__',
 		size: 48,
 		enableSorting: false,
+		enableHiding: false,
 		header: '__select__',
 		cell: '__select__',
 	} as unknown as ColumnDef<TData>;
@@ -151,9 +213,10 @@ export function createResponsiveTable<TData>(
 			: config.columns()
 	);
 
-	// Reset pagination whenever the filter changes.
+	// Reset pagination whenever a filter changes.
 	$effect(() => {
 		void globalFilter;
+		void columnFilters;
 		untrack(() => {
 			if (config.manualPagination()) {
 				config.onPageChange?.()?.(0);
@@ -186,9 +249,19 @@ export function createResponsiveTable<TData>(
 		return createTable<TData>({
 			data: config.data(),
 			columns: effectiveColumns,
+			defaultColumn: {
+				// Missing dates/amounts go to the bottom whichever way the column is sorted.
+				sortUndefined: 'last',
+				filterFn: exactValueFilter as FilterFn<TData>,
+			},
+			globalFilterFn: displayTextFilter as FilterFn<TData>,
+			getColumnCanGlobalFilter: (column) =>
+				isDataColumn(column.id) && column.accessorFn != null,
 			state: {
 				sorting,
 				globalFilter,
+				columnVisibility,
+				columnFilters,
 				pagination: effectivePagination,
 				...(config.enableColumnPinning ? { columnPinning } : {}),
 				...(bulk ? { rowSelection } : {}),
@@ -201,6 +274,12 @@ export function createResponsiveTable<TData>(
 			},
 			onGlobalFilterChange: (updater) => {
 				globalFilter = resolveUpdater(updater, globalFilter);
+			},
+			onColumnVisibilityChange: (updater) => {
+				columnVisibility = resolveUpdater(updater, columnVisibility);
+			},
+			onColumnFiltersChange: (updater) => {
+				columnFilters = resolveUpdater(updater, columnFilters);
 			},
 			onPaginationChange: (updater) => {
 				const next = resolveUpdater(updater, effectivePagination);
@@ -259,6 +338,13 @@ export function createResponsiveTable<TData>(
 		},
 		set sorting(v: SortingState) {
 			sorting = v;
+		},
+		getColumnFilter(columnId: string) {
+			return String(columnFilters.find((f) => f.id === columnId)?.value ?? '');
+		},
+		setColumnFilter(columnId: string, value: string) {
+			const rest = columnFilters.filter((f) => f.id !== columnId);
+			columnFilters = value ? [...rest, { id: columnId, value }] : rest;
 		},
 		clearSelection() {
 			rowSelection = {};

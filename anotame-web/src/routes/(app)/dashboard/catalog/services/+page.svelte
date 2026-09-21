@@ -50,7 +50,7 @@
     { accessorKey: 'name', header: m["catalog.services.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garment', accessorFn: (row) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { accessorKey: 'defaultDurationMin', header: m["catalog.services.colDuration"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'price', accessorFn: (row) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'price', accessorFn: (row) => row.basePrice, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header', format: (v) => `$${(v as number).toFixed(2)}` } },
     ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<ServiceResponse>] : []),
   ]);
 

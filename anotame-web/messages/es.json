@@ -1134,5 +1134,9 @@
   "kpi.tab.money": "Dinero",
   "kpi.tab.customers": "Clientes",
   "kpi.tabs.ariaLabel": "Secciones del tablero KPI",
-  "kpi.tabs.needsAttention": "Requiere atención"
+  "kpi.tabs.needsAttention": "Requiere atención",
+  "common.columns": "Columnas",
+  "common.toggleColumns": "Mostrar columnas",
+  "common.hideColumn": "Ocultar",
+  "common.allOption": "Todos"
 }

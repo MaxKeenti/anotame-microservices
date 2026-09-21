@@ -5,8 +5,10 @@
     SELECT_CHECKBOX_CLASS,
     SELECT_COLUMN_CELL_CLASS,
     SELECT_CONTROL_CLASS,
+    formatCellValue,
     type ResponsiveTableState,
   } from './responsive-table.svelte';
+  import DataTableColumnHeader from './data-table-column-header.svelte';
   import * as Table from '$lib/components/ui/table';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import * as m from '$lib/paraglide/messages';
@@ -31,7 +33,7 @@
         <Table.Row class="hover:bg-transparent">
           {#each headerGroup.headers as header (header.id)}
             <Table.Head
-              class="py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? SELECT_COLUMN_CELL_CLASS : 'px-6'} {header.column.getCanSort() ? 'cursor-pointer select-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2' : ''}"
+              class="py-4 text-xs font-bold uppercase text-muted-foreground h-auto {header.column.id === '__select__' ? SELECT_COLUMN_CELL_CLASS : 'px-6'}"
             >
               {#if !header.isPlaceholder}
                 {#if header.column.id === '__select__'}
@@ -44,26 +46,8 @@
                       onCheckedChange={(v) => state.table.toggleAllRowsSelected(v === true)}
                     />
                   </div>
-                {:else if header.column.getCanSort()}
-                  <button
-                    class="flex items-center gap-1 hover:text-foreground transition-colors rounded-md -mx-2 px-2 min-h-11 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    onclick={header.column.getToggleSortingHandler()}
-                    aria-label={m["common.sortBy"]({ column: header.column.columnDef.header as string })}
-                  >
-                    {header.column.columnDef.header as string}
-                    {#if header.column.getIsSorted() === 'asc'}
-                      <span aria-hidden="true">↑</span>
-                    {:else if header.column.getIsSorted() === 'desc'}
-                      <span aria-hidden="true">↓</span>
-                    {:else}
-                      <span aria-hidden="true" class="opacity-40 flex flex-col -space-y-1 text-[10px] leading-none">
-                        <span>▲</span>
-                        <span>▼</span>
-                      </span>
-                    {/if}
-                  </button>
                 {:else}
-                  {header.column.columnDef.header as string}
+                  <DataTableColumnHeader column={header.column} title={header.column.columnDef.header as string} />
                 {/if}
               {/if}
             </Table.Head>
@@ -74,13 +58,13 @@
     <Table.Body class="divide-y divide-border">
       {#if loading}
         <Table.Row>
-          <Table.Cell colspan={state.effectiveColumns.length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
+          <Table.Cell colspan={state.table.getVisibleLeafColumns().length} class="h-32 text-center text-muted-foreground animate-pulse font-medium text-base">
             {m["common.loading"]()}
           </Table.Cell>
         </Table.Row>
       {:else if state.table.getRowModel().rows.length === 0}
         <Table.Row>
-          <Table.Cell colspan={state.effectiveColumns.length} class="h-32 text-center text-muted-foreground font-medium text-base">
+          <Table.Cell colspan={state.table.getVisibleLeafColumns().length} class="h-32 text-center text-muted-foreground font-medium text-base">
             {emptyMessage}
           </Table.Cell>
         </Table.Row>
@@ -103,7 +87,7 @@
                 {:else if cell.column.id === 'actions' && actionCell}
                   {@render actionCell(row)}
                 {:else}
-                  {cell.getValue() as string ?? ''}
+                  {formatCellValue(cell)}
                 {/if}
               </Table.Cell>
             {/each}

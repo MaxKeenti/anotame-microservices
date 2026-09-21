@@ -10,7 +10,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
-  import { formatDate } from '$lib/utils/formatUtils';
+  import { formatDate, toTimestamp } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import { CheckCircle2, Eye, XCircle, MoreVertical } from '@lucide/svelte';
@@ -208,7 +208,7 @@
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["operations.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'services', accessorFn: (row) => getNamesSummary(row.serviceNames), header: m["operations.column.services"](), enableSorting: false, meta: { cardGroup: 'body' } },
-    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["operations.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'deadline', accessorFn: (row) => toTimestamp(row.committedDeadline), header: m["operations.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatDate(v as number | undefined) } },
     { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
@@ -216,7 +216,7 @@
     { accessorKey: 'ticketNumber', header: m["operations.column.ticket"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`.trim(), header: m["operations.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garments', accessorFn: (row) => getNamesSummary(row.garmentNames), header: m["operations.column.garments"](), enableSorting: false, meta: { cardGroup: 'body' } },
-    { id: 'deliveryPromised', accessorFn: (row) => formatDate(row.committedDeadline), header: m["operations.column.deliveryPromised"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'deliveryPromised', accessorFn: (row) => toTimestamp(row.committedDeadline), header: m["operations.column.deliveryPromised"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatDate(v as number | undefined) } },
     { id: 'actions', header: m["operations.column.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 </script>
