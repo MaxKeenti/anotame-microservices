@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { StatusBadge } from '$lib/components/common';
 
@@ -22,7 +23,7 @@
     <header class="border-b border-border bg-primary px-5 py-6 text-primary-foreground sm:px-8">
       <p class="text-sm font-medium opacity-90">{eyebrow}</p>
       <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-2xl font-bold">{title}</h1>
+        <Heading level={1}>{title}</Heading>
         <StatusBadge {status} class="bg-background text-foreground" />
       </div>
     </header>

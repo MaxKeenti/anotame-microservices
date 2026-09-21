@@ -1,4 +1,5 @@
 <script lang="ts" generics="TData">
+  import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import type { ColumnDef, Row } from '@tanstack/table-core';
@@ -115,7 +116,7 @@
                 {@const value = cellRenders[colId] ? null : formatColumnValue(row, colId)}
 
                 {#if i === 0}
-                  <Card.Title class="text-base font-semibold leading-tight whitespace-normal break-words">
+                  <Card.Title class="text-base font-semibold leading-tight whitespace-normal wrap-break-word">
                     {#if cellRenders[colId]}
                       {@render cellRenders[colId](row)}
                     {:else}
@@ -123,7 +124,7 @@
                     {/if}
                   </Card.Title>
                 {:else}
-                  <Card.Description class="mt-1 text-sm text-muted-foreground whitespace-normal break-words">
+                  <Card.Description class="mt-1 text-sm text-muted-foreground whitespace-normal wrap-break-word">
                     {#if cellRenders[colId]}
                       {@render cellRenders[colId](row)}
                     {:else}
@@ -160,10 +161,10 @@
                 {#each bodyColumns as col (getColumnId(col))}
                   {@const colId = getColumnId(col)}
                   <div class="flex min-w-0 items-start gap-2 text-sm">
-                    <dt class="text-xs font-bold uppercase tracking-wider text-muted-foreground shrink-0 pt-0.5 min-w-24">
+                    <Text variant="label" as="dt" class="shrink-0 pt-0.5 min-w-24">
                       {getColumnHeader(col)}
-                    </dt>
-                    <dd class="min-w-0 flex-1 text-foreground break-words">
+                    </Text>
+                    <dd class="min-w-0 flex-1 text-foreground wrap-break-word">
                       {#if cellRenders[colId]}
                         {@render cellRenders[colId](row)}
                       {:else}

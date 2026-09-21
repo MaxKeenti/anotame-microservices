@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
@@ -384,12 +385,12 @@
                     <ArrowLeft class="w-6 h-6" />
                 </Button>
             {/if}
-            <h3 class="text-xl font-bold truncate">
+            <Heading level={2} as="h3" class="truncate">
                 {#if step === 0} {m['orders.wizard.stepSelectGarment']()}
                 {:else if step === 1} {m['orders.wizard.stepAddServices']()}
                 {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
                 {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
-            </h3>
+            </Heading>
             <Button variant="destructive" size="sm" class="ml-auto h-11 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
@@ -459,7 +460,7 @@
 
                     {#if addedServices.length > 0}
                         <div class="space-y-3">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.servicesAdded']()}</h4>
+                            <Text variant="label" as="h4">{m['orders.wizard.servicesAdded']()}</Text>
                             {#each addedServices as s, idx}
                                 <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
                                     <div>
@@ -500,7 +501,7 @@
 
                     <div class="space-y-4 pt-4">
                         <div class="flex justify-between items-center">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.addService']()}</h4>
+                            <Text variant="label" as="h4">{m['orders.wizard.addService']()}</Text>
                             {#if selectedGarment.source === 'CATALOG'}
                                 <Button
                                     variant="ghost"
@@ -589,7 +590,7 @@
                                 />
                             </div>
                         {:else}
-                            <h4 class="text-2xl font-bold">{tempService.name}</h4>
+                            <Heading level={2} as="h4">{tempService.name}</Heading>
                             <p class="text-base text-muted-foreground">{tempService.description}</p>
                         {/if}
                     </div>
@@ -632,7 +633,7 @@
                     <div class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
                         <div class="flex justify-between items-center">
                             <label class="text-base font-bold text-primary" for="duracion">{m['itemSubWizard.label.effort']()}</label>
-                            <span class="font-mono text-2xl font-bold text-primary">{duration}m</span>
+                            <Text variant="metric" as="span" class="text-primary">{duration}m</Text>
                         </div>
                         <Input
                             id="duracion"
@@ -643,7 +644,7 @@
                             class="h-11 cursor-pointer accent-primary"
                             bind:value={duration}
                         />
-                        <p class="text-xs text-muted-foreground italic text-center">{m['itemSubWizard.effortHint']()}</p>
+                        <Text variant="small" class="italic text-center">{m['itemSubWizard.effortHint']()}</Text>
                     </div>
 
                     <div class="space-y-3">
@@ -667,7 +668,7 @@
                 <div class="space-y-8 pt-6">
                     <div class="bg-secondary/20 p-6 rounded-xl border border-border">
                         <div class="flex flex-wrap items-center gap-2 mb-4">
-                            <h4 class="font-bold text-2xl">{selectedGarment?.name}</h4>
+                            <Heading level={2} as="h4">{selectedGarment?.name}</Heading>
                             {#if selectedGarment?.source === 'CUSTOM'}
                                 <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
                             {/if}

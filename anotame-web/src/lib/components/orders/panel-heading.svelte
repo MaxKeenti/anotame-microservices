@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading } from '$lib/components/ui/typography';
   import * as Card from '$lib/components/ui/card';
   import { cn } from '$lib/utils';
 
@@ -14,5 +15,5 @@
 </script>
 
 <Card.Header class={cn('bg-secondary/20 px-4 py-4 sm:px-6', divider && 'border-b border-border')}>
-  <Card.Title class="wrap-break-word text-lg font-bold">{title}</Card.Title>
+  <Card.Title><Heading level={3} class="wrap-break-word">{title}</Heading></Card.Title>
 </Card.Header>

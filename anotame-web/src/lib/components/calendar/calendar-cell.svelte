@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import { AlertCircle } from '@lucide/svelte';
   import * as Popover from '$lib/components/ui/popover';
   import { Progress } from '$lib/components/ui/progress';
@@ -61,7 +62,7 @@
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold uppercase text-muted-foreground">{dateLabel ?? day}</span>
+              <Text variant="label" as="span">{dateLabel ?? day}</Text>
               {#if isHoliday || capacityPercent >= thresholdAmber}
                 <AlertCircle class="w-4 h-4 text-destructive" />
               {/if}
@@ -96,9 +97,9 @@
     <Popover.Content side="top" class="w-64">
       <div class="space-y-3">
         {#if isHoliday}
-          <div class="text-xs font-semibold text-destructive-text uppercase">
+          <Text variant="label" as="div" class="text-destructive-text">
             {m["calendar.day.holiday"]()}
-          </div>
+          </Text>
         {/if}
 
         <!-- Capacity bar -->

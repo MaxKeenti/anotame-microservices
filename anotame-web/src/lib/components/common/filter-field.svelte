@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { textVariants } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
 
@@ -18,7 +19,7 @@
 </script>
 
 <div class={cn('space-y-1.5', className)}>
-  <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for={htmlFor}>
+  <label class={textVariants({ variant: 'label' })} for={htmlFor}>
     {label}
   </label>
   {@render children()}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import { onMount } from 'svelte';
   import { capacityTone } from '$lib/utils/capacity';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
@@ -65,7 +66,7 @@
     {#each days as day}
       {@const pct = Math.min(100, Math.round((day.totalMinutesUsed / capacity) * 100))}
       <div class="flex flex-col items-center gap-1">
-        <span class="text-xs font-bold text-muted-foreground uppercase leading-tight text-center">{fmtDay(day.date)}</span>
+        <Text variant="label" as="span" class="leading-tight text-center">{fmtDay(day.date)}</Text>
         <div class="w-full h-11 rounded-md bg-muted/40 flex items-end overflow-hidden">
           <div class="w-full transition-all duration-700 {occupancyBar(pct)}" style="height: {pct}%"></div>
         </div>

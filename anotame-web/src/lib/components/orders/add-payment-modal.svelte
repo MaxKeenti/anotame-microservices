@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -123,7 +124,7 @@
             disabled={submitting}
           />
         </div>
-        <p class="text-xs text-muted-foreground">{m['orders.payment.refundHint']()}</p>
+        <Text variant="small">{m['orders.payment.refundHint']()}</Text>
       </div>
 
       <!-- Method -->

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import CalendarCell from './calendar-cell.svelte';
   import { capacityTone } from '$lib/utils/capacity';
   import { formatCurrency } from '$lib/utils/formatUtils';
@@ -92,9 +93,9 @@
   <!-- Month Header -->
   {#if showHeader}
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold capitalize">
+      <Heading level={1} as="h2" class="capitalize">
         {monthLabel}
-      </h2>
+      </Heading>
     </div>
   {/if}
 
@@ -138,12 +139,12 @@
 
   <!-- Mobile: Agenda list (visible below sm) -->
   <div class="sm:hidden space-y-2">
-    <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+    <Text variant="label" as="h3">
       {m["calendar.agenda.title"]()}
-    </h3>
+    </Text>
 
     {#if agendaDays.length === 0}
-      <p class="text-sm text-muted-foreground py-4 text-center">{m["common.noData"]()}</p>
+      <Text variant="muted" class="py-4 text-center">{m["common.noData"]()}</Text>
     {:else}
       {#each agendaDays as day}
         {@const isTodayDate = day.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
@@ -93,12 +94,12 @@
 <div class="flex flex-col flex-1 min-h-0 gap-6">
 	<div class="text-center md:text-left">
 		{#if isEditMode}
-			<h2 class="text-xl font-semibold">{m['priceListStep.label']()}</h2>
-			<p class="text-sm text-muted-foreground">
+			<Heading level={2}>{m['priceListStep.label']()}</Heading>
+			<Text variant="muted">
 				{m['orders.priceList.cannotChange']()}
-			</p>
+			</Text>
 		{:else}
-			<h2 class="text-xl font-semibold">{m['priceListStep.title']()}</h2>
+			<Heading level={2}>{m['priceListStep.title']()}</Heading>
 			<p class="text-base text-muted-foreground">
 				{m['orders.priceList.chooseHint']()}
 			</p>
@@ -132,7 +133,7 @@
 					<div class="flex flex-col items-center justify-center py-12 gap-3 text-destructive">
 						<AlertTriangle class="w-8 h-8" />
 						<span class="text-center">{m['priceListStep.toast.loadListsError']()}</span>
-						<p class="text-sm text-muted-foreground">{m['priceListStep.toast.loadListsErrorDesc']()}</p>
+						<Text variant="muted">{m['priceListStep.toast.loadListsErrorDesc']()}</Text>
 					</div>
 				{:else}
 					<AdaptiveSelect
@@ -159,7 +160,7 @@
 						>
 							<Tag class="w-11 h-11" />
 						</div>
-						<h3 class="text-2xl font-semibold">{selectedPriceListName}</h3>
+						<Heading level={2} as="h3">{selectedPriceListName}</Heading>
 						<p class="text-muted-foreground mt-2">{m['priceListStep.activeForOrder']()}</p>
 					</div>
 				{:else if !selectedPriceListId && !isLoading}

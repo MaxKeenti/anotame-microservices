@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
 
   /** Closing block of a public ticket: a small notice and any actions. */
@@ -13,6 +14,6 @@
 </script>
 
 <footer class="space-y-3 border-t border-border pt-5 text-center">
-  <p class="text-xs text-muted-foreground">{notice}</p>
+  <Text variant="small">{notice}</Text>
   {@render children?.()}
 </footer>

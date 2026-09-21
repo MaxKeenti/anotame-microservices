@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import * as m from '$lib/paraglide/messages';
@@ -38,7 +39,7 @@
 <div class="mb-4 sm:mb-6">
   <div class="flex items-center gap-2">
     <div class="flex min-w-0 flex-1 items-center gap-2">
-      <h1 class="truncate font-heading text-lg font-bold sm:text-2xl">{title}</h1>
+      <Heading level={1} class="truncate text-lg sm:text-2xl">{title}</Heading>
       {#if isDraft}
         <span class="hidden shrink-0 rounded bg-muted px-2 py-1 text-xs text-muted-foreground sm:inline">
           {m['orders.new.draftBadge']()}

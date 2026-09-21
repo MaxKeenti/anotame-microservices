@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import RequiredMark from './required-mark.svelte';
   import { cn } from '$lib/utils';
@@ -36,6 +37,6 @@
     <span class="text-xs text-destructive">{errorText}</span>
   {/if}
   {#if hint}
-    <p class="text-xs text-muted-foreground">{hint}</p>
+    <Text variant="small">{hint}</Text>
   {/if}
 </div>

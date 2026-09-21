@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
@@ -35,7 +36,7 @@
 >
   <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div class="min-w-0">
-      <Card.Title class="font-heading text-2xl font-bold">{topic.title()}</Card.Title>
+      <Card.Title><Heading level={2}>{topic.title()}</Heading></Card.Title>
       <Card.Description class="mt-2 text-base text-muted-foreground">{summary}</Card.Description>
     </div>
     {#if topic.appHref && (!topic.adminOnly || isAdmin)}
@@ -97,9 +98,9 @@
 
   {#if topic.related?.length}
     <div class="mt-5 border-t border-border pt-4">
-      <p class="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+      <Text variant="label">
         {m['help.related.title']()}
-      </p>
+      </Text>
       <div class="mt-2 flex flex-wrap gap-2">
         {#each topic.related as relatedId}
           <a

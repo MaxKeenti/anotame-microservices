@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import * as m from '$lib/paraglide/messages';
 
   /** The code a customer quotes when collecting their garments. */
@@ -10,6 +11,6 @@
 </script>
 
 <section class="rounded-xl border border-primary/25 bg-primary/5 p-5 text-center">
-  <p class="text-sm font-medium text-muted-foreground">{m['receipt.pickupCode']()}</p>
-  <p class="mt-2 font-mono text-3xl font-bold tracking-[0.28em]">{code}</p>
+  <Text variant="label">{m['receipt.pickupCode']()}</Text>
+  <Text variant="metric" size="lg" class="mt-2 tracking-[0.28em]">{code}</Text>
 </section>

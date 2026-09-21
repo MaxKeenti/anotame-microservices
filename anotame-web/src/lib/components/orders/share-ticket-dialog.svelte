@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
@@ -148,9 +149,9 @@
             readonly
             aria-label={m['ticketShare.linkLabel']()}
           />
-          <p class="text-xs text-muted-foreground">
+          <Text variant="small">
             {m['ticketShare.expires']({ date: formatDateTime(createdShare?.expiresAt) })}
-          </p>
+          </Text>
           <div class="grid grid-cols-2 gap-2">
             <Button onclick={shareLink} class="h-11 touch-manipulation">{m['ticketShare.share']()}</Button>
             <Button onclick={copyLink} variant="outline" class="h-11 touch-manipulation">{m['ticketShare.copy']()}</Button>
@@ -165,9 +166,9 @@
       <div class="space-y-2 border-t border-border pt-4">
         <p class="text-sm font-semibold">{m['ticketShare.activeLinks']()}</p>
         {#if loading}
-          <p class="text-sm text-muted-foreground">{m['ticketShare.loading']()}</p>
+          <Text variant="muted">{m['ticketShare.loading']()}</Text>
         {:else if shares.length === 0}
-          <p class="text-sm text-muted-foreground">{m['ticketShare.noLinks']()}</p>
+          <Text variant="muted">{m['ticketShare.noLinks']()}</Text>
         {:else}
           <div class="space-y-2">
             {#each shares as share}
@@ -179,7 +180,7 @@
                       {share.scope === 'HANDLING' ? m['ticketShare.scopeHandling']() : m['ticketShare.scopeCustomer']()}
                     </span>
                   </p>
-                  <p class="text-xs text-muted-foreground">{m['ticketShare.expires']({ date: formatDateTime(share.expiresAt) })}</p>
+                  <Text variant="small">{m['ticketShare.expires']({ date: formatDateTime(share.expiresAt) })}</Text>
                 </div>
                 {#if isActive(share)}
                   <Button

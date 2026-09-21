@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -133,9 +134,9 @@
               <p class="text-sm font-medium text-muted-foreground">
                 {m["orders.pickup.remainingBalance"]()}
               </p>
-              <p class="text-xl font-bold text-destructive">
+              <Text variant="metric" size="sm" class="text-destructive">
                 {formatCurrency(remainingBalance)}
-              </p>
+              </Text>
             </div>
 
             <div class="flex items-center gap-3">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import { Skeleton } from '$lib/components/ui/skeleton';
 
   /** One always-visible figure in the KPI header strip. */
@@ -25,7 +26,7 @@
 >
   {#each items as item (item.label)}
     <div class="bg-card px-4 py-3">
-      <p class="truncate text-xs uppercase tracking-[0.12em] text-muted-foreground">{item.label}</p>
+      <Text variant="label" class="truncate">{item.label}</Text>
       {#if loading}
         <Skeleton class="mt-1 h-7 w-20" />
       {:else}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import type { menuItems } from '$lib/config/menu';
 
   type MenuEntry = (typeof menuItems)[number];
@@ -26,8 +27,8 @@
       <Icon class="h-8 w-8" />
     </div>
     <div>
-      <h2 class="font-heading text-xl font-bold">{item.getName()}</h2>
-      <p class="mt-2 text-sm text-muted-foreground">{item.getDescription()}</p>
+      <Heading level={2}>{item.getName()}</Heading>
+      <Text variant="muted" class="mt-2">{item.getDescription()}</Text>
     </div>
   </div>
 </a>

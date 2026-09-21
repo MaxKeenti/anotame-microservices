@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading } from '$lib/components/ui/typography';
   import { tick } from 'svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -204,9 +205,11 @@
       <HelpToc topics={visibleTopics} activeId={activeSection} layout="chips" />
 
       <Card.Root class="gap-0 p-4" data-help-id="quick-start">
-        <Card.Title class="mb-4 flex items-center gap-2 font-heading text-xl font-bold">
-          <BookOpen class="h-5 w-5 text-primary" />
-          {m['help.quick.title']()}
+        <Card.Title class="mb-4">
+          <Heading level={2} class="flex items-center gap-2">
+            <BookOpen class="h-5 w-5 text-primary" />
+            {m['help.quick.title']()}
+          </Heading>
         </Card.Title>
         <div class="grid gap-3 md:grid-cols-2">
           {#each visibleQuickStarts as item (item.id)}

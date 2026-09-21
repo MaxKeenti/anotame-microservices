@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
@@ -166,7 +167,7 @@
           <Checkbox id="garment-tag-qr" class="size-5 shrink-0" bind:checked={includeQr} />
           <label for="garment-tag-qr" class="text-sm font-medium">{m['garmentTag.includeQr']()}</label>
         </div>
-        <p class="text-xs text-muted-foreground">{m['garmentTag.qrNotice']()}</p>
+        <Text variant="small">{m['garmentTag.qrNotice']()}</Text>
       </div>
 
       <Button

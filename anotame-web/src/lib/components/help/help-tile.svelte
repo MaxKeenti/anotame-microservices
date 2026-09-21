@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
 
@@ -16,7 +17,7 @@
 </script>
 
 <div class={cn('rounded-lg border border-border bg-background p-4', className)}>
-  <h3 class="font-semibold">{title}</h3>
-  <p class="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
+  <Heading level={4} as="h3">{title}</Heading>
+  <Text variant="muted" class="mt-1 leading-6">{description}</Text>
   {@render children?.()}
 </div>

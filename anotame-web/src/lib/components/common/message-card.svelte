@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
 
   /** Centred card carrying a single message, used by standalone pages. */
@@ -24,8 +25,8 @@
     </div>
   {/if}
 
-  <h1 class="font-heading text-2xl font-bold text-foreground">{title}</h1>
-  <p class="mt-3 text-sm text-muted-foreground">{body}</p>
+  <Heading level={1}>{title}</Heading>
+  <Text variant="muted" class="mt-3">{body}</Text>
 
   {@render children?.()}
 

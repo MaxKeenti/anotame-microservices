@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   // Typed against a concrete icon, matching `lib/config/menu.ts`.
   import type CircleHelpIcon from '@lucide/svelte/icons/circle-help';
@@ -27,7 +28,7 @@
       {#if Icon}
         <Icon class="h-8 w-8 shrink-0 text-primary" aria-hidden="true" />
       {/if}
-      <h1 class="text-3xl font-heading font-bold text-foreground">{title}</h1>
+      <Heading level={1}>{title}</Heading>
     </div>
     {#if description}
       <p class="text-muted-foreground wrap-break-word">{description}</p>

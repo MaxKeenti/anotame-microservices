@@ -1,4 +1,5 @@
 <script lang="ts">
+   import { Heading, Text } from '$lib/components/ui/typography';
    import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
    import { apiService, API_SALES } from '$lib/services/api.svelte';
    import { Button } from '$lib/components/ui/button';
@@ -50,7 +51,7 @@
 
 <div class="flex flex-col flex-1 min-h-0 gap-6">
     <div class="text-center md:text-left">
-        <h2 class="text-xl font-semibold">{m['customerStep.title']()}</h2>
+        <Heading level={2}>{m['customerStep.title']()}</Heading>
         <p class="text-muted-foreground">{m['customerStep.subtitle']()}</p>
     </div>
 
@@ -60,9 +61,9 @@
                 <div class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                     <User class="w-11 h-11" />
                 </div>
-                <h3 class="text-2xl font-bold">{draft?.customer?.firstName} {draft?.customer?.lastName}</h3>
+                <Heading level={2} as="h3">{draft?.customer?.firstName} {draft?.customer?.lastName}</Heading>
                 <p class="text-muted-foreground">{draft?.customer?.phoneNumber}</p>
-                <p class="text-muted-foreground text-sm">{draft?.customer?.email}</p>
+                <Text variant="muted">{draft?.customer?.email}</Text>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
                     <Button variant="outline" class="h-11 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>{m['customerStep.change']()}</Button>

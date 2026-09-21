@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount, untrack, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -272,15 +273,15 @@
 
 <form method="POST" use:enhance class="flex flex-col flex-1 min-h-0 gap-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">{m['paymentStep.title']()}</h2>
+		<Heading level={2}>{m['paymentStep.title']()}</Heading>
 	</div>
 
 	<div class="flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
 		<!-- Total Section -->
 		<div class="text-center py-6 bg-muted/20 rounded-xl">
-			<div class="text-muted-foreground uppercase text-sm font-semibold tracking-wider">
+			<Text variant="label" as="div">
 				{m['paymentStep.totalToPay']()}
-			</div>
+			</Text>
 			<div class="text-5xl font-bold font-mono mt-2">${total.toFixed(2)}</div>
 		</div>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import { cn } from '$lib/utils';
 
   /** One label/amount pair in a stat card's breakdown. */
@@ -23,7 +24,7 @@
 <div class={cn('mt-3 grid grid-cols-2 gap-x-4 border-t border-border pt-3', className)}>
   {#each entries as entry (entry.label)}
     <div class="min-w-0">
-      <p class="truncate text-xs text-muted-foreground">{entry.label}</p>
+      <Text variant="small" class="truncate">{entry.label}</Text>
       <p class={cn('truncate font-mono text-sm font-semibold', entry.tone)}>{entry.value}</p>
     </div>
   {/each}

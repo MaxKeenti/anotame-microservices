@@ -1,4 +1,5 @@
 <script lang="ts">
+   import { Heading, Text } from '$lib/components/ui/typography';
    import { orderWizardState, type DraftOrderItem, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
    import ItemSubWizard from './item-sub-wizard.svelte';
    import { Button } from '$lib/components/ui/button';
@@ -73,7 +74,7 @@
    <div class="flex flex-col flex-1 min-h-0 gap-6">
        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
            <div>
-               <h2 class="text-xl font-semibold">{m['itemsStep.title']()}</h2>
+               <Heading level={2}>{m['itemsStep.title']()}</Heading>
                <p class="text-muted-foreground">{m['itemsStep.subtitle']()}</p>
            </div>
            <Button onclick={() => isAddingItem = true} size="lg" class="rounded-xl h-14 px-8 w-full sm:w-auto touch-manipulation shadow-md">
@@ -167,7 +168,7 @@
                <Button variant="outline" class="h-11 px-3 text-sm rounded-xl touch-manipulation flex-shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <div class="flex-1 flex flex-col items-center leading-tight">
                    <span class="text-xs text-muted-foreground">{m['orders.wizard.total']()}</span>
-                   <span class="text-lg font-bold font-mono text-primary">${total.toFixed(2)}</span>
+                   <Text variant="metric" size="sm" as="span" class="text-primary">${total.toFixed(2)}</Text>
                </div>
                <Button class="h-11 px-3 text-sm rounded-xl shadow-lg touch-manipulation flex-shrink-0" onclick={onNext} disabled={items.length === 0}>
                    {m['common.continue']()}

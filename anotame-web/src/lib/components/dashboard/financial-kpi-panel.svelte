@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
@@ -228,12 +229,12 @@
         <TrendingUp class="w-5 h-5 text-success-text" />
       </div>
       <div>
-        <h2 class="text-2xl font-bold font-heading text-foreground">
+        <Heading level={1} as="h2">
           {m['kpi.financial.title']()}
-        </h2>
-        <p class="text-sm text-muted-foreground mt-1">
+        </Heading>
+        <Text variant="muted" class="mt-1">
           {m['kpi.financialDescription']()}
-        </p>
+        </Text>
       </div>
     </div>
 
@@ -285,7 +286,7 @@
         </div>
         <div>
           <p class="font-medium text-destructive">{m['kpi.financial.error']()}</p>
-          <p class="text-sm text-muted-foreground mt-1">{error}</p>
+          <Text variant="muted" class="mt-1">{error}</Text>
         </div>
       </div>
     </div>
@@ -297,9 +298,9 @@
             <TrendingUp class="w-8 h-8 text-muted-foreground" />
           </div>
           <p class="text-base font-medium text-foreground">{m['kpi.financial.revenue.empty']()}</p>
-          <p class="text-sm text-muted-foreground mt-2 text-center">
+          <Text variant="muted" class="mt-2 text-center">
             {m['kpi.emptyDescription']()}
-          </p>
+          </Text>
         </div>
       </Card.Content>
     </Card.Root>
@@ -359,10 +360,10 @@
                           <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
                         {/if}
                       </div>
-                      <p class="text-xs text-muted-foreground">
+                      <Text variant="small">
                         {service.orderCount} {m['kpi.financial.services.orders']()}
-                      </p>
-                      <p class="text-xs text-muted-foreground">
+                      </Text>
+                      <Text variant="small">
                         {m['kpi.financial.services.revenuePerMin']()}:
                         {#if service.revenuePerMinute && service.revenuePerMinute > 0}
                           <span class="font-mono text-foreground">
@@ -378,7 +379,7 @@
                         <span class="font-mono text-foreground">
                           {m['kpi.minuteUnit']({ minutes: String(service.totalDurationMin) })}
                         </span>
-                      </p>
+                      </Text>
                     </div>
                     <span class="text-sm font-mono font-bold text-primary shrink-0 ml-4">
                       {formatCurrency(service.totalRevenue)}
@@ -456,9 +457,9 @@
                           {getCustomerName(customer)}
                         </p>
                       </div>
-                      <p class="text-xs text-muted-foreground mt-1">
+                      <Text variant="small" class="mt-1">
                         {customer.orderCount} {m['kpi.financial.topCustomers.orders']()}
-                      </p>
+                      </Text>
                     </div>
                     <span class="text-sm font-mono font-bold text-success-text shrink-0">
                       {formatCurrency(customer.totalSpend)}
@@ -521,15 +522,15 @@
           </div>
         {:else}
           <div class="space-y-2">
-            <p class="text-3xl font-bold font-mono text-primary">
+            <Text variant="metric" size="lg" class="text-primary">
               {data.repeatRate?.toFixed(1) ?? '0.0'}%
-            </p>
-            <p class="text-sm text-muted-foreground">
+            </Text>
+            <Text variant="muted">
               <span class="font-semibold text-foreground">{data.repeatCustomers}</span>
               <span class="mx-1">{m['kpi.financial.repeatRate.of']()}</span>
               <span class="font-semibold text-foreground">{data.totalCustomersInPeriod}</span>
               <span class="ml-1">{m['kpi.financial.repeatRate.customers']()}</span>
-            </p>
+            </Text>
           </div>
         {/if}
       </Card.Content>
@@ -570,10 +571,10 @@
                     {getAtRiskAgeLabel(customer)}
                   </span>
                 </div>
-                <p class="text-xs text-muted-foreground mt-1">
+                <Text variant="small" class="mt-1">
                   {m['kpi.financial.atRisk.lastOrder']()}:
                   <span class="font-mono">{getLastOrderLabel(customer)}</span>
-                </p>
+                </Text>
               </div>
             {/each}
           </div>
@@ -586,28 +587,28 @@
       <Card.Content class="pt-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            <Text variant="label">
               {m['kpi.financial.summary.total']()}
-            </p>
-            <p class="text-2xl font-bold font-mono text-success-text mt-2">
+            </Text>
+            <Text variant="metric" class="text-success-text mt-2">
               {formatCurrency(totalRevenue)}
-            </p>
+            </Text>
           </div>
           <div>
-            <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            <Text variant="label">
               {m['kpi.summaryPeriod']()}
-            </p>
+            </Text>
             <p class="text-lg font-bold text-foreground mt-2">
               {getGranularityLabel()}
             </p>
           </div>
           <div class="col-span-2 sm:col-span-1">
-            <p class="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            <Text variant="label">
               {m['kpi.financial.summary.average']()}
-            </p>
-            <p class="text-lg font-bold font-mono text-primary mt-2">
+            </Text>
+            <Text variant="metric" size="sm" class="text-primary mt-2">
               {formatCurrency(totalRevenue / (data.revenueTrend.length || 1))}
-            </p>
+            </Text>
           </div>
         </div>
       </Card.Content>

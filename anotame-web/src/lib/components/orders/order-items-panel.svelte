@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
@@ -57,7 +58,7 @@
           <span class="font-mono text-foreground">${service.unitPrice}</span>
         </div>
         {#if service.instructions}
-          <p class="mt-1 text-sm text-muted-foreground">{service.instructions}</p>
+          <Text variant="muted" class="mt-1">{service.instructions}</Text>
         {/if}
         {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
           <span

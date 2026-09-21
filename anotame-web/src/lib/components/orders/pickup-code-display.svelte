@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import * as m from '$lib/paraglide/messages';
 
   /** The code staff ask for when a customer collects their order. */
@@ -9,7 +10,7 @@
   let { code }: Props = $props();
 </script>
 
-<p class="mb-2 text-sm font-medium tracking-wider text-muted-foreground uppercase">
+<Text variant="label" class="mb-2">
   {m['orders.detail.pickupCode']()}
-</p>
-<p class="font-mono text-2xl font-semibold tracking-widest">{code}</p>
+</Text>
+<Text variant="metric" class="tracking-widest">{code}</Text>

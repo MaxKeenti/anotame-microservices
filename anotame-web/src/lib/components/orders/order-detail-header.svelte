@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading } from '$lib/components/ui/typography';
   import { StatusBadge } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
 
@@ -18,8 +19,8 @@
   >
     &larr; {m['orders.detail.back']()}
   </a>
-  <h1 class="max-w-full min-w-0 text-xl font-bold wrap-break-word sm:text-2xl">
+  <Heading level={1} class="max-w-full min-w-0 wrap-break-word">
     {m['orders.detail.orderTitle']({ ticket: ticketNumber })}
-  </h1>
+  </Heading>
   <StatusBadge {status} />
 </div>

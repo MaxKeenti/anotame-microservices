@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Text } from '$lib/components/ui/typography';
   import type { HelpTopic } from '$lib/config/help';
   import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
@@ -23,9 +24,9 @@
     class="hidden rounded-xl border border-border bg-card p-3 shadow-sm lg:block"
     aria-label={m['help.toc.title']()}
   >
-    <p class="px-2 pb-2 text-xs font-bold tracking-wide text-muted-foreground uppercase">
+    <Text variant="label" class="px-2 pb-2">
       {m['help.toc.title']()}
-    </p>
+    </Text>
     <div class="max-h-[calc(100vh-18rem)] space-y-1 overflow-y-auto pr-1">
       {#each topics as topic (topic.id)}
         <a

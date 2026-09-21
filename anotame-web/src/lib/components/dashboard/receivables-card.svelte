@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Heading, Text } from '$lib/components/ui/typography';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { Progress } from '$lib/components/ui/progress';
   import { formatCurrency } from '$lib/utils/formatUtils';
@@ -122,17 +123,17 @@
   </Card.Header>
   <Card.Content class="space-y-3">
     <div>
-      <div class="text-3xl font-bold font-mono text-warning-text">
+      <Text variant="metric" size="lg" as="div" class="text-warning-text">
         {formatCurrency(openReceivable)}
-      </div>
-      <p class="mt-1 text-xs text-muted-foreground">{m['kpi.receivables.openDesc']()}</p>
+      </Text>
+      <Text variant="small" class="mt-1">{m['kpi.receivables.openDesc']()}</Text>
     </div>
 
     <div class="border-t pt-3">
-      <div class="text-xl font-bold font-mono text-destructive">
+      <Text variant="metric" size="sm" as="div" class="text-destructive">
         {formatCurrency(deliveredUnpaid)}
-      </div>
-      <p class="mt-1 text-xs text-muted-foreground">{m['kpi.receivables.deliveredDesc']()}</p>
+      </Text>
+      <Text variant="small" class="mt-1">{m['kpi.receivables.deliveredDesc']()}</Text>
     </div>
 
     <Button variant="outline" size="sm" class="w-full" onclick={() => (detailOpen = true)}>
@@ -169,7 +170,7 @@
       {/if}
 
       <div class="space-y-2">
-        <h3 class="text-sm font-medium">{m['kpi.receivables.agingTitle']()}</h3>
+        <Heading level={4} as="h3">{m['kpi.receivables.agingTitle']()}</Heading>
         {#each breakdown.aging as bucket (bucket.bucket)}
           {@const widthPct = agingMax > 0 ? (bucket.balance / agingMax) * 100 : 0}
           <div class="space-y-1">
@@ -192,7 +193,7 @@
 
       {#if breakdown.byStatus.length > 0}
         <div class="space-y-2">
-          <h3 class="text-sm font-medium">{m['kpi.receivables.byStatusTitle']()}</h3>
+          <Heading level={4} as="h3">{m['kpi.receivables.byStatusTitle']()}</Heading>
           <div class="flex flex-wrap gap-2">
             {#each breakdown.byStatus as entry (entry.status)}
               <span class="flex items-center gap-2 rounded-md border px-2 py-1">
@@ -290,9 +291,9 @@
           {/if}
         </div>
       {:else}
-        <p class="py-8 text-center text-sm text-muted-foreground">
+        <Text variant="muted" class="py-8 text-center">
           {m['kpi.receivables.empty']()}
-        </p>
+        </Text>
       {/if}
     {/if}
   </Dialog.Content>
