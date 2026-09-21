@@ -7,11 +7,20 @@
 			variant: {
 				default: "bg-transparent",
 				outline: "border-input hover:bg-muted border bg-transparent shadow-xs",
+				/** Option row whose selected item takes the primary fill, like a segmented control. */
+				segmented: "border-input border bg-background shadow-xs aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary data-[state=on]:hover:bg-primary/85",
+				/** Large bordered choice card; the selected card is outlined and tinted in the brand colour. */
+				tile: "border-2 border-border bg-card rounded-xl hover:border-primary/50 hover:bg-primary/5 aria-pressed:border-primary aria-pressed:bg-primary/10 aria-pressed:text-primary data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary",
 			},
 			size: {
 				default: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
 				sm: "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
 				lg: "h-10 min-w-10 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+				touch: "h-11 min-w-11 px-4 touch-manipulation",
+				/** Stacked icon + label choice, compact enough for a dialog. */
+				tile: "h-auto min-h-16 flex-col gap-1 px-2 py-3 whitespace-normal text-center touch-manipulation [&_svg:not([class*='size-'])]:size-5",
+				/** Stacked icon + label choice for a page-level setting. */
+				"tile-lg": "h-24 flex-col gap-2 p-4 whitespace-normal text-center touch-manipulation [&_svg:not([class*='size-'])]:size-6",
 			},
 		},
 		defaultVariants: {

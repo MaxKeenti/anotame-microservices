@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
-  import { PageHeader } from '$lib/components/common';
+  import { PageHeader, PageContainer } from '$lib/components/common';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { Activity, Banknote, Users } from '@lucide/svelte';
@@ -157,7 +157,7 @@
   });
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
+<PageContainer>
   <PageHeader
     title={m['nav.kpi.name']()}
     description={m['kpi.page.desc']()}
@@ -170,4 +170,4 @@
   <KpiTabs {tabs} />
 
   {@render children()}
-</div>
+</PageContainer>

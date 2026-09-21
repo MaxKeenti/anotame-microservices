@@ -21,7 +21,7 @@
 {#if hideableColumns.length > 1}
   <DropdownMenu.Root>
     <DropdownMenu.Trigger
-      class={buttonVariants({ variant: 'outline' }) + ' h-12 shrink-0 touch-manipulation'}
+      class={buttonVariants({ variant: 'outline', size: 'touch-lg', class: 'shrink-0' })}
     >
       <Settings2 class="size-4" aria-hidden="true" />
       {m['common.columns']()}

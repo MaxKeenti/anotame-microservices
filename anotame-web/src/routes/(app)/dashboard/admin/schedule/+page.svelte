@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import WorkdayRow from '$lib/components/schedule/workday-row.svelte';
-  import { PageHeader, StatePanel, TableFrame } from '$lib/components/common';
+  import { PageHeader, StatePanel, TableFrame, PageContainer } from '$lib/components/common';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -135,7 +135,7 @@
 {#if guard.checking}
   <StatePanel message={m['schedule.validating']()} />
 {:else if guard.allowed}
-<div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+<PageContainer width="wide">
   <PageHeader title={m['schedule.page.title']()} />
 
   <Tabs.Root bind:value={activeTab} class="space-y-6">
@@ -281,5 +281,5 @@
       </Tabs.Content>
     {/if}
   </Tabs.Root>
-</div>
+</PageContainer>
 {/if}

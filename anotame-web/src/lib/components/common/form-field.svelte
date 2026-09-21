@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Text } from '$lib/components/ui/typography';
+  import * as Field from '$lib/components/ui/field';
+  import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import RequiredMark from './required-mark.svelte';
-  import { cn } from '$lib/utils';
 
   /** A labelled form control with its validation error and guidance text. */
   interface Props {
@@ -28,15 +28,15 @@
   const errorText = $derived(Array.isArray(error) ? error.join(' ') : error);
 </script>
 
-<div class={cn('space-y-2', className)}>
-  <label for={htmlFor} class="text-sm font-medium">
+<Field.Field class={cn('gap-2', className)} data-invalid={errorText ? true : undefined}>
+  <Field.Label for={htmlFor}>
     {label}{#if required}<RequiredMark />{/if}
-  </label>
+  </Field.Label>
   {@render children()}
   {#if errorText}
-    <span class="text-xs text-destructive">{errorText}</span>
+    <Field.Error>{errorText}</Field.Error>
   {/if}
   {#if hint}
-    <Text variant="small">{hint}</Text>
+    <Field.Description>{hint}</Field.Description>
   {/if}
-</div>
+</Field.Field>

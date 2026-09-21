@@ -6,12 +6,11 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  import { CreditCard, DollarSign, Wallet } from '@lucide/svelte';
+  import PaymentMethodPicker, { type PaymentMethod } from '$lib/components/common/payment-method-picker.svelte';
   import * as m from '$lib/paraglide/messages';
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
-  type PaymentMethod = 'CASH' | 'CARD' | 'TRANSFER';
 
   type Props = {
     open: boolean;
@@ -100,7 +99,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={(v) => { if (!v) handleClose(); }}>
-  <Dialog.Content class="sm:max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{m["orders.pickup.title"]()}</Dialog.Title>
       <Dialog.Description>
@@ -158,38 +157,7 @@
           {#if markFullyPaid}
             <div class="space-y-2">
               <p class="text-sm font-medium">{m["orders.pickup.paymentMethod"]()}</p>
-              <div class="grid grid-cols-3 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={submitting}
-                  onclick={() => paymentMethod = 'CASH'}
-                  class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'CASH' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-                >
-                  <DollarSign class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center wrap-break-word">{m["orders.detail.paymentCash"]()}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={submitting}
-                  onclick={() => paymentMethod = 'CARD'}
-                  class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-                >
-                  <CreditCard class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center wrap-break-word">{m["orders.detail.paymentCard"]()}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={submitting}
-                  onclick={() => paymentMethod = 'TRANSFER'}
-                  class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-                >
-                  <Wallet class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center wrap-break-word">{m["orders.detail.paymentTransfer"]()}</span>
-                </Button>
-              </div>
+              <PaymentMethodPicker bind:value={paymentMethod} label={m["orders.pickup.paymentMethod"]()} disabled={submitting} />
             </div>
           {/if}
         </div>

@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import WizardHeader from '$lib/components/orders/wizard/wizard-header.svelte';
     import * as Card from '$lib/components/ui/card';
-    import { ErrorState, FormField, InlineAlert, LockedRegion, PageHeader, StatePanel } from '$lib/components/common';
+    import { ErrorState, FormField, InlineAlert, LockedRegion, PageHeader, StatePanel, PageContainer } from '$lib/components/common';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -179,7 +179,7 @@
         </Button>
     </ErrorState>
 {:else if !isAdmin}
-    <div class="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
+    <PageContainer width="narrow">
         <PageHeader
             title={m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
             description={m['orders.edit.employeeDescription']()}
@@ -236,7 +236,7 @@
             </div>
         </form>
         </Card.Root>
-    </div>
+    </PageContainer>
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
 

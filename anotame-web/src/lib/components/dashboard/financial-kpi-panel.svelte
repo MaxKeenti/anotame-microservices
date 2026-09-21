@@ -4,6 +4,7 @@
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
+  import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import BarChart from './bar-chart.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Progress } from '$lib/components/ui/progress';
@@ -239,35 +240,19 @@
     </div>
 
     <!-- Granularity Selector -->
-    <div class="flex gap-2" role="group" data-slot="button-group">
-      <Button
-        variant={granularity === 'day' ? 'default' : 'outline'}
-        size="touch"
-        class="px-4"
-        onclick={() => setGranularity('day')}
-        aria-label={m['kpi.financial.granularity.day']()}
-      >
-        {m['kpi.financial.granularity.day']()}
-      </Button>
-      <Button
-        variant={granularity === 'week' ? 'default' : 'outline'}
-        size="touch"
-        class="px-4"
-        onclick={() => setGranularity('week')}
-        aria-label={m['kpi.financial.granularity.week']()}
-      >
-        {m['kpi.financial.granularity.week']()}
-      </Button>
-      <Button
-        variant={granularity === 'month' ? 'default' : 'outline'}
-        size="touch"
-        class="px-4"
-        onclick={() => setGranularity('month')}
-        aria-label={m['kpi.financial.granularity.month']()}
-      >
-        {m['kpi.financial.granularity.month']()}
-      </Button>
-    </div>
+    <ToggleGroup.Root
+      type="single"
+      variant="segmented"
+      size="touch"
+      spacing={2}
+      aria-label={m['kpi.financial.granularity.label']()}
+      value={granularity}
+      onValueChange={(v) => v && setGranularity(v as 'day' | 'week' | 'month')}
+    >
+      <ToggleGroup.Item value="day">{m['kpi.financial.granularity.day']()}</ToggleGroup.Item>
+      <ToggleGroup.Item value="week">{m['kpi.financial.granularity.week']()}</ToggleGroup.Item>
+      <ToggleGroup.Item value="month">{m['kpi.financial.granularity.month']()}</ToggleGroup.Item>
+    </ToggleGroup.Root>
   </div>
 
   {#if loading}

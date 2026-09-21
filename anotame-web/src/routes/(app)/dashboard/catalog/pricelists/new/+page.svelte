@@ -11,7 +11,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, RequiredMark, ResponsiveDataView, TableFrame } from '$lib/components/common';
+  import { PageHeader, RequiredMark, ResponsiveDataView, TableFrame, PageContainer } from '$lib/components/common';
   import { toast } from 'svelte-sonner';
   import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
@@ -238,7 +238,7 @@
   />
 {/snippet}
 
-<div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+<PageContainer width="form">
   <PageHeader title={m["catalog.pricelist.newTitle"]()}>
     {#snippet actions()}
       <Button size="touch" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
@@ -377,7 +377,7 @@
     </Card.Root>
 
 
-    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-4 pb-12">
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-4">
       <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto px-8 text-lg" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       <Button size="xl" type="submit" disabled={isLoading} class="w-full sm:w-auto px-8 text-lg shadow-md">
         {#if isLoading}
@@ -389,4 +389,4 @@
       </Button>
     </div>
   </form>
-</div>
+</PageContainer>

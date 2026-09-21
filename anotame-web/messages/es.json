@@ -1138,5 +1138,7 @@
   "common.columns": "Columnas",
   "common.toggleColumns": "Mostrar columnas",
   "common.hideColumn": "Ocultar",
-  "common.allOption": "Todos"
+  "common.allOption": "Todos",
+  "kpi.financial.granularity.label": "Agrupar por periodo",
+  "help.category.label": "Filtrar por categoría"
 }

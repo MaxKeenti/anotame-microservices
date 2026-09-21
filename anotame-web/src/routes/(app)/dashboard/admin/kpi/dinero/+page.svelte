@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { HintText, LeadText, PeriodStepper, StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
@@ -8,7 +9,7 @@
   import BarChart from '$lib/components/dashboard/bar-chart.svelte';
   import KpiBreakdown from '$lib/components/dashboard/kpi-breakdown.svelte';
   import * as Popover from '$lib/components/ui/popover';
-  import { TrendingUp, Calendar, Check, Loader2 } from '@lucide/svelte';
+  import { TrendingUp, Calendar, Loader2 } from '@lucide/svelte';
   import { getLocale } from '$lib/paraglide/runtime';
   import * as m from '$lib/paraglide/messages';
   import { getKpiDashboard } from '../kpiContext';
@@ -112,27 +113,29 @@
               nextDisabled={dashboard.monthLoading || pickerYear >= today.getFullYear()}
             />
 
-            <div class="grid grid-cols-3 gap-2">
+            <ToggleGroup.Root
+              type="single"
+              variant="segmented"
+              size="touch"
+              spacing={2}
+              aria-label={m['kpi.monthPicker.ariaLabel']({ month: selectedMonthLabel })}
+              value={pickerYear === dashboard.selectedYear ? String(dashboard.selectedMonth) : ''}
+              onValueChange={(v) => v && handleMonthSelect(Number(v))}
+              class="grid w-full grid-cols-3"
+            >
               {#each monthOptions as option (option.value)}
-                {@const isSelected =
-                  pickerYear === dashboard.selectedYear && option.value === dashboard.selectedMonth}
-                {@const isDisabled = isFutureMonth(pickerYear, option.value)}
-                <Button size="touch"
-                  variant={isSelected ? 'default' : 'ghost'}
+                <ToggleGroup.Item
+                  value={String(option.value)}
                   class="capitalize"
-                  disabled={isDisabled || dashboard.monthLoading}
+                  disabled={isFutureMonth(pickerYear, option.value) || dashboard.monthLoading}
                   aria-label={m['kpi.monthPicker.selectMonth']({
                     month: formatMonthLabel(pickerYear, option.value)
                   })}
-                  onclick={() => handleMonthSelect(option.value)}
                 >
                   {option.label}
-                  {#if isSelected}
-                    <Check class="ml-1 h-3.5 w-3.5" />
-                  {/if}
-                </Button>
+                </ToggleGroup.Item>
               {/each}
-            </div>
+            </ToggleGroup.Root>
           </div>
         </Popover.Content>
       </Popover.Root>

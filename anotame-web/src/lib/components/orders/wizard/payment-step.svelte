@@ -15,7 +15,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from '@lucide/svelte';
+	import { AlertTriangle, Loader2 } from '@lucide/svelte';
+	import PaymentMethodPicker from '$lib/components/common/payment-method-picker.svelte';
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
@@ -288,42 +289,12 @@
 		{#if !draft?.isEditing}
 		<!-- Payment Method (new orders only) -->
 		<div class="space-y-4">
-			<label class="text-sm font-medium" for="payment-method">{m['orders.wizard.paymentMethod']()}</label>
-			<div class="grid grid-cols-3 gap-4" id="payment-method">
-				<Button
-					type="button"
-					variant="outline"
-					onclick={() => {
-						$form.paymentMethod = 'CASH';
-					}}
-					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CASH' || !$form.paymentMethod ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-				>
-					<DollarSign class="w-8 h-8 mb-2" />
-					<span class="font-semibold">{m['orders.wizard.cash']()}</span>
-				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					onclick={() => {
-						$form.paymentMethod = 'CARD';
-					}}
-					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-				>
-					<CreditCard class="w-8 h-8 mb-2" />
-					<span class="font-semibold">{m['orders.wizard.card']()}</span>
-				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					onclick={() => {
-						$form.paymentMethod = 'TRANSFER';
-					}}
-					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-				>
-					<Wallet class="w-8 h-8 mb-2" />
-					<span class="font-semibold">{m['orders.wizard.transfer']()}</span>
-				</Button>
-			</div>
+			<p class="text-sm font-medium">{m['orders.wizard.paymentMethod']()}</p>
+			<PaymentMethodPicker
+				size="lg"
+				label={m['orders.wizard.paymentMethod']()}
+				bind:value={$form.paymentMethod}
+			/>
 		</div>
 
 		<!-- Payment Amounts (new orders only) -->

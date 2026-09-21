@@ -8,7 +8,7 @@
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
-  import { PageHeader, ResponsiveDataView, StatePanel } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView, StatePanel, PageContainer } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -94,7 +94,7 @@
 {#if guard.checking}
   <StatePanel message={m["catalog.pricelists.verifyingAccess"]()} loading class="h-auto border-0 p-8" />
 {:else if guard.allowed}
-  <div class="space-y-6 animate-in fade-in duration-300">
+  <PageContainer>
     <PageHeader
       title={m["catalog.pricelists.title"]()}
       description={m["catalog.pricelists.description"]()}
@@ -106,7 +106,28 @@
       {/snippet}
     </PageHeader>
 
-    {#snippet pricelistActions(row: Row<PriceListResponse>)}
+
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>{m["catalog.pricelists.cardTitle"]()}</Card.Title>
+        <Card.Description>{m["catalog.pricelists.cardDescription"]()}</Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <ResponsiveDataView
+          {columns}
+          data={lists}
+          loading={isLoading}
+          emptyMessage={m["catalog.pricelists.emptyMessage"]()}
+          filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
+          actionCell={pricelistActions}
+        />
+      </Card.Content>
+    </Card.Root>
+  </PageContainer>
+{/if}
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet pricelistActions(row: Row<PriceListResponse>)}
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -137,22 +158,3 @@
         </Button>
       </div>
     {/snippet}
-
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>{m["catalog.pricelists.cardTitle"]()}</Card.Title>
-        <Card.Description>{m["catalog.pricelists.cardDescription"]()}</Card.Description>
-      </Card.Header>
-      <Card.Content>
-        <ResponsiveDataView
-          {columns}
-          data={lists}
-          loading={isLoading}
-          emptyMessage={m["catalog.pricelists.emptyMessage"]()}
-          filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
-          actionCell={pricelistActions}
-        />
-      </Card.Content>
-    </Card.Root>
-  </div>
-{/if}

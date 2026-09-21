@@ -3,10 +3,9 @@
   import * as Card from '$lib/components/ui/card';
   import { apiService, API_IDENTITY } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { UserResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -76,7 +75,7 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
+<PageContainer>
     <PageHeader
       title={m['nav.users.name']()}
       description={m['users.page.desc']()}
@@ -88,28 +87,6 @@
       {/snippet}
     </PageHeader>
 
-  {#snippet userActions(row: Row<UserResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m['common.edit']()}
-        </Button>
-        <Button
-          variant="destructive-outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleDeleteClick(row.original)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m['common.delete']()}
-        </Button>
-      </div>
-    {/snippet}
 
   <Card.Root class="p-4">
     
@@ -130,4 +107,9 @@
     onClose={() => editingUser = null}
     onSuccess={handleFormSuccess}
   />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet userActions(row: Row<UserResponse>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => handleDeleteClick(row.original)} />
+{/snippet}

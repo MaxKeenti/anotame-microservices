@@ -108,7 +108,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{m['garmentTag.title']()}</Dialog.Title>
       <Dialog.Description>{m['garmentTag.description']()}</Dialog.Description>

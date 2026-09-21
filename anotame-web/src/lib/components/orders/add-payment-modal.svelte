@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { Text } from '$lib/components/ui/typography';
+  import { FormField } from '$lib/components/common';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  import { CreditCard, DollarSign, Wallet, Loader2 } from '@lucide/svelte';
+  import { Loader2 } from '@lucide/svelte';
+  import PaymentMethodPicker, { type PaymentMethod } from '$lib/components/common/payment-method-picker.svelte';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
@@ -22,7 +23,7 @@
   let { open = $bindable(false), orderId, orderTotal, amountPaid, onSuccess, onClose }: Props = $props();
 
   let amount = $state<number | null>(null);
-  let method = $state<'CASH' | 'CARD' | 'TRANSFER'>('CASH');
+  let method = $state<PaymentMethod>('CASH');
   let note = $state('');
   let submitting = $state(false);
   let errorMessage = $state('');
@@ -95,7 +96,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={(v) => { if (!v) handleClose(); }}>
-  <Dialog.Content class="sm:max-w-sm">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{m['orders.payment.modalTitle']()}</Dialog.Title>
     </Dialog.Header>
@@ -110,8 +111,7 @@
       </div>
 
       <!-- Amount -->
-      <div class="space-y-1">
-        <label class="text-sm font-medium" for="payment-amount">{m['orders.payment.amountLabel']()}</label>
+      <FormField label={m['orders.payment.amountLabel']()} for="payment-amount" hint={m['orders.payment.refundHint']()}>
         <div class="relative">
           <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
           <Input
@@ -124,49 +124,16 @@
             disabled={submitting}
           />
         </div>
-        <Text variant="small">{m['orders.payment.refundHint']()}</Text>
-      </div>
+      </FormField>
 
       <!-- Method -->
       <div class="space-y-2">
         <div class="text-sm font-medium">{m['orders.detail.paymentMethod']()}</div>
-        <div class="grid grid-cols-3 gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onclick={() => method = 'CASH'}
-            class={`h-auto flex flex-col items-center py-3 rounded-xl border-2 transition-all ${method === 'CASH' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-          >
-            <DollarSign class="w-5 h-5 mb-1" />
-            <span class="text-xs font-semibold">{m['orders.detail.paymentCash']()}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onclick={() => method = 'CARD'}
-            class={`h-auto flex flex-col items-center py-3 rounded-xl border-2 transition-all ${method === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-          >
-            <CreditCard class="w-5 h-5 mb-1" />
-            <span class="text-xs font-semibold">{m['orders.detail.paymentCard']()}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onclick={() => method = 'TRANSFER'}
-            class={`h-auto flex flex-col items-center py-3 rounded-xl border-2 transition-all ${method === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-          >
-            <Wallet class="w-5 h-5 mb-1" />
-            <span class="text-xs font-semibold">{m['orders.detail.paymentTransfer']()}</span>
-          </Button>
-        </div>
+        <PaymentMethodPicker bind:value={method} label={m['orders.detail.paymentMethod']()} disabled={submitting} />
       </div>
 
       <!-- Note -->
-      <div class="space-y-1">
-        <label class="text-sm font-medium" for="payment-note">
-          {m['orders.payment.noteLabel']()}
-          {#if isRefund}<span class="text-destructive ml-1">*</span>{/if}
-        </label>
+      <FormField label={m['orders.payment.noteLabel']()} for="payment-note" required={isRefund}>
         <Input
           id="payment-note"
           type="text"
@@ -175,7 +142,7 @@
           bind:value={note}
           disabled={submitting}
         />
-      </div>
+      </FormField>
 
       {#if errorMessage}
         <p class="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg border border-destructive/20" role="alert">

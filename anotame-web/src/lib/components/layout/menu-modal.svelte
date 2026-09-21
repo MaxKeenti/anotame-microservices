@@ -23,7 +23,7 @@
 </script>
 
 <Dialog.Root bind:open={isOpen}>
-  <Dialog.Content class="w-full max-w-5xl sm:max-w-5xl max-h-[90vh] gap-0 p-0 overflow-hidden flex flex-col">
+  <Dialog.Content class="sm:max-w-5xl max-h-[90dvh] gap-0 p-0 overflow-hidden flex flex-col">
     <!-- Header -->
     <Dialog.Header class="p-6 border-b text-left">
       <Dialog.Title class="text-2xl font-bold font-heading">{m["nav.menu.title"]()}</Dialog.Title>

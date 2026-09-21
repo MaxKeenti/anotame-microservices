@@ -128,7 +128,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{m['ticketShare.title']()}</Dialog.Title>
       <Dialog.Description>{m['ticketShare.description']()}</Dialog.Description>

@@ -5,7 +5,7 @@
   import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import * as Tabs from '$lib/components/ui/tabs';
-  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
+  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge, PageContainer } from '$lib/components/common';
   import { Badge } from '$lib/components/ui/badge';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
@@ -221,7 +221,7 @@
   ];
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
+<PageContainer>
   <PageHeader
     title={m["operations.page.title"]()}
     description={m["operations.page.subtitle"]()}
@@ -298,7 +298,7 @@
       </Card.Root>
     </Tabs.Content>
   </Tabs.Root>
-</div>
+</PageContainer>
 
 {#if deliverTarget}
   <PickupCodeDialog
@@ -330,7 +330,7 @@
   </Button>
   <DropdownMenu.Root>
     <DropdownMenu.Trigger
-      class={buttonVariants({ variant: 'outline', size: 'icon-lg' }) + ' touch-manipulation'}
+      class={buttonVariants({ variant: 'outline', size: 'icon-touch' })}
       aria-label={m["common.actions"]()}
     >
       <MoreVertical class="w-4 h-4" />

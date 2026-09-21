@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { FormField, PageHeader, StatePanel } from '$lib/components/common';
+  import { FormField, PageHeader, StatePanel, PageContainer } from '$lib/components/common';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -108,7 +108,7 @@
   });
 </script>
 
-<div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
+<PageContainer width="narrow">
   <PageHeader
     title={m['adminSettings.page.title']()}
     description={m['adminSettings.page.desc']()}
@@ -333,4 +333,4 @@
       </div>
     </form>
   {/if}
-</div>
+</PageContainer>

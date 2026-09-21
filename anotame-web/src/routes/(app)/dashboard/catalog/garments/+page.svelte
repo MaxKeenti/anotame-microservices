@@ -7,8 +7,7 @@
   import { toast } from 'svelte-sonner';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from '@lucide/svelte';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse } from '$lib/types/dtos';
 
@@ -75,7 +74,7 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
+<PageContainer>
   <PageHeader
     title={m["catalog.garments.title"]()}
     description={m["catalog.garments.description"]()}
@@ -87,28 +86,6 @@
     {/snippet}
   </PageHeader>
 
-  {#snippet garmentActions(row: Row<GarmentTypeResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m["common.edit"]()}
-        </Button>
-        <Button
-          variant="destructive-outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleDeleteClick(row.original)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
-    {/snippet}
 
   <Card.Root class="p-4">
     
@@ -124,4 +101,9 @@
   </Card.Root>
 
   <GarmentDialog item={editingGarment} onClose={() => editingGarment = null} onSuccess={handleFormSuccess} />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet garmentActions(row: Row<GarmentTypeResponse>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => handleDeleteClick(row.original)} />
+{/snippet}

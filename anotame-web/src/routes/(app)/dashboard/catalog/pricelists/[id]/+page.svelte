@@ -11,7 +11,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, RequiredMark, ResponsiveDataView, StatePanel, TableFrame } from '$lib/components/common';
+  import { PageHeader, RequiredMark, ResponsiveDataView, StatePanel, TableFrame, PageContainer } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
@@ -180,7 +180,7 @@
     override: overrideCellRender
   }}
 
-  <div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+  <PageContainer width="form">
     <PageHeader
       title={m["catalog.pricelist.editTitle"]()}
       description={m["catalog.pricelist.editSubtitle"]({ name: $form.name })}
@@ -286,7 +286,7 @@
         </Card.Content>
       </Card.Root>
 
-      <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4 pt-4 pb-12">
+      <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4 pt-4">
         <Button size="xl"
           type="button"
           variant="destructive-outline"
@@ -311,5 +311,5 @@
         </Button>
       </div>
     </form>
-  </div>
+  </PageContainer>
 {/if}

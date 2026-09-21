@@ -3,6 +3,7 @@
   import { tick } from 'svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
+  import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import { Input } from '$lib/components/ui/input';
   import {
     helpCategories,
@@ -15,7 +16,7 @@
     type HelpTopic,
   } from '$lib/config/help';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, StatePanel } from '$lib/components/common';
+  import { PageHeader, StatePanel, PageContainer } from '$lib/components/common';
   import HelpTopicSection from '$lib/components/help/help-topic-section.svelte';
   import HelpTile from '$lib/components/help/help-tile.svelte';
   import HelpToc from '$lib/components/help/help-toc.svelte';
@@ -155,7 +156,7 @@
   });
 </script>
 
-<div class="mx-auto max-w-7xl space-y-6 pb-24 animate-in fade-in duration-300">
+<PageContainer>
   <PageHeader
     title={m['help.page.title']()}
     description={m['help.page.description']()}
@@ -176,26 +177,21 @@
           />
         </div>
 
-        <div class="mt-4 flex flex-wrap gap-2">
-          <Button
-            variant={category === 'all' ? 'default' : 'outline'}
-            size="touch"
-            
-            onclick={() => category = 'all'}
-          >
-            {m['help.category.all']()}
-          </Button>
+        <ToggleGroup.Root
+          type="single"
+          variant="segmented"
+          size="touch"
+          spacing={2}
+          aria-label={m['help.category.label']()}
+          value={category}
+          onValueChange={(v) => { if (v) category = v as typeof category; }}
+          class="mt-4 w-full flex-wrap"
+        >
+          <ToggleGroup.Item value="all">{m['help.category.all']()}</ToggleGroup.Item>
           {#each helpCategories as item (item.id)}
-            <Button
-              variant={category === item.id ? 'default' : 'outline'}
-              size="touch"
-              
-              onclick={() => category = item.id}
-            >
-              {item.label()}
-            </Button>
+            <ToggleGroup.Item value={item.id}>{item.label()}</ToggleGroup.Item>
           {/each}
-        </div>
+        </ToggleGroup.Root>
       </Card.Root>
 
       <HelpToc topics={visibleTopics} activeId={activeSection} layout="sidebar" />
@@ -239,4 +235,4 @@
       {/if}
     </div>
   </div>
-</div>
+</PageContainer>

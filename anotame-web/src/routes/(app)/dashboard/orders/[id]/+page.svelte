@@ -6,7 +6,7 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { ErrorState, StatePanel } from '$lib/components/common';
+  import { ErrorState, StatePanel, PageContainer } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/add-payment-modal.svelte";
@@ -209,7 +209,7 @@
     </Button>
   </ErrorState>
 {:else}
-  <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in duration-150 pb-20">
+  <PageContainer width="form">
     <OrderDetailHeader ticketNumber={order.ticketNumber} status={order.status} />
 
     <OrderSummaryPanels {order} />
@@ -301,5 +301,5 @@
       {order}
       establishmentName={establishment?.name || "ANOTAME"}
     />
-  </div>
+  </PageContainer>
 {/if}

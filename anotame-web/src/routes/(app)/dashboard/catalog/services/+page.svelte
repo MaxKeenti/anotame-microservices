@@ -6,11 +6,10 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { FilterField, PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { FilterField, PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
 
@@ -118,7 +117,7 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
+<PageContainer>
   <PageHeader
     title={m["catalog.services.title"]()}
     description={m["catalog.services.description"]()}
@@ -155,28 +154,6 @@
   </Card.Root>
 
   <!-- Table / Cards -->
-  {#snippet serviceActions(row: Row<ServiceResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m["common.edit"]()}
-        </Button>
-        <Button
-          variant="destructive-outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleDeleteClick(row.original)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
-    {/snippet}
 
   <Card.Root class="p-4">
     
@@ -198,4 +175,9 @@
     onClose={() => editingService = null}
     onSuccess={handleFormSuccess}
   />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet serviceActions(row: Row<ServiceResponse>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => handleDeleteClick(row.original)} />
+{/snippet}

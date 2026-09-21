@@ -1,6 +1,7 @@
 <script lang="ts">
   import { textVariants } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
+  import * as Field from '$lib/components/ui/field';
   import { cn } from '$lib/utils';
 
   /** A labelled filter or search control in a page's filter bar. */
@@ -18,9 +19,9 @@
   let { label, for: htmlFor, class: className, children }: Props = $props();
 </script>
 
-<div class={cn('space-y-1.5', className)}>
-  <label class={textVariants({ variant: 'label' })} for={htmlFor}>
+<Field.Field class={cn('gap-1.5', className)}>
+  <Field.Label class={textVariants({ variant: 'label' })} for={htmlFor}>
     {label}
-  </label>
+  </Field.Label>
   {@render children()}
-</div>
+</Field.Field>

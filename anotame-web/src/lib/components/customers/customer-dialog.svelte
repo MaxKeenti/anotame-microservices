@@ -1,7 +1,8 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
-  import { Button } from '$lib/components/ui/button';
+  import { cn } from '$lib/utils';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Loader2 } from '@lucide/svelte';
   import { apiService, API_SALES, ApiValidationError } from '$lib/services/api.svelte';
@@ -85,7 +86,7 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-w-md sm:max-w-lg">
+  <Dialog.Content class="sm:max-w-lg">
     <Dialog.Header>
       <Dialog.Title>{item?.id ? m['customerDialog.title.edit']() : m['customerDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
@@ -141,7 +142,7 @@
       </Form.Field>
 
       <Dialog.Footer class="pt-4">
-        <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
+        <Dialog.Close class={cn(buttonVariants({ variant: 'outline', size: 'touch-lg' }), 'w-full sm:w-auto')}>
           {m['common.cancel']()}
         </Dialog.Close>
         <Button size="touch-lg" type="submit" disabled={isSubmitting} class="w-full sm:w-auto px-6">

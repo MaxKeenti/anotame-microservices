@@ -7,7 +7,7 @@
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
+  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge, PageContainer } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate, toTimestamp } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
@@ -274,7 +274,7 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
+<PageContainer>
   <PageHeader title={m["orders.page.title"]()} description={m["orders.page.description"]()}>
     {#snippet actions()}
       <Button size="touch-lg" href="/dashboard/orders/new" class="w-full sm:w-auto px-6 text-lg font-bold shadow-md">+ {m["orders.new"]()}</Button>
@@ -384,7 +384,7 @@
       </Card.Root>
     </Tabs.Content>
   </Tabs.Root>
-</div>
+</PageContainer>
 
 <!-- Cell renderers shared by the views above. -->
 {#snippet draftActions(row: Row<DraftOrder>)}

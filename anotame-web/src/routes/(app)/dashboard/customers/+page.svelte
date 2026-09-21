@@ -3,12 +3,11 @@
   import * as Card from '$lib/components/ui/card';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { CustomerDto } from '$lib/types/dtos';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
 
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
@@ -74,7 +73,7 @@
   }
 </script>
 
-<div class="space-y-3">
+<PageContainer>
   <PageHeader
     title={m["customers.page.title"]()}
     description={m["customers.page.subtitle"]()}
@@ -84,28 +83,6 @@
     {/snippet}
   </PageHeader>
 
-  {#snippet customerActions(row: Row<CustomerDto>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m["common.edit"]()}
-        </Button>
-        <Button
-          variant="destructive-outline"
-          size="touch"
-          class="px-4 font-medium"
-          onclick={() => row.original.id && handleDeleteClick(row.original.id)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
-    {/snippet}
 
   <Card.Root class="p-4">
     
@@ -122,4 +99,9 @@
   </Card.Root>
 
   <CustomerDialog item={editingCustomer} onClose={() => editingCustomer = null} onSuccess={handleFormSuccess} />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet customerActions(row: Row<CustomerDto>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => row.original.id && handleDeleteClick(row.original.id)} />
+{/snippet}

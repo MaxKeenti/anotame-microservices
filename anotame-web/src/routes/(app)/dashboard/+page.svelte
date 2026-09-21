@@ -1,6 +1,6 @@
 <script lang="ts">
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
-  import { PageHeader } from '$lib/components/common';
+  import { PageHeader, PageContainer } from '$lib/components/common';
   import DashboardTile from '$lib/components/dashboard/dashboard-tile.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
@@ -16,17 +16,14 @@
   }));
 </script>
 
-<div class="space-y-8 pb-20 p-2 sm:p-0">
+<PageContainer>
   <PageHeader
-    class="mb-8"
     title={m["dashboard.greeting"]({ name: authService.user?.username || m["common.user"]() })}
     description={m["dashboard.welcome"]()}
   />
 
   {#if isAdmin}
-    <div class="mb-2">
-      <WeekCalendarWidget />
-    </div>
+    <WeekCalendarWidget />
   {/if}
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -34,4 +31,4 @@
       <DashboardTile {item} />
     {/each}
   </div>
-</div>
+</PageContainer>
