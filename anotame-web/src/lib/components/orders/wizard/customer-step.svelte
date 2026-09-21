@@ -8,6 +8,9 @@
    import { Button } from '$lib/components/ui/button';
    import { Search, User, Plus } from '@lucide/svelte';
    import * as Field from '$lib/components/ui/field';
+   import * as Command from '$lib/components/ui/command';
+   import { Command as CommandPrimitive } from 'bits-ui';
+   import StatePanel from '$lib/components/common/state-panel.svelte';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
    import type { CustomerDto } from '$lib/types/dtos';
@@ -21,7 +24,7 @@
            isSearching = true;
            const delay = setTimeout(async () => {
                try {
-                   const res = await apiService.request<CustomerDto[]>(`${API_SALES}/api/customers/search?query=${query}`);
+                   const res = await apiService.request<CustomerDto[]>(`${API_SALES}/api/customers/search?query=${encodeURIComponent(query)}`);
                    results = res || [];
                } catch(e) {
                    results = [];
@@ -78,36 +81,42 @@
             </Card.Root>
         {:else}
             <div class="w-full space-y-6 relative">
-                <div class="relative">
-                    <InputGroup.Root class="h-16 rounded-xl shadow-sm">
-                        <InputGroup.Input
-                            placeholder={m['orders.wizard.searchPlaceholder']()}
-                            aria-label={m['orders.wizard.searchPlaceholder']()}
-                            class="text-lg"
-                            bind:value={query}
-                            autofocus
-                        />
-                        <InputGroup.Addon><Search class="size-6" aria-hidden="true" /></InputGroup.Addon>
-                    </InputGroup.Root>
-                    
-                    {#if results.length > 0}
-                        <div class="absolute top-full mt-2 left-0 right-0 bg-popover border border-border rounded-xl shadow-xl z-20 max-h-80 overflow-y-auto">
+                <Command.Root shouldFilter={false} label={m['orders.wizard.searchPlaceholder']()} class="relative overflow-visible rounded-none! bg-transparent p-0">
+                    <CommandPrimitive.Input bind:value={query}>
+                        {#snippet child({ props })}
+                            <InputGroup.Root class="h-16 rounded-xl shadow-sm">
+                                <InputGroup.Input
+                                    {...props}
+                                    placeholder={m['orders.wizard.searchPlaceholder']()}
+                                    class="text-lg"
+                                    autofocus
+                                />
+                                <InputGroup.Addon><Search class="size-6" aria-hidden="true" /></InputGroup.Addon>
+                            </InputGroup.Root>
+                        {/snippet}
+                    </CommandPrimitive.Input>
+
+                    {#if query.length > 2}
+                        <Command.List class="absolute inset-x-0 top-full z-20 mt-2 max-h-80 rounded-xl border border-border bg-popover p-1 shadow-xl">
+                            {#if isSearching}
+                                <Command.Loading>
+                                    <StatePanel message={m['common.loading']()} spinner size="inline" />
+                                </Command.Loading>
+                            {:else}
+                                <Command.Empty>{m['orders.wizard.noSearchResults']()}</Command.Empty>
+                            {/if}
                             {#each results as c (c.id)}
-                                <Button
-                                    variant="ghost"
-                                    class="w-full h-auto text-left py-5 px-4 hover:bg-secondary border-b border-border flex items-center justify-between group transition-colors rounded-none font-normal"
-                                    onclick={() => selectCustomer(c)}
-                                >
-                                    <div class="text-left">
-                                        <div class="font-bold text-lg group-hover:text-primary">{c.firstName} {c.lastName}</div>
+                                <Command.Item value={c.id} onSelect={() => selectCustomer(c)} class="min-h-14 rounded-lg px-4 py-3">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-lg font-bold">{c.firstName} {c.lastName}</div>
                                         <div class="text-sm text-muted-foreground">{c.phoneNumber}</div>
                                     </div>
-                                    <div class="opacity-0 lg:group-hover:opacity-100 text-primary font-medium">{m['customerStep.select']()} &rarr;</div>
-                                </Button>
+                                    <span class="font-medium text-primary">{m['customerStep.select']()} &rarr;</span>
+                                </Command.Item>
                             {/each}
-                        </div>
+                        </Command.List>
                     {/if}
-                </div>
+                </Command.Root>
 
                 <Field.Separator class="my-4">{m['common.or']()}</Field.Separator>
 
