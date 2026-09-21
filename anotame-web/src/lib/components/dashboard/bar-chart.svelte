@@ -1,4 +1,6 @@
 <script lang="ts">
+  import * as Chart from '$lib/components/ui/chart';
+  import { BarChart } from 'layerchart';
   import { cn } from '$lib/utils';
 
   /** One column in the chart. */
@@ -13,12 +15,13 @@
   };
 
   /**
-   * Simple column chart with tap-to-reveal values. Hover shows the value on
-   * pointer devices; a tap or Enter pins it, since touch screens cannot hover.
+   * Single-series column chart. The tooltip follows the pointer and opens on
+   * tap, so touch screens get the value without hover. A visually hidden list
+   * carries the same figures for screen readers, which cannot read the SVG.
    */
   interface Props {
     bars: ChartBar[];
-    /** Formats a value for the tooltip. */
+    /** Formats a value for the tooltip and the accessible list. */
     format: (value: number) => string;
     /** Plot height. */
     size?: 'sm' | 'md';
@@ -26,46 +29,45 @@
 
   let { bars, format, size = 'sm' }: Props = $props();
 
-  let activeIndex = $state<number | null>(null);
-  const max = $derived(Math.max(0, ...bars.map((bar) => bar.value)));
-
-  function toggle(index: number) {
-    activeIndex = activeIndex === index ? null : index;
-  }
+  const config = {
+    value: { label: '', color: 'var(--primary)' },
+  } satisfies Chart.ChartConfig;
 </script>
 
-<div class={cn('mt-4 flex w-full items-end gap-2', size === 'md' ? 'h-64 px-2' : 'h-48')}>
-  {#each bars as bar, i (bar.key)}
-    {@const heightPct = max > 0 ? (bar.value / max) * 100 : 0}
-    {@const active = activeIndex === i}
-    <div
-      class="group relative flex h-full flex-1 cursor-pointer flex-col items-center justify-end"
-      role="button"
-      tabindex="0"
-      aria-label={bar.ariaLabel ?? format(bar.value)}
-      onclick={() => toggle(i)}
-      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggle(i)}
-    >
-      <div
-        class={cn(
-          'pointer-events-none absolute -top-10 z-10 rounded bg-foreground px-2 py-1 text-xs whitespace-nowrap text-background shadow-lg transition-transform',
-          active ? 'scale-100' : 'scale-0 group-hover:scale-100'
-        )}
+<Chart.Container {config} class={cn('mt-4 aspect-auto w-full', size === 'md' ? 'h-64' : 'h-48')} aria-hidden="true">
+  <BarChart
+    data={bars}
+    x="key"
+    y="value"
+    axis="x"
+    grid={false}
+    rule={false}
+    bandPadding={0.25}
+    series={[{ key: 'value', label: '', color: config.value.color }]}
+    props={{
+      bars: { stroke: 'none', radius: 4 },
+      xAxis: {
+        format: (key: string) => bars.find((bar) => bar.key === key)?.label ?? '',
+        tickLabelProps: { class: cn('uppercase', size === 'md' ? 'text-xs' : 'text-[10px]') },
+      },
+    }}
+  >
+    {#snippet tooltip()}
+      <Chart.Tooltip
+        indicator="line"
+        labelFormatter={(key: unknown) => bars.find((bar) => bar.key === key)?.label ?? ''}
+        labelClassName="uppercase"
       >
-        {format(bar.value)}
-      </div>
-      <div
-        class="w-full max-w-10 rounded-t-sm bg-primary/80 transition-all duration-500 ease-out hover:bg-primary"
-        style="height: {heightPct}%"
-      ></div>
-      <div
-        class={cn(
-          'mt-2 w-full truncate pb-2 text-center uppercase text-muted-foreground',
-          size === 'md' ? 'text-xs' : 'text-[10px]'
-        )}
-      >
-        {bar.label}
-      </div>
-    </div>
+        {#snippet formatter({ value })}
+          <span class="font-mono font-medium tabular-nums">{format(Number(value))}</span>
+        {/snippet}
+      </Chart.Tooltip>
+    {/snippet}
+  </BarChart>
+</Chart.Container>
+
+<ul class="sr-only">
+  {#each bars as bar (bar.key)}
+    <li>{bar.ariaLabel ?? `${bar.label}: ${format(bar.value)}`}</li>
   {/each}
-</div>
+</ul>
