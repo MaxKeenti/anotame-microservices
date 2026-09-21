@@ -10,7 +10,12 @@
  *   - uses a raw <button>, <input>, <select> or <textarea> instead of a primitive;
  *   - sets an inline `style` attribute.
  * It also fails when any `.svelte` file under `src/` contains a <style> block,
- * since styling is Tailwind-only.
+ * since styling is Tailwind-only, or when a hand-written component file is not
+ * kebab-case (matching what `shadcn-svelte add` generates). Outside the generated
+ * primitives it also rejects raw Tailwind palette colours (`bg-red-500`,
+ * `text-white`, …): colour must come from the theme's semantic tokens (success,
+ * warning, destructive, info, primary, muted…), which carry their own dark-mode
+ * values.
  *
  * Usage: node scripts/lint-route-composition.mjs
  */
@@ -74,10 +79,27 @@ const problems = [];
 const report = (file, line, message) =>
 	problems.push({ file: relative(ROOT, file), line, message });
 
+const COMPONENTS = join(SRC, 'lib', 'components');
+for (const file of walk(COMPONENTS)) {
+	const name = file.split(/[\\/]/).pop();
+	if (!/^[a-z0-9]+(-[a-z0-9]+)*\.svelte$/.test(name)) {
+		report(file, 1, `component file name is not kebab-case: ${name}`);
+	}
+}
+
+const PALETTE =
+	/\b(?:bg|text|border|from|via|to|ring|fill|stroke|outline|decoration|shadow|accent|caret|divide)-(?:red|green|emerald|amber|yellow|blue|sky|orange|rose|slate|gray|zinc|neutral|stone|lime|teal|cyan|indigo|violet|purple|fuchsia|pink)-\d{2,3}\b|\b(?:bg|text|border)-(?:white|black)\b/g;
+const PRIMITIVES = join(SRC, 'lib', 'components', 'ui');
+
 for (const file of walk(SRC)) {
 	const src = readFileSync(file, 'utf8');
 	const styleBlock = /<style\b/.exec(src);
 	if (styleBlock) report(file, lineOf(src, styleBlock.index), '<style> block (styling is Tailwind-only)');
+
+	if (file.startsWith(PRIMITIVES)) continue;
+	for (const colour of src.matchAll(PALETTE)) {
+		report(file, lineOf(src, colour.index), `raw palette colour "${colour[0]}"; use a semantic token`);
+	}
 }
 
 for (const file of walk(ROUTES)) {

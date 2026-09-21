@@ -2,6 +2,7 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
+  import { Badge } from '$lib/components/ui/badge';
   import BarChart from './bar-chart.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Progress } from '$lib/components/ui/progress';
@@ -535,17 +536,17 @@
     </Card.Root>
 
     <!-- At-Risk Customers -->
-    <Card.Root class="border border-amber-500/30">
+    <Card.Root class="border border-warning-border">
       <Card.Header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <AlertTriangle class="w-4 h-4 text-amber-700 dark:text-amber-400" />
+            <AlertTriangle class="w-4 h-4 text-warning-text" />
             <Card.Title>{m['kpi.financial.atRisk.title']()}</Card.Title>
           </div>
           {#if data.atRiskCustomers && data.atRiskCustomers.length > 0}
-            <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 rounded-full">
+            <Badge variant="warning" class="h-6 min-w-6 rounded-full font-bold">
               {data.atRiskCustomers.length}
-            </span>
+            </Badge>
           {/if}
         </div>
         <Card.Description>
@@ -560,12 +561,12 @@
         {:else}
           <div class="space-y-2">
             {#each data.atRiskCustomers as customer}
-              <div class="p-3 bg-amber-500/5 rounded-lg border border-amber-500/20 hover:border-amber-500/40 transition-colors">
+              <div class="p-3 bg-warning/5 rounded-lg border border-warning/20 hover:border-warning/40 transition-colors">
                 <div class="flex items-center justify-between gap-2">
                   <p class="text-sm font-semibold text-foreground truncate">
                     {getAtRiskName(customer)}
                   </p>
-                  <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400 shrink-0">
+                  <span class="text-xs font-mono font-bold text-warning-text shrink-0">
                     {getAtRiskAgeLabel(customer)}
                   </span>
                 </div>

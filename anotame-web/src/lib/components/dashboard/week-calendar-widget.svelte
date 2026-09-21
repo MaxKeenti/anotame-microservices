@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { capacityTone } from '$lib/utils/capacity';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Calendar } from '@lucide/svelte';
   import type { Establishment, WorkloadDayResponse } from '$lib/types/dtos';
@@ -15,13 +16,16 @@
   let thresholdAmber = $state(85);
   let loading = $state(true);
 
-  function getOccupancyColor(pct: number): string {
+  /**
+   * Bar fill for a day. Fully booked is called out on its own; an empty day gets
+   * a neutral track so it is not mistaken for a comfortable, low-load day.
+   */
+  function occupancyBar(pct: number): string {
     if (pct >= 100) return 'bg-destructive';
-    if (pct >= thresholdAmber) return 'bg-red-500';
-    if (pct >= thresholdGreen) return 'bg-amber-500';
-    if (pct > 0)    return 'bg-green-500';
-    return 'bg-secondary/40';
+    if (pct === 0) return 'bg-secondary/40';
+    return capacityTone(pct, { green: thresholdGreen, amber: thresholdAmber }).bar;
   }
+
 
   function fmtDay(dateStr: string): string {
     return new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric' })
@@ -63,9 +67,9 @@
       <div class="flex flex-col items-center gap-1">
         <span class="text-xs font-bold text-muted-foreground uppercase leading-tight text-center">{fmtDay(day.date)}</span>
         <div class="w-full h-11 rounded-md bg-muted/40 flex items-end overflow-hidden">
-          <div class="w-full transition-all duration-700 {getOccupancyColor(pct)}" style="height: {pct}%"></div>
+          <div class="w-full transition-all duration-700 {occupancyBar(pct)}" style="height: {pct}%"></div>
         </div>
-        <span class="text-xs font-mono font-bold {pct >= 100 ? 'text-red-600 dark:text-red-400' : pct >= thresholdAmber ? 'text-amber-700 dark:text-amber-400' : pct >= thresholdGreen ? 'text-amber-700 dark:text-amber-400' : 'text-green-700 dark:text-green-400'}">{pct}%</span>
+        <span class="text-xs font-mono font-bold {capacityTone(pct, { green: thresholdGreen, amber: thresholdAmber }).text}">{pct}%</span>
       </div>
     {/each}
   </div>

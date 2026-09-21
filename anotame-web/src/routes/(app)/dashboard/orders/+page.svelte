@@ -393,7 +393,7 @@
     <SquarePen class="w-4 h-4 mr-2" />
     <span>{m["orders.editDraft"]()}</span>
   </Button>
-  <Button variant="ghost" class="h-11 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
+  <Button variant="destructive" class="h-11 w-full px-4 font-medium touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
     <Trash2 class="w-4 h-4 mr-2" />
     <span>{m["common.delete"]()}</span>
   </Button>

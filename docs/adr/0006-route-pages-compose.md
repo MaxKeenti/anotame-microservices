@@ -26,5 +26,5 @@ and drifts between pages — the failure mode that produced the `.status-badge` 
 `@apply` blobs this decision removes. Every route was migrated, and the rule is enforced:
 `scripts/lint-route-composition.mjs` runs as `bun run lint:routes` in the `prebuild` hook and fails
 the build on visual classes on bare elements or links, raw `<button>`/`<input>`/`<select>`/`<textarea>`,
-inline `style` attributes in routes, or any `<style>` block under `src/`. A route that needs a new visual
+inline `style` attributes in routes, any `<style>` block under `src/`, raw Tailwind palette colours outside the generated primitives (colour comes from semantic tokens), or a hand-written component file that is not kebab-case. A route that needs a new visual
 treatment extracts a component rather than relaxing the gate.

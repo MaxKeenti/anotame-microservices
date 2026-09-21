@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FinancialKpiPanel from '$lib/components/dashboard/FinancialKpiPanel.svelte';
+  import FinancialKpiPanel from '$lib/components/dashboard/financial-kpi-panel.svelte';
   import { LeadText, StatePanel } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
   import { getKpiDashboard } from '../kpiContext';

@@ -170,8 +170,8 @@
         />
         <KpiBreakdown
           entries={[
-            { label: m['kpi.finance.collected'](), value: formatCurrency(collected), tone: 'text-success' },
-            { label: m['kpi.finance.pending'](), value: formatCurrency(pending), tone: 'text-amber-500' },
+            { label: m['kpi.finance.collected'](), value: formatCurrency(collected), tone: 'text-success-text' },
+            { label: m['kpi.finance.pending'](), value: formatCurrency(pending), tone: 'text-warning-text' },
           ]}
         />
         <HintText text={m['kpi.finance.cohortNote']()} class="mt-3" />

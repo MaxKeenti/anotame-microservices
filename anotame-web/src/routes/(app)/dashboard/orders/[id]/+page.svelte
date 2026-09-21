@@ -9,10 +9,10 @@
   import { ErrorState, StatePanel } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
-  import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
-  import PaymentHistoryPanel from "$lib/components/orders/PaymentHistoryPanel.svelte";
-  import ShareTicketDialog from "$lib/components/orders/ShareTicketDialog.svelte";
-  import GarmentTagDialog from "$lib/components/orders/GarmentTagDialog.svelte";
+  import AddPaymentModal from "$lib/components/orders/add-payment-modal.svelte";
+  import PaymentHistoryPanel from "$lib/components/orders/payment-history-panel.svelte";
+  import ShareTicketDialog from "$lib/components/orders/share-ticket-dialog.svelte";
+  import GarmentTagDialog from "$lib/components/orders/garment-tag-dialog.svelte";
   import PanelHeading from "$lib/components/orders/panel-heading.svelte";
   import NotesCallout from "$lib/components/orders/notes-callout.svelte";
   import OrderSummaryPanels from "$lib/components/orders/order-summary-panels.svelte";

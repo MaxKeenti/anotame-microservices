@@ -1,5 +1,6 @@
 <script lang="ts">
-  import CalendarCell from './CalendarCell.svelte';
+  import CalendarCell from './calendar-cell.svelte';
+  import { capacityTone } from '$lib/utils/capacity';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { getLocale } from '$lib/paraglide/runtime';
   import type { CalendarDayResponse } from '$lib/types/dtos';
@@ -71,11 +72,6 @@
     return cellDate < todayStart;
   }
 
-  function getCapacityBarColor(pct: number): string {
-    if (pct < thresholdGreen) return 'bg-green-500';
-    if (pct < thresholdAmber) return 'bg-amber-500';
-    return 'bg-red-500';
-  }
 
   function formatAgendaDate(dateStr: string): string {
     const d = new Date(dateStr + 'T12:00:00');
@@ -89,6 +85,7 @@
       .replace('.', '')
       .toUpperCase();
   }
+  const thresholds = $derived({ green: thresholdGreen, amber: thresholdAmber });
 </script>
 
 <div class="space-y-6">
@@ -150,11 +147,11 @@
     {:else}
       {#each agendaDays as day}
         {@const isTodayDate = day.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`}
-        <div class="flex items-center gap-3 p-3 rounded-lg border {isTodayDate ? 'ring-2 ring-blue-500 border-blue-200 bg-blue-50/50 dark:border-blue-500/30 dark:bg-blue-500/10' : 'bg-card'}">
+        <div class="flex items-center gap-3 p-3 rounded-lg border {isTodayDate ? 'ring-2 ring-info border-info-border bg-info-muted' : 'bg-card'}">
           <!-- Capacity indicator -->
           <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-end overflow-hidden">
             <div
-              class="w-full transition-all {getCapacityBarColor(day.capacityPercent)}"
+              class="w-full transition-all {capacityTone(day.capacityPercent, thresholds).bar}"
               style="height: {Math.min(100, day.capacityPercent)}%"
             ></div>
           </div>
@@ -163,13 +160,13 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <span class="text-sm font-semibold">{formatAgendaDate(day.date)}</span>
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded {day.capacityPercent >= thresholdAmber ? 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400' : day.capacityPercent >= thresholdGreen ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400' : 'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400'}">
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded {capacityTone(day.capacityPercent, thresholds).chip}">
                 {day.capacityPercent.toFixed(0)}%
               </span>
             </div>
             <div class="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
               {#if day.isHoliday}
-                <span class="text-red-600 font-semibold">{m["calendar.day.holiday"]()}</span>
+                <span class="font-semibold text-destructive-text">{m["calendar.day.holiday"]()}</span>
               {/if}
               <span>{m["calendar.day.orders"]({ count: day.orderCount })}</span>
               <span>{formatCurrency(day.scheduledRevenue)}</span>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { apiService, API_SALES } from '$lib/services/api.svelte';
+  import { CAPACITY_TONE } from '$lib/utils/capacity';
   import { InlineAlert, LeadText, PeriodStepper, StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
@@ -8,8 +9,8 @@
   import KpiLegend from '$lib/components/dashboard/kpi-legend.svelte';
   import { Skeleton } from '$lib/components/ui/skeleton';
   import { Truck, AlertCircle, Clock, Calendar } from '@lucide/svelte';
-  import ReceivablesCard from '$lib/components/dashboard/ReceivablesCard.svelte';
-  import CalendarGrid from '$lib/components/calendar/CalendarGrid.svelte';
+  import ReceivablesCard from '$lib/components/dashboard/receivables-card.svelte';
+  import CalendarGrid from '$lib/components/calendar/calendar-grid.svelte';
   import { getLocale } from '$lib/paraglide/runtime';
   import type { CalendarDayResponse, CalendarMonthResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -183,18 +184,18 @@
           <KpiLegend
             entries={[
               {
-                swatch: 'bg-green-200',
+                swatch: CAPACITY_TONE.low.surface,
                 label: m['calendar.capacity.low']({ green: String(dashboard.thresholdGreen) }),
               },
               {
-                swatch: 'bg-amber-200',
+                swatch: CAPACITY_TONE.medium.surface,
                 label: m['calendar.capacity.medium']({
                   green: String(dashboard.thresholdGreen),
                   amber: String(dashboard.thresholdAmber),
                 }),
               },
               {
-                swatch: 'bg-red-200',
+                swatch: CAPACITY_TONE.high.surface,
                 label: m['calendar.capacity.high']({ amber: String(dashboard.thresholdAmber) }),
               },
             ]}

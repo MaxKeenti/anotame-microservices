@@ -4,7 +4,7 @@
   import DashboardTile from '$lib/components/dashboard/dashboard-tile.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
-  import WeekCalendarWidget from '$lib/components/dashboard/WeekCalendarWidget.svelte';
+  import WeekCalendarWidget from '$lib/components/dashboard/week-calendar-widget.svelte';
 
   const userRole = $derived(authService.user?.role);
   const isAdmin = $derived(userRole === 'ADMIN');

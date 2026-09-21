@@ -390,7 +390,7 @@
                 {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
                 {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
             </h3>
-            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-11 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
+            <Button variant="destructive" size="sm" class="ml-auto h-11 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
@@ -486,7 +486,7 @@
                                         <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
                                             <Pencil class="w-5 h-5" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" class="h-12 w-12 text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleRemoveService(idx)}>
+                                        <Button variant="destructive" size="icon" class="h-12 w-12 touch-manipulation" onclick={() => handleRemoveService(idx)}>
                                             <X class="w-6 h-6" />
                                         </Button>
                                     </div>

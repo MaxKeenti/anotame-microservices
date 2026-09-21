@@ -15,8 +15,8 @@ export { default as InlineAlert } from "./inline-alert.svelte";
 export { default as ErrorState } from "./error-state.svelte";
 export { default as StatePanel } from "./state-panel.svelte";
 export { default as ResponsiveDataView } from "./responsive-data-view.svelte";
-export { default as FloatingActionBar } from "./FloatingActionBar.svelte";
-export { default as StatusBadge } from "./StatusBadge.svelte";
+export { default as FloatingActionBar } from "./floating-action-bar.svelte";
+export { default as StatusBadge } from "./status-badge.svelte";
 export {
 	createResponsiveTable,
 	getColumnId,

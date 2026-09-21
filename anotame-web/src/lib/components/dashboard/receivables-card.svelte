@@ -122,7 +122,7 @@
   </Card.Header>
   <Card.Content class="space-y-3">
     <div>
-      <div class="text-3xl font-bold font-mono text-amber-500">
+      <div class="text-3xl font-bold font-mono text-warning-text">
         {formatCurrency(openReceivable)}
       </div>
       <p class="mt-1 text-xs text-muted-foreground">{m['kpi.receivables.openDesc']()}</p>
@@ -183,7 +183,7 @@
             <Progress
               value={widthPct}
               class="h-2"
-              indicatorClass="bg-amber-500"
+              indicatorClass="bg-warning"
               aria-label={BUCKET_LABELS[bucket.bucket]()}
             />
           </div>
@@ -245,7 +245,7 @@
                   <td class="p-2">{order.customerName ?? '—'}</td>
                   <td class="p-2 text-right font-mono">{formatCurrency(order.totalAmount)}</td>
                   <td class="p-2 text-right font-mono">{formatCurrency(order.amountPaid)}</td>
-                  <td class="p-2 text-right font-mono font-medium text-amber-600">
+                  <td class="p-2 text-right font-mono font-medium text-warning-text">
                     {formatCurrency(order.balance)}
                   </td>
                   <td

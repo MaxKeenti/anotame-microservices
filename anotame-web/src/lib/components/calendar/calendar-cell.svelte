@@ -2,6 +2,7 @@
   import { AlertCircle } from '@lucide/svelte';
   import * as Popover from '$lib/components/ui/popover';
   import { Progress } from '$lib/components/ui/progress';
+  import { capacityTone, HOLIDAY_TONE, TODAY_RING } from '$lib/utils/capacity';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
@@ -37,26 +38,17 @@
     isCurrentMonth = true,
   }: Props = $props();
 
-  function getCapacityColor() {
+  const thresholds = $derived({ green: thresholdGreen, amber: thresholdAmber });
+  const tone = $derived(capacityTone(capacityPercent, thresholds));
+
+  /** Whole-cell tint: out-of-month days stay blank, holidays always read as closed. */
+  function cellSurface(): string {
     if (!isCurrentMonth) return 'bg-transparent';
-    if (isHoliday) return 'bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30';
-    if (capacityPercent < thresholdGreen) return 'bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/30';
-    if (capacityPercent < thresholdAmber) return 'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30';
-    return 'bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30';
+    return isHoliday ? HOLIDAY_TONE.surface : tone.surface;
   }
 
-  function getBarColor() {
-    if (capacityPercent < thresholdGreen) return 'bg-green-500';
-    if (capacityPercent < thresholdAmber) return 'bg-amber-500';
-    return 'bg-red-500';
-  }
-
-  function getPercentTextColor() {
-    if (capacityPercent >= thresholdAmber) return 'text-red-600 dark:text-red-400';
-    if (capacityPercent >= thresholdGreen) return 'text-amber-700 dark:text-amber-400';
-    if (capacityPercent > 0) return 'text-green-700 dark:text-green-400';
-    return 'text-muted-foreground';
-  }
+  /** An empty day has nothing to warn about, so its figure stays neutral. */
+  const percentText = $derived(capacityPercent > 0 ? tone.text : 'text-muted-foreground');
 </script>
 
 {#if day}
@@ -65,13 +57,13 @@
       {#snippet child({ props })}
         <div
           {...props}
-          class="relative p-3 min-h-28 border rounded-lg transition-all cursor-pointer hover:shadow-md flex flex-col justify-between {getCapacityColor()} {isPast ? 'opacity-60' : ''} {isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}"
+          class="relative p-3 min-h-28 border rounded-lg transition-all cursor-pointer hover:shadow-md flex flex-col justify-between {cellSurface()} {isPast ? 'opacity-60' : ''} {isToday ? TODAY_RING : ''}"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2">
               <span class="text-xs font-bold uppercase text-muted-foreground">{dateLabel ?? day}</span>
               {#if isHoliday || capacityPercent >= thresholdAmber}
-                <AlertCircle class="w-4 h-4 text-red-500" />
+                <AlertCircle class="w-4 h-4 text-destructive" />
               {/if}
             </div>
           </div>
@@ -81,13 +73,13 @@
               <span class="font-mono text-sm font-bold text-foreground">
                 {totalMinutesUsed} <span class="text-xs font-semibold text-muted-foreground">min</span>
               </span>
-              <span class="text-sm font-black {getPercentTextColor()}">{capacityPercent.toFixed(0)}%</span>
+              <span class="text-sm font-black {percentText}">{capacityPercent.toFixed(0)}%</span>
             </div>
 
             <Progress
               value={Math.min(100, capacityPercent)}
               class="h-2 bg-background/80 shadow-inner"
-              indicatorClass={getBarColor()}
+              indicatorClass={tone.bar}
               aria-label={m["calendar.day.capacity"]()}
             />
 
@@ -104,7 +96,7 @@
     <Popover.Content side="top" class="w-64">
       <div class="space-y-3">
         {#if isHoliday}
-          <div class="text-xs font-semibold text-red-600 uppercase">
+          <div class="text-xs font-semibold text-destructive-text uppercase">
             {m["calendar.day.holiday"]()}
           </div>
         {/if}
@@ -118,7 +110,7 @@
           <Progress
             value={Math.min(100, capacityPercent)}
             class="h-2"
-            indicatorClass={getBarColor()}
+            indicatorClass={tone.bar}
             aria-label={m["calendar.day.capacity"]()}
           />
           <div class="text-xs text-muted-foreground mt-0.5">

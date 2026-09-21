@@ -320,8 +320,9 @@
 {#snippet inProgressActions(row: Row<OrderSummaryResponse>)}
 <div class="flex justify-end items-center gap-2">
   <Button
+    variant="success"
     size="sm"
-    class="h-11 px-4 touch-manipulation font-medium bg-emerald-700 hover:bg-emerald-800 text-white"
+    class="h-11 px-4 touch-manipulation font-medium"
     onclick={() => handleComplete(row.original)}
   >
     <CheckCircle2 class="w-4 h-4 mr-2" />
