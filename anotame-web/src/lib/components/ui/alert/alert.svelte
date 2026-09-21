@@ -7,6 +7,9 @@
 			variant: {
 				default: "bg-card text-card-foreground",
 				destructive: "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+				warning: "border-warning-border bg-warning-muted text-warning-text *:data-[slot=alert-description]:text-warning-text/90",
+				info: "border-info-border bg-info-muted text-info-text *:data-[slot=alert-description]:text-info-text/90",
+				success: "border-success-border bg-success-muted text-success-text *:data-[slot=alert-description]:text-success-text/90",
 			},
 		},
 		defaultVariants: {

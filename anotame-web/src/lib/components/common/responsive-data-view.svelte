@@ -147,8 +147,8 @@
           {#if currentSortId}
             <Button
               variant="outline"
-              size="sm"
-              class="h-12 w-12 p-0 touch-manipulation"
+              size="touch-lg"
+              class="w-12 p-0"
               aria-label={currentSortDesc ? m['cardGrid.sortAscending']() : m['cardGrid.sortDescending']()}
               onclick={() => {
                 if (state.sorting[0]) {
@@ -195,9 +195,9 @@
   <!-- Pagination -->
   {#if showPagination}
     <div class="flex items-center justify-between px-2 py-1">
-      <Button
+      <Button size="touch"
         variant="outline"
-        class="h-11 px-5 touch-manipulation"
+        class="px-5"
         disabled={!state.table.getCanPreviousPage()}
         onclick={() => state.table.previousPage()}
       >
@@ -209,9 +209,9 @@
           total: String(state.table.getPageCount() || 1),
         })}
       </span>
-      <Button
+      <Button size="touch"
         variant="outline"
-        class="h-11 px-5 touch-manipulation"
+        class="px-5"
         disabled={!state.table.getCanNextPage()}
         onclick={() => state.table.nextPage()}
       >

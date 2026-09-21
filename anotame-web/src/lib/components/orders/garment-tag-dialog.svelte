@@ -144,7 +144,7 @@
             onclick={() => (copies = Math.max(1, copies - 1))}
             disabled={copies <= 1}
             variant="outline"
-            class="size-11 touch-manipulation"
+            class="size-11"
             aria-label={m['garmentTag.fewerCopies']()}
           >
             <Minus />
@@ -154,7 +154,7 @@
             onclick={() => (copies = Math.min(MAX_COPIES, copies + 1))}
             disabled={copies >= MAX_COPIES}
             variant="outline"
-            class="size-11 touch-manipulation"
+            class="size-11"
             aria-label={m['garmentTag.moreCopies']()}
           >
             <Plus />
@@ -170,10 +170,10 @@
         <Text variant="small">{m['garmentTag.qrNotice']()}</Text>
       </div>
 
-      <Button
+      <Button size="touch-lg"
         onclick={handlePrint}
         disabled={printing || selectedIds.length === 0}
-        class="h-12 w-full touch-manipulation"
+        class="w-full"
       >
         {printing ? m['garmentTag.printing']() : m['garmentTag.print']({ count: tagCount })}
       </Button>

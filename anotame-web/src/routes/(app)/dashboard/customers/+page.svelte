@@ -80,7 +80,7 @@
     description={m["customers.page.subtitle"]()}
   >
     {#snippet actions()}
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">{m["customers.button.new"]()}</Button>
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto">{m["customers.button.new"]()}</Button>
     {/snippet}
   </PageHeader>
 
@@ -88,17 +88,17 @@
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
+          size="touch"
+          class="px-4 font-medium"
           onclick={() => handleEditClick(row.original)}
         >
           <Edit class="w-4 h-4 mr-2" />
           {m["common.edit"]()}
         </Button>
         <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          variant="destructive-outline"
+          size="touch"
+          class="px-4 font-medium"
           onclick={() => row.original.id && handleDeleteClick(row.original.id)}
         >
           <Trash2 class="w-4 h-4 mr-2" />

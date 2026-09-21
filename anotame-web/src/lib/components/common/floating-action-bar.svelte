@@ -48,7 +48,7 @@
 <div
   role="toolbar"
   aria-label={m["order.bulk.title"]()}
-  class="pointer-events-auto flex items-center gap-3 bg-background/85 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl px-4 py-1.5 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
+  class="pointer-events-auto flex items-center gap-3 bg-background/85 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl px-4 py-2 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 
@@ -57,12 +57,12 @@
       bind:value={selectedStatus}
       placeholder={m["order.bulk.changeStatus"]()}
       items={statusItems}
-      class="h-9 min-w-40 text-sm"
+      class="h-11 min-w-40 text-sm"
     />
     <Button
       variant="default"
-      size="sm"
-      class="h-9 touch-manipulation whitespace-nowrap"
+      size="touch"
+      class="whitespace-nowrap"
       disabled={!selectedStatus}
       onclick={handleChangeStatus}
     >
@@ -73,8 +73,8 @@
   {#snippet deleteButton()}
     <Button
       variant="destructive"
-      size="sm"
-      class="h-9 touch-manipulation whitespace-nowrap"
+      size="touch"
+      class="whitespace-nowrap"
       disabled={!allDraft}
       onclick={onDelete}
     >
@@ -103,8 +103,8 @@
 
   <Button
     variant="ghost"
-    size="icon"
-    class="h-9 w-9 shrink-0 touch-manipulation"
+    size="icon-touch"
+    class="shrink-0"
     aria-label={m["order.bulk.cancelSelection"]()}
     onclick={onCancel}
   >

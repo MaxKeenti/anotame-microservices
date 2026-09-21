@@ -21,11 +21,11 @@
   <div class="flex w-full max-w-sm flex-col justify-center gap-4 sm:max-w-md sm:flex-row">
     {#if !authService.loading}
       {#if authService.isAuthenticated}
-        <Button href="/dashboard" class="w-full sm:w-auto h-14 px-8 text-lg rounded-xl touch-manipulation">
+        <Button size="xl" href="/dashboard" class="w-full sm:w-auto px-8 text-lg rounded-xl">
           {m["landing.button.dashboard"]()}
         </Button>
       {:else}
-        <Button href="/login" variant="secondary" class="w-full sm:w-auto h-14 px-8 text-lg rounded-xl touch-manipulation border mt-3 sm:mt-0">
+        <Button size="xl" href="/login" variant="secondary" class="w-full sm:w-auto px-8 text-lg rounded-xl border mt-3 sm:mt-0">
           {m["landing.button.login"]()}
         </Button>
       {/if}

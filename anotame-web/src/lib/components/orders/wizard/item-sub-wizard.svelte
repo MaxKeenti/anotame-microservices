@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Badge } from '$lib/components/ui/badge';
 	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -377,7 +378,7 @@
         <!-- Header -->
         <div class="flex items-center gap-4 border-b border-border pb-4 mb-4">
             {#if step > 0}
-                <Button variant="ghost" size="sm" class="px-2 h-12 w-12 touch-manipulation" onclick={() => {
+                <Button variant="ghost" size="touch-lg" class="px-2 w-12" onclick={() => {
                     if (step === 2) { editingServiceIndex = -1; step = 1; }
                     else if (step === 3) step = 1;
                     else if (step === 1) step = 0;
@@ -391,7 +392,7 @@
                 {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
                 {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
             </Heading>
-            <Button variant="destructive" size="sm" class="ml-auto h-11 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
+            <Button variant="destructive" size="touch" class="ml-auto px-4" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
@@ -409,7 +410,7 @@
                                     bind:value={customGarmentName}
                                 />
                             </div>
-                            <Button class="w-full h-14 rounded-xl touch-manipulation" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
+                            <Button size="xl" class="w-full rounded-xl" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
                                 {m['itemSubWizard.customGarment.continue']()}
                             </Button>
                         </div>
@@ -418,7 +419,7 @@
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         <Button
                             variant="outline"
-                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal touch-manipulation py-3"
+                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal py-3"
                             onclick={() => showCustomGarmentForm = !showCustomGarmentForm}
                         >
                             <Plus class="w-7 h-7" />
@@ -427,7 +428,7 @@
                         {#each garmentTypes as g}
                             <Button
                                 variant="outline"
-                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation py-3"
+                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal py-3"
                                 onclick={() => handleGarmentSelect(g)}
                             >
                                 <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
@@ -449,7 +450,7 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="font-bold text-2xl">{selectedGarment.name}</div>
                                 {#if selectedGarment.source === 'CUSTOM'}
-                                    <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                    <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                 {/if}
                             </div>
                             {#if selectedGarment.description}
@@ -467,7 +468,7 @@
                                         <div class="flex flex-wrap items-center gap-2">
                                             <div class="font-medium text-lg">{s.serviceName}</div>
                                             {#if s.source === 'CUSTOM'}
-                                                <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                                <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                             {/if}
                                         </div>
                                         <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
@@ -505,7 +506,7 @@
                             {#if selectedGarment.source === 'CATALOG'}
                                 <Button
                                     variant="ghost"
-                                    class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
+                                    class="text-sm text-primary underline h-auto p-0 hover:bg-transparent py-2 px-2"
                                     onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
                                 >
                                     {showAllServices ? m['orders.wizard.viewRecommended']() : m['orders.wizard.viewAll']()}
@@ -515,7 +516,7 @@
 
                         <Button
                             variant="outline"
-                            class="w-full min-h-14 border-dashed border-primary/60 bg-primary/5 hover:bg-primary/10 touch-manipulation"
+                            class="w-full min-h-14 border-dashed border-primary/60 bg-primary/5 hover:bg-primary/10"
                             onclick={handleCustomServiceSelect}
                         >
                             <Plus class="w-5 h-5 mr-2" />
@@ -657,7 +658,7 @@
                         />
                     </div>
 
-                    <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
+                    <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12" onclick={handleAddService}>
                         {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
                 </div>
@@ -670,7 +671,7 @@
                         <div class="flex flex-wrap items-center gap-2 mb-4">
                             <Heading level={2} as="h4">{selectedGarment?.name}</Heading>
                             {#if selectedGarment?.source === 'CUSTOM'}
-                                <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                             {/if}
                         </div>
                         <ul class="space-y-2 text-base text-muted-foreground">
@@ -685,9 +686,9 @@
                             <div class="font-bold text-xl">
                                 {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
                             </div>
-                            <Button
+                            <Button size="touch-lg"
                                 variant="outline"
-                                class="h-12 px-4 touch-manipulation"
+                                class="px-4"
                                 onclick={() => step = 1}
                             >
                                 <Plus class="w-4 h-4 mr-2" />
@@ -714,7 +715,7 @@
             <div class="pt-6 border-t border-border mt-auto pb-4">
                 <Button
                     size="lg"
-                    class="w-full h-16 text-xl rounded-xl shadow-md touch-manipulation"
+                    class="w-full h-16 text-xl rounded-xl shadow-md"
                     onclick={() => step = 3}
                     disabled={addedServices.length === 0}
                 >
@@ -725,7 +726,7 @@
 
         {#if step === 3}
             <div class="pt-6 border-t border-border mt-auto pb-4">
-                <Button size="lg" class="w-full h-16 text-xl rounded-xl shadow-lg touch-manipulation" onclick={handleConfirmItem}>
+                <Button size="lg" class="w-full h-16 text-xl rounded-xl shadow-lg" onclick={handleConfirmItem}>
                     <CheckCircle2 class="mr-2 w-6 h-6" />
                     {m['itemSubWizard.button.confirmGarment']()}
                 </Button>

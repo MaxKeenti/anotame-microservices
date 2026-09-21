@@ -227,7 +227,7 @@
     description={m["operations.page.subtitle"]()}
   >
     {#snippet actions()}
-      <Badge variant="outline" class="h-auto px-4 py-2 text-sm text-muted-foreground">
+      <Badge variant="outline" size="lg" class="text-muted-foreground">
         {inProgressTotal === 1
           ? m["operations.count.single"]({ count: inProgressTotal })
           : m["operations.count.plural"]({ count: inProgressTotal })}
@@ -321,8 +321,8 @@
 <div class="flex justify-end items-center gap-2">
   <Button
     variant="success"
-    size="sm"
-    class="h-11 px-4 touch-manipulation font-medium"
+    size="touch"
+    class="px-4 font-medium"
     onclick={() => handleComplete(row.original)}
   >
     <CheckCircle2 class="w-4 h-4 mr-2" />
@@ -355,8 +355,8 @@
 
 {#snippet readyActions(row: Row<OrderSummaryResponse>)}
 <div class="flex justify-end">
-  <Button
-    class="h-12 px-4 touch-manipulation font-medium"
+  <Button size="touch-lg"
+    class="px-4 font-medium"
     onclick={() => openDeliverDialog(row.original)}
   >
     {m["operations.button.deliver"]()}

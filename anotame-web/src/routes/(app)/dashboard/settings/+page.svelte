@@ -76,7 +76,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Button
           variant={mode.current === 'light' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
+          class="h-24 flex flex-col gap-2"
           onclick={() => setMode('light')}
         >
           <SunIcon class="w-6 h-6" />
@@ -84,7 +84,7 @@
         </Button>
         <Button
           variant={mode.current === 'dark' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
+          class="h-24 flex flex-col gap-2"
           onclick={() => setMode('dark')}
         >
           <MoonIcon class="w-6 h-6" />
@@ -92,7 +92,7 @@
         </Button>
         <Button
           variant={mode.current === undefined ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
+          class="h-24 flex flex-col gap-2"
           onclick={() => resetMode()}
         >
           <MonitorIcon class="w-6 h-6" />
@@ -142,7 +142,7 @@
         {#each PAGE_SIZE_OPTIONS as size (size)}
           <Button
             variant={tablePreferences.pageSize === size ? 'default' : 'outline'}
-            class="h-24 flex flex-col gap-2 touch-manipulation"
+            class="h-24 flex flex-col gap-2"
             onclick={() => tablePreferences.setPageSize(size)}
           >
             <PageSizeOption {size} />
@@ -162,7 +162,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Button
           variant={getLocale() === 'es' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
+          class="h-24 flex flex-col gap-2"
           disabled={changingLocale}
           onclick={() => handleLocaleChange('es')}
         >
@@ -171,7 +171,7 @@
         </Button>
         <Button
           variant={getLocale() === 'en' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
+          class="h-24 flex flex-col gap-2"
           disabled={changingLocale}
           onclick={() => handleLocaleChange('en')}
         >

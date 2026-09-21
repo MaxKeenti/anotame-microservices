@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDateTime } from '$lib/utils/formatUtils';
   import { Button } from '$lib/components/ui/button';
@@ -66,7 +67,7 @@
   <div class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-b border-border bg-secondary/20">
     <div class="wrap-break-word font-bold text-lg">{m['orders.payment.historyTitle']()}</div>
     {#if onRecordPayment}
-      <Button onclick={onRecordPayment} size="sm" class="h-11 touch-manipulation">
+      <Button onclick={onRecordPayment} size="touch">
         <DollarSign />
         {m['orders.payment.recordPayment']()}
       </Button>
@@ -91,9 +92,9 @@
           </span>
 
           <!-- Method badge -->
-          <span class="bg-secondary/50 text-secondary-foreground text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+          <Badge variant="secondary">
             {methodLabel(getPaymentMethod(payment))}
-          </span>
+          </Badge>
 
           <!-- Note -->
           {#if noteLabel(payment)}

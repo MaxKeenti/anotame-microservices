@@ -242,8 +242,8 @@
     <div class="flex gap-2" role="group" data-slot="button-group">
       <Button
         variant={granularity === 'day' ? 'default' : 'outline'}
-        size="sm"
-        class="h-11 px-4 touch-manipulation"
+        size="touch"
+        class="px-4"
         onclick={() => setGranularity('day')}
         aria-label={m['kpi.financial.granularity.day']()}
       >
@@ -251,8 +251,8 @@
       </Button>
       <Button
         variant={granularity === 'week' ? 'default' : 'outline'}
-        size="sm"
-        class="h-11 px-4 touch-manipulation"
+        size="touch"
+        class="px-4"
         onclick={() => setGranularity('week')}
         aria-label={m['kpi.financial.granularity.week']()}
       >
@@ -260,8 +260,8 @@
       </Button>
       <Button
         variant={granularity === 'month' ? 'default' : 'outline'}
-        size="sm"
-        class="h-11 px-4 touch-manipulation"
+        size="touch"
+        class="px-4"
         onclick={() => setGranularity('month')}
         aria-label={m['kpi.financial.granularity.month']()}
       >
@@ -357,7 +357,7 @@
                           {servicePageIndex * pageSize + i + 1}. {service.serviceName}
                         </p>
                         {#if service.source === 'CUSTOM'}
-                          <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+                          <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                         {/if}
                       </div>
                       <Text variant="small">
@@ -404,9 +404,9 @@
 
             {#if servicePageCount > 1}
               <div class="flex items-center justify-between px-2 pt-4">
-                <Button
+                <Button size="touch"
                   variant="outline"
-                  class="h-11 px-5 touch-manipulation"
+                  class="px-5"
                   disabled={servicePageIndex === 0}
                   onclick={previousServicePage}
                 >
@@ -415,9 +415,9 @@
                 <span class="text-sm text-muted-foreground">
                   {m["common.pagination"]({ current: String(servicePageIndex + 1), total: String(servicePageCount) })}
                 </span>
-                <Button
+                <Button size="touch"
                   variant="outline"
-                  class="h-11 px-5 touch-manipulation"
+                  class="px-5"
                   disabled={servicePageIndex >= servicePageCount - 1}
                   onclick={nextServicePage}
                 >
@@ -478,9 +478,9 @@
 
             {#if topCustomerPageCount > 1}
               <div class="flex items-center justify-between px-2 pt-4">
-                <Button
+                <Button size="touch"
                   variant="outline"
-                  class="h-11 px-5 touch-manipulation"
+                  class="px-5"
                   disabled={topCustomerPageIndex === 0}
                   onclick={previousTopCustomerPage}
                 >
@@ -489,9 +489,9 @@
                 <span class="text-sm text-muted-foreground">
                   {m["common.pagination"]({ current: String(topCustomerPageIndex + 1), total: String(topCustomerPageCount) })}
                 </span>
-                <Button
+                <Button size="touch"
                   variant="outline"
-                  class="h-11 px-5 touch-manipulation"
+                  class="px-5"
                   disabled={topCustomerPageIndex >= topCustomerPageCount - 1}
                   onclick={nextTopCustomerPage}
                 >

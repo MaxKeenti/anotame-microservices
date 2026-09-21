@@ -174,7 +174,7 @@
         title={m["orders.detail.notFound"]()}
         description={m["orders.edit.notFoundDescription"]()}
     >
-        <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
+        <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8 rounded-xl">
             {m["orders.detail.backToList"]()}
         </Button>
     </ErrorState>
@@ -185,7 +185,7 @@
             description={m['orders.edit.employeeDescription']()}
         >
             {#snippet actions()}
-                <Button variant="outline" class="h-12 px-6 touch-manipulation" onclick={() => goto(`/dashboard/orders/${id}`)}>
+                <Button size="touch-lg" variant="outline" class="px-6" onclick={() => goto(`/dashboard/orders/${id}`)}>
                     {m["common.cancel"]()}
                 </Button>
             {/snippet}
@@ -227,10 +227,10 @@
             {/if}
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" class="h-12 touch-manipulation" onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
+                <Button size="touch-lg" type="button" variant="outline"  onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
                     {m['common.cancel']()}
                 </Button>
-                <Button type="submit" class="h-12 touch-manipulation" disabled={isLocked || employeeSaving}>
+                <Button size="touch-lg" type="submit"  disabled={isLocked || employeeSaving}>
                     {employeeSaving ? m['common.saving']() : m['common.saveChanges']()}
                 </Button>
             </div>
@@ -253,7 +253,7 @@
             showTray={false}
         >
             {#snippet actions()}
-                <Button variant="outline" class="h-11 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
+                <Button variant="outline" class="h-11 sm:h-12 px-6" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
                     {m["common.cancel"]()}
                 </Button>
             {/snippet}

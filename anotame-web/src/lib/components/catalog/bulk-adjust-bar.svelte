@@ -29,8 +29,8 @@
       <Button
         type="button"
         variant="outline"
-        size="sm"
-        class="h-11 border-success/30 font-mono text-success-text touch-manipulation hover:bg-success/10 hover:text-success-text"
+        size="touch"
+        class="border-success/30 font-mono text-success-text hover:bg-success/10 hover:text-success-text"
         onclick={() => onAdjust(amount)}
       >
         +${amount}
@@ -44,9 +44,9 @@
     {#each STEPS as amount (amount)}
       <Button
         type="button"
-        variant="outline"
-        size="sm"
-        class="h-11 border-destructive/30 font-mono text-destructive touch-manipulation hover:bg-destructive/10 hover:text-destructive"
+        variant="destructive-outline"
+        size="touch"
+        class="font-mono"
         onclick={() => onAdjust(-amount)}
       >
         -${amount}

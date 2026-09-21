@@ -82,7 +82,7 @@
   >
     {#snippet actions()}
       {#if isAdmin}
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">{m["catalog.garments.addButton"]()}</Button>
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto px-6 text-lg font-bold shadow-md">{m["catalog.garments.addButton"]()}</Button>
       {/if}
     {/snippet}
   </PageHeader>
@@ -91,17 +91,17 @@
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
+          size="touch"
+          class="px-4 font-medium"
           onclick={() => handleEditClick(row.original)}
         >
           <Edit class="w-4 h-4 mr-2" />
           {m["common.edit"]()}
         </Button>
         <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          variant="destructive-outline"
+          size="touch"
+          class="px-4 font-medium"
           onclick={() => handleDeleteClick(row.original)}
         >
           <Trash2 class="w-4 h-4 mr-2" />

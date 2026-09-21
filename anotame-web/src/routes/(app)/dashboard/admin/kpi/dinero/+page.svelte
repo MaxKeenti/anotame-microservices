@@ -87,10 +87,10 @@
       <Popover.Root bind:open={monthOpen} onOpenChange={handleMonthOpenChange}>
         <Popover.Trigger>
           {#snippet child({ props })}
-            <Button
+            <Button size="touch"
               {...props}
               variant="outline"
-              class="h-11 w-fit gap-2 capitalize"
+              class="w-fit gap-2 capitalize"
               aria-label={m['kpi.monthPicker.ariaLabel']({ month: selectedMonthLabel })}
             >
               {#if dashboard.monthLoading}
@@ -117,9 +117,9 @@
                 {@const isSelected =
                   pickerYear === dashboard.selectedYear && option.value === dashboard.selectedMonth}
                 {@const isDisabled = isFutureMonth(pickerYear, option.value)}
-                <Button
+                <Button size="touch"
                   variant={isSelected ? 'default' : 'ghost'}
-                  class="h-11 capitalize"
+                  class="capitalize"
                   disabled={isDisabled || dashboard.monthLoading}
                   aria-label={m['kpi.monthPicker.selectMonth']({
                     month: formatMonthLabel(pickerYear, option.value)

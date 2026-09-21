@@ -241,7 +241,7 @@
 <div class="max-w-4xl w-full min-w-0 mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
   <PageHeader title={m["catalog.pricelist.newTitle"]()}>
     {#snippet actions()}
-      <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button size="touch" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
     {/snippet}
   </PageHeader>
 
@@ -356,7 +356,7 @@
         <!-- Bulk adjustments -->
         <BulkAdjustBar onAdjust={handleBulkAdjustment}>
           {#snippet reset()}
-            <Button type="button" variant="ghost" size="sm" class="h-11 text-muted-foreground w-full sm:w-auto" onclick={handleReset} disabled={isFetchingBase}>
+            <Button type="button" variant="ghost" size="touch" class="text-muted-foreground w-full sm:w-auto" onclick={handleReset} disabled={isFetchingBase}>
               {isFetchingBase ? m["common.loading"]() : m["catalog.pricelist.revertOriginals"]()}
             </Button>
           {/snippet}
@@ -378,8 +378,8 @@
 
 
     <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-4 pb-12">
-      <Button type="button" variant="outline" class="h-14 w-full sm:w-auto px-8 text-lg touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
-      <Button type="submit" disabled={isLoading} class="h-14 w-full sm:w-auto px-8 text-lg shadow-md touch-manipulation">
+      <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto px-8 text-lg" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button size="xl" type="submit" disabled={isLoading} class="w-full sm:w-auto px-8 text-lg shadow-md">
         {#if isLoading}
           <Loader2 class="w-4 h-4 mr-2 animate-spin" />
           {m["catalog.pricelist.creating"]()}

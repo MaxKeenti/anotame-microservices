@@ -116,8 +116,8 @@
 
   <TicketFooter notice={m['publicTicket.updated']({ date: formatDateTime(ticket.updatedAt) })}>
     <div class="grid grid-cols-2 gap-3">
-      <Button onclick={shareTicket} class="h-12 touch-manipulation">{m['publicTicket.share']()}</Button>
-      <Button onclick={printTicket} variant="outline" class="h-12 touch-manipulation">{m['publicTicket.print']()}</Button>
+      <Button size="touch-lg" onclick={shareTicket}>{m['publicTicket.share']()}</Button>
+      <Button size="touch-lg" onclick={printTicket} variant="outline">{m['publicTicket.print']()}</Button>
     </div>
   </TicketFooter>
 </PublicTicketShell>

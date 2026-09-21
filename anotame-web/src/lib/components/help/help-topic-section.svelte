@@ -40,7 +40,7 @@
       <Card.Description class="mt-2 text-base text-muted-foreground">{summary}</Card.Description>
     </div>
     {#if topic.appHref && (!topic.adminOnly || isAdmin)}
-      <Button href={topic.appHref} variant="outline" class="h-11 shrink-0">
+      <Button size="touch" href={topic.appHref} variant="outline" class="shrink-0">
         {m['help.action.openPage']()}
         <ExternalLinkIcon class="ml-2 h-4 w-4" />
       </Button>

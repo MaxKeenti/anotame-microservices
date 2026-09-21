@@ -186,7 +186,7 @@
       description={m["catalog.pricelist.editSubtitle"]({ name: $form.name })}
     >
       {#snippet actions()}
-        <Button variant="outline" class="h-11 w-full sm:w-auto touch-manipulation" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+        <Button size="touch" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       {/snippet}
     </PageHeader>
 
@@ -266,7 +266,7 @@
           <!-- Bulk adjustments -->
           <BulkAdjustBar onAdjust={handleBulkAdjustment}>
             {#snippet reset()}
-              <Button type="button" variant="ghost" size="sm" class="h-11 text-muted-foreground w-full sm:w-auto" onclick={handleReset}>
+              <Button type="button" variant="ghost" size="touch" class="text-muted-foreground w-full sm:w-auto" onclick={handleReset}>
                 {m["catalog.pricelist.restoreButton"]()}
               </Button>
             {/snippet}
@@ -287,10 +287,10 @@
       </Card.Root>
 
       <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4 pt-4 pb-12">
-        <Button
+        <Button size="xl"
           type="button"
-          variant="ghost"
-          class="h-14 w-full sm:w-auto px-8 text-lg touch-manipulation text-destructive hover:bg-destructive-muted hover:text-destructive"
+          variant="destructive-outline"
+          class="w-full sm:w-auto"
           onclick={async () => {
             const ok = await adaptiveConfirm({
               title: m["catalog.pricelist.discardTitle"](),
@@ -301,7 +301,7 @@
         >
           {m["catalog.pricelist.discardChanges"]()}
         </Button>
-        <Button type="submit" disabled={isSaving} class="h-14 w-full sm:w-auto px-8 text-lg shadow-md touch-manipulation">
+        <Button size="xl" type="submit" disabled={isSaving} class="w-full sm:w-auto px-8 text-lg shadow-md">
           {#if isSaving}
             <Loader2 class="w-4 h-4 mr-2 animate-spin" />
             {m["catalog.pricelist.saving"]()}

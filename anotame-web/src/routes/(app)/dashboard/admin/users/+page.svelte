@@ -82,7 +82,7 @@
       description={m['users.page.desc']()}
     >
       {#snippet actions()}
-        <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+        <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto shadow-sm">
         {m['users.button.new']()}
         </Button>
       {/snippet}
@@ -92,17 +92,17 @@
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
+          size="touch"
+          class="px-4 font-medium"
           onclick={() => handleEditClick(row.original)}
         >
           <Edit class="w-4 h-4 mr-2" />
           {m['common.edit']()}
         </Button>
         <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
+          variant="destructive-outline"
+          size="touch"
+          class="px-4 font-medium"
           onclick={() => handleDeleteClick(row.original)}
         >
           <Trash2 class="w-4 h-4 mr-2" />

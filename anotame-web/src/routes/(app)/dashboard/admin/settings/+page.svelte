@@ -315,18 +315,18 @@
       </Card.Root>
 
       <div class="flex justify-end gap-4 pt-4">
-        <Button
+        <Button size="touch-lg"
           variant="outline"
           type="button"
-          class="h-12 px-6 touch-manipulation font-medium"
+          class="px-6 font-medium"
           href="/dashboard"
         >
           {m['common.cancel']()}
         </Button>
-        <Button
+        <Button size="touch-lg"
           type="submit"
           disabled={isSaving}
-          class="h-12 px-8 touch-manipulation font-medium shadow-sm"
+          class="px-8 font-medium shadow-sm"
         >
           {isSaving ? m['adminSettings.button.saving']() : m['adminSettings.button.save']()}
         </Button>

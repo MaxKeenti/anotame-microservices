@@ -197,13 +197,13 @@
     </div>
 
     <Dialog.Footer class="gap-2">
-      <Button variant="outline" onclick={handleClose} class="h-12 touch-manipulation">
+      <Button size="touch-lg" variant="outline" onclick={handleClose}>
         {m["common.cancel"]()}
       </Button>
-      <Button
+      <Button size="touch-lg"
         onclick={handleSubmit}
         disabled={!isValid || submitting}
-        class="h-12 touch-manipulation"
+        
       >
         {submitting ? m["orders.pickup.confirming"]() : m["orders.pickup.confirmDelivery"]()}
       </Button>

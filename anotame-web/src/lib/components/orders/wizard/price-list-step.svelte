@@ -178,13 +178,13 @@
 		<Button
 			variant="outline"
 			onclick={onBack}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg touch-manipulation"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg"
 		>
 			{m['orders.detail.back']()}
 		</Button>
 		<Button
 			type="submit"
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md"
 			onclick={handleContinue}
 		>
 			{m['common.continue']()}

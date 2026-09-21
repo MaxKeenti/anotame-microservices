@@ -485,7 +485,7 @@
 			type="button"
 			variant="outline"
 			onclick={props.onBack}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg touch-manipulation"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg"
 			disabled={isSubmitting}
 		>
 			{m['orders.detail.back']()}
@@ -493,7 +493,7 @@
 		<Button
 			type="submit"
 			disabled={isSubmitting}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
+			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md uppercase tracking-wide"
 		>
 			{#if isSubmitting}
 				<Loader2 class="w-4 h-4 mr-2 animate-spin" />

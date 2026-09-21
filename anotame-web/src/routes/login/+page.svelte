@@ -123,7 +123,7 @@
         </Button>
 
         <div class="pt-4 text-center">
-          <Button href="/" variant="ghost" class="min-h-11 text-muted-foreground touch-manipulation hover:text-primary">
+          <Button href="/" variant="ghost" class="min-h-11 text-muted-foreground hover:text-primary">
             {m["login.link.back"]()}
           </Button>
         </div>

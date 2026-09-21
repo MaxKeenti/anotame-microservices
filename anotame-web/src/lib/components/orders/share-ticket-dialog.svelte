@@ -153,12 +153,12 @@
             {m['ticketShare.expires']({ date: formatDateTime(createdShare?.expiresAt) })}
           </Text>
           <div class="grid grid-cols-2 gap-2">
-            <Button onclick={shareLink} class="h-11 touch-manipulation">{m['ticketShare.share']()}</Button>
-            <Button onclick={copyLink} variant="outline" class="h-11 touch-manipulation">{m['ticketShare.copy']()}</Button>
+            <Button size="touch" onclick={shareLink}>{m['ticketShare.share']()}</Button>
+            <Button size="touch" onclick={copyLink} variant="outline">{m['ticketShare.copy']()}</Button>
           </div>
         </div>
       {:else}
-        <Button onclick={createLink} disabled={creating} class="h-12 w-full touch-manipulation">
+        <Button size="touch-lg" onclick={createLink} disabled={creating} class="w-full">
           {creating ? m['ticketShare.creating']() : m['ticketShare.create']()}
         </Button>
       {/if}
@@ -183,11 +183,11 @@
                   <Text variant="small">{m['ticketShare.expires']({ date: formatDateTime(share.expiresAt) })}</Text>
                 </div>
                 {#if isActive(share)}
-                  <Button
+                  <Button size="touch"
                     onclick={() => revokeLink(share)}
                     disabled={revokingId === share.id}
-                    variant="ghost"
-                    class="h-11 shrink-0 text-destructive hover:text-destructive"
+                    variant="destructive-outline"
+                    class="shrink-0"
                   >
                     {m['ticketShare.revoke']()}
                   </Button>

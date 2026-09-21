@@ -179,8 +179,8 @@
         <div class="mt-4 flex flex-wrap gap-2">
           <Button
             variant={category === 'all' ? 'default' : 'outline'}
-            size="sm"
-            class="h-11 touch-manipulation"
+            size="touch"
+            
             onclick={() => category = 'all'}
           >
             {m['help.category.all']()}
@@ -188,8 +188,8 @@
           {#each helpCategories as item (item.id)}
             <Button
               variant={category === item.id ? 'default' : 'outline'}
-              size="sm"
-              class="h-11 touch-manipulation"
+              size="touch"
+              
               onclick={() => category = item.id}
             >
               {item.label()}
@@ -216,12 +216,12 @@
             <HelpTile title={item.title()} description={item.summary()}>
               <div class="mt-4 flex flex-wrap gap-2">
                 {#if item.appHref}
-                  <Button href={item.appHref} class="h-11">
+                  <Button size="touch" href={item.appHref}>
                     {m['help.action.openPage']()}
                     <ExternalLink class="ml-2 h-4 w-4" />
                   </Button>
                 {/if}
-                <Button href={`#${item.topicId}`} variant="outline" class="h-11">
+                <Button size="touch" href={`#${item.topicId}`} variant="outline">
                   {m['help.action.readSteps']()}
                 </Button>
               </div>

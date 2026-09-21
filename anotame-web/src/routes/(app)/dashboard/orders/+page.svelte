@@ -277,7 +277,7 @@
 <div class="space-y-6 animate-in fade-in duration-300">
   <PageHeader title={m["orders.page.title"]()} description={m["orders.page.description"]()}>
     {#snippet actions()}
-      <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ {m["orders.new"]()}</Button>
+      <Button size="touch-lg" href="/dashboard/orders/new" class="w-full sm:w-auto px-6 text-lg font-bold shadow-md">+ {m["orders.new"]()}</Button>
     {/snippet}
   </PageHeader>
 
@@ -325,9 +325,9 @@
       <!-- Clear selection button -->
       {#if selectedOrders.length > 0}
         <div class="flex justify-end">
-          <Button
+          <Button size="touch-lg"
             variant="ghost"
-            class="h-12 px-4 touch-manipulation text-muted-foreground hover:text-foreground"
+            class="px-4 text-muted-foreground hover:text-foreground"
             onclick={clearOrderSelection}
           >
             {m["orders.clearSelection"]({ count: String(selectedOrders.length) })}
@@ -389,11 +389,11 @@
 <!-- Cell renderers shared by the views above. -->
 {#snippet draftActions(row: Row<DraftOrder>)}
 <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-  <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-11 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
+  <Button size="touch" variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="w-full px-4 font-medium hover:text-primary hover:bg-primary/10 flex items-center justify-center sm:w-auto">
     <SquarePen class="w-4 h-4 mr-2" />
     <span>{m["orders.editDraft"]()}</span>
   </Button>
-  <Button variant="destructive" class="h-11 w-full px-4 font-medium touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
+  <Button size="touch" variant="destructive" class="w-full px-4 font-medium sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
     <Trash2 class="w-4 h-4 mr-2" />
     <span>{m["common.delete"]()}</span>
   </Button>
@@ -410,11 +410,11 @@
 
 {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end gap-2 whitespace-nowrap">
-            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-11 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+            <Button size="touch" variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="px-4 font-medium hover:text-primary hover:bg-primary/10">
               <SquarePen class="w-4 h-4 mr-2" />
               {m["common.edit"]()}
             </Button>
-            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-11 px-4 font-medium touch-manipulation">
+            <Button size="touch" variant="outline" href={`/dashboard/orders/${row.original.id}`} class="px-4 font-medium">
               <Eye class="w-4 h-4 mr-2" />
               {m["orders.details"]()}
             </Button>

@@ -16,14 +16,28 @@
 				info: "bg-info-muted text-info-text border-info/20",
 				danger: "bg-destructive-muted text-destructive-text border-destructive/20",
 				muted: "bg-muted text-muted-foreground border-border",
+				/** Brand-tinted tag, such as the "Custom" marker on garments and services. */
+				brand: "bg-primary/10 text-primary border-primary/20 uppercase tracking-wide",
+			},
+			size: {
+				default: "",
+				lg: "h-auto px-4 py-2 text-sm",
+			},
+			/** Bold, uppercase treatment for workflow status. */
+			emphasis: {
+				true: "font-bold uppercase tracking-wide shadow-sm",
+				false: "",
 			},
 		},
 		defaultVariants: {
 			variant: "default",
+			size: "default",
+			emphasis: false,
 		},
 	});
 
 	export type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
+	export type BadgeSize = VariantProps<typeof badgeVariants>["size"];
 </script>
 
 <script lang="ts">
@@ -35,10 +49,14 @@
 		href,
 		class: className,
 		variant = "default",
+		size = "default",
+		emphasis = false,
 		children,
 		...restProps
 	}: WithElementRef<HTMLAnchorAttributes> & {
 		variant?: BadgeVariant;
+		size?: BadgeSize;
+		emphasis?: boolean;
 	} = $props();
 </script>
 
@@ -47,7 +65,7 @@
 	bind:this={ref}
 	data-slot="badge"
 	{href}
-	class={cn(badgeVariants({ variant }), className)}
+	class={cn(badgeVariants({ variant, size, emphasis }), className)}
 	{...restProps}
 >
 	{@render children?.()}

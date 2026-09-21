@@ -168,7 +168,7 @@
             </TableFrame>
 
             <div class="flex justify-end pt-6">
-              <Button onclick={saveWeeklySchedule} disabled={isLoading} class="h-12 px-6 shadow-sm">
+              <Button size="touch-lg" onclick={saveWeeklySchedule} disabled={isLoading} class="px-6 shadow-sm">
                 {isLoading ? m['common.loading']() : m['schedule.button.saveWeekly']()}
               </Button>
             </div>
@@ -217,7 +217,7 @@
                     <Form.FieldErrors />
                   {/snippet}
                 </Form.Field>
-                <Button type="submit" disabled={isHolidaySubmitting} class="w-full h-12 shadow-sm">
+                <Button size="touch-lg" type="submit" disabled={isHolidaySubmitting} class="w-full shadow-sm">
                   {#if isHolidaySubmitting}
                     <Loader2 class="w-4 h-4 mr-2 animate-spin" />
                     {m['schedule.holiday.adding']()}
@@ -261,9 +261,8 @@
                           </Table.Cell>
                           <Table.Cell class="p-4 text-right">
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              class="text-destructive hover:bg-destructive/10 hover:text-destructive h-9 touch-manipulation"
+                              variant="destructive-outline"
+                              size="icon-touch"
                               onclick={() => h.id && handleDeleteHoliday(h.id, h.description)}
                             >
                               <Trash2 class="w-4 h-4" />

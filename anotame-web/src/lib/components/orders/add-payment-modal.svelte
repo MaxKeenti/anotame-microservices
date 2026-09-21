@@ -185,10 +185,10 @@
     </div>
 
     <Dialog.Footer class="gap-2">
-      <Button variant="outline" onclick={handleClose} disabled={submitting} class="h-11 touch-manipulation">
+      <Button size="touch" variant="outline" onclick={handleClose} disabled={submitting}>
         {m['common.cancel']()}
       </Button>
-      <Button onclick={handleSubmit} disabled={submitting || (amount ?? 0) === 0} class="h-11 touch-manipulation">
+      <Button size="touch" onclick={handleSubmit} disabled={submitting || (amount ?? 0) === 0}>
         {#if submitting}
           <Loader2 class="w-4 h-4 mr-2 animate-spin" />
         {/if}

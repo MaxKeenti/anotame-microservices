@@ -100,7 +100,7 @@
       description={m["catalog.pricelists.description"]()}
     >
       {#snippet actions()}
-        <Button href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+        <Button size="touch-lg" href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto shadow-sm">
         {m["catalog.pricelists.addButton"]()}
         </Button>
       {/snippet}
@@ -110,8 +110,8 @@
       <div class="flex justify-end gap-2">
         <Button
           variant="outline"
-          size="sm"
-          class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
+          size="touch"
+          class="border-primary/20 hover:bg-primary/5 text-primary"
           onclick={() => handleClone(row.original.id)}
         >
           <Copy class="w-4 h-4 mr-2" />
@@ -119,17 +119,17 @@
         </Button>
         <Button
           variant="outline"
-          size="sm"
-          class="h-11 touch-manipulation"
+          size="touch"
+          
           href={`/dashboard/catalog/pricelists/${row.original.id}`}
         >
           <Eye class="w-4 h-4 mr-2" />
           {m["catalog.pricelists.viewButton"]()}
         </Button>
         <Button
-          variant="outline"
-          size="sm"
-          class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
+          variant="destructive-outline"
+          size="touch"
+          class=""
           onclick={() => handleDelete(row.original.id, row.original.name)}
         >
           <Trash2 class="w-4 h-4 mr-2" />

@@ -44,7 +44,7 @@
   <div class="flex flex-wrap items-center gap-2">
     <span>{row.original.garmentName}</span>
     {#if row.original.source === 'CUSTOM'}
-      <Badge class="bg-primary/10 uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</Badge>
+      <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
     {/if}
   </div>
 {/snippet}
@@ -61,12 +61,13 @@
           <Text variant="muted" class="mt-1">{service.instructions}</Text>
         {/if}
         {#if service.adjustmentAmount && service.adjustmentAmount !== 0}
-          <span
-            class={`mt-1 inline-block rounded-md px-2 py-0.5 font-mono text-xs font-bold ${service.adjustmentAmount > 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success-text'}`}
+          <Badge
+            variant={service.adjustmentAmount > 0 ? 'danger' : 'success'}
+            class="mt-1 font-mono"
           >
             {service.adjustmentAmount > 0 ? '+' : ''}{service.adjustmentAmount}
             {service.adjustmentReason && ` (${service.adjustmentReason})`}
-          </span>
+          </Badge>
         {/if}
       </div>
     {/each}

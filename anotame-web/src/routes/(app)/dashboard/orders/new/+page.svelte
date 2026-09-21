@@ -77,7 +77,7 @@
             {#snippet actions()}
                 <Button
                     variant="outline"
-                    class="h-8 sm:h-12 px-3 sm:px-6 text-xs sm:text-base touch-manipulation shrink-0"
+                    class="h-8 sm:h-12 px-3 sm:px-6 text-xs sm:text-base shrink-0"
                     onclick={() => { orderWizardState.clearActiveDraft(); goto("/dashboard/orders"); }}
                 >
                     {draft?.isEditing ? m["common.cancel"]() : m["orders.new.exit"]()}

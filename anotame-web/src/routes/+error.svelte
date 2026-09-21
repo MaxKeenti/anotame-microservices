@@ -62,11 +62,11 @@
       {/if}
     {/snippet}
     {#if isUnavailable}
-      <Button onclick={() => location.reload()} size="lg" class="mt-7 w-full touch-manipulation">
+      <Button onclick={() => location.reload()} size="lg" class="mt-7 w-full">
         {m['error.action.retry']()}
       </Button>
     {:else if !isTicketLink}
-      <Button href="/" size="lg" class="mt-7 w-full touch-manipulation">
+      <Button href="/" size="lg" class="mt-7 w-full">
         {m['error.action.home']()}
       </Button>
     {/if}

@@ -66,8 +66,8 @@
                 <Text variant="muted">{draft?.customer?.email}</Text>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <Button variant="outline" class="h-11 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
-                    <Button class="h-11 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl touch-manipulation" onclick={onNext}>{m['common.continue']()}</Button>
+                    <Button variant="outline" class="h-11 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
+                    <Button class="h-11 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl" onclick={onNext}>{m['common.continue']()}</Button>
                 </div>
             </div>
         {:else}
@@ -87,7 +87,7 @@
                             {#each results as c (c.id)}
                                 <Button
                                     variant="ghost"
-                                    class="w-full h-auto text-left py-5 px-4 hover:bg-secondary border-b border-border flex items-center justify-between group transition-colors rounded-none font-normal touch-manipulation"
+                                    class="w-full h-auto text-left py-5 px-4 hover:bg-secondary border-b border-border flex items-center justify-between group transition-colors rounded-none font-normal"
                                     onclick={() => selectCustomer(c)}
                                 >
                                     <div class="text-left">
@@ -103,7 +103,7 @@
 
                 <div class="text-center text-muted-foreground py-4">- O -</div>
 
-                <Button href="/dashboard/customers" variant="secondary" class="w-full h-16 text-lg rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 gap-2 touch-manipulation">
+                <Button href="/dashboard/customers" variant="secondary" class="w-full h-16 text-lg rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 gap-2">
                     <Plus class="w-6 h-6" />
                     {m['customerStep.goCreate']()}
                 </Button>
@@ -113,7 +113,7 @@
 
     {#if !draft?.customer}
         <div class="flex justify-between items-center py-3 sm:py-4 border-t border-border mt-auto">
-            <Button variant="ghost" class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base touch-manipulation" onclick={onBack}>{m['common.cancel']()}</Button>
+            <Button variant="ghost" class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base" onclick={onBack}>{m['common.cancel']()}</Button>
             <Button disabled class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">{m['customerStep.selectPrompt']()}</Button>
         </div>
     {/if}

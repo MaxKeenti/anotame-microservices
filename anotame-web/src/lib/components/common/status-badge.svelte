@@ -1,12 +1,16 @@
 <script lang="ts">
   import { Badge, type BadgeVariant } from "$lib/components/ui/badge";
-  import { cn } from "$lib/utils";
   import * as m from '$lib/paraglide/messages';
 
-  let { status, class: className } = $props<{
+  /** Workflow or payment status rendered as a toned, localized badge. */
+  interface Props {
+    /** Backend status code, such as `IN_PROGRESS` or `PAID`. */
     status: string;
+    /** Layout classes at the call site. */
     class?: string;
-  }>();
+  }
+
+  let { status, class: className }: Props = $props();
 
   const STATUS_TRANSLATIONS: Record<string, () => string> = {
     'RECEIVED': () => m['order.status.received'](),
@@ -37,7 +41,8 @@
 <Badge
   {variant}
   data-status={status}
-  class={cn("rounded-full font-bold uppercase tracking-wide shadow-sm", className)}
+  emphasis
+  class={className}
 >
   {label}
 </Badge>

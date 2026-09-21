@@ -139,8 +139,8 @@
             {#if hasAccordion}
               <Button
                 variant="ghost"
-                size="sm"
-                class="h-11 w-11 p-0 shrink-0 touch-manipulation"
+                size="touch"
+                class="w-11 p-0 shrink-0"
                 aria-label={isOpen ? m['cardGrid.collapseDetails']() : m['cardGrid.expandDetails']()}
                 onclick={() => toggleRow(row.id)}
               >

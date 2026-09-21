@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge';
   /**
    * The first few garment names on an order, with a "+N" chip for the rest.
    * The full list stays available as a tooltip.
@@ -20,11 +21,7 @@
   {#if clean.length > 0}
     {visible.join(', ')}
     {#if hidden > 0}
-      <span
-        class="ml-1 inline-flex rounded-sm bg-muted px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap text-muted-foreground"
-      >
-        +{hidden}
-      </span>
+      <Badge variant="muted" class="ml-1">+{hidden}</Badge>
     {/if}
   {:else}
     -

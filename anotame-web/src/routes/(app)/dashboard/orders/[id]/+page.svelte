@@ -204,7 +204,7 @@
     title={m["orders.detail.notFound"]()}
     description={m["orders.detail.notFoundDescription"]()}
   >
-    <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
+    <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8 rounded-xl">
       {m["orders.detail.backToList"]()}
     </Button>
   </ErrorState>
@@ -236,15 +236,15 @@
         <PickupCodeDisplay code={order.pickupCode} />
       {/if}
       <div class="flex flex-col justify-center gap-2 sm:flex-row" class:mt-4={order.pickupCode}>
-        <Button onclick={() => showShareTicketDialog = true} variant="outline" class="h-11 touch-manipulation">
+        <Button size="touch" onclick={() => showShareTicketDialog = true} variant="outline" >
           <Share2 />
           {m["orders.detail.shareTicket"]()}
         </Button>
-        <Button onclick={handlePrint} variant="outline" class="h-11 touch-manipulation">
+        <Button size="touch" onclick={handlePrint} variant="outline">
           <Printer />
           {m["orders.detail.printTicket"]()}
         </Button>
-        <Button onclick={() => showGarmentTagDialog = true} variant="outline" class="h-11 touch-manipulation">
+        <Button size="touch" onclick={() => showGarmentTagDialog = true} variant="outline" >
           <Tags />
           {m["orders.detail.printTags"]()}
         </Button>
@@ -257,19 +257,19 @@
       <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div class="flex flex-col gap-2 sm:flex-row">
           {#if order.status === 'RECEIVED'}
-            <Button onclick={handleSendToOps} class="h-11 touch-manipulation">
+            <Button size="touch" onclick={handleSendToOps}>
               <Send />
               {m["orders.detail.sendToOps"]()}
             </Button>
           {/if}
           {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
-            <Button href={`/dashboard/orders/${order.id}/edit`} variant="outline" class="h-11 touch-manipulation">
+            <Button size="touch" href={`/dashboard/orders/${order.id}/edit`} variant="outline">
               <Pencil />
               {m["orders.detail.editOrder"]()}
             </Button>
           {/if}
         </div>
-        <Button onclick={handleCancel} variant="destructive" class="h-11 touch-manipulation">
+        <Button size="touch" onclick={handleCancel} variant="destructive">
           <XCircle />
           {m["orders.detail.cancelOrder"]()}
         </Button>
