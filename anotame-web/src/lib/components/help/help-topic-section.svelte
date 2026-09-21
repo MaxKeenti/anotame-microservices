@@ -1,4 +1,5 @@
 <script lang="ts">
+  import IconMedallion from '$lib/components/common/icon-medallion.svelte';
   import { Heading, Text } from '$lib/components/ui/typography';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
@@ -51,11 +52,7 @@
     <ol class="mt-5 space-y-3">
       {#each topic.steps as step, index}
         <li class="grid grid-cols-[2rem_1fr] gap-3">
-          <span
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary"
-          >
-            {index + 1}
-          </span>
+          <IconMedallion size="sm">{index + 1}</IconMedallion>
           <span class="pt-1 text-sm leading-6 text-foreground">{step()}</span>
         </li>
       {/each}

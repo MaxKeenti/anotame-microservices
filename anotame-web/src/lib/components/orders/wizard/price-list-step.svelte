@@ -1,4 +1,5 @@
 <script lang="ts">
+	import IconMedallion from '$lib/components/common/icon-medallion.svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import StatePanel from '$lib/components/common/state-panel.svelte';
 	import { Heading, Text } from '$lib/components/ui/typography';
@@ -156,11 +157,7 @@
 					<div
 						class="w-full bg-primary/5 border border-primary/20 rounded-xl p-6 text-center animate-in fade-in zoom-in-95"
 					>
-						<div
-							class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4"
-						>
-							<Tag class="w-11 h-11" />
-						</div>
+						<IconMedallion size="xl" class="mx-auto mb-4"><Tag /></IconMedallion>
 						<Heading level={2} as="h3">{selectedPriceListName}</Heading>
 						<p class="text-muted-foreground mt-2">{m['priceListStep.activeForOrder']()}</p>
 					</div>

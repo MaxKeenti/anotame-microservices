@@ -1,4 +1,6 @@
 <script lang="ts">
+  import * as ButtonGroup from '$lib/components/ui/button-group';
+  import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Separator } from '$lib/components/ui/separator';
@@ -20,11 +22,11 @@
 <div
   class="flex flex-col flex-wrap items-center gap-2 rounded-lg border border-border bg-secondary/20 p-4 sm:flex-row"
 >
-  <span class="mr-2 text-sm font-bold uppercase tracking-wide opacity-70">
+  <Text variant="label" as="span" class="sm:mr-2">
     {m['catalog.pricelist.bulkAdjust']()}
-  </span>
+  </Text>
 
-  <div class="flex gap-2">
+  <ButtonGroup.Root>
     {#each STEPS as amount (amount)}
       <Button
         type="button"
@@ -36,11 +38,11 @@
         +${amount}
       </Button>
     {/each}
-  </div>
+  </ButtonGroup.Root>
 
   <Separator orientation="vertical" class="mx-2 hidden h-6 sm:block" />
 
-  <div class="flex gap-2">
+  <ButtonGroup.Root>
     {#each STEPS as amount (amount)}
       <Button
         type="button"
@@ -52,7 +54,7 @@
         -${amount}
       </Button>
     {/each}
-  </div>
+  </ButtonGroup.Root>
 
   <Separator class="my-2 w-full sm:mx-2 sm:my-0 sm:h-6 sm:w-px" />
 

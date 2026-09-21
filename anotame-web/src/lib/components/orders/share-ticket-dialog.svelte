@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Item from '$lib/components/ui/item';
-  import { InlineAlert } from '$lib/components/common';
+  import { InlineAlert, FormField } from '$lib/components/common';
+  import { Input } from '$lib/components/ui/input';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -141,17 +142,13 @@
 
       {#if shareUrl}
         <div class="space-y-2">
-          <label for="ticket-share-url" class="text-sm font-medium">{m['ticketShare.linkLabel']()}</label>
-          <input
-            id="ticket-share-url"
-            class="flex h-11 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm"
-            value={shareUrl}
-            readonly
-            aria-label={m['ticketShare.linkLabel']()}
-          />
-          <Text variant="small">
-            {m['ticketShare.expires']({ date: formatDateTime(createdShare?.expiresAt) })}
-          </Text>
+          <FormField
+            label={m['ticketShare.linkLabel']()}
+            for="ticket-share-url"
+            hint={m['ticketShare.expires']({ date: formatDateTime(createdShare?.expiresAt) })}
+          >
+            <Input id="ticket-share-url" value={shareUrl} readonly class="h-11 bg-muted font-mono text-xs" />
+          </FormField>
           <div class="grid grid-cols-2 gap-2">
             <Button size="touch" onclick={shareLink}>{m['ticketShare.share']()}</Button>
             <Button size="touch" onclick={copyLink} variant="outline">{m['ticketShare.copy']()}</Button>

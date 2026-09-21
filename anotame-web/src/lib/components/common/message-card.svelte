@@ -1,4 +1,5 @@
 <script lang="ts">
+  import IconMedallion from './icon-medallion.svelte';
   import { Heading, Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
 
@@ -20,9 +21,9 @@
 
 <div class="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
   {#if icon}
-    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+    <IconMedallion tone="muted" class="mx-auto mb-5">
       {@render icon()}
-    </div>
+    </IconMedallion>
   {/if}
 
   <Heading level={1}>{title}</Heading>

@@ -107,6 +107,7 @@
         <Popover.Content class="w-80 max-w-[calc(100vw-2rem)]" align="end">
           <div class="space-y-4">
             <PeriodStepper
+              fill
               label={String(pickerYear)}
               onPrevious={() => (pickerYear -= 1)}
               onNext={() => (pickerYear += 1)}

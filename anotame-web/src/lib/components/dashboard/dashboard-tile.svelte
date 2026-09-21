@@ -1,4 +1,5 @@
 <script lang="ts">
+  import IconMedallion from '$lib/components/common/icon-medallion.svelte';
   import { Heading, Text } from '$lib/components/ui/typography';
   import type { menuItems } from '$lib/config/menu';
 
@@ -21,11 +22,9 @@
   <div
     class="flex h-full flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 text-center shadow-sm transition-all hover:border-primary/50 hover:shadow-md md:p-8"
   >
-    <div
-      class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
-    >
-      <Icon class="h-8 w-8" />
-    </div>
+    <IconMedallion class="transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+      <Icon />
+    </IconMedallion>
     <div>
       <Heading level={2}>{item.getName()}</Heading>
       <Text variant="muted" class="mt-2">{item.getDescription()}</Text>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import IconMedallion from './icon-medallion.svelte';
   import type { Snippet } from 'svelte';
   import * as Empty from '$lib/components/ui/empty';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
@@ -20,9 +21,9 @@
 </script>
 
 <Empty.Root class={cn('h-[60vh] gap-6 border-0 p-8', className)}>
-  <div class="rounded-full bg-destructive/10 p-6">
-    <TriangleAlertIcon class="size-16 text-destructive" aria-hidden="true" />
-  </div>
+  <IconMedallion tone="destructive" size="2xl">
+    <TriangleAlertIcon />
+  </IconMedallion>
   <div>
     <Empty.Title class="text-2xl font-bold text-destructive">{title}</Empty.Title>
     <Empty.Description class="mt-2 max-w-md text-base">{description}</Empty.Description>

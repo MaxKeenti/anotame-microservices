@@ -1,4 +1,5 @@
 <script lang="ts">
+    import IconMedallion from '$lib/components/common/icon-medallion.svelte';
     import { formatCurrency } from '$lib/utils/formatUtils';
     import * as Item from '$lib/components/ui/item';
     import * as ButtonGroup from '$lib/components/ui/button-group';
@@ -451,7 +452,7 @@
             {#if step === 1 && selectedGarment}
                 <div class="space-y-6">
                     <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
-                        <div class="flex size-14 items-center justify-center rounded-full bg-background text-primary shadow-sm"><Shirt class="size-7" aria-hidden="true" /></div>
+                        <IconMedallion tone="surface" size="md"><Shirt /></IconMedallion>
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="font-bold text-2xl">{selectedGarment.name}</div>

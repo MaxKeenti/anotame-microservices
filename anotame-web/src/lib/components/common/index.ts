@@ -30,3 +30,4 @@ export { default as PaymentMethodPicker, type PaymentMethod } from "./payment-me
 export { default as PageContainer } from "./page-container.svelte";
 export { default as RowActions } from "./row-actions.svelte";
 export { default as SimplePager } from "./simple-pager.svelte";
+export { default as IconMedallion, iconMedallionVariants } from "./icon-medallion.svelte";

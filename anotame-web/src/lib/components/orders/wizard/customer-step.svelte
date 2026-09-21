@@ -1,4 +1,5 @@
 <script lang="ts">
+    import IconMedallion from '$lib/components/common/icon-medallion.svelte';
     import * as InputGroup from '$lib/components/ui/input-group';
    import { Heading, Text } from '$lib/components/ui/typography';
    import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -64,9 +65,7 @@
     <div class="flex-1 flex flex-col items-center justify-start max-w-2xl mx-auto w-full gap-8 pt-4">
         {#if draft?.customer}
             <div class="w-full bg-primary/5 border border-primary/20 rounded-xl p-6 text-center animate-in fade-in zoom-in-95">
-                <div class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User class="w-11 h-11" />
-                </div>
+                <IconMedallion size="xl" class="mx-auto mb-4"><User /></IconMedallion>
                 <Heading level={2} as="h3">{draft?.customer?.firstName} {draft?.customer?.lastName}</Heading>
                 <p class="text-muted-foreground">{draft?.customer?.phoneNumber}</p>
                 <Text variant="muted">{draft?.customer?.email}</Text>

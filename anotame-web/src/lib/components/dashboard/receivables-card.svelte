@@ -8,6 +8,7 @@
   import { Button } from '$lib/components/ui/button';
   import { StatusBadge, InlineAlert, SimplePager, StatePanel } from '$lib/components/common';
   import * as Table from '$lib/components/ui/table';
+  import * as Tabs from '$lib/components/ui/tabs';
   import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
   import { Banknote } from '@lucide/svelte';
@@ -198,74 +199,94 @@
         </div>
       {/if}
 
-      <div class="flex gap-2 border-b pt-2">
-        <Button
-          variant={showDelivered ? 'ghost' : 'default'}
-          size="sm"
-          onclick={() => selectTab(false)}
-        >
-          {m['kpi.receivables.tabOpen']()} ({breakdown.openOrderCount})
-        </Button>
-        <Button
-          variant={showDelivered ? 'default' : 'ghost'}
-          size="sm"
-          onclick={() => selectTab(true)}
-        >
-          {m['kpi.receivables.tabDelivered']()} ({breakdown.deliveredUnpaidOrderCount})
-        </Button>
-      </div>
+      <Tabs.Root
 
-      {#if loading}
-        <StatePanel message={m['common.loading']()} spinner size="inline" />
-      {:else if orders && orders.items.length > 0}
-        <Table.Root>
-          <Table.Header>
-            <Table.Row class="hover:bg-transparent">
-              <Table.Head class="whitespace-nowrap">{m['kpi.receivables.colTicket']()}</Table.Head>
-              <Table.Head>{m['kpi.receivables.colCustomer']()}</Table.Head>
-              <Table.Head class="text-right">{m['kpi.receivables.colTotal']()}</Table.Head>
-              <Table.Head class="text-right">{m['kpi.receivables.colPaid']()}</Table.Head>
-              <Table.Head class="text-right">{m['kpi.receivables.colBalance']()}</Table.Head>
-              <Table.Head class="text-right">{m['kpi.receivables.colDays']()}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {#each orders.items as order (order.id)}
-              <Table.Row>
-                <Table.Cell class="font-mono text-xs whitespace-nowrap">{order.ticketNumber}</Table.Cell>
-                <Table.Cell>{order.customerName ?? '—'}</Table.Cell>
-                <Table.Cell class="text-right font-mono">{formatCurrency(order.totalAmount)}</Table.Cell>
-                <Table.Cell class="text-right font-mono">{formatCurrency(order.amountPaid)}</Table.Cell>
-                <Table.Cell class="text-right font-mono font-medium text-warning-text">
-                  {formatCurrency(order.balance)}
-                </Table.Cell>
-                <Table.Cell class={cn('text-right font-mono', order.daysOutstanding > 90 && 'text-destructive')}>
-                  {order.daysOutstanding}
-                </Table.Cell>
-              </Table.Row>
-            {/each}
-          </Table.Body>
-          </Table.Root>
+        value={showDelivered ? 'delivered' : 'open'}
 
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>
-            {m['kpi.receivables.totalBalance']({
-              amount: formatCurrency(orders.totalBalance)
-            })}
-          </span>
-          {#if orders.totalPages > 1}
-            <SimplePager
-              class="px-0"
-              pageIndex={page}
-              pageCount={orders.totalPages}
-              onPrevious={() => (page = page - 1)}
-              onNext={() => (page = page + 1)}
-            />
-          {/if}
-        </div>
-      {:else}
-        <StatePanel message={m['kpi.receivables.empty']()} size="inline" />
-      {/if}
+        onValueChange={(v) => selectTab(v === 'delivered')}
+
+        class="gap-4 pt-2"
+
+      >
+
+        <Tabs.List>
+
+          <Tabs.Trigger value="open">
+
+            {m['kpi.receivables.tabOpen']()} ({breakdown.openOrderCount})
+
+          </Tabs.Trigger>
+
+          <Tabs.Trigger value="delivered">
+
+            {m['kpi.receivables.tabDelivered']()} ({breakdown.deliveredUnpaidOrderCount})
+
+          </Tabs.Trigger>
+
+        </Tabs.List>
+
+        <!-- Both tabs show the same order table; the selected tab only changes its filter. -->
+
+        <Tabs.Content value="open" class="space-y-4">{@render ordersTable()}</Tabs.Content>
+
+        <Tabs.Content value="delivered" class="space-y-4">{@render ordersTable()}</Tabs.Content>
+
+      </Tabs.Root>
     {/if}
   </Dialog.Content>
 </Dialog.Root>
+
+{#snippet ordersTable()}
+
+  {#if loading}
+    <StatePanel message={m['common.loading']()} spinner size="inline" />
+  {:else if orders && orders.items.length > 0}
+    <Table.Root>
+      <Table.Header>
+        <Table.Row class="hover:bg-transparent">
+          <Table.Head class="whitespace-nowrap">{m['kpi.receivables.colTicket']()}</Table.Head>
+          <Table.Head>{m['kpi.receivables.colCustomer']()}</Table.Head>
+          <Table.Head class="text-right">{m['kpi.receivables.colTotal']()}</Table.Head>
+          <Table.Head class="text-right">{m['kpi.receivables.colPaid']()}</Table.Head>
+          <Table.Head class="text-right">{m['kpi.receivables.colBalance']()}</Table.Head>
+          <Table.Head class="text-right">{m['kpi.receivables.colDays']()}</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {#each orders.items as order (order.id)}
+          <Table.Row>
+            <Table.Cell class="font-mono text-xs whitespace-nowrap">{order.ticketNumber}</Table.Cell>
+            <Table.Cell>{order.customerName ?? '—'}</Table.Cell>
+            <Table.Cell class="text-right font-mono">{formatCurrency(order.totalAmount)}</Table.Cell>
+            <Table.Cell class="text-right font-mono">{formatCurrency(order.amountPaid)}</Table.Cell>
+            <Table.Cell class="text-right font-mono font-medium text-warning-text">
+              {formatCurrency(order.balance)}
+            </Table.Cell>
+            <Table.Cell class={cn('text-right font-mono', order.daysOutstanding > 90 && 'text-destructive')}>
+              {order.daysOutstanding}
+            </Table.Cell>
+          </Table.Row>
+        {/each}
+      </Table.Body>
+      </Table.Root>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+      <span>
+        {m['kpi.receivables.totalBalance']({
+          amount: formatCurrency(orders.totalBalance)
+        })}
+      </span>
+      {#if orders.totalPages > 1}
+        <SimplePager
+          class="px-0"
+          pageIndex={page}
+          pageCount={orders.totalPages}
+          onPrevious={() => (page = page - 1)}
+          onNext={() => (page = page + 1)}
+        />
+      {/if}
+    </div>
+  {:else}
+    <StatePanel message={m['kpi.receivables.empty']()} size="inline" />
+  {/if}
+{/snippet}

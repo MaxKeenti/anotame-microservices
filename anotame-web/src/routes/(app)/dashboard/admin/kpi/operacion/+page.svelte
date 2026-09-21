@@ -154,7 +154,6 @@
           <Card.Description>{m['calendar.description']()}</Card.Description>
         </div>
         <PeriodStepper
-          framed
           label={calendarMonthLabel}
           labelWidth="min-w-36 md:min-w-44"
           onPrevious={handlePreviousCalendarMonth}

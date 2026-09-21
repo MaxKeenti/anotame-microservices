@@ -6,6 +6,7 @@
   import { cn } from '$lib/utils';
   import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { FormField } from '$lib/components/common';
   import { apiService, API_IDENTITY, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
 
@@ -137,12 +138,9 @@
     <form method="POST" use:enhance class="space-y-4 py-4">
       {#if $form.id}
         <!-- Username: read-only -->
-        <div class="space-y-2">
-          <Form.Label>{m['common.user']()}</Form.Label>
-          <div id="u-username" class="flex h-12 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
-            {$form.username}
-          </div>
-        </div>
+        <FormField label={m['common.user']()} for="u-username">
+          <Input id="u-username" value={$form.username} readonly class="h-12 bg-muted text-muted-foreground" />
+        </FormField>
       {:else}
         <!-- Username input for creation -->
         <Form.Field form={superform} name="username">

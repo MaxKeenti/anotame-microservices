@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
+  import * as ButtonGroup from '$lib/components/ui/button-group';
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { cn } from '$lib/utils';
@@ -13,8 +14,8 @@
     onNext: () => void;
     previousDisabled?: boolean;
     nextDisabled?: boolean;
-    /** Draws a frame around the control, for use on a page rather than in a popover. */
-    framed?: boolean;
+    /** Stretches the control to its container, with the label taking the free space. */
+    fill?: boolean;
     /** Minimum-width classes for the label, so the arrows do not shift between values. */
     labelWidth?: string;
   }
@@ -25,36 +26,34 @@
     onNext,
     previousDisabled = false,
     nextDisabled = false,
-    framed = false,
+    fill = false,
     labelWidth = 'min-w-24',
   }: Props = $props();
 </script>
 
-<div
-  class={cn(
-    'flex items-center justify-between gap-2',
-    framed && 'rounded-lg border border-border bg-muted/30 p-1'
-  )}
->
+<ButtonGroup.Root class={cn(fill && 'w-full')}>
   <Button
-    variant="ghost"
-    size="icon"
-    class="h-10 w-10"
+    variant="outline"
+    size="icon-touch"
     onclick={onPrevious}
     disabled={previousDisabled}
     aria-label={m['common.previous']()}
   >
-    <ChevronLeftIcon class="h-5 w-5" />
+    <ChevronLeftIcon class="size-5" />
   </Button>
-  <span class={cn('text-center text-sm font-bold capitalize', labelWidth)}>{label}</span>
+  <ButtonGroup.Text
+    class={cn('justify-center bg-background font-bold capitalize', fill && 'flex-1', labelWidth)}
+    aria-live="polite"
+  >
+    {label}
+  </ButtonGroup.Text>
   <Button
-    variant="ghost"
-    size="icon"
-    class="h-10 w-10"
+    variant="outline"
+    size="icon-touch"
     onclick={onNext}
     disabled={nextDisabled}
     aria-label={m['common.next']()}
   >
-    <ChevronRightIcon class="h-5 w-5" />
+    <ChevronRightIcon class="size-5" />
   </Button>
-</div>
+</ButtonGroup.Root>
