@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import { onMount } from 'svelte';
   import BulkAdjustBar from '$lib/components/catalog/bulk-adjust-bar.svelte';
   import { Separator } from '$lib/components/ui/separator';
@@ -16,7 +17,6 @@
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
@@ -163,7 +163,7 @@
 </script>
 
 {#if isLoading}
-  <StatePanel message={m["catalog.pricelist.loadingStrategy"]()} loading class="border-0" />
+  <StatePanel message={m["catalog.pricelist.loadingStrategy"]()} loading size="page" />
 {:else}
   {#snippet overrideCellRender(row: Row<ServiceResponse>)}
     <Input
@@ -303,7 +303,7 @@
         </Button>
         <Button size="xl" type="submit" disabled={isSaving} class="w-full sm:w-auto px-8 text-lg shadow-md">
           {#if isSaving}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m["catalog.pricelist.saving"]()}
           {:else}
             {m["catalog.pricelist.saveStrategyButton"]()}

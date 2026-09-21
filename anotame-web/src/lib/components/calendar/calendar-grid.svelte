@@ -1,4 +1,5 @@
 <script lang="ts">
+  import StatePanel from '$lib/components/common/state-panel.svelte';
   import { Heading, Text } from '$lib/components/ui/typography';
   import CalendarCell from './calendar-cell.svelte';
   import { capacityTone } from '$lib/utils/capacity';
@@ -144,7 +145,7 @@
     </Text>
 
     {#if agendaDays.length === 0}
-      <Text variant="muted" class="py-4 text-center">{m["common.noData"]()}</Text>
+      <StatePanel message={m["common.noData"]()} size="inline" />
     {:else}
       {#each agendaDays as day}
         {@const isTodayDate = day.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`}

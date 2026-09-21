@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
   import { cn } from '$lib/utils';
   import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from '@lucide/svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { isApiError } from '$lib/services/ApiError';
@@ -192,7 +192,7 @@
         </Dialog.Close>
         <Button size="touch-lg" type="submit" disabled={isSubmitting} class="w-full sm:w-auto px-6">
           {#if isSubmitting}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m['common.saving']()}
           {:else}
             {m['common.save']()}

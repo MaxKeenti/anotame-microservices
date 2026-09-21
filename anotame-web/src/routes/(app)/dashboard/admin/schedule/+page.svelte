@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import { onMount } from 'svelte';
   import WorkdayRow from '$lib/components/schedule/workday-row.svelte';
   import { PageHeader, StatePanel, TableFrame, PageContainer } from '$lib/components/common';
@@ -11,7 +12,7 @@
   import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { CalendarDays, AlertTriangle, Trash2, Loader2 } from '@lucide/svelte';
+  import { CalendarDays, AlertTriangle, Trash2 } from '@lucide/svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
@@ -219,7 +220,7 @@
                 </Form.Field>
                 <Button size="touch-lg" type="submit" disabled={isHolidaySubmitting} class="w-full shadow-sm">
                   {#if isHolidaySubmitting}
-                    <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+                    <Spinner data-icon="inline-start" aria-hidden="true" />
                     {m['schedule.holiday.adding']()}
                   {:else}
                     {m['schedule.holiday.addButton']()}
@@ -237,7 +238,7 @@
             </Card.Header>
             <Card.Content>
               {#if holidays.length === 0}
-                <StatePanel message={m['schedule.holiday.empty']()} class="h-auto border-2 border-dashed bg-muted/10 py-12" />
+                <StatePanel message={m['schedule.holiday.empty']()} size="inset" />
               {:else}
                 <TableFrame>
                   <Table.Root class="min-w-100">

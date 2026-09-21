@@ -1,11 +1,13 @@
 <script lang="ts">
+	import * as Alert from '$lib/components/ui/alert';
+	import StatePanel from '$lib/components/common/state-panel.svelte';
 	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
 	import { AdaptiveSelect } from '$lib/components/ui/responsive';
 	import { Button } from '$lib/components/ui/button';
-	import { Tag, Loader2, AlertTriangle } from '@lucide/svelte';
+	import { Tag, AlertTriangle } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
 	import * as m from '$lib/paraglide/messages';
@@ -125,16 +127,13 @@
 			<!-- Selection mode -->
 			<div class="w-full space-y-6">
 				{#if isLoading}
-					<div class="flex items-center justify-center py-12 gap-3">
-						<Loader2 class="w-5 h-5 animate-spin text-primary" />
-						<span class="text-muted-foreground">{m['priceListStep.loading']()}</span>
-					</div>
+					<StatePanel message={m['priceListStep.loading']()} spinner size="inline" />
 				{:else if hasError}
-					<div class="flex flex-col items-center justify-center py-12 gap-3 text-destructive">
-						<AlertTriangle class="w-8 h-8" />
-						<span class="text-center">{m['priceListStep.toast.loadListsError']()}</span>
-						<Text variant="muted">{m['priceListStep.toast.loadListsErrorDesc']()}</Text>
-					</div>
+					<Alert.Root variant="destructive">
+						<AlertTriangle aria-hidden="true" />
+						<Alert.Title>{m['priceListStep.toast.loadListsError']()}</Alert.Title>
+						<Alert.Description>{m['priceListStep.toast.loadListsErrorDesc']()}</Alert.Description>
+					</Alert.Root>
 				{:else}
 					<AdaptiveSelect
 						placeholder={m['priceListStep.none']()}

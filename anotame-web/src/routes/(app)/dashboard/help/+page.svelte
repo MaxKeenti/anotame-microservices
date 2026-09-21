@@ -226,7 +226,7 @@
       </Card.Root>
 
       {#if visibleTopics.length === 0}
-        <StatePanel message={m['help.search.noResults']()} class="h-auto p-8" />
+        <StatePanel message={m['help.search.noResults']()} size="inset" />
       {:else}
         {#each visibleTopics as topic (topic.id)}
           <HelpTopicSection {topic} {isAdmin} />

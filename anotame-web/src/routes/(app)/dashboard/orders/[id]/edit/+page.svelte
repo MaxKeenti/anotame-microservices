@@ -168,7 +168,7 @@
 </script>
 
 {#if isLoading}
-    <StatePanel message={m["orders.detail.loading"]()} spinner class="h-[60vh] border-0" />
+    <StatePanel message={m["orders.detail.loading"]()} spinner size="page" />
 {:else if notFound}
     <ErrorState
         title={m["orders.detail.notFound"]()}

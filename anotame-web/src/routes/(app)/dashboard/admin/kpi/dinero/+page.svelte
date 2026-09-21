@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { HintText, LeadText, PeriodStepper, StatePanel } from '$lib/components/common';
@@ -9,7 +10,7 @@
   import BarChart from '$lib/components/dashboard/bar-chart.svelte';
   import KpiBreakdown from '$lib/components/dashboard/kpi-breakdown.svelte';
   import * as Popover from '$lib/components/ui/popover';
-  import { TrendingUp, Calendar, Loader2 } from '@lucide/svelte';
+  import { TrendingUp, Calendar } from '@lucide/svelte';
   import { getLocale } from '$lib/paraglide/runtime';
   import * as m from '$lib/paraglide/messages';
   import { getKpiDashboard } from '../kpiContext';
@@ -95,7 +96,7 @@
               aria-label={m['kpi.monthPicker.ariaLabel']({ month: selectedMonthLabel })}
             >
               {#if dashboard.monthLoading}
-                <Loader2 class="h-4 w-4 animate-spin" />
+                <Spinner aria-hidden="true" />
               {:else}
                 <Calendar class="h-4 w-4" />
               {/if}

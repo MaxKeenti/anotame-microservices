@@ -197,7 +197,7 @@
     message={m["orders.detail.loading"]()}
     detail={`ID: ${id}`}
     spinner
-    class="h-[60vh] border-0"
+    size="page"
   />
 {:else if !order}
   <ErrorState

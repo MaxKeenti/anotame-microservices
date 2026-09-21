@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import { useGuestGuard } from '$lib/guards/index.svelte';
   import { BrandWordmark, CenteredPage, InlineAlert } from '$lib/components/common';
   import { authService } from '$lib/services/auth.svelte';
@@ -7,7 +8,6 @@
   import * as Form from '$lib/components/ui/form';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from '@lucide/svelte';
   import { superForm, defaults, setError } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
@@ -115,7 +115,7 @@
           disabled={isLoading}
         >
           {#if isLoading}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m["login.button.loading"]()}
           {:else}
             {m["login.button.submit"]()}

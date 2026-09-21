@@ -146,7 +146,7 @@
 </svelte:head>
 
 {#if guard.checking}
-  <StatePanel message={m["layout.validatingSession"]()} spinner class="h-screen border-0" />
+  <StatePanel message={m["layout.validatingSession"]()} spinner size="screen" />
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
   <AppShell>

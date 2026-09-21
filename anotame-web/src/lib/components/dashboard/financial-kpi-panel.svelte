@@ -1,4 +1,6 @@
 <script lang="ts">
+  import * as Empty from '$lib/components/ui/empty';
+  import StatePanel from '$lib/components/common/state-panel.svelte';
   import * as Item from '$lib/components/ui/item';
   import SimplePager from '$lib/components/common/simple-pager.svelte';
   import * as Alert from '$lib/components/ui/alert';
@@ -276,15 +278,13 @@
   {:else if !data || data.revenueTrend.length === 0}
     <Card.Root>
       <Card.Content class="pt-8">
-        <div class="flex flex-col items-center justify-center py-12">
-          <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-            <TrendingUp class="w-8 h-8 text-muted-foreground" />
-          </div>
-          <p class="text-base font-medium text-foreground">{m['kpi.financial.revenue.empty']()}</p>
-          <Text variant="muted" class="mt-2 text-center">
-            {m['kpi.emptyDescription']()}
-          </Text>
-        </div>
+        <Empty.Root class="py-12">
+          <Empty.Header>
+            <Empty.Media variant="icon"><TrendingUp /></Empty.Media>
+            <Empty.Title>{m['kpi.financial.revenue.empty']()}</Empty.Title>
+            <Empty.Description>{m['kpi.emptyDescription']()}</Empty.Description>
+          </Empty.Header>
+        </Empty.Root>
       </Card.Content>
     </Card.Root>
   {:else}
@@ -325,9 +325,7 @@
         </Card.Header>
         <Card.Content>
           {#if rankedServices.length === 0}
-            <div class="py-8 text-center text-muted-foreground text-sm">
-              {m['kpi.financial.services.empty']()}
-            </div>
+            <StatePanel message={m['kpi.financial.services.empty']()} size="inline" />
           {:else}
             <Item.Group class="gap-2">
               {#each pagedServices as service, i}
@@ -389,9 +387,7 @@
         </Card.Header>
         <Card.Content>
           {#if rankedTopCustomers.length === 0}
-            <div class="py-8 text-center text-muted-foreground text-sm">
-              {m['kpi.financial.topCustomers.empty']()}
-            </div>
+            <StatePanel message={m['kpi.financial.topCustomers.empty']()} size="inline" />
           {:else}
             <Item.Group class="gap-3">
               {#each pagedTopCustomers as customer, i}
@@ -435,9 +431,7 @@
       </Card.Header>
       <Card.Content>
         {#if !data.totalCustomersInPeriod || data.totalCustomersInPeriod === 0}
-          <div class="py-8 text-center text-muted-foreground text-sm">
-            {m['kpi.financial.repeatRate.empty']()}
-          </div>
+          <StatePanel message={m['kpi.financial.repeatRate.empty']()} size="inline" />
         {:else}
           <div class="space-y-2">
             <Text variant="metric" size="lg" class="text-primary">
@@ -474,9 +468,7 @@
       </Card.Header>
       <Card.Content>
         {#if !data.atRiskCustomers || data.atRiskCustomers.length === 0}
-          <div class="py-8 text-center text-muted-foreground text-sm">
-            {m['kpi.financial.atRisk.empty']()}
-          </div>
+          <StatePanel message={m['kpi.financial.atRisk.empty']()} size="inline" />
         {:else}
           <div class="space-y-2">
             {#each data.atRiskCustomers as customer}

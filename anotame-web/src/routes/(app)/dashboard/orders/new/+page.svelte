@@ -63,7 +63,7 @@
 </script>
 
 {#if isLoading}
-    <StatePanel message={m["common.loading"]()} class="h-auto min-h-0 flex-1 border-0" />
+    <StatePanel message={m["common.loading"]()} size="page" />
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
     

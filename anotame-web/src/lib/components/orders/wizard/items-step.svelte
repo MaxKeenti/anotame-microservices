@@ -1,4 +1,5 @@
 <script lang="ts">
+    import * as Empty from '$lib/components/ui/empty';
     import * as Item from '$lib/components/ui/item';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import { Badge } from '$lib/components/ui/badge';
@@ -88,15 +89,14 @@
 
        <div class="flex-1 space-y-4">
            {#if items.length === 0}
-               <div class="h-64 flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl text-muted-foreground w-full">
-                   <p class="text-lg">{m['itemsStep.empty']()}</p>
-                   <button
-                       class="mt-6 text-primary font-bold text-lg cursor-pointer hover:underline touch-manipulation py-4 px-6 bg-primary/5 rounded-xl transition-colors"
-                       onclick={() => isAddingItem = true}
-                   >
-                       {m['itemsStep.addFirst']()}
-                   </button>
-               </div>
+               <Empty.Root class="h-64 border-2 text-muted-foreground">
+                   <Empty.Title class="text-lg font-normal">{m['itemsStep.empty']()}</Empty.Title>
+                   <Empty.Content>
+                       <Button variant="ghost" size="xl" class="bg-primary/5 font-bold text-primary" onclick={() => isAddingItem = true}>
+                           {m['itemsStep.addFirst']()}
+                       </Button>
+                   </Empty.Content>
+               </Empty.Root>
            {:else}
                {#each items as item, idx}
                    <Item.Root variant="outline" class="animate-in fade-in slide-in-from-bottom-2 items-start bg-card p-5 shadow-sm">

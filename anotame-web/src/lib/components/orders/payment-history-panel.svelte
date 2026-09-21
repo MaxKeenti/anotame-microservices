@@ -80,9 +80,9 @@
   </PanelHeading>
 
   {#if loading}
-    <StatePanel message={m['orders.detail.loading']()} loading class="h-auto border-0 py-8" />
+    <StatePanel message={m['orders.detail.loading']()} loading size="inline" />
   {:else if payments.length === 0}
-    <StatePanel message={m['orders.payment.emptyHistory']()} class="h-auto border-0 py-8" />
+    <StatePanel message={m['orders.payment.emptyHistory']()} size="inline" />
   {:else}
     <Item.Group class="gap-0 divide-y divide-border">
       {#each payments as payment}

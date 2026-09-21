@@ -87,9 +87,9 @@
 {/if}
 
 {#if loading}
-  <StatePanel message={m['common.loading']()} loading class="h-32 border-0" />
+  <StatePanel message={m['common.loading']()} loading size="inline" />
 {:else if state.table.getRowModel().rows.length === 0}
-  <StatePanel message={emptyMessage} class="h-32 border-0" />
+  <StatePanel message={emptyMessage} size="inline" />
 {:else}
   <div class="grid grid-cols-1 gap-3">
     {#each state.table.getRowModel().rows as row (row.id)}

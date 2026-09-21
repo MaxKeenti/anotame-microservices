@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import { onMount } from 'svelte';
   import BulkAdjustBar from '$lib/components/catalog/bulk-adjust-bar.svelte';
   import { Separator } from '$lib/components/ui/separator';
@@ -13,7 +14,6 @@
   import * as Card from '$lib/components/ui/card';
   import { PageHeader, RequiredMark, ResponsiveDataView, TableFrame, PageContainer } from '$lib/components/common';
   import { toast } from 'svelte-sonner';
-  import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
@@ -381,7 +381,7 @@
       <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto px-8 text-lg" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       <Button size="xl" type="submit" disabled={isLoading} class="w-full sm:w-auto px-8 text-lg shadow-md">
         {#if isLoading}
-          <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+          <Spinner data-icon="inline-start" aria-hidden="true" />
           {m["catalog.pricelist.creating"]()}
         {:else}
           {m["catalog.pricelist.saveButton"]()}

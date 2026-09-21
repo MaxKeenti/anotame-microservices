@@ -92,7 +92,7 @@
 </script>
 
 {#if guard.checking}
-  <StatePanel message={m["catalog.pricelists.verifyingAccess"]()} loading class="h-auto border-0 p-8" />
+  <StatePanel message={m["catalog.pricelists.verifyingAccess"]()} loading size="page" />
 {:else if guard.allowed}
   <PageContainer>
     <PageHeader

@@ -6,9 +6,11 @@
   import * as Card from '$lib/components/ui/card';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import { StatusBadge, InlineAlert } from '$lib/components/common';
+  import { StatusBadge, InlineAlert, SimplePager, StatePanel } from '$lib/components/common';
+  import * as Table from '$lib/components/ui/table';
+  import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
-  import { Banknote, Loader2 } from '@lucide/svelte';
+  import { Banknote } from '@lucide/svelte';
 
   type AgingBucket = { bucket: '0_30' | '31_60' | '61_90' | '90_PLUS'; orderCount: number; balance: number };
   type StatusBreakdown = { status: string; orderCount: number; balance: number };
@@ -152,9 +154,7 @@
     {#if error}
       <p class="py-6 text-center text-sm text-destructive">{error}</p>
     {:else if loading && !breakdown}
-      <div class="flex justify-center py-10">
-        <Loader2 class="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
+      <StatePanel message={m['common.loading']()} spinner size="inline" />
     {:else if breakdown}
       {#if !breakdown.ledgerReconciled}
         <InlineAlert
@@ -216,77 +216,55 @@
       </div>
 
       {#if loading}
-        <div class="flex justify-center py-8">
-          <Loader2 class="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
+        <StatePanel message={m['common.loading']()} spinner size="inline" />
       {:else if orders && orders.items.length > 0}
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead class="text-xs text-muted-foreground">
-              <tr class="border-b">
-                <th class="p-2 text-left whitespace-nowrap">{m['kpi.receivables.colTicket']()}</th>
-                <th class="p-2 text-left">{m['kpi.receivables.colCustomer']()}</th>
-                <th class="p-2 text-right">{m['kpi.receivables.colTotal']()}</th>
-                <th class="p-2 text-right">{m['kpi.receivables.colPaid']()}</th>
-                <th class="p-2 text-right">{m['kpi.receivables.colBalance']()}</th>
-                <th class="p-2 text-right">{m['kpi.receivables.colDays']()}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each orders.items as order (order.id)}
-                <tr class="border-b last:border-0">
-                  <td class="p-2 font-mono text-xs whitespace-nowrap">{order.ticketNumber}</td>
-                  <td class="p-2">{order.customerName ?? '—'}</td>
-                  <td class="p-2 text-right font-mono">{formatCurrency(order.totalAmount)}</td>
-                  <td class="p-2 text-right font-mono">{formatCurrency(order.amountPaid)}</td>
-                  <td class="p-2 text-right font-mono font-medium text-warning-text">
-                    {formatCurrency(order.balance)}
-                  </td>
-                  <td
-                    class="p-2 text-right font-mono {order.daysOutstanding > 90
-                      ? 'text-destructive'
-                      : ''}"
-                  >
-                    {order.daysOutstanding}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
+        <Table.Root>
+          <Table.Header>
+            <Table.Row class="hover:bg-transparent">
+              <Table.Head class="whitespace-nowrap">{m['kpi.receivables.colTicket']()}</Table.Head>
+              <Table.Head>{m['kpi.receivables.colCustomer']()}</Table.Head>
+              <Table.Head class="text-right">{m['kpi.receivables.colTotal']()}</Table.Head>
+              <Table.Head class="text-right">{m['kpi.receivables.colPaid']()}</Table.Head>
+              <Table.Head class="text-right">{m['kpi.receivables.colBalance']()}</Table.Head>
+              <Table.Head class="text-right">{m['kpi.receivables.colDays']()}</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {#each orders.items as order (order.id)}
+              <Table.Row>
+                <Table.Cell class="font-mono text-xs whitespace-nowrap">{order.ticketNumber}</Table.Cell>
+                <Table.Cell>{order.customerName ?? '—'}</Table.Cell>
+                <Table.Cell class="text-right font-mono">{formatCurrency(order.totalAmount)}</Table.Cell>
+                <Table.Cell class="text-right font-mono">{formatCurrency(order.amountPaid)}</Table.Cell>
+                <Table.Cell class="text-right font-mono font-medium text-warning-text">
+                  {formatCurrency(order.balance)}
+                </Table.Cell>
+                <Table.Cell class={cn('text-right font-mono', order.daysOutstanding > 90 && 'text-destructive')}>
+                  {order.daysOutstanding}
+                </Table.Cell>
+              </Table.Row>
+            {/each}
+          </Table.Body>
+          </Table.Root>
 
-        <div class="flex items-center justify-between text-xs text-muted-foreground">
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>
             {m['kpi.receivables.totalBalance']({
               amount: formatCurrency(orders.totalBalance)
             })}
           </span>
           {#if orders.totalPages > 1}
-            <div class="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page === 0}
-                onclick={() => (page = page - 1)}
-              >
-                {m['kpi.receivables.prev']()}
-              </Button>
-              <span>{page + 1} / {orders.totalPages}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= orders.totalPages - 1}
-                onclick={() => (page = page + 1)}
-              >
-                {m['kpi.receivables.next']()}
-              </Button>
-            </div>
+            <SimplePager
+              class="px-0"
+              pageIndex={page}
+              pageCount={orders.totalPages}
+              onPrevious={() => (page = page - 1)}
+              onNext={() => (page = page + 1)}
+            />
           {/if}
         </div>
       {:else}
-        <Text variant="muted" class="py-8 text-center">
-          {m['kpi.receivables.empty']()}
-        </Text>
+        <StatePanel message={m['kpi.receivables.empty']()} size="inline" />
       {/if}
     {/if}
   </Dialog.Content>

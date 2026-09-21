@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Spinner } from '$lib/components/ui/spinner';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount, untrack, tick } from 'svelte';
@@ -16,7 +17,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import { AlertTriangle, Loader2 } from '@lucide/svelte';
+	import { AlertTriangle } from '@lucide/svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import { InlineAlert } from '$lib/components/common';
 	import PaymentMethodPicker from '$lib/components/common/payment-method-picker.svelte';
@@ -458,7 +459,7 @@
 			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md uppercase tracking-wide"
 		>
 			{#if isSubmitting}
-				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
+				<Spinner data-icon="inline-start" aria-hidden="true" />
 				{m['paymentStep.processing']()}
 			{:else}
 				{draft?.isEditing ? m['paymentStep.button.update']() : m['paymentStep.button.confirm']()}

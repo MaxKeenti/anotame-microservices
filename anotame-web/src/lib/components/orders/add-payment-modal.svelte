@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import * as InputGroup from '$lib/components/ui/input-group';
   import { FormField, InlineAlert } from '$lib/components/common';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -7,7 +8,6 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  import { Loader2 } from '@lucide/svelte';
   import PaymentMethodPicker, { type PaymentMethod } from '$lib/components/common/payment-method-picker.svelte';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
@@ -156,7 +156,7 @@
       </Button>
       <Button size="touch" onclick={handleSubmit} disabled={submitting || (amount ?? 0) === 0}>
         {#if submitting}
-          <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+          <Spinner data-icon="inline-start" aria-hidden="true" />
         {/if}
         {isRefund ? m['orders.payment.submitRefund']() : m['orders.payment.submit']()}
       </Button>
