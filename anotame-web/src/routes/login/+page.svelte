@@ -1,5 +1,6 @@
 <script lang="ts">
   import { useGuestGuard } from '$lib/guards/index.svelte';
+  import { BrandWordmark, CenteredPage, InlineAlert } from '$lib/components/common';
   import { authService } from '$lib/services/auth.svelte';
   import { onMount } from 'svelte';
   import * as Card from '$lib/components/ui/card';
@@ -70,23 +71,17 @@
 </svelte:head>
 
 {#if guard.allowed}
-<div class="flex min-h-screen flex-col items-center justify-center bg-muted/50 p-4">
+<CenteredPage tone="muted" class="py-4">
   <Card.Root class="w-full max-w-md">
     <Card.Header class="text-center space-y-2">
-      <h1 class="text-3xl font-heading font-bold text-foreground">
-        {m["login.title"]()}<span class="text-primary">.</span>
-      </h1>
+      <BrandWordmark text={m["login.title"]()} accent="." class="text-3xl" />
       <Card.Title>{m["login.card.title"]()}</Card.Title>
-      <p class="text-sm text-muted-foreground">
-        {m["login.card.subtitle"]()}
-      </p>
+      <Card.Description>{m["login.card.subtitle"]()}</Card.Description>
     </Card.Header>
     <Card.Content>
       <form method="POST" use:enhance class="space-y-6">
         {#if errorMsg}
-          <div class="bg-destructive/10 text-destructive p-3 rounded-md text-sm text-center">
-            {errorMsg}
-          </div>
+          <InlineAlert text={errorMsg} showIcon={false} class="justify-center rounded-md p-3 text-center font-normal" />
         {/if}
 
         <Form.Field form={superform} name="username">
@@ -127,13 +122,13 @@
           {/if}
         </Button>
 
-        <div class="text-center text-sm pt-4">
-          <a href="/" class="inline-flex min-h-11 items-center rounded-md px-3 text-muted-foreground hover:text-primary transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <div class="pt-4 text-center">
+          <Button href="/" variant="ghost" class="min-h-11 text-muted-foreground touch-manipulation hover:text-primary">
             {m["login.link.back"]()}
-          </a>
+          </Button>
         </div>
       </form>
     </Card.Content>
   </Card.Root>
-</div>
+</CenteredPage>
 {/if}

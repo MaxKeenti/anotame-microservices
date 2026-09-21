@@ -6,7 +6,7 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { ErrorState, StatePanel, StatusBadge } from '$lib/components/common';
+  import { ErrorState, StatePanel } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/AddPaymentModal.svelte";
@@ -16,6 +16,8 @@
   import PanelHeading from "$lib/components/orders/panel-heading.svelte";
   import NotesCallout from "$lib/components/orders/notes-callout.svelte";
   import OrderSummaryPanels from "$lib/components/orders/order-summary-panels.svelte";
+  import OrderDetailHeader from "$lib/components/orders/order-detail-header.svelte";
+  import PickupCodeDisplay from "$lib/components/orders/pickup-code-display.svelte";
   import OrderItemsPanel from "$lib/components/orders/order-items-panel.svelte";
   import AuditLogPanel, { type AuditLogEntry } from "$lib/components/orders/audit-log-panel.svelte";
   import { toast } from "svelte-sonner";
@@ -208,16 +210,7 @@
   </ErrorState>
 {:else}
   <div class="w-full min-w-0 space-y-6 max-w-4xl mx-auto animate-in fade-in duration-150 pb-20">
-    <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-      <a
-        href="/dashboard/orders"
-        class="-ml-2 inline-flex min-h-11 shrink-0 items-center rounded-md px-2 text-muted-foreground hover:text-foreground touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        &larr; {m["orders.detail.back"]()}
-      </a>
-      <h1 class="min-w-0 max-w-full text-xl sm:text-2xl font-bold wrap-break-word">{m["orders.detail.orderTitle"]({ ticket: order.ticketNumber })}</h1>
-      <StatusBadge status={order.status} />
-    </div>
+    <OrderDetailHeader ticketNumber={order.ticketNumber} status={order.status} />
 
     <OrderSummaryPanels {order} />
 
@@ -240,8 +233,7 @@
     <!-- Pickup code and ticket tools -->
     <Card.Root class="p-4 sm:p-6 text-center">
       {#if order.pickupCode}
-        <p class="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-2">{m["orders.detail.pickupCode"]()}</p>
-        <p class="text-2xl font-semibold tracking-widest font-mono">{order.pickupCode}</p>
+        <PickupCodeDisplay code={order.pickupCode} />
       {/if}
       <div class="flex flex-col justify-center gap-2 sm:flex-row" class:mt-4={order.pickupCode}>
         <Button onclick={() => showShareTicketDialog = true} variant="outline" class="h-11 touch-manipulation">

@@ -1,7 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import WizardHeader from '$lib/components/orders/wizard/wizard-header.svelte';
     import * as Card from '$lib/components/ui/card';
-    import { ErrorState, FormField, InlineAlert, PageHeader, StatePanel } from '$lib/components/common';
+    import { ErrorState, FormField, InlineAlert, LockedRegion, PageHeader, StatePanel } from '$lib/components/common';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -242,74 +243,32 @@
     <div class="flex flex-col flex-1 min-h-0">
         <!-- Status lock banner for DELIVERED / CANCELLED orders -->
         {#if isLocked}
-            <div
-                role="alert"
-                class="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-xl text-destructive text-sm font-medium flex items-start gap-2"
-            >
-                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>{m["orders.edit.lockedBanner"]()}</span>
-            </div>
+            <InlineAlert text={m["orders.edit.lockedBanner"]()} class="mb-4" />
         {/if}
 
-        <!-- Stepper Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold font-heading">
-                    {m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
-                </h1>
-            </div>
-
-            <!-- Stepper Progress UI -->
-            <div class="flex justify-center flex-1">
-                <div class="flex items-center gap-2 overflow-x-auto w-full max-w-sm sm:w-auto pb-2 sm:pb-0">
-                    {#each steps as s, i}
-                        <div class="flex items-center {i < steps.length - 1 ? 'mr-2 sm:mr-4' : ''}">
-                            <div
-                                class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors {currentStepIndex === i ? 'border-primary bg-primary text-primary-foreground' : currentStepIndex > i ? 'border-primary bg-primary/20 text-primary' : 'border-muted text-muted-foreground'}"
-                            >
-                                {i + 1}
-                            </div>
-                            <span class="ml-2 text-sm hidden md:inline font-medium {currentStepIndex === i ? 'text-foreground' : 'text-muted-foreground'}">
-                                {s.title}
-                            </span>
-                            {#if i < steps.length - 1}
-                                <div class="w-8 h-0.5 bg-border ml-2 sm:ml-4 hidden sm:block"></div>
-                            {/if}
-                        </div>
-                    {/each}
-                </div>
-            </div>
-
-            <Button variant="outline" class="h-11 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
-                {m["common.cancel"]()}
-            </Button>
-        </div>
+        <WizardHeader
+            title={m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
+            {steps}
+            currentStep={currentStepIndex}
+            showTray={false}
+        >
+            {#snippet actions()}
+                <Button variant="outline" class="h-11 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
+                    {m["common.cancel"]()}
+                </Button>
+            {/snippet}
+        </WizardHeader>
 
         <!-- Step Content (read-only if locked) -->
-        {#if isLocked}
-            <div class="flex-1 overflow-y-auto flex flex-col pt-4 pointer-events-none opacity-60 select-none">
-                {#if steps[currentStepIndex]}
-                    {@const ActiveComponent = steps[currentStepIndex].component}
-                    {#if currentStepIndex === 1}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
-                    {:else}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} />
-                    {/if}
+        <LockedRegion locked={isLocked} class="flex flex-1 flex-col overflow-y-auto pt-4">
+            {#if steps[currentStepIndex]}
+                {@const ActiveComponent = steps[currentStepIndex].component}
+                {#if currentStepIndex === 1}
+                    <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
+                {:else}
+                    <ActiveComponent onNext={handleNext} onBack={handleBack} />
                 {/if}
-            </div>
-        {:else}
-            <div class="flex-1 overflow-y-auto flex flex-col pt-4">
-                {#if steps[currentStepIndex]}
-                    {@const ActiveComponent = steps[currentStepIndex].component}
-                    {#if currentStepIndex === 1}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
-                    {:else}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} />
-                    {/if}
-                {/if}
-            </div>
-        {/if}
+            {/if}
+        </LockedRegion>
     </div>
 {/if}

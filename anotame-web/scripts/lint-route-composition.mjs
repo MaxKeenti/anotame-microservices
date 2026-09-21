@@ -1,42 +1,117 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * Enforces ADR 0006: route pages compose, they do not style.
  *
- * Flags bare HTML elements in `src/routes/` whose class attribute carries visual
- * utilities. Layout utilities on a wrapper are allowed, as are classes on
- * components (anything starting with an uppercase letter or containing a dot).
+ * Route files (`src/routes/**`) must build their UI from `$lib/components/ui`
+ * primitives and `$lib/components/*` compositions. This gate fails the build when
+ * a route:
+ *   - puts visual utilities (colour, border, radius, shadow, type) on a bare HTML
+ *     element or a link — layout utilities (flex, grid, gap, spacing) are fine;
+ *   - uses a raw <button>, <input>, <select> or <textarea> instead of a primitive;
+ *   - sets an inline `style` attribute.
+ * It also fails when any `.svelte` file under `src/` contains a <style> block,
+ * since styling is Tailwind-only.
+ *
+ * Usage: node scripts/lint-route-composition.mjs
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
-const ROUTES = 'src/routes';
-const BARE = 'div|p|span|h1|h2|h3|h4|h5|h6|li|ul|ol|dl|dt|dd|section|article|header|footer|nav|aside|main|table|thead|tbody|tr|td|th|form|label|figure|small|strong|em|b|i';
-const VISUAL = /(?:^|\s)(?:text-(?!left|right|center|justify|wrap|nowrap|balance|ellipsis)|bg-|border(?:$|-|\s)|rounded|shadow-|font-|ring-|leading-|tracking-|divide-|opacity-|backdrop-)/;
+const ROOT = join(import.meta.dirname, '..');
+const SRC = join(ROOT, 'src');
+const ROUTES = join(SRC, 'routes');
+
+/** Bare elements that may carry layout classes but never visual ones. */
+const BARE =
+	'div|p|span|h1|h2|h3|h4|h5|h6|li|ul|ol|dl|dt|dd|section|article|header|footer|nav|aside|main|table|thead|tbody|tr|td|th|form|label|figure|small|strong|em|b|i|a';
+
+/** Controls that always have a primitive in `$lib/components/ui`. */
+const RAW_CONTROLS = /<(button|input|select|textarea)\b/g;
+
+const VISUAL =
+	/(?:^|[\s'"`{])(?:text-(?!left\b|right\b|center\b|justify\b|wrap\b|nowrap\b|balance\b|ellipsis\b|start\b|end\b)|bg-|border(?:$|-|\s)|rounded|shadow-|font-|ring-|leading-|tracking-|divide-|opacity-|backdrop-)/;
 
 function walk(dir) {
-	return readdirSync(dir).flatMap((e) => {
-		const p = join(dir, e);
-		return statSync(p).isDirectory() ? walk(p) : p.endsWith('.svelte') ? [p] : [];
+	return readdirSync(dir).flatMap((entry) => {
+		const path = join(dir, entry);
+		return statSync(path).isDirectory() ? walk(path) : path.endsWith('.svelte') ? [path] : [];
 	});
 }
 
-const tag = new RegExp(`<(${BARE})\\b[^>]*?class=(?:"([^"]*)"|\\{([^}]*)\\})`, 'gs');
-let total = 0;
-const perFile = [];
+function lineOf(src, index) {
+	return src.slice(0, index).split('\n').length;
+}
 
-for (const file of walk(ROUTES).sort()) {
-	const src = readFileSync(file, 'utf8');
-	let hits = 0;
-	for (const m of src.matchAll(tag)) {
-		const cls = m[2] ?? m[3] ?? '';
-		if (VISUAL.test(cls)) hits++;
+/** Strips <script> and HTML comments so their text is never mistaken for markup. */
+function markupOnly(src) {
+	return src
+		.replace(/<script\b[\s\S]*?<\/script>/g, (m) => m.replace(/[^\n]/g, ' '))
+		.replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '));
+}
+
+/**
+ * Returns the value of a `class` attribute starting at `start`: a quoted string,
+ * or a `{...}` expression with balanced braces (so template literals containing
+ * `${...}` are read whole instead of being cut at their first `}`).
+ */
+function readClassValue(src, start) {
+	const quote = src[start];
+	if (quote === '"' || quote === "'") {
+		const end = src.indexOf(quote, start + 1);
+		return end === -1 ? '' : src.slice(start + 1, end);
 	}
-	if (hits) {
-		perFile.push([file, hits]);
-		total += hits;
+	if (quote === '{') {
+		let depth = 0;
+		for (let i = start; i < src.length; i++) {
+			if (src[i] === '{') depth++;
+			else if (src[i] === '}' && --depth === 0) return src.slice(start + 1, i);
+		}
+	}
+	return '';
+}
+
+const problems = [];
+const report = (file, line, message) =>
+	problems.push({ file: relative(ROOT, file), line, message });
+
+for (const file of walk(SRC)) {
+	const src = readFileSync(file, 'utf8');
+	const styleBlock = /<style\b/.exec(src);
+	if (styleBlock) report(file, lineOf(src, styleBlock.index), '<style> block (styling is Tailwind-only)');
+}
+
+for (const file of walk(ROUTES)) {
+	const src = markupOnly(readFileSync(file, 'utf8'));
+
+	const openTag = new RegExp(`<(${BARE})\\b`, 'g');
+	for (const tag of src.matchAll(openTag)) {
+		const tagEnd = src.indexOf('>', tag.index);
+		const attrs = src.slice(tag.index, tagEnd === -1 ? undefined : tagEnd);
+		const cls = /\sclass=/.exec(attrs);
+		if (!cls) continue;
+		const value = readClassValue(src, tag.index + cls.index + cls[0].length);
+		if (VISUAL.test(value)) {
+			report(file, lineOf(src, tag.index), `<${tag[1]}> carries visual classes: ${value.replace(/\s+/g, ' ').trim().slice(0, 80)}`);
+		}
+	}
+
+	for (const control of src.matchAll(RAW_CONTROLS)) {
+		report(file, lineOf(src, control.index), `raw <${control[1]}>; use the primitive from $lib/components/ui`);
+	}
+
+	for (const style of src.matchAll(/\sstyle=/g)) {
+		report(file, lineOf(src, style.index), 'inline style attribute');
 	}
 }
 
-perFile.sort((a, b) => b[1] - a[1]);
-for (const [f, n] of perFile) console.log(String(n).padStart(4), f);
-console.log(`\n${total} violations across ${perFile.length} files`);
+if (problems.length === 0) {
+	console.log('✓ Route composition: routes compose primitives and components.');
+	process.exit(0);
+}
+
+problems.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+for (const { file, line, message } of problems) console.error(`❌ ${file}:${line}  ${message}`);
+console.error(
+	`\n${problems.length} route-composition problem(s). See docs/adr/0006-route-pages-compose.md.`
+);
+process.exit(1);

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import { CenteredPage, MessageCard } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
   import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
@@ -33,25 +34,19 @@
   <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
-<main class="flex min-h-dvh flex-col items-center justify-center bg-muted/40 px-4 py-10">
-  <div class="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+<CenteredPage tone="muted" class="py-10">
+  <MessageCard {title} {body} footnote={String(page.status)}>
+    {#snippet icon()}
       {#if isNotFound}
         <SearchXIcon class="h-8 w-8 text-muted-foreground" />
       {:else}
         <AlertTriangleIcon class="h-8 w-8 text-muted-foreground" />
       {/if}
-    </div>
-
-    <h1 class="font-heading text-2xl font-bold text-foreground">{title}</h1>
-    <p class="mt-3 text-sm text-muted-foreground">{body}</p>
-
+    {/snippet}
     {#if !isTicketLink}
       <Button href="/" size="lg" class="mt-7 w-full touch-manipulation">
         {m['error.action.home']()}
       </Button>
     {/if}
-
-    <p class="mt-6 font-mono text-xs text-muted-foreground/70">{page.status}</p>
-  </div>
-</main>
+  </MessageCard>
+</CenteredPage>

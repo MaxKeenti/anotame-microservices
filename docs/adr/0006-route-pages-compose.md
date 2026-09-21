@@ -23,5 +23,8 @@ out in it.
 
 **Consequences:** Styling that lives in route markup cannot be reused, cannot be tested in isolation,
 and drifts between pages — the failure mode that produced the `.status-badge` and `.checkbox-custom`
-`@apply` blobs this decision removes. New work follows the rule; existing routes are migrated
-opportunistically rather than in one sweep.
+`@apply` blobs this decision removes. Every route was migrated, and the rule is enforced:
+`scripts/lint-route-composition.mjs` runs as `bun run lint:routes` in the `prebuild` hook and fails
+the build on visual classes on bare elements or links, raw `<button>`/`<input>`/`<select>`/`<textarea>`,
+inline `style` attributes in routes, or any `<style>` block under `src/`. A route that needs a new visual
+treatment extracts a component rather than relaxing the gate.

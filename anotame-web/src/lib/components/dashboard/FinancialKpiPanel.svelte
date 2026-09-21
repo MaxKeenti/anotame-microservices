@@ -2,6 +2,7 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import * as Card from '$lib/components/ui/card';
+  import BarChart from './bar-chart.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Progress } from '$lib/components/ui/progress';
   import { Skeleton } from '$lib/components/ui/skeleton';
@@ -67,16 +68,12 @@
   let data = $state<FinancialKpiResponse | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
-  let activeBarIndex = $state<number | null>(null);
   let servicePageIndex = $state(0);
   let topCustomerPageIndex = $state(0);
 
   // Derived state
   let pageSize = $derived(tablePreferences.pageSize);
 
-  let chartMax = $derived(
-    data?.revenueTrend.reduce((max, point) => Math.max(max, point.totalRevenue), 0) || 100
-  );
 
   let totalRevenue = $derived(
     data?.revenueTrend.reduce((sum, point) => sum + point.totalRevenue, 0) || 0
@@ -166,7 +163,6 @@
 
   function setGranularity(nextGranularity: 'day' | 'week' | 'month') {
     granularity = nextGranularity;
-    activeBarIndex = null;
     servicePageIndex = 0;
     topCustomerPageIndex = 0;
   }
@@ -316,34 +312,19 @@
         </Card.Description>
       </Card.Header>
       <Card.Content>
-        <div class="flex items-end gap-2 h-64 w-full mt-4 px-2">
-          {#each data.revenueTrend as point, i}
-            {@const heightPct = chartMax > 0 ? (point.totalRevenue / chartMax) * 100 : 0}
-            {@const isBarActive = activeBarIndex === i}
-            <div
-              class="relative flex-1 flex flex-col items-center justify-end h-full group cursor-pointer"
-              role="button"
-              tabindex="0"
-              aria-label={`${getPeriodLabel(point.period)}: ${formatCurrency(point.totalRevenue)}`}
-              onclick={() => activeBarIndex = isBarActive ? null : i}
-              onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (activeBarIndex = isBarActive ? null : i)}
-            >
-              <!-- Tooltip -->
-              <div class="absolute -top-10 transition-transform bg-foreground text-background text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-10 pointer-events-none {isBarActive ? 'scale-100' : 'scale-0 group-hover:scale-100'}">
-                {formatCurrency(point.totalRevenue)}
-              </div>
-              <!-- Bar -->
-              <div
-                class="w-full max-w-10 bg-primary/80 hover:bg-primary rounded-t-sm transition-all duration-500 ease-out"
-                style="height: {heightPct}%"
-              ></div>
-              <!-- Label -->
-              <div class="text-xs mt-2 text-muted-foreground -rotate-45deg pb-2 uppercase truncate w-full text-center origin-center">
-                {getPeriodLabel(point.period)}
-              </div>
-            </div>
-          {/each}
-        </div>
+        <!-- Remount per granularity so a pinned value never points at a different bucket. -->
+        {#key granularity}
+          <BarChart
+            size="md"
+            format={formatCurrency}
+            bars={data.revenueTrend.map((point) => ({
+              key: point.period,
+              value: point.totalRevenue,
+              label: getPeriodLabel(point.period),
+              ariaLabel: `${getPeriodLabel(point.period)}: ${formatCurrency(point.totalRevenue)}`,
+            }))}
+          />
+        {/key}
       </Card.Content>
     </Card.Root>
 

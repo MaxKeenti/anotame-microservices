@@ -1,13 +1,13 @@
 <script lang="ts">
   import { apiService, API_SALES } from '$lib/services/api.svelte';
-  import { InlineAlert, StatePanel } from '$lib/components/common';
+  import { InlineAlert, LeadText, PeriodStepper, StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
   import { Progress } from '$lib/components/ui/progress';
   import KpiStatCard from '$lib/components/dashboard/kpi-stat-card.svelte';
   import KpiLegend from '$lib/components/dashboard/kpi-legend.svelte';
   import { Skeleton } from '$lib/components/ui/skeleton';
-  import { Truck, AlertCircle, Clock, Calendar, ChevronLeft, ChevronRight } from '@lucide/svelte';
+  import { Truck, AlertCircle, Clock, Calendar } from '@lucide/svelte';
   import ReceivablesCard from '$lib/components/dashboard/ReceivablesCard.svelte';
   import CalendarGrid from '$lib/components/calendar/CalendarGrid.svelte';
   import { getLocale } from '$lib/paraglide/runtime';
@@ -84,9 +84,7 @@
   <StatePanel message={m['kpi.loading']()} />
 {:else}
   <div class="space-y-6">
-    <p class="max-w-3xl text-sm text-muted-foreground">
-      {m['kpi.section.operationsDesc']()}
-    </p>
+    <LeadText text={m['kpi.section.operationsDesc']()} />
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
       <KpiStatCard
@@ -154,31 +152,15 @@
           </Card.Title>
           <Card.Description>{m['calendar.description']()}</Card.Description>
         </div>
-        <div class="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/30 p-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            class="h-10 w-10"
-            onclick={handlePreviousCalendarMonth}
-            disabled={calendarLoading}
-            aria-label={m['common.previous']()}
-          >
-            <ChevronLeft class="h-5 w-5" />
-          </Button>
-          <span class="min-w-36 text-center text-sm font-bold capitalize md:min-w-44">
-            {calendarMonthLabel}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            class="h-10 w-10"
-            onclick={handleNextCalendarMonth}
-            disabled={calendarLoading}
-            aria-label={m['common.next']()}
-          >
-            <ChevronRight class="h-5 w-5" />
-          </Button>
-        </div>
+        <PeriodStepper
+          framed
+          label={calendarMonthLabel}
+          labelWidth="min-w-36 md:min-w-44"
+          onPrevious={handlePreviousCalendarMonth}
+          onNext={handleNextCalendarMonth}
+          previousDisabled={calendarLoading}
+          nextDisabled={calendarLoading}
+        />
       </Card.Header>
       <Card.Content class="space-y-6">
         {#if calendarError}

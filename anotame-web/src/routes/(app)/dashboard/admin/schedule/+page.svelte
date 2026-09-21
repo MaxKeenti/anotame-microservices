@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { PageHeader, StatePanel } from '$lib/components/common';
+  import WorkdayRow from '$lib/components/schedule/workday-row.svelte';
+  import { PageHeader, StatePanel, TableFrame } from '$lib/components/common';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -8,7 +9,6 @@
   import * as Card from '$lib/components/ui/card';
   import * as Table from '$lib/components/ui/table';
   import * as Form from '$lib/components/ui/form';
-  import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
   import { CalendarDays, AlertTriangle, Trash2, Loader2 } from '@lucide/svelte';
@@ -161,49 +161,11 @@
             <Card.Description>{m['schedule.card.weeklyDesc']()}</Card.Description>
           </Card.Header>
           <Card.Content class="space-y-2">
-            <div class="border rounded-md divide-y divide-border">
-              {#each workDays as day, index}
-                <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 hover:bg-muted/10 transition-colors">
-                  <div class="w-40 font-medium capitalize text-foreground flex items-center">
-                    <div class="flex min-h-11 items-center gap-3">
-                      <Checkbox
-                        id={`workday-open-${day.dayOfWeek}`}
-                        class="size-5"
-                        bind:checked={day.open}
-                      />
-                      <label
-                        for={`workday-open-${day.dayOfWeek}`}
-                        class="flex min-h-11 items-center cursor-pointer touch-manipulation"
-                      >
-                        {getDayName(day.dayOfWeek)}
-                      </label>
-                    </div>
-                  </div>
-
-                  <div class="flex-1 flex flex-wrap items-center gap-3">
-                    {#if day.open}
-                      <div class="flex items-center gap-3 bg-card border rounded-lg p-2">
-                        <Input
-                          type="time"
-                          bind:value={day.openTime}
-                          aria-label={m['schedule.label.openTime']({ day: getDayName(day.dayOfWeek) })}
-                          class="w-32 h-11 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
-                        />
-                        <span class="text-muted-foreground text-sm font-medium">{m['schedule.label.to']()}</span>
-                        <Input
-                          type="time"
-                          bind:value={day.closeTime}
-                          aria-label={m['schedule.label.closeTime']({ day: getDayName(day.dayOfWeek) })}
-                          class="w-32 h-11 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
-                        />
-                      </div>
-                    {:else}
-                      <span class="text-muted-foreground text-sm px-4 py-2 bg-muted/50 rounded-lg">{m['schedule.label.closed']()}</span>
-                    {/if}
-                  </div>
-                </div>
+            <TableFrame class="divide-y divide-border">
+              {#each workDays as _, index}
+                <WorkdayRow bind:day={workDays[index]} dayName={getDayName(workDays[index].dayOfWeek)} />
               {/each}
-            </div>
+            </TableFrame>
 
             <div class="flex justify-end pt-6">
               <Button onclick={saveWeeklySchedule} disabled={isLoading} class="h-12 px-6 shadow-sm">
@@ -277,7 +239,7 @@
               {#if holidays.length === 0}
                 <StatePanel message={m['schedule.holiday.empty']()} class="h-auto border-2 border-dashed bg-muted/10 py-12" />
               {:else}
-                <div class="border rounded-md overflow-x-auto">
+                <TableFrame>
                   <Table.Root class="min-w-100">
                     <Table.Header class="bg-secondary/20">
                       <Table.Row>
@@ -312,7 +274,7 @@
                       {/each}
                     </Table.Body>
                   </Table.Root>
-                </div>
+                </TableFrame>
               {/if}
             </Card.Content>
           </Card.Root>

@@ -14,11 +14,16 @@
     currentStep: number;
     /** Shows a "draft" marker beside the title. */
     isDraft?: boolean;
+    /**
+     * Offers the mobile tray listing step names. Off where the surrounding page
+     * already scrolls the steps horizontally.
+     */
+    showTray?: boolean;
     /** Trailing control, normally the exit or cancel button. */
     actions?: Snippet;
   }
 
-  let { title, steps, currentStep, isDraft = false, actions }: Props = $props();
+  let { title, steps, currentStep, isDraft = false, showTray = true, actions }: Props = $props();
 
   let stepsExpanded = $state(false);
 
@@ -65,6 +70,7 @@
       </div>
 
       <!-- The step names do not fit beside the circles on phones, so they move into a tray. -->
+      {#if showTray}
       <button
         type="button"
         class="ml-1 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/50 touch-manipulation sm:hidden"
@@ -74,12 +80,13 @@
       >
         <ChevronDownIcon class="h-4 w-4 transition-transform {stepsExpanded ? 'rotate-180' : ''}" />
       </button>
+      {/if}
     </div>
 
     {@render actions?.()}
   </div>
 
-  {#if stepsExpanded}
+  {#if showTray && stepsExpanded}
     <div class="mt-2 rounded-lg border border-border bg-muted/30 p-3 sm:hidden">
       <ol class="flex flex-col gap-2">
         {#each steps as step, i}

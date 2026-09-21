@@ -17,6 +17,7 @@
   import { PageHeader, StatePanel } from '$lib/components/common';
   import HelpTopicSection from '$lib/components/help/help-topic-section.svelte';
   import HelpTile from '$lib/components/help/help-tile.svelte';
+  import HelpToc from '$lib/components/help/help-toc.svelte';
   import * as m from '$lib/paraglide/messages';
   import {
     AlertTriangle,
@@ -196,41 +197,11 @@
         </div>
       </Card.Root>
 
-      <nav class="hidden lg:block rounded-xl border border-border bg-card p-3 shadow-sm" aria-label={m['help.toc.title']()}>
-        <div class="px-2 pb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          {m['help.toc.title']()}
-        </div>
-        <div class="max-h-[calc(100vh-18rem)] space-y-1 overflow-y-auto pr-1">
-          {#each visibleTopics as topic (topic.id)}
-            <a
-              href={`#${topic.id}`}
-              class="flex min-h-11 items-center rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted/70 touch-manipulation {activeSection === topic.id ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}"
-            >
-              {topic.title()}
-            </a>
-          {/each}
-        </div>
-      </nav>
+      <HelpToc topics={visibleTopics} activeId={activeSection} layout="sidebar" />
     </aside>
 
     <div class="space-y-6 min-w-0">
-      <nav
-        class="sticky top-0 z-30 rounded-xl border border-border bg-background/90 p-2 shadow-sm backdrop-blur lg:hidden"
-        aria-label={m['help.toc.title']()}
-      >
-        <div class="flex gap-2 overflow-x-auto no-scrollbar mask-[linear-gradient(to_right,black_calc(100%-1.5rem),transparent)]">
-          {#each visibleTopics as topic (topic.id)}
-            <a
-              href={`#${topic.id}`}
-              data-mobile-help-topic={topic.id}
-              aria-current={activeSection === topic.id ? 'true' : undefined}
-              class="shrink-0 rounded-full border px-3 py-2 text-sm font-medium transition-colors {activeSection === topic.id ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground'}"
-            >
-              {topic.title()}
-            </a>
-          {/each}
-        </div>
-      </nav>
+      <HelpToc topics={visibleTopics} activeId={activeSection} layout="chips" />
 
       <Card.Root class="gap-0 p-4" data-help-id="quick-start">
         <Card.Title class="mb-4 flex items-center gap-2 font-heading text-xl font-bold">
@@ -242,20 +213,14 @@
             <HelpTile title={item.title()} description={item.summary()}>
               <div class="mt-4 flex flex-wrap gap-2">
                 {#if item.appHref}
-                  <a
-                    href={item.appHref}
-                    class="inline-flex h-11 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                  >
+                  <Button href={item.appHref} class="h-11">
                     {m['help.action.openPage']()}
                     <ExternalLink class="ml-2 h-4 w-4" />
-                  </a>
+                  </Button>
                 {/if}
-                <a
-                  href={`#${item.topicId}`}
-                  class="inline-flex h-11 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                >
+                <Button href={`#${item.topicId}`} variant="outline" class="h-11">
                   {m['help.action.readSteps']()}
-                </a>
+                </Button>
               </div>
             </HelpTile>
           {/each}

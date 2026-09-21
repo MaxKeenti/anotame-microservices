@@ -1,6 +1,7 @@
 <script lang="ts">
   import { type Snippet, untrack } from 'svelte';
   import AppDock from '$lib/components/layout/app-dock.svelte';
+  import AppShell from '$lib/components/layout/app-shell.svelte';
   import { page } from '$app/state';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
@@ -148,61 +149,33 @@
   <StatePanel message={m["layout.validatingSession"]()} spinner class="h-screen border-0" />
 {:else if guard.allowed}
   <!-- The authenticated shell with global touch-first UI rules -->
-  <div class="flex flex-col h-dvh bg-background text-foreground overflow-hidden">
-
-      <a
-        href="#main-content"
-        class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-100 focus:rounded-md focus:bg-background focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:ring-2 focus:ring-ring"
-      >
-        {m["common.skipToContent"]()}
-      </a>
-
+  <AppShell>
+    {#snippet overlays()}
       <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isCredentialsOpen = true; }} />
-
       <CredentialsDialog
         bind:open={isCredentialsOpen}
         id="credentials-edit"
         onClose={() => { isCredentialsOpen = false; }}
       />
+    {/snippet}
 
-      <!-- The bottom padding lives on an inner wrapper, not the scroll
-           container: Safari ignores padding-bottom on the scroller itself,
-           which let fully-scrolled content hide under the floating dock.
-           `flex flex-col min-h-full` makes the wrapper at least a full
-           viewport tall so full-height pages (e.g. the order wizard, whose
-           footer is pinned with mt-auto) fill via flex instead of h-full —
-           that keeps the pb-28 clearance honored so their bottom action bar
-           ends up safely above the dock instead of overflowing under it.
+    {@render children()}
 
-           Padding is split into px-*/pt-*/pb-28 on purpose — do NOT collapse
-           it back into the `p-*` shorthand. A responsive shorthand (md:p-6,
-           lg:p-8) is emitted after the non-responsive pb-28 in Tailwind's
-           output, so it silently overrides padding-bottom at >=md and wipes
-           out the dock clearance. Keeping pb-28 the only padding-bottom rule
-           makes it win at every breakpoint. -->
-      <main id="main-content" tabindex="-1" class="flex-1 w-full overflow-y-auto outline-none">
-        <div class="flex flex-col min-h-full w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4 md:pt-6 lg:pt-8 pb-28">
-          {@render children()}
-        </div>
-      </main>
-
-      <!-- Bottom Dock: floats over content like the macOS dock. While a page
-           registers a bulk action (e.g. orders selection) it swaps the dock
-           for that action bar, keeping the user on the page until done. -->
-      <div class="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-3 pointer-events-none">
-        {#if bulkAction}
-          <FloatingActionBar
-            count={bulkAction.count}
-            isAdmin={bulkAction.isAdmin}
-            allDraft={bulkAction.allDraft}
-            onChangeStatus={bulkAction.onChangeStatus}
-            onDelete={bulkAction.onDelete}
-            onCancel={bulkAction.onCancel}
-          />
-        {:else}
+    <!-- While a page registers a bulk action (e.g. orders selection) the dock
+         swaps for that action bar, keeping the user on the page until done. -->
+    {#snippet dock()}
+      {#if bulkAction}
+        <FloatingActionBar
+          count={bulkAction.count}
+          isAdmin={bulkAction.isAdmin}
+          allDraft={bulkAction.allDraft}
+          onChangeStatus={bulkAction.onChangeStatus}
+          onDelete={bulkAction.onDelete}
+          onCancel={bulkAction.onCancel}
+        />
+      {:else}
         <AppDock items={dockItems} recent={recentItems} onOpenMenu={() => (isMenuOpen = true)} />
-        {/if}
-      </div>
-
-  </div>
+      {/if}
+    {/snippet}
+  </AppShell>
 {/if}

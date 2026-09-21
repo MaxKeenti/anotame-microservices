@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import GarmentNamesSummary from '$lib/components/orders/garment-names-summary.svelte';
   import * as Card from '$lib/components/ui/card';
   import { apiService, API_SALES, API_CATALOG } from '$lib/services/api.svelte';
   import { orderWizardState, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { FilterField, ResponsiveDataView, StatusBadge } from '$lib/components/common';
+  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
@@ -96,17 +97,8 @@
     return names?.filter(Boolean).join(', ') || '-';
   }
 
-  function cleanGarmentNames(names: string[] | undefined): string[] {
-    return names?.map((name) => name.trim()).filter(Boolean) ?? [];
-  }
 
-  function visibleGarmentNames(names: string[] | undefined): string[] {
-    return cleanGarmentNames(names).slice(0, MAX_GARMENT_SUMMARY_ITEMS);
-  }
 
-  function hiddenGarmentCount(names: string[] | undefined): number {
-    return Math.max(0, cleanGarmentNames(names).length - MAX_GARMENT_SUMMARY_ITEMS);
-  }
 
   function formatDraftCustomer(draft: DraftOrder): string {
     const customer = draft.customer;
@@ -283,13 +275,11 @@
 </script>
 
 <div class="space-y-6 animate-in fade-in duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-brand font-bold text-foreground">{m["orders.page.title"]()}</h1>
-      <p class="text-muted-foreground">{m["orders.page.description"]()}</p>
-    </div>
-    <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ {m["orders.new"]()}</Button>
-  </div>
+  <PageHeader title={m["orders.page.title"]()} description={m["orders.page.description"]()}>
+    {#snippet actions()}
+      <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ {m["orders.new"]()}</Button>
+    {/snippet}
+  </PageHeader>
 
   <Tabs.Root bind:value={view} class="space-y-6">
     <Tabs.List class="shadow-sm border border-border/50">
@@ -415,19 +405,8 @@
   {/snippet}
 
 {#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
-          <div class="max-w-sm min-w-0 whitespace-normal wrap-break-word leading-6" title={formatNames(row.original.garmentNames)}>
-            {#if cleanGarmentNames(row.original.garmentNames).length > 0}
-              {visibleGarmentNames(row.original.garmentNames).join(', ')}
-              {#if hiddenGarmentCount(row.original.garmentNames) > 0}
-                <span class="ml-1 inline-flex whitespace-nowrap rounded-sm bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                  +{hiddenGarmentCount(row.original.garmentNames)}
-                </span>
-              {/if}
-            {:else}
-              -
-            {/if}
-          </div>
-        {/snippet}
+  <GarmentNamesSummary names={row.original.garmentNames} max={MAX_GARMENT_SUMMARY_ITEMS} />
+{/snippet}
 
 {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end gap-2 whitespace-nowrap">

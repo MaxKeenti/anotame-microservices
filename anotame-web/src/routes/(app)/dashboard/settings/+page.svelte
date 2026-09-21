@@ -1,5 +1,9 @@
 <script lang="ts">
   import { mode, setMode, resetMode } from 'mode-watcher';
+  import ColorRow from '$lib/components/settings/color-row.svelte';
+  import PageSizeOption from '$lib/components/settings/page-size-option.svelte';
+  import { HintText } from '$lib/components/common';
+  import { Separator } from '$lib/components/ui/separator';
   import { PageHeader } from '$lib/components/common';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
@@ -107,35 +111,19 @@
     </Card.Header>
     <Card.Content class="space-y-4">
       {#each colorEntries as { key, label, defaultHex }}
-        <div class="flex items-center gap-3">
-          <div
-            class="w-8 h-8 rounded-full border border-border shrink-0"
-            style="background-color: {previewColor(key)}"
-          ></div>
-          <span class="w-28 text-sm font-medium shrink-0">{label()}</span>
-          <input
-            type="text"
-            class="flex-1 h-11 px-3 border border-input rounded-md bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
-            aria-label={m['settings.label.colorHex']({ name: label() })}
-            placeholder={defaultHex}
-            value={paletteStore.current[key] ?? ''}
-            oninput={(e) => handleInput(key, e.currentTarget.value)}
-          />
-          {#if paletteStore.current[key]}
-            <Button
-              variant="ghost"
-              size="sm"
-              class="shrink-0"
-              onclick={() => paletteStore.set({ [key]: null })}
-            >
-              {m["settings.palette.restore"]()}
-            </Button>
-          {/if}
-        </div>
+        <ColorRow
+          label={label()}
+          preview={previewColor(key)}
+          value={paletteStore.current[key] ?? ''}
+          placeholder={defaultHex}
+          onInput={(v) => handleInput(key, v)}
+          onReset={() => paletteStore.set({ [key]: null })}
+        />
       {/each}
 
       {#if paletteStore.hasCustom()}
-        <div class="pt-2 border-t border-border">
+        <Separator />
+        <div>
           <Button variant="outline" size="sm" onclick={() => paletteStore.reset()}>
             {m["settings.palette.restoreAll"]()}
           </Button>
@@ -157,12 +145,11 @@
             class="h-24 flex flex-col gap-2 touch-manipulation"
             onclick={() => tablePreferences.setPageSize(size)}
           >
-            <span class="text-2xl font-bold">{size}</span>
-            <span class="text-sm">{m["settings.table.rows"]()}</span>
+            <PageSizeOption {size} />
           </Button>
         {/each}
       </div>
-      <p class="text-xs text-muted-foreground">{m["settings.table.changesApply"]()}</p>
+      <HintText text={m["settings.table.changesApply"]()} />
     </Card.Content>
   </Card.Root>
 

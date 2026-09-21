@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { StatePanel } from '$lib/components/common';
     import WizardHeader from '$lib/components/orders/wizard/wizard-header.svelte';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
@@ -62,9 +63,7 @@
 </script>
 
 {#if isLoading}
-    <div class="flex flex-col flex-1 min-h-0 items-center justify-center text-muted-foreground gap-2">
-        <div>{m["common.loading"]()}</div>
-    </div>
+    <StatePanel message={m["common.loading"]()} class="h-auto min-h-0 flex-1 border-0" />
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
     

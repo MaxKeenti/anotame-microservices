@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import BulkAdjustBar from '$lib/components/catalog/bulk-adjust-bar.svelte';
   import { Separator } from '$lib/components/ui/separator';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
@@ -10,7 +11,7 @@
   import { Checkbox } from '$lib/components/ui/checkbox';
   import { AdaptiveDatePicker, AdaptiveSelect } from '$lib/components/ui/responsive';
   import * as Card from '$lib/components/ui/card';
-  import { PageHeader, ResponsiveDataView } from '$lib/components/common';
+  import { PageHeader, RequiredMark, ResponsiveDataView, TableFrame } from '$lib/components/common';
   import { toast } from 'svelte-sonner';
   import { Loader2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
@@ -254,7 +255,7 @@
           {#snippet children({ constraints })}
             <Form.Control>
               {#snippet children({ props })}
-                <Form.Label>{m["catalog.pricelist.nameLabel"]()} <span class="text-destructive">*</span></Form.Label>
+                <Form.Label>{m["catalog.pricelist.nameLabel"]()}<RequiredMark /></Form.Label>
                 <Input {...props} {...constraints} placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} class="h-12" />
               {/snippet}
             </Form.Control>
@@ -353,31 +354,16 @@
       </Card.Header>
       <Card.Content class="space-y-4">
         <!-- Bulk adjustments -->
-        <div class="flex flex-col sm:flex-row flex-wrap gap-2 items-center p-4 bg-secondary/20 rounded-lg border border-border">
-          <span class="text-sm font-bold mr-2 uppercase tracking-wide opacity-70">{m["catalog.pricelist.bulkAdjust"]()}</span>
-          <div class="flex gap-2">
-            {#each [5, 10, 15, 20] as amount (amount)}
-              <Button type="button" variant="outline" size="sm" class="font-mono text-success-text hover:text-success-text hover:bg-success/10 border-success/30 touch-manipulation h-11" onclick={() => handleBulkAdjustment(amount)}>
-                +${amount}
-              </Button>
-            {/each}
-          </div>
-          <Separator orientation="vertical" class="mx-2 hidden h-6 sm:block" />
-          <div class="flex gap-2">
-            {#each [5, 10, 15, 20] as amount (amount)}
-              <Button type="button" variant="outline" size="sm" class="font-mono text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 touch-manipulation h-11" onclick={() => handleBulkAdjustment(-amount)}>
-                -${amount}
-              </Button>
-            {/each}
-          </div>
-          <Separator class="my-2 w-full sm:mx-2 sm:my-0 sm:h-6 sm:w-px" />
-          <Button type="button" variant="ghost" size="sm" class="h-11 text-muted-foreground w-full sm:w-auto" onclick={handleReset} disabled={isFetchingBase}>
-            {isFetchingBase ? m["common.loading"]() : m["catalog.pricelist.revertOriginals"]()}
-          </Button>
-        </div>
+        <BulkAdjustBar onAdjust={handleBulkAdjustment}>
+          {#snippet reset()}
+            <Button type="button" variant="ghost" size="sm" class="h-11 text-muted-foreground w-full sm:w-auto" onclick={handleReset} disabled={isFetchingBase}>
+              {isFetchingBase ? m["common.loading"]() : m["catalog.pricelist.revertOriginals"]()}
+            </Button>
+          {/snippet}
+        </BulkAdjustBar>
 
         <!-- Overrides Table -->
-        <div class="border rounded-md overflow-x-auto">
+        <TableFrame>
           <ResponsiveDataView
             columns={overrideColumns}
             data={services}
@@ -385,7 +371,7 @@
             emptyMessage={m["catalog.pricelist.noServices"]()}
             cellRenders={{ override: overrideCellRender }}
           />
-        </div>
+        </TableFrame>
       </Card.Content>
     </Card.Root>
 

@@ -223,29 +223,26 @@
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Brand Color Picker -->
-            <FormField label={m['adminSettings.label.color']()} for="brand-color" hint={m["adminSettings.colorHint"]()}>
+            <FormField label={m['adminSettings.label.color']()} for="brand-color" hint={m["adminSettings.colorHint"]()} error={$errors.primaryColor}>
               <div class="flex items-center gap-3">
-                <input
+                <Input
                   id="brand-color"
                   type="color"
                   bind:value={$form.primaryColor}
-                  class="h-12 w-16 border border-input rounded cursor-pointer"
+                  class="h-12 w-16 cursor-pointer p-1"
                 />
-                <input
+                <Input
                   type="text"
                   bind:value={$form.primaryColor}
                   aria-label={m['settings.label.colorHex']({ name: m['adminSettings.label.color']() })}
                   placeholder="#FF6B6B"
-                  class="flex-1 h-12 px-3 border border-input rounded text-xs font-mono"
+                  class="h-12 flex-1 font-mono text-xs"
                 />
               </div>
-              {#if $errors.primaryColor}
-                <span class="text-xs text-destructive">{$errors.primaryColor}</span>
-              {/if}
             </FormField>
 
             <!-- Font Family Dropdown -->
-            <FormField label={m['adminSettings.label.font']()} for="font-family">
+            <FormField label={m['adminSettings.label.font']()} for="font-family" error={$errors.fontFamily}>
               <Select.Root
                 type="single"
                 value={$form.fontFamily || ''}
@@ -257,7 +254,7 @@
                   {#if $form.fontFamily}
                     {$form.fontFamily === 'Inter' ? m['adminSettings.font.inter']() : $form.fontFamily === 'Outfit' ? m['adminSettings.font.outfit']() : m['adminSettings.font.merriweather']()}
                   {:else}
-                    <span class="text-muted-foreground">{m['adminSettings.placeholder.font']()}</span>
+                    {m['adminSettings.placeholder.font']()}
                   {/if}
                 </Select.Trigger>
                 <Select.Content>
@@ -266,9 +263,6 @@
                   <Select.Item value="Merriweather">{m['adminSettings.font.merriweather']()}</Select.Item>
                 </Select.Content>
               </Select.Root>
-              {#if $errors.fontFamily}
-                <span class="text-xs text-destructive">{$errors.fontFamily}</span>
-              {/if}
             </FormField>
           </div>
         </Card.Content>

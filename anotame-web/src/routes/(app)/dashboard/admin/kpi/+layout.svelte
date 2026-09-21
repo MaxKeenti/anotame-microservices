@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
   import { PageHeader } from '$lib/components/common';
-  import { page } from '$app/state';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { Activity, Banknote, Users } from '@lucide/svelte';
   import type { Establishment } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
   import KpiSummaryStrip from '$lib/components/dashboard/kpi-summary-strip.svelte';
+  import KpiTabs from '$lib/components/dashboard/kpi-tabs.svelte';
   import { toast } from 'svelte-sonner';
   import {
     getMonthParam,
@@ -137,9 +137,6 @@
     }
   ]);
 
-  function isActive(href: string): boolean {
-    return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
-  }
 
   onMount(async () => {
     try {
@@ -170,34 +167,7 @@
        the at-a-glance read the old hero provided. -->
   <KpiSummaryStrip items={summaryItems} loading={isLoading} />
 
-  <nav
-    aria-label={m['kpi.tabs.ariaLabel']()}
-    class="sticky top-0 z-20 -mx-2 overflow-x-auto bg-background/95 px-2 py-2 backdrop-blur"
-  >
-    <div class="flex w-max min-w-full gap-1 rounded-xl border border-border bg-muted/40 p-1">
-      {#each tabs as tab (tab.href)}
-        {@const active = isActive(tab.href)}
-        <a
-          href={tab.href}
-          aria-current={active ? 'page' : undefined}
-          class={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${
-            active
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <tab.icon class="h-4 w-4" />
-          {tab.label}
-          {#if tab.alert}
-            <span
-              class="h-2 w-2 shrink-0 rounded-full bg-destructive"
-              aria-label={m['kpi.tabs.needsAttention']()}
-            ></span>
-          {/if}
-        </a>
-      {/each}
-    </div>
-  </nav>
+  <KpiTabs {tabs} />
 
   {@render children()}
 </div>

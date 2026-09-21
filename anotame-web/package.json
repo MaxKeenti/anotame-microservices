@@ -6,13 +6,14 @@
 	"packageManager": "bun@1.3.14",
 	"scripts": {
 		"dev": "vite dev",
-		"prebuild": "bun run lint:i18n",
+		"prebuild": "bun run lint:i18n && bun run lint:routes",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint:i18n": "node scripts/lint-i18n-keys.js"
+		"lint:i18n": "node scripts/lint-i18n-keys.js",
+		"lint:routes": "node scripts/lint-route-composition.mjs"
 	},
 	"devDependencies": {
 		"@fontsource-variable/inter": "^5.2.8",

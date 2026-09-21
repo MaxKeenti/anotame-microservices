@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import RequiredMark from './required-mark.svelte';
   import { cn } from '$lib/utils';
 
   /** A labelled form control with its validation error and guidance text. */
@@ -28,7 +29,7 @@
 
 <div class={cn('space-y-2', className)}>
   <label for={htmlFor} class="text-sm font-medium">
-    {label}{#if required}<span class="text-destructive"> *</span>{/if}
+    {label}{#if required}<RequiredMark />{/if}
   </label>
   {@render children()}
   {#if errorText}

@@ -5,9 +5,9 @@
   import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import * as Tabs from '$lib/components/ui/tabs';
-  import * as Popover from '$lib/components/ui/popover';
   import { FilterField, PageHeader, ResponsiveDataView, StatusBadge } from '$lib/components/common';
   import { Badge } from '$lib/components/ui/badge';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
   import { formatDate } from '$lib/utils/formatUtils';
@@ -327,31 +327,28 @@
     <CheckCircle2 class="w-4 h-4 mr-2" />
     {m["operations.button.markReady"]()}
   </Button>
-  <Popover.Root>
-    <Popover.Trigger
+  <DropdownMenu.Root>
+    <DropdownMenu.Trigger
       class={buttonVariants({ variant: 'outline', size: 'icon-lg' }) + ' touch-manipulation'}
       aria-label={m["common.actions"]()}
     >
       <MoreVertical class="w-4 h-4" />
-    </Popover.Trigger>
-    <Popover.Content class="w-48 p-1">
-      <a
-        href={`/dashboard/orders/${row.original.id}`}
-        class="flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent hover:text-accent-foreground"
-      >
-        <Eye class="w-4 h-4" />
-        {m["common.view"]()}
-      </a>
-      <button
-        type="button"
-        class="flex w-full items-center gap-2 px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10"
-        onclick={() => handleCancelOrder(row.original)}
-      >
+    </DropdownMenu.Trigger>
+    <DropdownMenu.Content class="w-48" align="end">
+      <DropdownMenu.Item>
+        {#snippet child({ props })}
+          <a href={`/dashboard/orders/${row.original.id}`} {...props}>
+            <Eye class="w-4 h-4" />
+            {m["common.view"]()}
+          </a>
+        {/snippet}
+      </DropdownMenu.Item>
+      <DropdownMenu.Item variant="destructive" onSelect={() => handleCancelOrder(row.original)}>
         <XCircle class="w-4 h-4" />
         {m["operations.button.cancel"]()}
-      </button>
-    </Popover.Content>
-  </Popover.Root>
+      </DropdownMenu.Item>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
 </div>
 {/snippet}
 
