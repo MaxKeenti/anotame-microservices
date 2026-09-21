@@ -2,7 +2,8 @@
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
+  import * as InputOTP from '$lib/components/ui/input-otp';
+  import { REGEXP_ONLY_DIGITS } from 'bits-ui';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
@@ -48,11 +49,6 @@
     }
   });
 
-  function handleInput(e: Event) {
-    const target = e.target as HTMLInputElement;
-    pickupCode = target.value.replace(/\D/g, '').slice(0, 6);
-    errorMessage = '';
-  }
 
   function reset() {
     pickupCode = '';
@@ -108,20 +104,27 @@
     </Dialog.Header>
 
     <div class="space-y-4 py-2">
-      <Input
+      <InputOTP.Root
         id="pickup-code-input"
-        type="text"
-        inputmode="numeric"
         maxlength={6}
-        pattern="[0-9]{6}"
-        placeholder="000000"
+        pattern={REGEXP_ONLY_DIGITS}
+        inputmode="numeric"
+        autocomplete="one-time-code"
         aria-label={m["orders.pickup.ariaLabel"]()}
         aria-describedby={errorMessage ? 'pickup-code-error' : undefined}
-        value={pickupCode}
-        oninput={handleInput}
-        class="text-center text-2xl tracking-widest font-mono h-14 touch-manipulation ring-primary focus-visible:ring-primary"
-        autocomplete="off"
-      />
+        aria-invalid={errorMessage ? true : undefined}
+        bind:value={pickupCode}
+        onValueChange={() => (errorMessage = '')}
+        class="justify-center"
+      >
+        {#snippet children({ cells })}
+          <InputOTP.Group>
+            {#each cells as cell, i (i)}
+              <InputOTP.Slot {cell} class="size-12 font-mono text-2xl" />
+            {/each}
+          </InputOTP.Group>
+        {/snippet}
+      </InputOTP.Root>
       {#if errorMessage}
         <p id="pickup-code-error" class="text-sm text-destructive" role="alert">{errorMessage}</p>
       {/if}

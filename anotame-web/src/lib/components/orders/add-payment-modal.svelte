@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { FormField } from '$lib/components/common';
+  import * as InputGroup from '$lib/components/ui/input-group';
+  import { FormField, InlineAlert } from '$lib/components/common';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -112,18 +113,18 @@
 
       <!-- Amount -->
       <FormField label={m['orders.payment.amountLabel']()} for="payment-amount" hint={m['orders.payment.refundHint']()}>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-          <Input
+        <InputGroup.Root class="h-12">
+          <InputGroup.Input
             id="payment-amount"
             type="number"
             step="0.01"
             placeholder={m['orders.payment.amountPlaceholder']()}
-            class="pl-7 h-12 text-lg font-mono"
+            class="text-lg font-mono"
             bind:value={amount}
             disabled={submitting}
           />
-        </div>
+          <InputGroup.Addon>$</InputGroup.Addon>
+        </InputGroup.Root>
       </FormField>
 
       <!-- Method -->
@@ -145,9 +146,7 @@
       </FormField>
 
       {#if errorMessage}
-        <p class="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg border border-destructive/20" role="alert">
-          {errorMessage}
-        </p>
+        <InlineAlert text={errorMessage} showIcon={false} />
       {/if}
     </div>
 

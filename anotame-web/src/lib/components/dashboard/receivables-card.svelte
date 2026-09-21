@@ -6,9 +6,9 @@
   import * as Card from '$lib/components/ui/card';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import { StatusBadge } from '$lib/components/common';
+  import { StatusBadge, InlineAlert } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
-  import { Banknote, Loader2, AlertTriangle } from '@lucide/svelte';
+  import { Banknote, Loader2 } from '@lucide/svelte';
 
   type AgingBucket = { bucket: '0_30' | '31_60' | '61_90' | '90_PLUS'; orderCount: number; balance: number };
   type StatusBreakdown = { status: string; orderCount: number; balance: number };
@@ -157,16 +157,9 @@
       </div>
     {:else if breakdown}
       {#if !breakdown.ledgerReconciled}
-        <div
-          class="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-xs"
-        >
-          <AlertTriangle class="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-          <span>
-            {m['kpi.receivables.driftWarning']({
-              amount: formatCurrency(breakdown.ledgerDifference)
-            })}
-          </span>
-        </div>
+        <InlineAlert
+          text={m['kpi.receivables.driftWarning']({ amount: formatCurrency(breakdown.ledgerDifference) })}
+        />
       {/if}
 
       <div class="space-y-2">

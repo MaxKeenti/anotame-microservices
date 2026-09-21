@@ -77,7 +77,7 @@
             {#snippet actions()}
                 <Button
                     variant="outline"
-                    class="h-8 sm:h-12 px-3 sm:px-6 text-xs sm:text-base shrink-0"
+                    class="h-11 sm:h-12 px-3 sm:px-6 text-sm sm:text-base shrink-0"
                     onclick={() => { orderWizardState.clearActiveDraft(); goto("/dashboard/orders"); }}
                 >
                     {draft?.isEditing ? m["common.cancel"]() : m["orders.new.exit"]()}
@@ -86,7 +86,7 @@
         </WizardHeader>
 
         <!-- Step Content -->
-        <div class="flex-1 overflow-y-auto flex flex-col pt-4">
+        <div class="flex flex-1 flex-col pt-4">
             {#if steps[currentStepIndex]}
                 {@const ActiveComponent = steps[currentStepIndex].component}
                 <ActiveComponent onNext={handleNext} onBack={handleBack} />

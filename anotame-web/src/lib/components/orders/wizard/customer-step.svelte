@@ -1,9 +1,9 @@
 <script lang="ts">
+    import * as InputGroup from '$lib/components/ui/input-group';
    import { Heading, Text } from '$lib/components/ui/typography';
    import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
    import { apiService, API_SALES } from '$lib/services/api.svelte';
    import { Button } from '$lib/components/ui/button';
-   import { Input } from '$lib/components/ui/input';
    import { Search, User, Plus } from '@lucide/svelte';
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
@@ -73,14 +73,16 @@
         {:else}
             <div class="w-full space-y-6 relative">
                 <div class="relative">
-                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-6 h-6" />
-                    <Input
-                        placeholder={m['orders.wizard.searchPlaceholder']()}
-                        aria-label={m['orders.wizard.searchPlaceholder']()}
-                        class="pl-12 h-16 text-lg rounded-xl shadow-sm"
-                        bind:value={query}
-                        autofocus
-                    />
+                    <InputGroup.Root class="h-16 rounded-xl shadow-sm">
+                        <InputGroup.Input
+                            placeholder={m['orders.wizard.searchPlaceholder']()}
+                            aria-label={m['orders.wizard.searchPlaceholder']()}
+                            class="text-lg"
+                            bind:value={query}
+                            autofocus
+                        />
+                        <InputGroup.Addon><Search class="size-6" aria-hidden="true" /></InputGroup.Addon>
+                    </InputGroup.Root>
                     
                     {#if results.length > 0}
                         <div class="absolute top-full mt-2 left-0 right-0 bg-popover border border-border rounded-xl shadow-xl z-20 max-h-80 overflow-y-auto">
@@ -113,8 +115,8 @@
 
     {#if !draft?.customer}
         <div class="flex justify-between items-center py-3 sm:py-4 border-t border-border mt-auto">
-            <Button variant="ghost" class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base" onclick={onBack}>{m['common.cancel']()}</Button>
-            <Button disabled class="h-9 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">{m['customerStep.selectPrompt']()}</Button>
+            <Button variant="ghost" class="h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base" onclick={onBack}>{m['common.cancel']()}</Button>
+            <Button disabled class="h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">{m['customerStep.selectPrompt']()}</Button>
         </div>
     {/if}
 </div>

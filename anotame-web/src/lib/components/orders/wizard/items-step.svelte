@@ -84,7 +84,7 @@
            </Button>
        </div>
 
-       <div class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+       <div class="flex-1 space-y-4">
            {#if items.length === 0}
                <div class="h-64 flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl text-muted-foreground w-full">
                    <p class="text-lg">{m['itemsStep.empty']()}</p>

@@ -4,6 +4,8 @@
   import AlertTriangleIcon from '@lucide/svelte/icons/triangle-alert';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import InfoIcon from '@lucide/svelte/icons/info';
+  import * as Alert from '$lib/components/ui/alert';
+  import type { AlertVariant } from '$lib/components/ui/alert';
   import * as m from '$lib/paraglide/messages';
 
   /** A tinted aside in a help topic: a tip, a warning, or an admin-only note. */
@@ -17,10 +19,10 @@
 
   let { kind, text, children }: Props = $props();
 
-  const TONE: Record<CalloutKind, string> = {
-    important: 'border-warning-border bg-warning-background text-warning-background-foreground',
-    admin: 'border-info-border bg-info-background text-info-background-foreground',
-    tip: 'border-success-border bg-success-background text-success-background-foreground',
+  const TONE: Record<CalloutKind, AlertVariant> = {
+    important: 'warning',
+    admin: 'info',
+    tip: 'success',
   };
   const ICON = { important: AlertTriangleIcon, admin: ShieldCheckIcon, tip: InfoIcon };
 
@@ -34,14 +36,14 @@
   const Icon = $derived(ICON[kind] ?? InfoIcon);
 </script>
 
-<div class="rounded-lg border p-4 text-sm leading-6 {TONE[kind] ?? TONE.tip}">
-  <div class="mb-1 flex items-center gap-2 font-bold">
-    <Icon class="h-4 w-4" />
-    {label}
-  </div>
-  {#if children}
-    {@render children()}
-  {:else}
-    <p>{text}</p>
-  {/if}
-</div>
+<Alert.Root variant={TONE[kind] ?? 'success'} class="leading-6">
+  <Icon aria-hidden="true" />
+  <Alert.Title class="font-bold">{label}</Alert.Title>
+  <Alert.Description class="text-current">
+    {#if children}
+      {@render children()}
+    {:else}
+      <p>{text}</p>
+    {/if}
+  </Alert.Description>
+</Alert.Root>

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import SimplePager from '$lib/components/common/simple-pager.svelte';
+  import * as Alert from '$lib/components/ui/alert';
+  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { Heading, Text } from '$lib/components/ui/typography';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
@@ -264,17 +267,11 @@
       </div>
     </div>
   {:else if error}
-    <div class="p-8 bg-card border border-destructive/30 rounded-2xl">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 bg-destructive/10 rounded-lg flex items-center justify-center">
-          <span class="text-destructive font-bold text-sm">!</span>
-        </div>
-        <div>
-          <p class="font-medium text-destructive">{m['kpi.financial.error']()}</p>
-          <Text variant="muted" class="mt-1">{error}</Text>
-        </div>
-      </div>
-    </div>
+    <Alert.Root variant="destructive">
+      <TriangleAlertIcon aria-hidden="true" />
+      <Alert.Title>{m['kpi.financial.error']()}</Alert.Title>
+      <Alert.Description>{error}</Alert.Description>
+    </Alert.Root>
   {:else if !data || data.revenueTrend.length === 0}
     <Card.Root>
       <Card.Content class="pt-8">
@@ -388,27 +385,7 @@
             </div>
 
             {#if servicePageCount > 1}
-              <div class="flex items-center justify-between px-2 pt-4">
-                <Button size="touch"
-                  variant="outline"
-                  class="px-5"
-                  disabled={servicePageIndex === 0}
-                  onclick={previousServicePage}
-                >
-                  {m["common.previous"]()}
-                </Button>
-                <span class="text-sm text-muted-foreground">
-                  {m["common.pagination"]({ current: String(servicePageIndex + 1), total: String(servicePageCount) })}
-                </span>
-                <Button size="touch"
-                  variant="outline"
-                  class="px-5"
-                  disabled={servicePageIndex >= servicePageCount - 1}
-                  onclick={nextServicePage}
-                >
-                  {m["common.next"]()}
-                </Button>
-              </div>
+              <SimplePager class="pt-4" pageIndex={servicePageIndex} pageCount={servicePageCount} onPrevious={previousServicePage} onNext={nextServicePage} />
             {/if}
           {/if}
         </Card.Content>
@@ -462,27 +439,7 @@
             </div>
 
             {#if topCustomerPageCount > 1}
-              <div class="flex items-center justify-between px-2 pt-4">
-                <Button size="touch"
-                  variant="outline"
-                  class="px-5"
-                  disabled={topCustomerPageIndex === 0}
-                  onclick={previousTopCustomerPage}
-                >
-                  {m["common.previous"]()}
-                </Button>
-                <span class="text-sm text-muted-foreground">
-                  {m["common.pagination"]({ current: String(topCustomerPageIndex + 1), total: String(topCustomerPageCount) })}
-                </span>
-                <Button size="touch"
-                  variant="outline"
-                  class="px-5"
-                  disabled={topCustomerPageIndex >= topCustomerPageCount - 1}
-                  onclick={nextTopCustomerPage}
-                >
-                  {m["common.next"]()}
-                </Button>
-              </div>
+              <SimplePager class="pt-4" pageIndex={topCustomerPageIndex} pageCount={topCustomerPageCount} onPrevious={previousTopCustomerPage} onNext={nextTopCustomerPage} />
             {/if}
           {/if}
         </Card.Content>

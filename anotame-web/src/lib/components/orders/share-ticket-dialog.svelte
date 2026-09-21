@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { InlineAlert } from '$lib/components/common';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -135,9 +136,7 @@
     </Dialog.Header>
 
     <div class="space-y-4 py-2">
-      <p class="rounded-lg border border-warning-border bg-warning-background p-3 text-sm text-warning-background-foreground">
-        {m['ticketShare.securityNotice']()}
-      </p>
+      <InlineAlert tone="warning" text={m['ticketShare.securityNotice']()} />
 
       {#if shareUrl}
         <div class="space-y-2">

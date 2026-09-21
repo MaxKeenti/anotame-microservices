@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount, untrack, tick } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -16,6 +17,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
 	import { AlertTriangle, Loader2 } from '@lucide/svelte';
+	import * as Alert from '$lib/components/ui/alert';
+	import { InlineAlert } from '$lib/components/common';
 	import PaymentMethodPicker from '$lib/components/common/payment-method-picker.svelte';
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
@@ -277,7 +280,7 @@
 		<Heading level={2}>{m['paymentStep.title']()}</Heading>
 	</div>
 
-	<div class="flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
+	<div class="flex-1 space-y-8">
 		<!-- Total Section -->
 		<div class="text-center py-6 bg-muted/20 rounded-xl">
 			<Text variant="label" as="div">
@@ -304,21 +307,19 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>{m['orders.wizard.amountReceived']()}</Form.Label>
-							<div class="relative">
-								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
-									>$</span
-								>
-								<Input
+							<InputGroup.Root class="h-14 rounded-xl">
+								<InputGroup.Input
 									{...props}
 									{...constraints}
 									type="number"
 									min="0"
 									step="0.01"
-									class="pl-8 text-2xl font-bold h-14 rounded-xl"
+									class="text-2xl font-bold"
 									bind:value={$form.amountPaid}
 									placeholder="0.00"
 								/>
-							</div>
+								<InputGroup.Addon><span class="text-xl">$</span></InputGroup.Addon>
+							</InputGroup.Root>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -426,17 +427,11 @@
 					</div>
 
 					{#if isCluttered}
-						<div
-							class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95"
-						>
-							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-							<div>
-								<h5 class="text-xs font-bold text-destructive">{m['paymentStep.dayFull']()}</h5>
-								<p class="text-xs text-destructive/80 leading-relaxed font-medium">
-									{m['paymentStep.dayFullHint']()}
-								</p>
-							</div>
-						</div>
+						<Alert.Root variant="destructive" class="animate-in zoom-in-95">
+							<AlertTriangle aria-hidden="true" />
+							<Alert.Title>{m['paymentStep.dayFull']()}</Alert.Title>
+							<Alert.Description>{m['paymentStep.dayFullHint']()}</Alert.Description>
+						</Alert.Root>
 					{/if}
 				</div>
 			{/if}
@@ -444,11 +439,7 @@
 	</div>
 
 	{#if error}
-		<div
-			class="p-3 bg-destructive/10 text-destructive rounded-xl text-center text-sm font-medium shadow-sm transition-all border border-destructive/20"
-		>
-			{error}
-		</div>
+		<InlineAlert text={error} />
 	{/if}
 
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">

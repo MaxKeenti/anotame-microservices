@@ -1,4 +1,5 @@
 <script lang="ts">
+    import * as InputGroup from '$lib/components/ui/input-group';
     import { Badge } from '$lib/components/ui/badge';
 	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
@@ -395,7 +396,7 @@
             <Button variant="destructive" size="touch" class="ml-auto px-4" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
+        <div class="flex-1 px-1">
             <!-- STEP 0 -->
             {#if step === 0}
                 <div class="space-y-4">
@@ -598,15 +599,15 @@
 
                     <div class="space-y-3">
                         <label class="text-base font-medium" for="precio-base">{m['itemSubWizard.label.basePrice']()}</label>
-                        <div class="relative">
-                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl">$</span>
-                            <Input
+                        <InputGroup.Root class="h-20 rounded-xl">
+                            <InputGroup.Input
                                 id="precio-base"
                                 type="number"
-                                class="pl-14 h-20 text-4xl font-bold text-center rounded-xl"
+                                class="text-4xl font-bold text-center"
                                 bind:value={price}
                             />
-                        </div>
+                            <InputGroup.Addon><span class="text-2xl">$</span></InputGroup.Addon>
+                        </InputGroup.Root>
                     </div>
 
                     <div class="grid grid-cols-2 gap-6">

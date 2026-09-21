@@ -260,7 +260,7 @@
         </WizardHeader>
 
         <!-- Step Content (read-only if locked) -->
-        <LockedRegion locked={isLocked} class="flex flex-1 flex-col overflow-y-auto pt-4">
+        <LockedRegion locked={isLocked} class="flex flex-1 flex-col pt-4">
             {#if steps[currentStepIndex]}
                 {@const ActiveComponent = steps[currentStepIndex].component}
                 {#if currentStepIndex === 1}

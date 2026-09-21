@@ -1,10 +1,10 @@
 <script lang="ts">
+  import * as InputGroup from '$lib/components/ui/input-group';
   import { Heading } from '$lib/components/ui/typography';
   import { tick } from 'svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as ToggleGroup from '$lib/components/ui/toggle-group';
-  import { Input } from '$lib/components/ui/input';
   import {
     helpCategories,
     helpQuickStarts,
@@ -167,15 +167,14 @@
     <aside class="lg:sticky lg:top-0 space-y-4">
       <Card.Root class="gap-0 p-4">
         <label for="help-search" class="sr-only">{m['common.search']()}</label>
-        <div class="relative">
-          <Search class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <Input
+        <InputGroup.Root class="h-12">
+          <InputGroup.Input
             id="help-search"
             bind:value={searchQuery}
             placeholder={m['help.search.placeholder']()}
-            class="h-12 pl-10 touch-manipulation"
           />
-        </div>
+          <InputGroup.Addon><Search aria-hidden="true" /></InputGroup.Addon>
+        </InputGroup.Root>
 
         <ToggleGroup.Root
           type="single"

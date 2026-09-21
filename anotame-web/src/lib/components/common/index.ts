@@ -29,3 +29,4 @@ export {
 export { default as PaymentMethodPicker, type PaymentMethod } from "./payment-method-picker.svelte";
 export { default as PageContainer } from "./page-container.svelte";
 export { default as RowActions } from "./row-actions.svelte";
+export { default as SimplePager } from "./simple-pager.svelte";

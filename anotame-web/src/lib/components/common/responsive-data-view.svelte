@@ -11,6 +11,7 @@
   import DataTableView from './data-table-view.svelte';
   import DataCardView from './data-card-view.svelte';
   import DataTableViewOptions from './data-table-view-options.svelte';
+  import SimplePager from './simple-pager.svelte';
   import { Input } from '$lib/components/ui/input';
   import { Button } from '$lib/components/ui/button';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
@@ -194,29 +195,11 @@
 
   <!-- Pagination -->
   {#if showPagination}
-    <div class="flex items-center justify-between px-2 py-1">
-      <Button size="touch"
-        variant="outline"
-        class="px-5"
-        disabled={!state.table.getCanPreviousPage()}
-        onclick={() => state.table.previousPage()}
-      >
-        {m['common.previous']()}
-      </Button>
-      <span class="text-sm text-muted-foreground">
-        {m['common.pagination']({
-          current: String(state.table.getState().pagination.pageIndex + 1),
-          total: String(state.table.getPageCount() || 1),
-        })}
-      </span>
-      <Button size="touch"
-        variant="outline"
-        class="px-5"
-        disabled={!state.table.getCanNextPage()}
-        onclick={() => state.table.nextPage()}
-      >
-        {m['common.next']()}
-      </Button>
-    </div>
+    <SimplePager
+      pageIndex={state.table.getState().pagination.pageIndex}
+      pageCount={state.table.getPageCount()}
+      onPrevious={() => state.table.previousPage()}
+      onNext={() => state.table.nextPage()}
+    />
   {/if}
 </div>
