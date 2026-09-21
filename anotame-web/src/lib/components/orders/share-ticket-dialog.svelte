@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Item from '$lib/components/ui/item';
   import { InlineAlert } from '$lib/components/common';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -169,18 +170,19 @@
         {:else if shares.length === 0}
           <Text variant="muted">{m['ticketShare.noLinks']()}</Text>
         {:else}
-          <div class="space-y-2">
+          <Item.Group class="gap-2">
             {#each shares as share}
-              <div class="flex items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">
-                <div class="min-w-0">
-                  <p class="font-medium">
+              <Item.Root variant="outline" size="sm">
+                <Item.Content class="min-w-0">
+                  <Item.Title>
                     {isActive(share) ? m['ticketShare.active']() : m['ticketShare.inactive']()}
                     <span class="ml-1 text-xs font-normal text-muted-foreground">
                       {share.scope === 'HANDLING' ? m['ticketShare.scopeHandling']() : m['ticketShare.scopeCustomer']()}
                     </span>
-                  </p>
-                  <Text variant="small">{m['ticketShare.expires']({ date: formatDateTime(share.expiresAt) })}</Text>
-                </div>
+                  </Item.Title>
+                  <Item.Description>{m['ticketShare.expires']({ date: formatDateTime(share.expiresAt) })}</Item.Description>
+                </Item.Content>
+                <Item.Actions>
                 {#if isActive(share)}
                   <Button size="touch"
                     onclick={() => revokeLink(share)}
@@ -191,9 +193,10 @@
                     {m['ticketShare.revoke']()}
                   </Button>
                 {/if}
-              </div>
+                </Item.Actions>
+              </Item.Root>
             {/each}
-          </div>
+          </Item.Group>
         {/if}
       </div>
     </div>

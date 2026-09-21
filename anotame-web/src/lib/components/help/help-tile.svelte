@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Heading, Text } from '$lib/components/ui/typography';
+  import * as Item from '$lib/components/ui/item';
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
 
@@ -16,8 +16,10 @@
   let { title, description, class: className, children }: Props = $props();
 </script>
 
-<div class={cn('rounded-lg border border-border bg-background p-4', className)}>
-  <Heading level={4} as="h3">{title}</Heading>
-  <Text variant="muted" class="mt-1 leading-6">{description}</Text>
-  {@render children?.()}
-</div>
+<Item.Root variant="outline" class={cn('items-start bg-background', className)}>
+  <Item.Content>
+    <Item.Title class="line-clamp-none text-base font-semibold">{title}</Item.Title>
+    <Item.Description class="line-clamp-none leading-6">{description}</Item.Description>
+    {@render children?.()}
+  </Item.Content>
+</Item.Root>

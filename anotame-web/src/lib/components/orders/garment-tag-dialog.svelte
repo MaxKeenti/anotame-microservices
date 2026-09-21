@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Item from '$lib/components/ui/item';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
@@ -117,24 +118,32 @@
     <div class="space-y-4 py-2">
       <div class="space-y-2">
         <p class="text-sm font-semibold">{m['garmentTag.garments']()}</p>
-        <div class="space-y-2">
+        <Item.Group class="gap-2">
           {#each order.items as item, index (item.id)}
-            <div class="flex items-center gap-3 rounded-lg border border-border p-3">
-              <Checkbox
-                id={`garment-tag-${item.id}`}
-                class="size-5 shrink-0"
-                checked={selectedIds.includes(item.id)}
-                onCheckedChange={() => toggleItem(item.id)}
-              />
-              <label for={`garment-tag-${item.id}`} class="min-w-0 flex-1 text-sm">
-                <span class="font-medium">{item.garmentName}</span>
-                <span class="ml-2 text-xs text-muted-foreground">
-                  {m['garmentTag.position']({ index: index + 1, total: order.items.length })}
-                </span>
-              </label>
-            </div>
+            <Item.Root variant="outline" size="sm">
+              {#snippet child({ props })}
+                <label for={`garment-tag-${item.id}`} {...props}>
+                  <Item.Media>
+                    <Checkbox
+                      id={`garment-tag-${item.id}`}
+                      class="size-5"
+                      checked={selectedIds.includes(item.id)}
+                      onCheckedChange={() => toggleItem(item.id)}
+                    />
+                  </Item.Media>
+                  <Item.Content class="min-w-0">
+                    <Item.Title>{item.garmentName}</Item.Title>
+                  </Item.Content>
+                  <Item.Actions>
+                    <Text variant="small" as="span">
+                      {m['garmentTag.position']({ index: index + 1, total: order.items.length })}
+                    </Text>
+                  </Item.Actions>
+                </label>
+              {/snippet}
+            </Item.Root>
           {/each}
-        </div>
+        </Item.Group>
       </div>
 
       <div class="flex items-center justify-between gap-3 border-t border-border pt-4">
@@ -144,7 +153,7 @@
             onclick={() => (copies = Math.max(1, copies - 1))}
             disabled={copies <= 1}
             variant="outline"
-            class="size-11"
+            size="icon-touch"
             aria-label={m['garmentTag.fewerCopies']()}
           >
             <Minus />
@@ -154,7 +163,7 @@
             onclick={() => (copies = Math.min(MAX_COPIES, copies + 1))}
             disabled={copies >= MAX_COPIES}
             variant="outline"
-            class="size-11"
+            size="icon-touch"
             aria-label={m['garmentTag.moreCopies']()}
           >
             <Plus />

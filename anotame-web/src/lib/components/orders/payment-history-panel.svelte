@@ -3,6 +3,10 @@
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { formatCurrency, formatDateTime } from '$lib/utils/formatUtils';
   import { Button } from '$lib/components/ui/button';
+  import * as Card from '$lib/components/ui/card';
+  import * as Item from '$lib/components/ui/item';
+  import StatePanel from '$lib/components/common/state-panel.svelte';
+  import PanelHeading from './panel-heading.svelte';
   import { DollarSign } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
@@ -63,52 +67,44 @@
   });
 </script>
 
-<div class="min-w-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-  <div class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 border-b border-border bg-secondary/20">
-    <div class="wrap-break-word font-bold text-lg">{m['orders.payment.historyTitle']()}</div>
-    {#if onRecordPayment}
-      <Button onclick={onRecordPayment} size="touch">
-        <DollarSign />
-        {m['orders.payment.recordPayment']()}
-      </Button>
-    {/if}
-  </div>
+<Card.Root class="min-w-0 gap-0 p-0">
+  <PanelHeading title={m['orders.payment.historyTitle']()}>
+    {#snippet action()}
+      {#if onRecordPayment}
+        <Button onclick={onRecordPayment} size="touch">
+          <DollarSign data-icon="inline-start" />
+          {m['orders.payment.recordPayment']()}
+        </Button>
+      {/if}
+    {/snippet}
+  </PanelHeading>
 
   {#if loading}
-    <div class="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm animate-pulse">
-      {m['orders.detail.loading']()}
-    </div>
+    <StatePanel message={m['orders.detail.loading']()} loading class="h-auto border-0 py-8" />
   {:else if payments.length === 0}
-    <div class="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm">
-      {m['orders.payment.emptyHistory']()}
-    </div>
+    <StatePanel message={m['orders.payment.emptyHistory']()} class="h-auto border-0 py-8" />
   {:else}
-    <div class="divide-y divide-border">
+    <Item.Group class="gap-0 divide-y divide-border">
       {#each payments as payment}
-        <div class="min-w-0 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
-          <!-- Amount -->
-          <span class={`font-bold text-base font-mono w-24 shrink-0 ${payment.amount < 0 ? 'text-destructive' : 'text-success-text'}`}>
-            {payment.amount < 0 ? '' : '+'}{formatCurrency(payment.amount)}
-          </span>
-
-          <!-- Method badge -->
-          <Badge variant="secondary">
-            {methodLabel(getPaymentMethod(payment))}
-          </Badge>
-
-          <!-- Note -->
-          {#if noteLabel(payment)}
-            <span class="min-w-0 text-muted-foreground italic flex-1 wrap-break-word sm:truncate">{noteLabel(payment)}</span>
-          {:else}
-            <span class="flex-1"></span>
-          {/if}
-
-          <!-- Date -->
-          <span class="max-w-full text-muted-foreground font-mono text-xs wrap-break-word whitespace-normal sm:whitespace-nowrap sm:shrink-0">
-            {formatDateTime(payment.recordedAt)}
-          </span>
-        </div>
+        <Item.Root class="rounded-none px-4 sm:px-6">
+          <Item.Media>
+            <span class={`w-24 font-mono text-base font-bold ${payment.amount < 0 ? 'text-destructive' : 'text-success-text'}`}>
+              {payment.amount < 0 ? '' : '+'}{formatCurrency(payment.amount)}
+            </span>
+          </Item.Media>
+          <Item.Content class="min-w-0">
+            <Item.Title>
+              <Badge variant="secondary">{methodLabel(getPaymentMethod(payment))}</Badge>
+            </Item.Title>
+            {#if noteLabel(payment)}
+              <Item.Description class="italic">{noteLabel(payment)}</Item.Description>
+            {/if}
+          </Item.Content>
+          <Item.Actions>
+            <span class="font-mono text-xs text-muted-foreground">{formatDateTime(payment.recordedAt)}</span>
+          </Item.Actions>
+        </Item.Root>
       {/each}
-    </div>
+    </Item.Group>
   {/if}
-</div>
+</Card.Root>

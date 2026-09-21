@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
+  import * as Item from '$lib/components/ui/item';
   import PanelHeading from './panel-heading.svelte';
   import { formatDateTime } from '$lib/utils/formatUtils';
   import * as m from '$lib/paraglide/messages';
@@ -23,19 +24,21 @@
 
 <Card.Root class="gap-0 p-0">
   <PanelHeading title={m['orders.detail.auditLog']()} />
-  <div class="divide-y divide-border">
+  <Item.Group class="gap-0 divide-y divide-border">
     {#each entries as entry}
-      <div class="flex flex-col gap-1 px-6 py-3 text-sm sm:flex-row sm:items-center sm:gap-4">
-        <span class="font-mono text-xs whitespace-nowrap text-muted-foreground">
-          {formatDateTime(entry.changedAt)}
-        </span>
-        <span class="font-semibold capitalize">{entry.fieldName}</span>
-        <span class="flex-1 text-muted-foreground">
-          <span class="line-through opacity-60">{entry.oldValue ?? '—'}</span>
-          <span class="mx-2">→</span>
-          <span class="font-medium text-foreground">{entry.newValue ?? '—'}</span>
-        </span>
-      </div>
+      <Item.Root size="sm" class="rounded-none px-4 sm:px-6">
+        <Item.Content class="min-w-0 gap-1 sm:flex-row sm:items-center sm:gap-4">
+          <span class="font-mono text-xs whitespace-nowrap text-muted-foreground">
+            {formatDateTime(entry.changedAt)}
+          </span>
+          <Item.Title class="capitalize">{entry.fieldName}</Item.Title>
+          <Item.Description class="line-clamp-none flex-1">
+            <span class="line-through opacity-60">{entry.oldValue ?? '—'}</span>
+            <span class="mx-2" aria-hidden="true">→</span>
+            <span class="font-medium text-foreground">{entry.newValue ?? '—'}</span>
+          </Item.Description>
+        </Item.Content>
+      </Item.Root>
     {/each}
-  </div>
+  </Item.Group>
 </Card.Root>

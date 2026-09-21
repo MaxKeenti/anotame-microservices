@@ -117,9 +117,9 @@
 </script>
 
 <Card.Root>
-  <Card.Header class="flex flex-row items-center justify-between pb-2">
+  <Card.Header class="pb-2">
     <Card.Title class="text-sm font-medium">{m['kpi.card.receivables']()}</Card.Title>
-    <Banknote class="h-4 w-4 text-muted-foreground" />
+    <Card.Action><Banknote class="h-4 w-4 text-muted-foreground" /></Card.Action>
   </Card.Header>
   <Card.Content class="space-y-3">
     <div>

@@ -36,10 +36,12 @@
 </script>
 
 <Card.Root>
-  <Card.Header class={cn('pb-2', Icon && 'flex flex-row items-center justify-between')}>
+  <Card.Header class="pb-2">
     <Card.Title class="text-sm font-medium">{title}</Card.Title>
     {#if Icon}
-      <Icon class={cn('h-4 w-4', tone === 'destructive' ? 'text-destructive' : 'text-muted-foreground')} />
+      <Card.Action>
+        <Icon class={cn('h-4 w-4', tone === 'destructive' ? 'text-destructive' : 'text-muted-foreground')} />
+      </Card.Action>
     {/if}
   </Card.Header>
   <Card.Content>

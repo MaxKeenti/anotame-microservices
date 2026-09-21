@@ -1,4 +1,6 @@
 <script lang="ts">
+    import * as Item from '$lib/components/ui/item';
+    import * as ButtonGroup from '$lib/components/ui/button-group';
     import * as InputGroup from '$lib/components/ui/input-group';
     import { Badge } from '$lib/components/ui/badge';
 	import { Heading, Text } from '$lib/components/ui/typography';
@@ -8,7 +10,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Pencil, Plus, X } from '@lucide/svelte';
+	import { ArrowLeft, CheckCircle2, Clock, Pencil, Plus, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
 	import type { GarmentTypeResponse, OrderContentSource, ServiceResponse } from '$lib/types/dtos';
@@ -464,36 +466,36 @@
                         <div class="space-y-3">
                             <Text variant="label" as="h4">{m['orders.wizard.servicesAdded']()}</Text>
                             {#each addedServices as s, idx}
-                                <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
-                                    <div>
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <div class="font-medium text-lg">{s.serviceName}</div>
+                                <Item.Root variant="outline" class="animate-in slide-in-from-top-2 bg-card p-4 shadow-sm">
+                                    <Item.Content class="min-w-0">
+                                        <Item.Title class="line-clamp-none flex-wrap text-lg">
+                                            {s.serviceName}
                                             {#if s.source === 'CUSTOM'}
                                                 <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                             {/if}
-                                        </div>
-                                        <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
+                                        </Item.Title>
+                                        <div class="flex flex-wrap gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
                                             {#if s.adjustmentReason}
                                                 <span>{m['orders.wizard.adjustmentShort']()} {s.adjustmentReason}</span>
                                             {/if}
-                                            <span>⏱️ {s.durationMin} min</span>
+                                            <span class="inline-flex items-center gap-1"><Clock class="size-3.5" aria-hidden="true" />{s.durationMin} min</span>
                                         </div>
                                         {#if s.instructions}
-                                            <div class="text-sm text-muted-foreground mt-1">{s.instructions}</div>
+                                            <Item.Description class="line-clamp-none">{s.instructions}</Item.Description>
                                         {/if}
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="text-right">
-                                            <div class="font-mono font-bold text-lg">${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)}</div>
-                                        </div>
-                                        <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
-                                            <Pencil class="w-5 h-5" />
-                                        </Button>
-                                        <Button variant="destructive" size="icon" class="h-12 w-12 touch-manipulation" onclick={() => handleRemoveService(idx)}>
-                                            <X class="w-6 h-6" />
-                                        </Button>
-                                    </div>
-                                </div>
+                                    </Item.Content>
+                                    <Item.Actions>
+                                        <Text variant="metric" size="sm" as="span">${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)}</Text>
+                                        <ButtonGroup.Root>
+                                            <Button variant="outline" size="icon-touch" aria-label={m['common.edit']()} onclick={() => handleEditService(idx)}>
+                                                <Pencil class="size-5" />
+                                            </Button>
+                                            <Button variant="destructive-outline" size="icon-touch" aria-label={m['common.delete']()} onclick={() => handleRemoveService(idx)}>
+                                                <X class="size-5" />
+                                            </Button>
+                                        </ButtonGroup.Root>
+                                    </Item.Actions>
+                                </Item.Root>
                             {/each}
                             <div class="text-right font-bold pt-3 border-t text-xl">
                                 {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}

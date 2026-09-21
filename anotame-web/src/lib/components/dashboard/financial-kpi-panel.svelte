@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Item from '$lib/components/ui/item';
   import SimplePager from '$lib/components/common/simple-pager.svelte';
   import * as Alert from '$lib/components/ui/alert';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
@@ -328,25 +329,18 @@
               {m['kpi.financial.services.empty']()}
             </div>
           {:else}
-            <div class="space-y-4">
+            <Item.Group class="gap-2">
               {#each pagedServices as service, i}
-                <div class="space-y-1.5">
-                  <!-- Service Header -->
-                  <div class="flex items-center justify-between">
-                    <div class="flex-1">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <p class="text-sm font-semibold text-foreground truncate">
-                          {servicePageIndex * pageSize + i + 1}. {service.serviceName}
-                        </p>
-                        {#if service.source === 'CUSTOM'}
-                          <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
-                        {/if}
-                      </div>
-                      <Text variant="small">
-                        {service.orderCount} {m['kpi.financial.services.orders']()}
-                      </Text>
-                      <Text variant="small">
-                        {m['kpi.financial.services.revenuePerMin']()}:
+                <Item.Root size="sm" class="px-0">
+                  <Item.Content class="min-w-0">
+                    <Item.Title class="font-semibold">
+                      {servicePageIndex * pageSize + i + 1}. {service.serviceName}
+                      {#if service.source === 'CUSTOM'}
+                        <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
+                      {/if}
+                    </Item.Title>
+                    <Item.Description class="line-clamp-none text-xs">{service.orderCount} {m['kpi.financial.services.orders']()}</Item.Description>
+                    <Item.Description class="line-clamp-none text-xs">{m['kpi.financial.services.revenuePerMin']()}:
                         {#if service.revenuePerMinute && service.revenuePerMinute > 0}
                           <span class="font-mono text-foreground">
                             {formatCurrency(service.revenuePerMinute)}{m['kpi.financial.services.perMin']()}
@@ -360,29 +354,23 @@
                         {m['kpi.financial.services.duration']()}:
                         <span class="font-mono text-foreground">
                           {m['kpi.minuteUnit']({ minutes: String(service.totalDurationMin) })}
-                        </span>
-                      </Text>
-                    </div>
-                    <span class="text-sm font-mono font-bold text-primary shrink-0 ml-4">
-                      {formatCurrency(service.totalRevenue)}
-                    </span>
-                  </div>
-                  <!-- Percentage Bar -->
-                  <Progress
-                    value={service.percentShare}
-                    class="h-2"
-                    indicatorClass="bg-gradient-to-r from-primary to-primary/60 duration-500 ease-out"
-                    aria-label={`${service.serviceName}: ${service.percentShare.toFixed(1)}%`}
-                  />
-                  <!-- Percentage Label -->
-                  <div class="text-right">
-                    <span class="text-xs font-mono text-muted-foreground">
-                      {service.percentShare.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
+                        </span></Item.Description>
+                  </Item.Content>
+                  <Item.Actions class="flex-col items-end gap-0">
+                    <span class="font-mono text-sm font-bold text-primary">{formatCurrency(service.totalRevenue)}</span>
+                    <span class="font-mono text-xs text-muted-foreground">{service.percentShare.toFixed(1)}%</span>
+                  </Item.Actions>
+                  <Item.Footer>
+                    <Progress
+                      value={service.percentShare}
+                      class="h-2"
+                      indicatorClass="bg-gradient-to-r from-primary to-primary/60 duration-500 ease-out"
+                      aria-label={`${service.serviceName}: ${service.percentShare.toFixed(1)}%`}
+                    />
+                  </Item.Footer>
+                </Item.Root>
               {/each}
-            </div>
+            </Item.Group>
 
             {#if servicePageCount > 1}
               <SimplePager class="pt-4" pageIndex={servicePageIndex} pageCount={servicePageCount} onPrevious={previousServicePage} onNext={nextServicePage} />
@@ -405,38 +393,26 @@
               {m['kpi.financial.topCustomers.empty']()}
             </div>
           {:else}
-            <div class="space-y-3">
+            <Item.Group class="gap-3">
               {#each pagedTopCustomers as customer, i}
-                <div class="p-3 bg-secondary/30 rounded-lg border border-secondary/50 hover:border-secondary transition-colors">
-                  <!-- Customer Header -->
-                  <div class="flex items-start justify-between gap-2 mb-2">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded min-w-5 text-center">
-                          {topCustomerPageIndex * pageSize + i + 1}
-                        </span>
-                        <p class="text-sm font-semibold text-foreground truncate">
-                          {getCustomerName(customer)}
-                        </p>
-                      </div>
-                      <Text variant="small" class="mt-1">
-                        {customer.orderCount} {m['kpi.financial.topCustomers.orders']()}
-                      </Text>
-                    </div>
-                    <span class="text-sm font-mono font-bold text-success-text shrink-0">
-                      {formatCurrency(customer.totalSpend)}
-                    </span>
-                  </div>
-                  <!-- Last Order Date -->
-                  <div class="text-xs text-muted-foreground">
-                    {m['kpi.financial.topCustomers.lastOrder']()}:
-                    <span class="font-mono">
-                      {formatDate(customer.lastOrderDate)}
-                    </span>
-                  </div>
-                </div>
+                <Item.Root variant="muted" size="sm">
+                  <Item.Media>
+                    <Badge variant="brand" class="min-w-6 tabular-nums">{topCustomerPageIndex * pageSize + i + 1}</Badge>
+                  </Item.Media>
+                  <Item.Content class="min-w-0">
+                    <Item.Title class="font-semibold">{getCustomerName(customer)}</Item.Title>
+                    <Item.Description>
+                      {customer.orderCount} {m['kpi.financial.topCustomers.orders']()}
+                      · {m['kpi.financial.topCustomers.lastOrder']()}:
+                      <span class="font-mono">{formatDate(customer.lastOrderDate)}</span>
+                    </Item.Description>
+                  </Item.Content>
+                  <Item.Actions>
+                    <span class="font-mono text-sm font-bold text-success-text">{formatCurrency(customer.totalSpend)}</span>
+                  </Item.Actions>
+                </Item.Root>
               {/each}
-            </div>
+            </Item.Group>
 
             {#if topCustomerPageCount > 1}
               <SimplePager class="pt-4" pageIndex={topCustomerPageIndex} pageCount={topCustomerPageCount} onPrevious={previousTopCustomerPage} onNext={nextTopCustomerPage} />
