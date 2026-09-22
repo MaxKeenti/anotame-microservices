@@ -24,7 +24,18 @@
  *   - styles a raw <label> (anything but `sr-only`) instead of FormField or
  *     CheckboxField;
  *   - styles a raw <a> instead of <NavLink> (navigation) or <Button href>
- *     (actions).
+ *     (actions);
+ *   - maps order/payment status codes to labels locally instead of calling
+ *     `statusLabel` from `$lib/utils/status-labels`;
+ *   - renders a `Command.Input` through a `child` snippet without binding the
+ *     value on the inner control (bits-ui passes no value or input handler to
+ *     `child`, so the search state never updates).
+ *
+ * It also checks the theme boundary and overlay primitives:
+ *   - a `--<tone>-emphasis` token in `src/routes/layout.css` holds a literal
+ *     colour instead of aliasing a palette token with `var(…)`;
+ *   - a menu/select surface in `ui/` uses a translucent `bg-popover/<n>`, which
+ *     lets rows behind the menu bleed through its items.
  *
  * Usage: node scripts/lint-ui-composition.mjs
  */
@@ -42,6 +53,9 @@ const RAW_CONTROL_ALLOW = new Set([join('src', 'lib', 'components', 'layout', 'd
 const LINK_ALLOW = new Set([join('src', 'lib', 'components', 'common', 'nav-link.svelte')]);
 /** The single place an Intl locale is spelled out. */
 const LOCALE_ALLOW = new Set([join('src', 'lib', 'utils', 'formatUtils.ts')]);
+/** The single place status codes are mapped to labels. */
+const STATUS_LABEL_ALLOW = new Set([join('src', 'lib', 'utils', 'status-labels.ts')]);
+const THEME = join(SRC, 'routes', 'layout.css');
 
 function walk(dir) {
 	return readdirSync(dir).flatMap((entry) => {
@@ -89,6 +103,11 @@ for (const file of walk(SRC)) {
 	if (!LOCALE_ALLOW.has(rel)) {
 		for (const m of raw.matchAll(/['"`](?:es|en)-[A-Z]{2}['"`]/g)) {
 			report(file, lineOf(raw, m.index), `hard-coded locale ${m[0]}; use getIntlLocale() from $lib/utils/formatUtils`);
+		}
+	}
+	if (!STATUS_LABEL_ALLOW.has(rel)) {
+		for (const m of raw.matchAll(/\bm\[\s*['"](?:order|payment)\.status\.|\bm\.(?:order|payment)_status_/g)) {
+			report(file, lineOf(raw, m.index), 'status label mapped locally; use statusLabel() from $lib/utils/status-labels');
 		}
 	}
 	for (const m of raw.matchAll(/`\$\$\{|\$\{[^}]*\.toFixed\(2\)\}/g)) {
@@ -155,6 +174,13 @@ for (const file of walk(SRC)) {
 		}
 	}
 
+	for (const m of src.matchAll(/<(CommandPrimitive\.Input|Command\.Input)\b[\s\S]*?<\/\1>/g)) {
+		const snippet = /\{#snippet child\b[\s\S]*?\{\/snippet\}/.exec(m[0]);
+		if (snippet && !/\bbind:value=/.test(snippet[0])) {
+			report(file, lineOf(src, m.index), `<${m[1]}> child snippet without bind:value; bits-ui does not pass the value to child, bind it on the inner input`);
+		}
+	}
+
 	for (const m of src.matchAll(/<Dialog\.Content\b/g)) {
 		const bare = classTokens(openingTag(src, m.index)).filter((t) => /^max-w-/.test(t));
 		if (bare.length) {
@@ -178,6 +204,20 @@ for (const file of walk(SRC)) {
 		for (const m of src.matchAll(/<(?:div|section|main|article)\b[^>]*?class="[^"]*?\b(max-w-\S+|animate-in)\b[^"]*"/g)) {
 			report(file, lineOf(src, m.index), `${m[1]} on a dashboard page; PageContainer owns width and entry animation`);
 		}
+	}
+}
+
+for (const file of walk(PRIMITIVES)) {
+	const raw = readFileSync(file, 'utf8');
+	for (const m of raw.matchAll(/\bbg-popover\/\d+/g)) {
+		report(file, lineOf(raw, m.index), `translucent ${m[0]} on an overlay surface; use opaque bg-popover so items stay legible`);
+	}
+}
+
+const theme = readFileSync(THEME, 'utf8');
+for (const m of theme.matchAll(/--([a-z]+)-emphasis:\s*([^;]+);/g)) {
+	if (!/^var\(/.test(m[2].trim())) {
+		report(THEME, lineOf(theme, m.index), `--${m[1]}-emphasis holds a literal; add a palette token (e.g. --${m[1]}-strong) in :root and .dark and alias it`);
 	}
 }
 

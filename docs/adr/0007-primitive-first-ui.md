@@ -41,8 +41,11 @@ styled from `data-current` so the highlight and `aria-current` never disagree), 
 **Enforcement:** `scripts/lint-ui-composition.mjs` runs as `bun run lint:ui` in `prebuild` and fails
 the build on raw form controls in components (the dock tile excepted), class-sized or re-rounded
 buttons, fields and cards, icon-only buttons without a label, styled `<label>`s and `<a>`s, bare `max-w-*` on
-dialogs, hand-rolled spinners, hand-formatted money, hard-coded locales, the `$props<{…}>()` form, and
-page width or animation set on dashboard routes.
+dialogs, hand-rolled spinners, hand-formatted money, hard-coded locales, the `$props<{…}>()` form,
+page width or animation set on dashboard routes, status labels mapped outside
+`$lib/utils/status-labels`, `Command.Input` `child` snippets that do not bind the value, translucent
+`bg-popover/<n>` overlay surfaces in `ui/`, and `--<tone>-emphasis` theme tokens holding a literal colour
+instead of aliasing a palette token.
 
 **Considered Options:** Keep per-page styling and document conventions; wrap every primitive in a
 project component; or edit primitives with variants and compose them. Wrapping everything hides the
@@ -50,7 +53,8 @@ shadcn API and doubles the surface; conventions alone are what produced the drif
 
 **Consequences:** Primitives in `ui/` are no longer byte-for-byte regenerable — re-running
 `shadcn-svelte add` over `button`, `badge`, `alert`, `card`, `input`, `input-group`, `select`,
-`toggle`, `tabs`, or `typography` would
+`toggle`, `tabs`, `typography`, or the menu/select content surfaces (`dropdown-menu`, `context-menu`,
+`menubar`, `select` — made opaque) would
 drop the project variants, so regenerate those by diffing, not overwriting. Shared shells own layout:
 `AppShell` owns gutters and dock clearance, `PageContainer` owns width and vertical rhythm, and pages
 must not add their own `pb-*`, `max-w-*`, or entry animation. Money is formatted only by
