@@ -87,6 +87,11 @@
                             <InputGroup.Root inputSize="lg">
                                 <InputGroup.Input
                                     {...props}
+                                    type="search"
+                                    autocomplete="off"
+                                    autocorrect="off"
+                                    spellcheck={false}
+                                    data-1p-ignore
                                     placeholder={m['orders.wizard.searchPlaceholder']()}
                                     class="text-lg"
                                     autofocus
