@@ -13,6 +13,7 @@
   import * as Item from '$lib/components/ui/item';
   import PanelHeading from './panel-heading.svelte';
   import { formatDateTime } from '$lib/utils/formatUtils';
+  import { statusLabel } from '$lib/utils/status-labels';
   import * as m from '$lib/paraglide/messages';
 
   interface Props {
@@ -27,18 +28,10 @@
     status: () => m['orders.auditField.status'](),
   };
 
-  const STATUS_LABELS: Record<string, () => string> = {
-    RECEIVED: () => m['order.status.received'](),
-    IN_PROGRESS: () => m['order.status.inProgress'](),
-    READY: () => m['order.status.ready'](),
-    DELIVERED: () => m['order.status.delivered'](),
-    CANCELLED: () => m['order.status.cancelled'](),
-  };
-
   function formatValue(field: string, value?: string | null): string {
     if (value == null || value === '') return '—';
     if (field === 'committedDeadline') return formatDateTime(value);
-    if (field === 'status') return STATUS_LABELS[value]?.() ?? value;
+    if (field === 'status') return statusLabel(value);
     return value;
   }
 </script>

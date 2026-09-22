@@ -5,6 +5,7 @@
   import { X } from '@lucide/svelte';
   import { DOCK_SURFACE } from '$lib/components/layout/dock-surface';
   import { cn } from '$lib/utils';
+  import { statusLabel } from '$lib/utils/status-labels';
   import * as m from '$lib/paraglide/messages';
 
   type Props = {
@@ -18,20 +19,13 @@
 
   let { count, isAdmin, allDraft, onChangeStatus, onDelete, onCancel }: Props = $props();
 
-  const statusLabelMap: Record<string, () => string> = {
-    RECEIVED: m["order.status.received"],
-    IN_PROGRESS: m["order.status.inProgress"],
-    READY: m["order.status.ready"],
-    DELIVERED: m["order.status.delivered"],
-    CANCELLED: m["order.status.cancelled"],
-  };
 
   const adminStatuses = ['RECEIVED', 'IN_PROGRESS', 'READY', 'DELIVERED', 'CANCELLED'];
   const employeeStatuses = ['RECEIVED', 'IN_PROGRESS', 'READY'];
 
   let availableStatuses = $derived(isAdmin ? adminStatuses : employeeStatuses);
 
-  let statusItems = $derived(availableStatuses.map(s => ({ value: s, label: statusLabelMap[s]() })));
+  let statusItems = $derived(availableStatuses.map(s => ({ value: s, label: statusLabel(s) })));
 
   let selectedStatus = $state('');
 

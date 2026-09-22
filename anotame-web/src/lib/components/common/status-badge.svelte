@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Badge, type BadgeVariant } from "$lib/components/ui/badge";
-  import * as m from '$lib/paraglide/messages';
+  import { statusLabel } from '$lib/utils/status-labels';
 
   /** Workflow or payment status rendered as a toned, localized badge. */
   interface Props {
@@ -12,16 +12,6 @@
 
   let { status, class: className }: Props = $props();
 
-  const STATUS_TRANSLATIONS: Record<string, () => string> = {
-    'RECEIVED': () => m['order.status.received'](),
-    'IN_PROGRESS': () => m['order.status.inProgress'](),
-    'READY': () => m['order.status.ready'](),
-    'DELIVERED': () => m['order.status.delivered'](),
-    'CANCELLED': () => m['order.status.cancelled'](),
-    'PENDING': () => m['payment.status.pending'](),
-    'PAID': () => m['payment.status.paid'](),
-    'UNPAID': () => m['payment.status.unpaid']()
-  };
 
   const STATUS_VARIANTS: Record<string, BadgeVariant> = {
     'PENDING': 'warning',
@@ -34,7 +24,7 @@
     'UNPAID': 'danger'
   };
 
-  const label = $derived(STATUS_TRANSLATIONS[status]?.() || status);
+  const label = $derived(statusLabel(status));
   const variant = $derived(STATUS_VARIANTS[status] ?? 'muted');
 </script>
 
