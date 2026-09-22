@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
-  import { page } from '$app/state';
+  import { PageHeader, PageContainer } from '$lib/components/common';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { Activity, Banknote, Users } from '@lucide/svelte';
   import type { Establishment } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
+  import KpiSummaryStrip from '$lib/components/dashboard/kpi-summary-strip.svelte';
+  import KpiTabs from '$lib/components/dashboard/kpi-tabs.svelte';
   import { toast } from 'svelte-sonner';
   import {
     getMonthParam,
@@ -135,9 +137,6 @@
     }
   ]);
 
-  function isActive(href: string): boolean {
-    return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
-  }
 
   onMount(async () => {
     try {
@@ -158,63 +157,17 @@
   });
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
-  <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">
-      {m['nav.kpi.name']()}
-    </h1>
-    <p class="text-muted-foreground">
-      {m['kpi.page.desc']()}
-    </p>
-  </div>
+<PageContainer>
+  <PageHeader
+    title={m['nav.kpi.name']()}
+    description={m['kpi.page.desc']()}
+  />
 
   <!-- Always-visible numbers, so moving the detail behind tabs does not cost
        the at-a-glance read the old hero provided. -->
-  <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4">
-    {#each summaryItems as item (item.label)}
-      <div class="bg-card px-4 py-3">
-        <p class="truncate text-xs uppercase tracking-[0.12em] text-muted-foreground">
-          {item.label}
-        </p>
-        {#if isLoading}
-          <div class="mt-1 h-7 w-20 animate-pulse rounded bg-muted"></div>
-        {:else}
-          <p class={`mt-1 truncate text-xl font-mono font-bold md:text-2xl ${item.toneClass}`}>
-            {item.value}
-          </p>
-        {/if}
-      </div>
-    {/each}
-  </div>
+  <KpiSummaryStrip items={summaryItems} loading={isLoading} />
 
-  <nav
-    aria-label={m['kpi.tabs.ariaLabel']()}
-    class="sticky top-0 z-20 -mx-2 overflow-x-auto bg-background/95 px-2 py-2 backdrop-blur"
-  >
-    <div class="flex w-max min-w-full gap-1 rounded-xl border border-border bg-muted/40 p-1">
-      {#each tabs as tab (tab.href)}
-        {@const active = isActive(tab.href)}
-        <a
-          href={tab.href}
-          aria-current={active ? 'page' : undefined}
-          class={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${
-            active
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <tab.icon class="h-4 w-4" />
-          {tab.label}
-          {#if tab.alert}
-            <span
-              class="h-2 w-2 shrink-0 rounded-full bg-destructive"
-              aria-label={m['kpi.tabs.needsAttention']()}
-            ></span>
-          {/if}
-        </a>
-      {/each}
-    </div>
-  </nav>
+  <KpiTabs {tabs} />
 
   {@render children()}
-</div>
+</PageContainer>

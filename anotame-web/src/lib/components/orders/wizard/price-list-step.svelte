@@ -1,10 +1,15 @@
 <script lang="ts">
+	import * as Card from '$lib/components/ui/card';
+	import IconMedallion from '$lib/components/common/icon-medallion.svelte';
+	import * as Alert from '$lib/components/ui/alert';
+	import StatePanel from '$lib/components/common/state-panel.svelte';
+	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
 	import { AdaptiveSelect } from '$lib/components/ui/responsive';
 	import { Button } from '$lib/components/ui/button';
-	import { Tag, Loader2, AlertTriangle } from '@lucide/svelte';
+	import { Tag, AlertTriangle } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
 	import * as m from '$lib/paraglide/messages';
@@ -15,11 +20,13 @@
 	let selectedPriceListId = $state<string>('');
 	let selectedPriceListName = $state<string>('');
 
-	let { onNext, onBack, isEditMode = false } = $props<{
+	interface Props {
 		onNext: () => void;
 		onBack: () => void;
 		isEditMode?: boolean;
-	}>();
+	}
+
+	let { onNext, onBack, isEditMode = false }: Props = $props();
 
 	let draft = $derived(orderWizardState.activeDraft);
 	let currentPriceList = $derived(orderWizardState.getPriceList());
@@ -93,12 +100,12 @@
 <div class="flex flex-col flex-1 min-h-0 gap-6">
 	<div class="text-center md:text-left">
 		{#if isEditMode}
-			<h2 class="text-xl font-semibold">{m['priceListStep.label']()}</h2>
-			<p class="text-sm text-muted-foreground">
+			<Heading level={2}>{m['priceListStep.label']()}</Heading>
+			<Text variant="muted">
 				{m['orders.priceList.cannotChange']()}
-			</p>
+			</Text>
 		{:else}
-			<h2 class="text-xl font-semibold">{m['priceListStep.title']()}</h2>
+			<Heading level={2}>{m['priceListStep.title']()}</Heading>
 			<p class="text-base text-muted-foreground">
 				{m['orders.priceList.chooseHint']()}
 			</p>
@@ -111,29 +118,26 @@
 			<div class="w-full space-y-4">
 				<p class="block text-sm font-medium">{m['priceListStep.label']()}</p>
 				{#if currentPriceList}
-					<div class="w-full bg-muted rounded-lg p-4 border border-border">
+					<Card.Root tone="muted" size="sm">
 						<p class="text-base font-medium">{currentPriceList.name}</p>
-					</div>
+					</Card.Root>
 				{:else}
-					<div class="w-full bg-muted rounded-lg p-4 border border-border">
+					<Card.Root tone="muted" size="sm">
 						<p class="text-base text-muted-foreground">{m['priceListStep.none']()}</p>
-					</div>
+					</Card.Root>
 				{/if}
 			</div>
 		{:else}
 			<!-- Selection mode -->
 			<div class="w-full space-y-6">
 				{#if isLoading}
-					<div class="flex items-center justify-center py-12 gap-3">
-						<Loader2 class="w-5 h-5 animate-spin text-primary" />
-						<span class="text-muted-foreground">{m['priceListStep.loading']()}</span>
-					</div>
+					<StatePanel message={m['priceListStep.loading']()} spinner size="inline" />
 				{:else if hasError}
-					<div class="flex flex-col items-center justify-center py-12 gap-3 text-destructive">
-						<AlertTriangle class="w-8 h-8" />
-						<span class="text-center">{m['priceListStep.toast.loadListsError']()}</span>
-						<p class="text-sm text-muted-foreground">{m['priceListStep.toast.loadListsErrorDesc']()}</p>
-					</div>
+					<Alert.Root variant="destructive">
+						<AlertTriangle aria-hidden="true" />
+						<Alert.Title>{m['priceListStep.toast.loadListsError']()}</Alert.Title>
+						<Alert.Description>{m['priceListStep.toast.loadListsErrorDesc']()}</Alert.Description>
+					</Alert.Root>
 				{:else}
 					<AdaptiveSelect
 						placeholder={m['priceListStep.none']()}
@@ -151,17 +155,11 @@
 
 				<!-- Confirmation card (shown when price list selected) -->
 				{#if selectedPriceListId && selectedPriceListName && !isLoading}
-					<div
-						class="w-full bg-primary/5 border border-primary/20 rounded-xl p-6 text-center animate-in fade-in zoom-in-95"
-					>
-						<div
-							class="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4"
-						>
-							<Tag class="w-11 h-11" />
-						</div>
-						<h3 class="text-2xl font-semibold">{selectedPriceListName}</h3>
+					<Card.Root tone="highlight" class="text-center animate-in fade-in zoom-in-95">
+						<IconMedallion size="xl" class="mx-auto mb-4"><Tag /></IconMedallion>
+						<Heading level={2} as="h3">{selectedPriceListName}</Heading>
 						<p class="text-muted-foreground mt-2">{m['priceListStep.activeForOrder']()}</p>
-					</div>
+					</Card.Root>
 				{:else if !selectedPriceListId && !isLoading}
 					<!-- Message when "Sin lista de precios" selected -->
 					<div class="text-center py-8 text-muted-foreground">
@@ -174,16 +172,16 @@
 
 	<!-- Footer with navigation buttons -->
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
-		<Button
+		<Button size="step"
 			variant="outline"
 			onclick={onBack}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg touch-manipulation"
+			class="flex-1"
 		>
 			{m['orders.detail.back']()}
 		</Button>
-		<Button
+		<Button size="step"
 			type="submit"
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation"
+			class="flex-1 font-bold shadow-md"
 			onclick={handleContinue}
 		>
 			{m['common.continue']()}

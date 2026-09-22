@@ -1,21 +1,20 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
+  import { formatCurrency } from '$lib/utils/formatUtils';
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { FilterField, PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse, ServiceResponse } from '$lib/types/dtos';
 
-  const mobile = useIsMobile();
 
   import ServiceDialog from '$lib/components/catalog/service-dialog.svelte';
 
@@ -52,7 +51,7 @@
     { accessorKey: 'name', header: m["catalog.services.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garment', accessorFn: (row) => getGarmentName(row.garmentTypeId), header: m["catalog.services.colGarment"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { accessorKey: 'defaultDurationMin', header: m["catalog.services.colDuration"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'price', accessorFn: (row) => `$${row.basePrice.toFixed(2)}`, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    { id: 'price', accessorFn: (row) => row.basePrice, header: m["catalog.services.colPrice"](), enableSorting: true, meta: { cardGroup: 'header', format: (v) => formatCurrency(v as number) } },
     ...(isAdmin ? [{ id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } } as ColumnDef<ServiceResponse>] : []),
   ]);
 
@@ -120,32 +119,31 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.services.title"]()}</h1>
-      <p class="text-muted-foreground">{m["catalog.services.description"]()}</p>
-    </div>
-    {#if isAdmin}
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">
-        {m["catalog.services.addButton"]()}
+<PageContainer>
+  <PageHeader
+    title={m["catalog.services.title"]()}
+    description={m["catalog.services.description"]()}
+  >
+    {#snippet actions()}
+      {#if isAdmin}
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto">
+      <PlusIcon data-icon="inline-start" />
+      {m["catalog.services.addButton"]()}
       </Button>
-    {/if}
-  </div>
+      {/if}
+    {/snippet}
+  </PageHeader>
 
   <!-- External Filters -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
-    <div class="col-span-1 md:col-span-2 space-y-1.5">
-      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-services">{m["catalog.services.searchLabel"]()}</label>
+  <Card.Root class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+    <FilterField label={m["catalog.services.searchLabel"]()} for="search-services" class="col-span-1 md:col-span-2">
       <Input
         id="search-services"
         placeholder={m["catalog.services.searchPlaceholder"]()}
         bind:value={searchQuery}
-        class="h-12 text-base touch-manipulation"
-      />
-    </div>
-    <div class="space-y-1.5">
-      <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment-service">{m["catalog.services.filterGarmentLabel"]()}</label>
+        class="text-base touch-manipulation" />
+    </FilterField>
+    <FilterField label={m["catalog.services.filterGarmentLabel"]()} for="filter-garment-service">
       <AdaptiveSelect
         id="filter-garment-service"
         bind:value={garmentFilter}
@@ -154,55 +152,24 @@
         allowClear={true}
         clearText={m["catalog.services.filterGarmentClear"]()}
       />
-    </div>
-  </div>
+    </FilterField>
+  </Card.Root>
 
   <!-- Table / Cards -->
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet serviceActions(row: Row<ServiceResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m["common.edit"]()}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-          onclick={() => handleDeleteClick(row.original)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
-    {/snippet}
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={filteredServices}
-        {loading}
-        showFilter={false}
-        emptyMessage={m["catalog.services.emptyMessage"]()}
-        actionCell={serviceActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={filteredServices}
-        {loading}
-        showFilter={false}
-        emptyMessage={m["catalog.services.emptyMessage"]()}
-        filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
-        actionCell={serviceActions}
-      />
-    {/if}
-  </div>
+  <Card.Root class="p-4">
+    
+
+    <ResponsiveDataView
+      {columns}
+      data={filteredServices}
+      {loading}
+      showFilter={false}
+      emptyMessage={m["catalog.services.emptyMessage"]()}
+      actionCell={serviceActions}
+      filterPlaceholder={m["catalog.services.filterPlaceholder"]()}
+    />
+  </Card.Root>
 
   <ServiceDialog
     item={editingService}
@@ -210,4 +177,9 @@
     onClose={() => editingService = null}
     onSuccess={handleFormSuccess}
   />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet serviceActions(row: Row<ServiceResponse>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => handleDeleteClick(row.original)} />
+{/snippet}

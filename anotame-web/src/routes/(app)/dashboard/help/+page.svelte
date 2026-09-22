@@ -1,8 +1,10 @@
 <script lang="ts">
+  import * as InputGroup from '$lib/components/ui/input-group';
+  import { Heading } from '$lib/components/ui/typography';
   import { tick } from 'svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
+  import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import {
     helpCategories,
     helpQuickStarts,
@@ -13,6 +15,11 @@
     type HelpCategory,
     type HelpTopic,
   } from '$lib/config/help';
+  import * as Card from '$lib/components/ui/card';
+  import { PageHeader, StatePanel, PageContainer } from '$lib/components/common';
+  import HelpTopicSection from '$lib/components/help/help-topic-section.svelte';
+  import HelpTile from '$lib/components/help/help-tile.svelte';
+  import HelpToc from '$lib/components/help/help-toc.svelte';
   import * as m from '$lib/paraglide/messages';
   import {
     AlertTriangle,
@@ -93,27 +100,9 @@
     return !topic.adminOnly || isAdmin;
   }
 
-  function relatedTopicTitle(id: string): string {
-    return helpTopics.find((topic) => topic.id === id)?.title() ?? id;
-  }
 
-  function calloutLabel(kind: CalloutKind): string {
-    if (kind === 'important') return m['help.callout.important']();
-    if (kind === 'admin') return m['help.callout.admin']();
-    return m['help.callout.tip']();
-  }
 
-  function calloutClass(kind: CalloutKind): string {
-    if (kind === 'important') return 'border-warning-border bg-warning-background text-warning-background-foreground';
-    if (kind === 'admin') return 'border-info-border bg-info-background text-info-background-foreground';
-    return 'border-success-border bg-success-background text-success-background-foreground';
-  }
 
-  function calloutIcon(kind: CalloutKind) {
-    if (kind === 'important') return AlertTriangle;
-    if (kind === 'admin') return ShieldCheck;
-    return Info;
-  }
 
   let observer: IntersectionObserver | null = null;
 
@@ -167,227 +156,82 @@
   });
 </script>
 
-<div class="mx-auto max-w-7xl space-y-6 pb-24 animate-in fade-in duration-300">
-  <div class="space-y-2">
-    <div class="flex items-center gap-3">
-      <CircleHelp class="h-8 w-8 text-primary" />
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m['help.page.title']()}</h1>
-    </div>
-    <p class="max-w-3xl text-muted-foreground">{m['help.page.description']()}</p>
-  </div>
+<PageContainer>
+  <PageHeader
+    title={m['help.page.title']()}
+    description={m['help.page.description']()}
+    icon={CircleHelp}
+  />
 
   <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)] lg:items-start">
     <aside class="lg:sticky lg:top-0 space-y-4">
-      <div class="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <Card.Root class="gap-0 p-4">
         <label for="help-search" class="sr-only">{m['common.search']()}</label>
-        <div class="relative">
-          <Search class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <Input
+        <InputGroup.Root>
+          <InputGroup.Input
             id="help-search"
             bind:value={searchQuery}
             placeholder={m['help.search.placeholder']()}
-            class="h-12 pl-10 touch-manipulation"
           />
-        </div>
+          <InputGroup.Addon><Search aria-hidden="true" /></InputGroup.Addon>
+        </InputGroup.Root>
 
-        <div class="mt-4 flex flex-wrap gap-2">
-          <Button
-            variant={category === 'all' ? 'default' : 'outline'}
-            size="sm"
-            class="h-11 touch-manipulation"
-            onclick={() => category = 'all'}
-          >
-            {m['help.category.all']()}
-          </Button>
+        <ToggleGroup.Root
+          type="single"
+          variant="segmented"
+          size="touch"
+          spacing={2}
+          aria-label={m['help.category.label']()}
+          value={category}
+          onValueChange={(v) => { if (v) category = v as typeof category; }}
+          class="mt-4 w-full flex-wrap"
+        >
+          <ToggleGroup.Item value="all">{m['help.category.all']()}</ToggleGroup.Item>
           {#each helpCategories as item (item.id)}
-            <Button
-              variant={category === item.id ? 'default' : 'outline'}
-              size="sm"
-              class="h-11 touch-manipulation"
-              onclick={() => category = item.id}
-            >
-              {item.label()}
-            </Button>
+            <ToggleGroup.Item value={item.id}>{item.label()}</ToggleGroup.Item>
           {/each}
-        </div>
-      </div>
+        </ToggleGroup.Root>
+      </Card.Root>
 
-      <nav class="hidden lg:block rounded-xl border border-border bg-card p-3 shadow-sm" aria-label={m['help.toc.title']()}>
-        <div class="px-2 pb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          {m['help.toc.title']()}
-        </div>
-        <div class="max-h-[calc(100vh-18rem)] space-y-1 overflow-y-auto pr-1">
-          {#each visibleTopics as topic (topic.id)}
-            <a
-              href={`#${topic.id}`}
-              class="flex min-h-11 items-center rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted/70 touch-manipulation {activeSection === topic.id ? 'bg-primary/10 text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}"
-            >
-              {topic.title()}
-            </a>
-          {/each}
-        </div>
-      </nav>
+      <HelpToc topics={visibleTopics} activeId={activeSection} layout="sidebar" />
     </aside>
 
     <div class="space-y-6 min-w-0">
-      <nav
-        class="sticky top-0 z-30 rounded-xl border border-border bg-background/90 p-2 shadow-sm backdrop-blur lg:hidden"
-        aria-label={m['help.toc.title']()}
-      >
-        <div class="flex gap-2 overflow-x-auto no-scrollbar mask-[linear-gradient(to_right,black_calc(100%-1.5rem),transparent)]">
-          {#each visibleTopics as topic (topic.id)}
-            <a
-              href={`#${topic.id}`}
-              data-mobile-help-topic={topic.id}
-              aria-current={activeSection === topic.id ? 'true' : undefined}
-              class="shrink-0 rounded-full border px-3 py-2 text-sm font-medium transition-colors {activeSection === topic.id ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground'}"
-            >
-              {topic.title()}
-            </a>
-          {/each}
-        </div>
-      </nav>
+      <HelpToc topics={visibleTopics} activeId={activeSection} layout="chips" />
 
-      <section class="rounded-xl border border-border bg-card p-4 shadow-sm" data-help-id="quick-start">
-        <div class="mb-4 flex items-center gap-2">
-          <BookOpen class="h-5 w-5 text-primary" />
-          <h2 class="text-xl font-bold font-heading">{m['help.quick.title']()}</h2>
-        </div>
+      <Card.Root class="gap-0 p-4 sm:p-6" data-help-id="quick-start">
+        <Card.Title class="mb-4">
+          <Heading level={2} class="flex items-center gap-2">
+            <BookOpen class="h-5 w-5 text-primary" />
+            {m['help.quick.title']()}
+          </Heading>
+        </Card.Title>
         <div class="grid gap-3 md:grid-cols-2">
           {#each visibleQuickStarts as item (item.id)}
-            <div class="rounded-lg border border-border bg-background p-4">
-              <h3 class="font-semibold">{item.title()}</h3>
-              <p class="mt-1 text-sm text-muted-foreground">{item.summary()}</p>
+            <HelpTile title={item.title()} description={item.summary()}>
               <div class="mt-4 flex flex-wrap gap-2">
                 {#if item.appHref}
-                  <a
-                    href={item.appHref}
-                    class="inline-flex h-11 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                  >
+                  <Button size="touch" href={item.appHref}>
                     {m['help.action.openPage']()}
                     <ExternalLink class="ml-2 h-4 w-4" />
-                  </a>
+                  </Button>
                 {/if}
-                <a
-                  href={`#${item.topicId}`}
-                  class="inline-flex h-11 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                >
+                <Button size="touch" href={`#${item.topicId}`} variant="outline">
                   {m['help.action.readSteps']()}
-                </a>
+                </Button>
               </div>
-            </div>
+            </HelpTile>
           {/each}
         </div>
-      </section>
+      </Card.Root>
 
       {#if visibleTopics.length === 0}
-        <div class="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
-          {m['help.search.noResults']()}
-        </div>
+        <StatePanel message={m['help.search.noResults']()} size="inset" />
       {:else}
         {#each visibleTopics as topic (topic.id)}
-          <section
-            id={topic.id}
-            data-help-section
-            data-help-id={topic.id}
-            class="scroll-mt-24 rounded-xl border border-border bg-card p-5 shadow-sm lg:scroll-mt-6"
-          >
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div class="min-w-0">
-                <h2 class="text-2xl font-bold font-heading">{topic.title()}</h2>
-                <p class="mt-2 text-muted-foreground">{topicSummary(topic)}</p>
-              </div>
-              {#if topic.appHref && (!topic.adminOnly || isAdmin)}
-                <a
-                  href={topic.appHref}
-                  class="inline-flex h-11 shrink-0 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                >
-                  {m['help.action.openPage']()}
-                  <ExternalLink class="ml-2 h-4 w-4" />
-                </a>
-              {/if}
-            </div>
-
-            {#if shouldShowSteps(topic) && topic.steps?.length}
-              <ol class="mt-5 space-y-3">
-                {#each topic.steps as step, index}
-                  <li class="grid grid-cols-[2rem_1fr] gap-3">
-                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      {index + 1}
-                    </span>
-                    <span class="pt-1 text-sm leading-6 text-foreground">{step()}</span>
-                  </li>
-                {/each}
-              </ol>
-            {:else if topic.employeeBullets?.length}
-              <div class="mt-5 rounded-lg border border-info-border bg-info-background p-4 text-info-background-foreground">
-                <div class="mb-2 flex items-center gap-2 text-sm font-bold">
-                  <ShieldCheck class="h-4 w-4" />
-                  {m['help.callout.admin']()}
-                </div>
-                <ul class="space-y-2 text-sm leading-6">
-                  {#each topic.employeeBullets as bullet}
-                    <li>{bullet()}</li>
-                  {/each}
-                </ul>
-              </div>
-            {/if}
-
-            {#if topic.id === 'key-terms'}
-              <div class="mt-5 grid gap-3 md:grid-cols-2">
-                {#each helpTerms as term (term.id)}
-                  <div class="rounded-lg border border-border bg-background p-3">
-                    <h3 class="font-semibold">{term.term()}</h3>
-                    <p class="mt-1 text-sm leading-6 text-muted-foreground">{term.description()}</p>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            {#if topic.id === 'troubleshooting'}
-              <div class="mt-5 space-y-3">
-                {#each helpTroubleItems as item (item.id)}
-                  <div class="rounded-lg border border-border bg-background p-4">
-                    <h3 class="font-semibold">{item.title()}</h3>
-                    <p class="mt-1 text-sm leading-6 text-muted-foreground">{item.resolution()}</p>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            {#if shouldShowSteps(topic) && topic.callouts?.length}
-              <div class="mt-5 space-y-3">
-                {#each topic.callouts as callout}
-                  {@const Icon = calloutIcon(callout.kind)}
-                  <div class="rounded-lg border p-4 text-sm leading-6 {calloutClass(callout.kind)}">
-                    <div class="mb-1 flex items-center gap-2 font-bold">
-                      <Icon class="h-4 w-4" />
-                      {calloutLabel(callout.kind)}
-                    </div>
-                    <p>{callout.text()}</p>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            {#if topic.related?.length}
-              <div class="mt-5 border-t border-border pt-4">
-                <div class="text-xs font-bold uppercase tracking-wide text-muted-foreground">{m['help.related.title']()}</div>
-                <div class="mt-2 flex flex-wrap gap-2">
-                  {#each topic.related as relatedId}
-                    <a
-                      href={`#${relatedId}`}
-                      class="inline-flex min-h-11 items-center rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground touch-manipulation"
-                    >
-                      {relatedTopicTitle(relatedId)}
-                    </a>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-          </section>
+          <HelpTopicSection {topic} {isAdmin} />
         {/each}
       {/if}
     </div>
   </div>
-</div>
+</PageContainer>

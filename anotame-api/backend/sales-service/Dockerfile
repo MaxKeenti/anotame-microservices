@@ -12,6 +12,11 @@ COPY catalog-service/pom.xml catalog-service/pom.xml
 COPY sales-service/pom.xml sales-service/pom.xml
 COPY operations-service/pom.xml operations-service/pom.xml
 
+# Install the shared observability module first: the dependency pre-fetch below
+# resolves it like any other artifact and would fail if it only existed in the reactor.
+COPY observability-common observability-common
+RUN mvn -B -q install -f observability-common/pom.xml -DskipTests
+
 # Download dependencies
 RUN mvn -B dependency:resolve dependency:resolve-plugins -DexcludeArtifactIds=anotame-parent
 

@@ -1,4 +1,10 @@
 <script lang="ts">
+    import { formatCurrency } from '$lib/utils/formatUtils';
+    import * as Empty from '$lib/components/ui/empty';
+    import * as Item from '$lib/components/ui/item';
+    import * as ButtonGroup from '$lib/components/ui/button-group';
+    import { Badge } from '$lib/components/ui/badge';
+   import { Heading, Text } from '$lib/components/ui/typography';
    import { orderWizardState, type DraftOrderItem, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
    import ItemSubWizard from './item-sub-wizard.svelte';
    import { Button } from '$lib/components/ui/button';
@@ -6,7 +12,12 @@
    import { toast } from 'svelte-sonner';
    import * as m from '$lib/paraglide/messages';
 
-   let { onNext, onBack } = $props<{ onNext: () => void, onBack: () => void }>();
+   interface Props {
+     onNext: () => void;
+     onBack: () => void;
+   }
+
+   let { onNext, onBack }: Props = $props();
 
    let isAddingItem = $state(false);
    let editingIndex = $state<number | null>(null);
@@ -73,79 +84,78 @@
    <div class="flex flex-col flex-1 min-h-0 gap-6">
        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
            <div>
-               <h2 class="text-xl font-semibold">{m['itemsStep.title']()}</h2>
+               <Heading level={2}>{m['itemsStep.title']()}</Heading>
                <p class="text-muted-foreground">{m['itemsStep.subtitle']()}</p>
            </div>
-           <Button onclick={() => isAddingItem = true} size="lg" class="rounded-xl h-14 px-8 w-full sm:w-auto touch-manipulation shadow-md">
+           <Button onclick={() => isAddingItem = true} size="xl" class="px-8 w-full sm:w-auto shadow-md">
                <Plus class="w-5 h-5 mr-2" />
                {m['itemsStep.addGarment']()}
            </Button>
        </div>
 
-       <div class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+       <div class="flex-1 space-y-4">
            {#if items.length === 0}
-               <div class="h-64 flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl text-muted-foreground w-full">
-                   <p class="text-lg">{m['itemsStep.empty']()}</p>
-                   <button
-                       class="mt-6 text-primary font-bold text-lg cursor-pointer hover:underline touch-manipulation py-4 px-6 bg-primary/5 rounded-xl transition-colors"
-                       onclick={() => isAddingItem = true}
-                   >
-                       {m['itemsStep.addFirst']()}
-                   </button>
-               </div>
+               <Empty.Root class="h-64 border-2 text-muted-foreground">
+                   <Empty.Title class="text-lg font-normal">{m['itemsStep.empty']()}</Empty.Title>
+                   <Empty.Content>
+                       <Button variant="ghost" size="xl" class="bg-primary/5 font-bold text-primary" onclick={() => isAddingItem = true}>
+                           {m['itemsStep.addFirst']()}
+                       </Button>
+                   </Empty.Content>
+               </Empty.Root>
            {:else}
                {#each items as item, idx}
-                   <div class="bg-card border border-border p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in slide-in-from-bottom-2">
-                       <div class="flex-1">
-                           <div class="flex flex-wrap items-center gap-2 mb-1">
-                               <div class="font-bold text-xl">{item.garmentName}</div>
+                   <Item.Root variant="outline" class="animate-in fade-in slide-in-from-bottom-2 items-start bg-card p-5 shadow-sm">
+                       <Item.Content class="min-w-0 basis-full sm:basis-0">
+                           <Item.Title class="line-clamp-none flex-wrap text-xl font-bold">
+                               {item.garmentName}
                                {#if item.source === 'CUSTOM'}
-                                   <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                   <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                {/if}
-                           </div>
-                           <div class="text-base text-muted-foreground space-y-1">
+                           </Item.Title>
+                           <ul class="space-y-1 text-base text-muted-foreground">
                                {#each (item.services || []) as s}
-                                   <div>
-                                       <div class="flex flex-wrap gap-2 items-baseline">
+                                   <li>
+                                       <div class="flex flex-wrap items-baseline gap-2">
                                            <span>• {s.serviceName}</span>
                                            {#if s.source === 'CUSTOM'}
-                                               <span class="text-xs font-medium uppercase tracking-wide text-primary">{m['orders.custom.badge']()}</span>
+                                               <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                            {/if}
-                                           <span class="font-mono text-sm bg-secondary px-1.5 py-0.5 rounded">
-                                               ${(s.unitPrice + (s.adjustmentAmount || 0)).toFixed(2)}
-                                               {s.adjustmentAmount ? ` (Adj: ${s.adjustmentAmount})` : ''}
-                                           </span>
+                                           <Badge variant="secondary" class="font-mono">
+                                               {formatCurrency(s.unitPrice + (s.adjustmentAmount || 0))}
+                                               {s.adjustmentAmount ? ` (${m['orders.wizard.adjustmentShort']()} ${formatCurrency(s.adjustmentAmount)})` : ''}
+                                           </Badge>
                                        </div>
                                        {#if s.instructions}
-                                           <div class="pl-4 text-sm">{s.instructions}</div>
+                                           <p class="pl-4 text-sm">{s.instructions}</p>
                                        {/if}
-                                   </div>
+                                   </li>
                                {/each}
-                           </div>
+                           </ul>
                            {#if item.notes}
-                               <div class="text-sm text-muted-foreground mt-3 bg-secondary/50 p-2 rounded-lg border border-border/50 inline-block">
-                                   <span class="font-semibold text-foreground mr-1">{m['itemsStep.noteLabel']()}</span>{item.notes}
-                               </div>
+                               <Item.Description class="line-clamp-none">
+                                   <span class="mr-1 font-semibold text-foreground">{m['itemsStep.noteLabel']()}</span>{item.notes}
+                               </Item.Description>
                            {/if}
-                       </div>
-                       
-                       <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-border">
-                           <div class="font-mono font-bold text-2xl text-primary sm:mb-4">
-                               ${(item.services || []).reduce((acc: number, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0).toFixed(2)}
-                           </div>
-                           <div class="flex gap-2 bg-secondary/30 p-1.5 rounded-xl">
-                               <Button variant="ghost" size="icon" class="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title={m['common.duplicate']()} onclick={() => handleDuplicateItem(idx)}>
-                                   <Copy class="w-5 h-5 sm:w-6 sm:h-6" />
+                       </Item.Content>
+
+                       <Item.Actions class="w-full justify-between border-t border-border pt-4 sm:w-auto sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
+                           <Text variant="metric" size="md" as="span" class="text-primary">
+                               {formatCurrency((item.services || []).reduce((acc: number, s) => acc + s.unitPrice + (s.adjustmentAmount || 0), 0))}
+                           </Text>
+                           <ButtonGroup.Root>
+                               <Button variant="outline" size="icon-touch" aria-label={m['common.duplicate']()} title={m['common.duplicate']()} onclick={() => handleDuplicateItem(idx)}>
+                                   <Copy class="size-5" />
                                </Button>
-                               <Button variant="ghost" size="icon" class="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-primary rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-border" title={m['common.edit']()} onclick={() => handleEditItem(idx)}>
-                                   <Edit class="w-5 h-5 sm:w-6 sm:h-6" />
+                               <Button variant="outline" size="icon-touch" aria-label={m['common.edit']()} title={m['common.edit']()} onclick={() => handleEditItem(idx)}>
+                                   <Edit class="size-5" />
                                </Button>
-                               <Button variant="ghost" size="icon" class="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground hover:bg-background hover:text-destructive rounded-lg touch-manipulation shadow-sm border border-transparent hover:border-destructive/20" title={m['common.delete']()} onclick={() => handleDeleteItem(idx)}>
-                                   <Trash2 class="w-5 h-5 sm:w-6 sm:h-6" />
+                               <Button variant="destructive-outline" size="icon-touch" aria-label={m['common.delete']()} title={m['common.delete']()} onclick={() => handleDeleteItem(idx)}>
+                                   <Trash2 class="size-5" />
                                </Button>
-                           </div>
-                       </div>
-                   </div>
+                           </ButtonGroup.Root>
+                       </Item.Actions>
+                   </Item.Root>
                {/each}
            {/if}
        </div>
@@ -154,22 +164,22 @@
            <!-- Desktop: total row then full-width buttons -->
            <div class="hidden sm:flex justify-between items-center mb-6 px-2">
                <span class="text-xl font-medium">{m['itemsStep.totalEstimated']()}</span>
-               <span class="text-4xl font-bold font-mono text-primary">${total.toFixed(2)}</span>
+               <Text variant="metric" size="xl" as="span" class="text-primary">{formatCurrency(total)}</Text>
            </div>
            <div class="hidden sm:flex gap-4">
-               <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl touch-manipulation" onclick={onBack}>{m['orders.detail.back']()}</Button>
-               <Button class="flex-1 h-16 text-lg rounded-xl shadow-lg touch-manipulation" onclick={onNext} disabled={items.length === 0}>
+               <Button size="xl" variant="outline" class="flex-1" onclick={onBack}>{m['orders.detail.back']()}</Button>
+               <Button size="xl" class="flex-1 shadow-lg" onclick={onNext} disabled={items.length === 0}>
                    {m['itemsStep.continueToPayment']()}
                </Button>
            </div>
            <!-- Mobile: single compact row — back | total | continue -->
            <div class="flex sm:hidden items-center gap-2">
-               <Button variant="outline" class="h-11 px-3 text-sm rounded-xl touch-manipulation flex-shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
+               <Button size="touch" variant="outline" class="px-3 text-sm shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <div class="flex-1 flex flex-col items-center leading-tight">
                    <span class="text-xs text-muted-foreground">{m['orders.wizard.total']()}</span>
-                   <span class="text-lg font-bold font-mono text-primary">${total.toFixed(2)}</span>
+                   <Text variant="metric" size="sm" as="span" class="text-primary">{formatCurrency(total)}</Text>
                </div>
-               <Button class="h-11 px-3 text-sm rounded-xl shadow-lg touch-manipulation flex-shrink-0" onclick={onNext} disabled={items.length === 0}>
+               <Button size="touch" class="px-3 text-sm shadow-lg shrink-0" onclick={onNext} disabled={items.length === 0}>
                    {m['common.continue']()}
                </Button>
            </div>

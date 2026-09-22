@@ -1,9 +1,16 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
+  import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import { formatCurrency } from '$lib/utils/formatUtils';
+  import { HintText, LeadText, PeriodStepper, StatePanel } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as Card from '$lib/components/ui/card';
+  import { Progress } from '$lib/components/ui/progress';
+  import KpiStatCard from '$lib/components/dashboard/kpi-stat-card.svelte';
+  import BarChart from '$lib/components/dashboard/bar-chart.svelte';
+  import KpiBreakdown from '$lib/components/dashboard/kpi-breakdown.svelte';
   import * as Popover from '$lib/components/ui/popover';
-  import { TrendingUp, Calendar, ChevronLeft, ChevronRight, Check, Loader2 } from '@lucide/svelte';
+  import { TrendingUp, Calendar } from '@lucide/svelte';
   import { getLocale } from '$lib/paraglide/runtime';
   import * as m from '$lib/paraglide/messages';
   import { getKpiDashboard } from '../kpiContext';
@@ -13,7 +20,6 @@
 
   let monthOpen = $state(false);
   let pickerYear = $state(today.getFullYear());
-  let activeBarIndex = $state<number | null>(null);
 
   let metrics = $derived(dashboard.metrics);
   let selectedMonthLabel = $derived(
@@ -26,9 +32,6 @@
   let collected = $derived(metrics?.finance.monthlyCollected ?? 0);
   let pending = $derived(metrics?.finance.monthlyPending ?? 0);
   let collectedPct = $derived(billed > 0 ? (collected / billed) * 100 : 0);
-  let chartMax = $derived(
-    metrics?.weeklyRevenueChart.reduce((max, point) => Math.max(max, point.totalPaid), 0) || 100
-  );
   let monthOptions = $derived(
     Array.from({ length: 12 }, (_, index) => ({
       value: index + 1,
@@ -75,29 +78,25 @@
 </script>
 
 {#if dashboard.isLoading || !metrics}
-  <div class="flex h-64 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
-    {m['kpi.loading']()}
-  </div>
+  <StatePanel message={m['kpi.loading']()} />
 {:else}
   <div class="space-y-6">
     <!-- One period control governs everything below it, instead of each card
          carrying its own date state. -->
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <p class="max-w-2xl text-sm text-muted-foreground">
-        {m['kpi.section.financeDesc']()}
-      </p>
+      <LeadText text={m['kpi.section.financeDesc']()} class="max-w-2xl" />
 
       <Popover.Root bind:open={monthOpen} onOpenChange={handleMonthOpenChange}>
         <Popover.Trigger>
           {#snippet child({ props })}
-            <Button
+            <Button size="touch"
               {...props}
               variant="outline"
-              class="h-11 w-fit gap-2 capitalize"
+              class="w-fit gap-2 capitalize"
               aria-label={m['kpi.monthPicker.ariaLabel']({ month: selectedMonthLabel })}
             >
               {#if dashboard.monthLoading}
-                <Loader2 class="h-4 w-4 animate-spin" />
+                <Spinner aria-hidden="true" />
               {:else}
                 <Calendar class="h-4 w-4" />
               {/if}
@@ -107,123 +106,81 @@
         </Popover.Trigger>
         <Popover.Content class="w-80 max-w-[calc(100vw-2rem)]" align="end">
           <div class="space-y-4">
-            <div class="flex items-center justify-between gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                class="h-10 w-10"
-                onclick={() => (pickerYear -= 1)}
-                disabled={dashboard.monthLoading}
-                aria-label={m['common.previous']()}
-              >
-                <ChevronLeft class="h-5 w-5" />
-              </Button>
-              <span class="min-w-24 text-center text-sm font-bold">{pickerYear}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="h-10 w-10"
-                onclick={() => (pickerYear += 1)}
-                disabled={dashboard.monthLoading || pickerYear >= today.getFullYear()}
-                aria-label={m['common.next']()}
-              >
-                <ChevronRight class="h-5 w-5" />
-              </Button>
-            </div>
+            <PeriodStepper
+              fill
+              label={String(pickerYear)}
+              onPrevious={() => (pickerYear -= 1)}
+              onNext={() => (pickerYear += 1)}
+              previousDisabled={dashboard.monthLoading}
+              nextDisabled={dashboard.monthLoading || pickerYear >= today.getFullYear()}
+            />
 
-            <div class="grid grid-cols-3 gap-2">
+            <ToggleGroup.Root
+              type="single"
+              variant="segmented"
+              size="touch"
+              spacing={2}
+              aria-label={m['kpi.monthPicker.ariaLabel']({ month: selectedMonthLabel })}
+              value={pickerYear === dashboard.selectedYear ? String(dashboard.selectedMonth) : ''}
+              onValueChange={(v) => v && handleMonthSelect(Number(v))}
+              class="grid w-full grid-cols-3"
+            >
               {#each monthOptions as option (option.value)}
-                {@const isSelected =
-                  pickerYear === dashboard.selectedYear && option.value === dashboard.selectedMonth}
-                {@const isDisabled = isFutureMonth(pickerYear, option.value)}
-                <Button
-                  variant={isSelected ? 'default' : 'ghost'}
-                  class="h-11 capitalize"
-                  disabled={isDisabled || dashboard.monthLoading}
+                <ToggleGroup.Item
+                  value={String(option.value)}
+                  class="capitalize"
+                  disabled={isFutureMonth(pickerYear, option.value) || dashboard.monthLoading}
                   aria-label={m['kpi.monthPicker.selectMonth']({
                     month: formatMonthLabel(pickerYear, option.value)
                   })}
-                  onclick={() => handleMonthSelect(option.value)}
                 >
                   {option.label}
-                  {#if isSelected}
-                    <Check class="ml-1 h-3.5 w-3.5" />
-                  {/if}
-                </Button>
+                </ToggleGroup.Item>
               {/each}
-            </div>
+            </ToggleGroup.Root>
           </div>
         </Popover.Content>
       </Popover.Root>
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.todayRevenue']()}</Card.Title>
-          <TrendingUp class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">
-            {formatCurrency(metrics.finance.todayRevenue)}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">{m['kpi.card.todayRevenueDesc']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.todayRevenue']()}
+        value={formatCurrency(metrics.finance.todayRevenue)}
+        description={m['kpi.card.todayRevenueDesc']()}
+        icon={TrendingUp}
+      />
 
-      <Card.Root>
-        <Card.Header class="flex flex-row items-center justify-between pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.card.monthRevenueSelectable']()}</Card.Title>
-          <Calendar class="h-4 w-4 text-muted-foreground" />
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">
-            {formatCurrency(metrics.finance.monthlyRevenue)}
-          </div>
-          <p class="mt-1 text-xs text-muted-foreground">
-            {m['kpi.card.monthRevenueSelectedDesc']({ month: selectedMonthLabel })}
-          </p>
-          <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-3">
-            {#each metrics.finance.monthlyRevenueByPaymentMethod as category (category.paymentMethod)}
-              <div class="min-w-0">
-                <p class="truncate text-xs text-muted-foreground">
-                  {getPaymentMethodLabel(category.paymentMethod)}
-                </p>
-                <p class="truncate text-sm font-mono font-semibold">
-                  {formatCurrency(category.total)}
-                </p>
-              </div>
-            {/each}
-          </div>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard
+        title={m['kpi.card.monthRevenueSelectable']()}
+        value={formatCurrency(metrics.finance.monthlyRevenue)}
+        description={m['kpi.card.monthRevenueSelectedDesc']({ month: selectedMonthLabel })}
+        icon={Calendar}
+      >
+        <KpiBreakdown
+          class="mt-4 gap-y-2"
+          entries={metrics.finance.monthlyRevenueByPaymentMethod.map((category) => ({
+            label: getPaymentMethodLabel(category.paymentMethod),
+            value: formatCurrency(category.total),
+          }))}
+        />
+      </KpiStatCard>
 
-      <Card.Root>
-        <Card.Header class="pb-2">
-          <Card.Title class="text-sm font-medium">{m['kpi.finance.billed']()}</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <div class="text-3xl font-bold font-mono">{formatCurrency(billed)}</div>
-          <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div class="h-full rounded-full bg-success" style="width: {collectedPct}%"></div>
-          </div>
-          <div class="mt-3 grid grid-cols-2 gap-x-4 border-t border-border pt-3">
-            <div class="min-w-0">
-              <p class="truncate text-xs text-muted-foreground">{m['kpi.finance.collected']()}</p>
-              <p class="truncate text-sm font-mono font-semibold text-success">
-                {formatCurrency(collected)}
-              </p>
-            </div>
-            <div class="min-w-0">
-              <p class="truncate text-xs text-muted-foreground">{m['kpi.finance.pending']()}</p>
-              <p class="truncate text-sm font-mono font-semibold text-amber-500">
-                {formatCurrency(pending)}
-              </p>
-            </div>
-          </div>
-          <p class="mt-3 text-xs text-muted-foreground">{m['kpi.finance.cohortNote']()}</p>
-        </Card.Content>
-      </Card.Root>
+      <KpiStatCard title={m['kpi.finance.billed']()} value={formatCurrency(billed)}>
+        <Progress
+          value={collectedPct}
+          class="mt-3 h-2"
+          indicatorClass="bg-success"
+          aria-label={m['kpi.finance.collected']()}
+        />
+        <KpiBreakdown
+          entries={[
+            { label: m['kpi.finance.collected'](), value: formatCurrency(collected), tone: 'text-success-text' },
+            { label: m['kpi.finance.pending'](), value: formatCurrency(pending), tone: 'text-warning-text' },
+          ]}
+        />
+        <HintText text={m['kpi.finance.cohortNote']()} class="mt-3" />
+      </KpiStatCard>
     </div>
 
     <Card.Root>
@@ -232,36 +189,16 @@
         <Card.Description>{m['kpi.chart.weeklyDesc']()}</Card.Description>
       </Card.Header>
       <Card.Content>
-        <div class="mt-4 flex h-48 w-full items-end gap-2">
-          {#each metrics.weeklyRevenueChart as day, i (day.date)}
-            {@const heightPct = chartMax > 0 ? (day.totalPaid / chartMax) * 100 : 0}
-            {@const isBarActive = activeBarIndex === i}
-            <div
-              class="group relative flex h-full flex-1 cursor-pointer flex-col items-center justify-end"
-              role="button"
-              tabindex="0"
-              aria-label={formatCurrency(day.totalPaid)}
-              onclick={() => (activeBarIndex = isBarActive ? null : i)}
-              onkeydown={(e) =>
-                (e.key === 'Enter' || e.key === ' ') && (activeBarIndex = isBarActive ? null : i)}
-            >
-              <div
-                class={`absolute -top-10 z-10 rounded bg-foreground px-2 py-1 text-xs whitespace-nowrap text-background shadow-lg transition-transform pointer-events-none ${isBarActive ? 'scale-100' : 'scale-0 group-hover:scale-100'}`}
-              >
-                {formatCurrency(day.totalPaid)}
-              </div>
-              <div
-                class="w-full max-w-10 rounded-t-sm bg-primary/80 transition-all duration-500 ease-out hover:bg-primary"
-                style={`height: ${heightPct}%`}
-              ></div>
-              <div class="mt-2 w-full truncate pb-2 text-center text-[10px] uppercase text-muted-foreground">
-                {#if day.date}
-                  {new Date(day.date).toLocaleDateString(getLocale(), { weekday: 'short' })}
-                {/if}
-              </div>
-            </div>
-          {/each}
-        </div>
+        <BarChart
+          format={formatCurrency}
+          bars={metrics.weeklyRevenueChart.map((day) => ({
+            key: day.date,
+            value: day.totalPaid,
+            label: day.date
+              ? new Date(day.date).toLocaleDateString(getLocale(), { weekday: 'short' })
+              : '',
+          }))}
+        />
       </Card.Content>
     </Card.Root>
   </div>

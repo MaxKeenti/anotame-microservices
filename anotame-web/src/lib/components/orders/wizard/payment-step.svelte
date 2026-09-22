@@ -1,4 +1,9 @@
 <script lang="ts">
+	import * as Card from '$lib/components/ui/card';
+	import { formatCurrency } from '$lib/utils/formatUtils';
+	import { Spinner } from '$lib/components/ui/spinner';
+	import * as InputGroup from '$lib/components/ui/input-group';
+	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount, untrack, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -14,7 +19,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import { CreditCard, DollarSign, Wallet, AlertTriangle, Loader2 } from '@lucide/svelte';
+	import { AlertTriangle } from '@lucide/svelte';
+	import { cn } from '$lib/utils';
+	import * as Alert from '$lib/components/ui/alert';
+	import { InlineAlert } from '$lib/components/common';
+	import PaymentMethodPicker from '$lib/components/common/payment-method-picker.svelte';
 	import { toast } from 'svelte-sonner';
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
@@ -25,7 +34,12 @@
 
 	type DraftService = DraftOrderItem['services'][number];
 
-	let props = $props<{ onNext: () => void; onBack: () => void }>();
+	interface Props {
+		onNext: () => void;
+		onBack: () => void;
+	}
+
+	let props: Props = $props();
 
 	let isSubmitting = $state(false);
 	let error = $state<string | null>(null);
@@ -272,57 +286,27 @@
 
 <form method="POST" use:enhance class="flex flex-col flex-1 min-h-0 gap-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">{m['paymentStep.title']()}</h2>
+		<Heading level={2}>{m['paymentStep.title']()}</Heading>
 	</div>
 
-	<div class="flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
+	<div class="flex-1 space-y-8">
 		<!-- Total Section -->
 		<div class="text-center py-6 bg-muted/20 rounded-xl">
-			<div class="text-muted-foreground uppercase text-sm font-semibold tracking-wider">
+			<Text variant="label" as="div">
 				{m['paymentStep.totalToPay']()}
-			</div>
-			<div class="text-5xl font-bold font-mono mt-2">${total.toFixed(2)}</div>
+			</Text>
+			<Text variant="metric" size="2xl" as="div" class="mt-2">{formatCurrency(total)}</Text>
 		</div>
 
 		{#if !draft?.isEditing}
 		<!-- Payment Method (new orders only) -->
 		<div class="space-y-4">
-			<label class="text-sm font-medium" for="payment-method">{m['orders.wizard.paymentMethod']()}</label>
-			<div class="grid grid-cols-3 gap-4" id="payment-method">
-				<Button
-					type="button"
-					variant="outline"
-					onclick={() => {
-						$form.paymentMethod = 'CASH';
-					}}
-					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CASH' || !$form.paymentMethod ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-				>
-					<DollarSign class="w-8 h-8 mb-2" />
-					<span class="font-semibold">{m['orders.wizard.cash']()}</span>
-				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					onclick={() => {
-						$form.paymentMethod = 'CARD';
-					}}
-					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-				>
-					<CreditCard class="w-8 h-8 mb-2" />
-					<span class="font-semibold">{m['orders.wizard.card']()}</span>
-				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					onclick={() => {
-						$form.paymentMethod = 'TRANSFER';
-					}}
-					class={`h-auto flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${$form.paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-				>
-					<Wallet class="w-8 h-8 mb-2" />
-					<span class="font-semibold">{m['orders.wizard.transfer']()}</span>
-				</Button>
-			</div>
+			<p class="text-sm font-medium">{m['orders.wizard.paymentMethod']()}</p>
+			<PaymentMethodPicker
+				size="lg"
+				label={m['orders.wizard.paymentMethod']()}
+				bind:value={$form.paymentMethod}
+			/>
 		</div>
 
 		<!-- Payment Amounts (new orders only) -->
@@ -332,21 +316,19 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>{m['orders.wizard.amountReceived']()}</Form.Label>
-							<div class="relative">
-								<span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-xl"
-									>$</span
-								>
-								<Input
+							<InputGroup.Root inputSize="lg">
+								<InputGroup.Input
 									{...props}
 									{...constraints}
 									type="number"
 									min="0"
 									step="0.01"
-									class="pl-8 text-2xl font-bold h-14 rounded-xl"
+									class="text-2xl font-bold"
 									bind:value={$form.amountPaid}
 									placeholder="0.00"
 								/>
-							</div>
+								<InputGroup.Addon><span class="text-xl">$</span></InputGroup.Addon>
+							</InputGroup.Root>
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -384,16 +366,16 @@
 				class="bg-card border border-border p-4 rounded-xl flex flex-col justify-center items-center shadow-sm"
 			>
 				<div class="text-sm text-muted-foreground">{m['orders.wizard.balanceDue']()}</div>
-				<div class={`text-4xl font-bold mt-1 ${balance > 0 ? 'text-destructive' : 'text-primary'}`}>
-					${balance.toFixed(2)}
-				</div>
+				<Text variant="metric" size="xl" as="div" class={cn('mt-1', balance > 0 ? 'text-destructive' : 'text-primary')}>
+					{formatCurrency(balance)}
+				</Text>
 			</div>
 		</div>
 		{:else}
 		<!-- Edit mode: payments managed via order detail page -->
-		<div class="bg-muted/30 border border-border rounded-xl px-5 py-4 text-sm text-muted-foreground">
+		<Card.Root tone="muted" size="sm" class="text-muted-foreground">
 			{m['orders.payment.editModeInfo']()}
-		</div>
+		</Card.Root>
 		{/if}
 
 		<!-- Deadline & Notes -->
@@ -410,8 +392,7 @@
 							$form.committedDeadline = v;
 						}}
 						placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
-						class="rounded-xl text-lg"
-					/>
+						class="text-lg" />
 					<Form.FieldErrors />
 				{/snippet}
 			</Form.Field>
@@ -425,9 +406,8 @@
 								{...constraints}
 								id="order-notes"
 								placeholder={m['orders.wizard.orderNotesPlaceholder']()}
-								class="h-12 rounded-xl text-lg"
-								bind:value={$form.notes}
-							/>
+								class="text-lg"
+								bind:value={$form.notes} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -435,9 +415,7 @@
 			</Form.Field>
 
 			{#if draft?.committedDeadline}
-				<div
-					class="mt-3 p-4 rounded-xl border border-border bg-muted/30 space-y-3 animate-in fade-in slide-in-from-top-2"
-				>
+				<Card.Root tone="muted" size="sm" class="mt-3 gap-3 animate-in fade-in slide-in-from-top-2">
 					<div class="flex justify-between items-center text-sm">
 						<span class="font-medium">{m['paymentStep.occupancyForDay']()}</span>
 						<span class="font-bold {isCluttered ? 'text-destructive' : 'text-primary'}">
@@ -454,48 +432,38 @@
 					</div>
 
 					{#if isCluttered}
-						<div
-							class="bg-destructive/10 border border-destructive/20 p-3 rounded-lg flex gap-2 animate-in zoom-in-95"
-						>
-							<AlertTriangle class="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-							<div>
-								<h5 class="text-xs font-bold text-destructive">{m['paymentStep.dayFull']()}</h5>
-								<p class="text-xs text-destructive/80 leading-relaxed font-medium">
-									{m['paymentStep.dayFullHint']()}
-								</p>
-							</div>
-						</div>
+						<Alert.Root variant="destructive" class="animate-in zoom-in-95">
+							<AlertTriangle aria-hidden="true" />
+							<Alert.Title>{m['paymentStep.dayFull']()}</Alert.Title>
+							<Alert.Description>{m['paymentStep.dayFullHint']()}</Alert.Description>
+						</Alert.Root>
 					{/if}
-				</div>
+				</Card.Root>
 			{/if}
 		</div>
 	</div>
 
 	{#if error}
-		<div
-			class="p-3 bg-destructive/10 text-destructive rounded-xl text-center text-sm font-medium shadow-sm transition-all border border-destructive/20"
-		>
-			{error}
-		</div>
+		<InlineAlert text={error} />
 	{/if}
 
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
-		<Button
+		<Button size="step"
 			type="button"
 			variant="outline"
 			onclick={props.onBack}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg touch-manipulation"
+			class="flex-1"
 			disabled={isSubmitting}
 		>
 			{m['orders.detail.back']()}
 		</Button>
-		<Button
+		<Button size="step"
 			type="submit"
 			disabled={isSubmitting}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md touch-manipulation uppercase tracking-wide"
+			class="flex-1 font-bold shadow-md uppercase tracking-wide"
 		>
 			{#if isSubmitting}
-				<Loader2 class="w-4 h-4 mr-2 animate-spin" />
+				<Spinner data-icon="inline-start" aria-hidden="true" />
 				{m['paymentStep.processing']()}
 			{:else}
 				{draft?.isEditing ? m['paymentStep.button.update']() : m['paymentStep.button.confirm']()}

@@ -1,7 +1,13 @@
 <script lang="ts">
   import { mode, setMode, resetMode } from 'mode-watcher';
+  import ColorRow from '$lib/components/settings/color-row.svelte';
+  import PageSizeOption from '$lib/components/settings/page-size-option.svelte';
+  import { HintText, PageContainer } from '$lib/components/common';
+  import { Separator } from '$lib/components/ui/separator';
+  import { PageHeader } from '$lib/components/common';
   import * as Card from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
+  import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import SunIcon from '@lucide/svelte/icons/sun';
   import MoonIcon from '@lucide/svelte/icons/moon';
   import MonitorIcon from '@lucide/svelte/icons/monitor';
@@ -56,11 +62,11 @@
   }
 </script>
 
-<div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
-  <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m["settings.page.title"]()}</h1>
-    <p class="text-muted-foreground">{m["settings.page.description"]()}</p>
-  </div>
+<PageContainer width="narrow">
+  <PageHeader
+    title={m["settings.page.title"]()}
+    description={m["settings.page.description"]()}
+  />
 
   <Card.Root>
     <Card.Header>
@@ -68,32 +74,23 @@
       <Card.Description>{m["settings.appearance.description"]()}</Card.Description>
     </Card.Header>
     <Card.Content>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Button
-          variant={mode.current === 'light' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
-          onclick={() => setMode('light')}
-        >
-          <SunIcon class="w-6 h-6" />
-          {m["settings.theme.light"]()}
-        </Button>
-        <Button
-          variant={mode.current === 'dark' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
-          onclick={() => setMode('dark')}
-        >
-          <MoonIcon class="w-6 h-6" />
-          {m["settings.theme.dark"]()}
-        </Button>
-        <Button
-          variant={mode.current === undefined ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
-          onclick={() => resetMode()}
-        >
-          <MonitorIcon class="w-6 h-6" />
-          {m["settings.theme.system"]()}
-        </Button>
-      </div>
+      <ToggleGroup.Root
+        type="single"
+        variant="segmented"
+        size="tile-lg"
+        spacing={4}
+        aria-label={m["settings.appearance.title"]()}
+        value={mode.current ?? 'system'}
+        onValueChange={(v) => {
+          if (v === 'system') resetMode();
+          else if (v === 'light' || v === 'dark') setMode(v);
+        }}
+        class="grid w-full grid-cols-1 sm:grid-cols-3"
+      >
+        <ToggleGroup.Item value="light"><SunIcon />{m["settings.theme.light"]()}</ToggleGroup.Item>
+        <ToggleGroup.Item value="dark"><MoonIcon />{m["settings.theme.dark"]()}</ToggleGroup.Item>
+        <ToggleGroup.Item value="system"><MonitorIcon />{m["settings.theme.system"]()}</ToggleGroup.Item>
+      </ToggleGroup.Root>
     </Card.Content>
   </Card.Root>
 
@@ -106,35 +103,19 @@
     </Card.Header>
     <Card.Content class="space-y-4">
       {#each colorEntries as { key, label, defaultHex }}
-        <div class="flex items-center gap-3">
-          <div
-            class="w-8 h-8 rounded-full border border-border shrink-0"
-            style="background-color: {previewColor(key)}"
-          ></div>
-          <span class="w-28 text-sm font-medium shrink-0">{label()}</span>
-          <input
-            type="text"
-            class="flex-1 h-11 px-3 border border-input rounded-md bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
-            aria-label={m['settings.label.colorHex']({ name: label() })}
-            placeholder={defaultHex}
-            value={paletteStore.current[key] ?? ''}
-            oninput={(e) => handleInput(key, e.currentTarget.value)}
-          />
-          {#if paletteStore.current[key]}
-            <Button
-              variant="ghost"
-              size="sm"
-              class="shrink-0"
-              onclick={() => paletteStore.set({ [key]: null })}
-            >
-              {m["settings.palette.restore"]()}
-            </Button>
-          {/if}
-        </div>
+        <ColorRow
+          label={label()}
+          preview={previewColor(key)}
+          value={paletteStore.current[key] ?? ''}
+          placeholder={defaultHex}
+          onInput={(v) => handleInput(key, v)}
+          onReset={() => paletteStore.set({ [key]: null })}
+        />
       {/each}
 
       {#if paletteStore.hasCustom()}
-        <div class="pt-2 border-t border-border">
+        <Separator />
+        <div>
           <Button variant="outline" size="sm" onclick={() => paletteStore.reset()}>
             {m["settings.palette.restoreAll"]()}
           </Button>
@@ -149,19 +130,23 @@
       <Card.Description>{m["settings.table.desc"]()}</Card.Description>
     </Card.Header>
     <Card.Content class="space-y-3">
-      <div class="grid grid-cols-4 gap-3">
+      <ToggleGroup.Root
+        type="single"
+        variant="segmented"
+        size="tile-lg"
+        spacing={3}
+        aria-label={m["settings.table.title"]()}
+        value={String(tablePreferences.pageSize)}
+        onValueChange={(v) => v && tablePreferences.setPageSize(Number(v))}
+        class="grid w-full grid-cols-4"
+      >
         {#each PAGE_SIZE_OPTIONS as size (size)}
-          <Button
-            variant={tablePreferences.pageSize === size ? 'default' : 'outline'}
-            class="h-24 flex flex-col gap-2 touch-manipulation"
-            onclick={() => tablePreferences.setPageSize(size)}
-          >
-            <span class="text-2xl font-bold">{size}</span>
-            <span class="text-sm">{m["settings.table.rows"]()}</span>
-          </Button>
+          <ToggleGroup.Item value={String(size)}>
+            <PageSizeOption {size} />
+          </ToggleGroup.Item>
         {/each}
-      </div>
-      <p class="text-xs text-muted-foreground">{m["settings.table.changesApply"]()}</p>
+      </ToggleGroup.Root>
+      <HintText text={m["settings.table.changesApply"]()} />
     </Card.Content>
   </Card.Root>
 
@@ -171,26 +156,20 @@
       <Card.Description>{m["settings.language.description"]()}</Card.Description>
     </Card.Header>
     <Card.Content>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Button
-          variant={getLocale() === 'es' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
-          disabled={changingLocale}
-          onclick={() => handleLocaleChange('es')}
-        >
-          <GlobeIcon class="w-6 h-6" />
-          {m["settings.locale.spanish"]()}
-        </Button>
-        <Button
-          variant={getLocale() === 'en' ? 'default' : 'outline'}
-          class="h-24 flex flex-col gap-2 touch-manipulation"
-          disabled={changingLocale}
-          onclick={() => handleLocaleChange('en')}
-        >
-          <GlobeIcon class="w-6 h-6" />
-          {m["settings.locale.english"]()}
-        </Button>
-      </div>
+      <ToggleGroup.Root
+        type="single"
+        variant="segmented"
+        size="tile-lg"
+        spacing={4}
+        aria-label={m["settings.language.title"]()}
+        disabled={changingLocale}
+        value={getLocale()}
+        onValueChange={(v) => v && handleLocaleChange(v)}
+        class="grid w-full grid-cols-1 sm:grid-cols-2"
+      >
+        <ToggleGroup.Item value="es"><GlobeIcon />{m["settings.locale.spanish"]()}</ToggleGroup.Item>
+        <ToggleGroup.Item value="en"><GlobeIcon />{m["settings.locale.english"]()}</ToggleGroup.Item>
+      </ToggleGroup.Root>
     </Card.Content>
   </Card.Root>
-</div>
+</PageContainer>

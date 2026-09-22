@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -8,17 +9,15 @@
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { goto } from '$app/navigation';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { PageHeader, ResponsiveDataView, StatePanel, PageContainer } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
+  import { formatDate, toTimestamp } from '$lib/utils/formatUtils';
 
   // Guard: Protect this route, strictly checking 'ADMIN'
   const guard = useAuthGuard(true, '/dashboard');
 
-  const mobile = useIsMobile();
 
   let lists = $state<PriceListResponse[]>([]);
   let isLoading = $state(true);
@@ -28,10 +27,23 @@
 
   const columns: ColumnDef<PriceListResponse>[] = [
     { accessorKey: 'name', header: m["catalog.pricelists.colName"](), enableSorting: true, meta: { cardGroup: 'header' } },
-    { id: 'status', accessorFn: (row) => row.active ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"](), header: m["catalog.pricelists.colStatus"](), enableSorting: true, meta: { cardGroup: 'header' } },
+    {
+      id: 'status',
+      accessorFn: (row) => (row.active ? 'active' : 'inactive'),
+      header: m["catalog.pricelists.colStatus"](),
+      enableSorting: true,
+      meta: {
+        cardGroup: 'header',
+        format: (v) => (v === 'active' ? m["catalog.pricelists.colActive"]() : m["catalog.pricelists.colInactive"]()),
+        filterOptions: [
+          { value: 'active', label: m["catalog.pricelists.colActive"]() },
+          { value: 'inactive', label: m["catalog.pricelists.colInactive"]() },
+        ],
+      },
+    },
     { accessorKey: 'priority', header: m["catalog.pricelists.colPriority"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'validFrom', accessorFn: (row) => new Date(row.validFrom).toLocaleDateString('es-ES'), header: m["catalog.pricelists.colValidFrom"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'validTo', accessorFn: (row) => row.validTo ? new Date(row.validTo).toLocaleDateString('es-ES') : m["catalog.pricelists.colPermanent"](), header: m["catalog.pricelists.colValidTo"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'validFrom', accessorFn: (row) => toTimestamp(row.validFrom), header: m["catalog.pricelists.colValidFrom"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatDate(v as number | undefined) } },
+    { id: 'validTo', accessorFn: (row) => toTimestamp(row.validTo), header: m["catalog.pricelists.colValidTo"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => (v == null ? m["catalog.pricelists.colPermanent"]() : formatDate(v as number)) } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
@@ -81,50 +93,21 @@
 </script>
 
 {#if guard.checking}
-  <div class="p-8 text-center text-muted-foreground animate-pulse">{m["catalog.pricelists.verifyingAccess"]()}</div>
+  <StatePanel message={m["catalog.pricelists.verifyingAccess"]()} loading size="page" />
 {:else if guard.allowed}
-  <div class="space-y-6 animate-in fade-in duration-300">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.pricelists.title"]()}</h1>
-        <p class="text-muted-foreground">{m["catalog.pricelists.description"]()}</p>
-      </div>
-      <Button href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+  <PageContainer>
+    <PageHeader
+      title={m["catalog.pricelists.title"]()}
+      description={m["catalog.pricelists.description"]()}
+    >
+      {#snippet actions()}
+        <Button size="touch-lg" href="/dashboard/catalog/pricelists/new" class="w-full sm:w-auto">
+        <PlusIcon data-icon="inline-start" />
         {m["catalog.pricelists.addButton"]()}
-      </Button>
-    </div>
+        </Button>
+      {/snippet}
+    </PageHeader>
 
-    {#snippet pricelistActions(row: Row<PriceListResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 border-primary/20 hover:bg-primary/5 text-primary touch-manipulation"
-          onclick={() => handleClone(row.original.id)}
-        >
-          <Copy class="w-4 h-4 mr-2" />
-          {m["catalog.pricelists.cloneButton"]()}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 touch-manipulation"
-          href={`/dashboard/catalog/pricelists/${row.original.id}`}
-        >
-          <Eye class="w-4 h-4 mr-2" />
-          {m["catalog.pricelists.viewButton"]()}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 text-destructive hover:bg-destructive/10 border-destructive/20 touch-manipulation"
-          onclick={() => handleDelete(row.original.id, row.original.name)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
-    {/snippet}
 
     <Card.Root>
       <Card.Header>
@@ -132,26 +115,46 @@
         <Card.Description>{m["catalog.pricelists.cardDescription"]()}</Card.Description>
       </Card.Header>
       <Card.Content>
-        {#if mobile.current}
-          <CardGridWrapper
-            {columns}
-            data={lists}
-            loading={isLoading}
-            emptyMessage={m["catalog.pricelists.emptyMessage"]()}
-            filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
-            actionCell={pricelistActions}
-          />
-        {:else}
-          <DataTableWrapper
-            {columns}
-            data={lists}
-            loading={isLoading}
-            emptyMessage={m["catalog.pricelists.emptyMessage"]()}
-            filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
-            actionCell={pricelistActions}
-          />
-        {/if}
+        <ResponsiveDataView
+          {columns}
+          data={lists}
+          loading={isLoading}
+          emptyMessage={m["catalog.pricelists.emptyMessage"]()}
+          filterPlaceholder={m["catalog.pricelists.searchPlaceholder"]()}
+          actionCell={pricelistActions}
+        />
       </Card.Content>
     </Card.Root>
-  </div>
+  </PageContainer>
 {/if}
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet pricelistActions(row: Row<PriceListResponse>)}
+      <div class="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          size="touch"
+          class="border-primary/20 hover:bg-primary/5 text-primary"
+          onclick={() => handleClone(row.original.id)}
+        >
+          <Copy class="w-4 h-4 mr-2" />
+          {m["catalog.pricelists.cloneButton"]()}
+        </Button>
+        <Button
+          variant="outline"
+          size="touch"
+          href={`/dashboard/catalog/pricelists/${row.original.id}`}
+        >
+          <Eye class="w-4 h-4 mr-2" />
+          {m["catalog.pricelists.viewButton"]()}
+        </Button>
+        <Button
+          variant="destructive-outline"
+          size="touch"
+          onclick={() => handleDelete(row.original.id, row.original.name)}
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          {m["common.delete"]()}
+        </Button>
+      </div>
+    {/snippet}

@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
-  import { Button } from '$lib/components/ui/button';
+  import { cn } from '$lib/utils';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from '@lucide/svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { isApiError } from '$lib/services/ApiError';
@@ -26,12 +27,14 @@
     garmentTypeId: z.string().min(1, m['serviceDialog.zod.garmentRequired']()),
   });
 
-  let { item, garments = [], onClose, onSuccess } = $props<{
+  interface Props {
     item: any | null;
     garments?: GarmentTypeResponse[];
     onClose: () => void;
     onSuccess?: () => void;
-  }>();
+  }
+
+  let { item, garments = [], onClose, onSuccess }: Props = $props();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
@@ -115,7 +118,7 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-w-lg">
+  <Dialog.Content class="sm:max-w-lg">
     <Dialog.Header>
       <Dialog.Title>{item?.id ? m['serviceDialog.title.edit']() : m['serviceDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
@@ -141,7 +144,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['serviceDialog.label.name']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.name']()} bind:value={$form.name} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -153,7 +156,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['serviceDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.description']()} bind:value={$form.description} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -166,7 +169,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['serviceDialog.label.basePrice']()}</Form.Label>
-                <Input {...props} {...constraints} type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} class="h-12" />
+                <Input {...props} {...constraints} type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -177,7 +180,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['serviceDialog.label.duration']()}</Form.Label>
-                <Input {...props} {...constraints} type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} class="h-12" />
+                <Input {...props} {...constraints} type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -186,12 +189,12 @@
       </div>
 
       <Dialog.Footer class="pt-4">
-        <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
+        <Dialog.Close class={cn(buttonVariants({ variant: 'outline', size: 'touch-lg' }), 'w-full sm:w-auto')}>
           {m['common.cancel']()}
         </Dialog.Close>
-        <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
+        <Button size="touch-lg" type="submit" disabled={isSubmitting} class="w-full sm:w-auto px-6">
           {#if isSubmitting}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m['common.saving']()}
           {:else}
             {m['common.save']()}

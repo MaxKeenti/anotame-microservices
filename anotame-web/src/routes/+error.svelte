@@ -1,30 +1,47 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import { BACKEND_UNAVAILABLE_ERROR } from '$lib/errors/backend-unavailable';
+  import { CenteredPage, MessageCard } from '$lib/components/common';
   import { Button } from '$lib/components/ui/button';
   import * as m from '$lib/paraglide/messages';
   import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
   import SearchXIcon from '@lucide/svelte/icons/search-x';
+  import ServerOffIcon from '@lucide/svelte/icons/server-off';
 
   // The public ticket routes (/t/<token>, /g/<token>) are opened by customers
   // and by the embroidery shop from a printed garment tag, so a dead link there
   // needs a plain-language explanation rather than a generic "not found".
   const isTicketLink = $derived(/^\/(t|g)\//.test(page.url.pathname));
   const isNotFound = $derived(page.status === 404);
+  // Checked before the ticket-link case: a customer opening a valid link during an
+  // outage must not be told their link was revoked.
+  const isUnavailable = $derived(page.error?.message === BACKEND_UNAVAILABLE_ERROR);
+
+  // Status plus the logged errorId, so a user reporting a problem can quote it.
+  const footnote = $derived(
+    page.error?.errorId
+      ? `${page.status} · ${m['error.reference']({ errorId: page.error.errorId.slice(0, 8) })}`
+      : String(page.status)
+  );
 
   const title = $derived(
-    isTicketLink
-      ? m['error.ticket.title']()
-      : isNotFound
-        ? m['error.notFound.title']()
-        : m['error.generic.title']()
+    isUnavailable
+      ? m['error.unavailable.title']()
+      : isTicketLink
+        ? m['error.ticket.title']()
+        : isNotFound
+          ? m['error.notFound.title']()
+          : m['error.generic.title']()
   );
 
   const body = $derived(
-    isTicketLink
-      ? m['error.ticket.body']()
-      : isNotFound
-        ? m['error.notFound.body']()
-        : m['error.generic.body']()
+    isUnavailable
+      ? m['error.unavailable.body']()
+      : isTicketLink
+        ? m['error.ticket.body']()
+        : isNotFound
+          ? m['error.notFound.body']()
+          : m['error.generic.body']()
   );
 </script>
 
@@ -33,25 +50,25 @@
   <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
-<main class="flex min-h-dvh flex-col items-center justify-center bg-muted/40 px-4 py-10">
-  <div class="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-      {#if isNotFound}
+<CenteredPage tone="muted" class="py-10">
+  <MessageCard {title} {body} {footnote}>
+    {#snippet icon()}
+      {#if isUnavailable}
+        <ServerOffIcon class="h-8 w-8 text-muted-foreground" />
+      {:else if isNotFound}
         <SearchXIcon class="h-8 w-8 text-muted-foreground" />
       {:else}
         <AlertTriangleIcon class="h-8 w-8 text-muted-foreground" />
       {/if}
-    </div>
-
-    <h1 class="font-heading text-2xl font-bold text-foreground">{title}</h1>
-    <p class="mt-3 text-sm text-muted-foreground">{body}</p>
-
-    {#if !isTicketLink}
-      <Button href="/" size="lg" class="mt-7 w-full touch-manipulation">
+    {/snippet}
+    {#if isUnavailable}
+      <Button onclick={() => location.reload()} size="lg" class="mt-7 w-full">
+        {m['error.action.retry']()}
+      </Button>
+    {:else if !isTicketLink}
+      <Button href="/" size="lg" class="mt-7 w-full">
         {m['error.action.home']()}
       </Button>
     {/if}
-
-    <p class="mt-6 font-mono text-xs text-muted-foreground/70">{page.status}</p>
-  </div>
-</main>
+  </MessageCard>
+</CenteredPage>

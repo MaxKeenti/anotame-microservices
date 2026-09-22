@@ -1,5 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import WizardHeader from '$lib/components/orders/wizard/wizard-header.svelte';
+    import * as Card from '$lib/components/ui/card';
+    import { ErrorState, FormField, InlineAlert, LockedRegion, PageHeader, StatePanel, PageContainer } from '$lib/components/common';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
@@ -165,66 +168,50 @@
 </script>
 
 {#if isLoading}
-    <div class="flex flex-col h-[60vh] items-center justify-center text-muted-foreground gap-4 animate-pulse">
-        <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-        <div class="text-lg font-medium">{m["orders.detail.loading"]()}</div>
-    </div>
+    <StatePanel message={m["orders.detail.loading"]()} spinner size="page" />
 {:else if notFound}
-    <div class="flex flex-col h-[60vh] items-center justify-center p-8 text-center gap-6 animate-in fade-in zoom-in-95">
-        <div class="bg-destructive/10 p-6 rounded-full">
-            <svg class="w-16 h-16 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-        </div>
-        <div>
-            <h2 class="text-2xl font-bold text-destructive">{m["orders.detail.notFound"]()}</h2>
-            <p class="text-muted-foreground mt-2 max-w-md">{m["orders.edit.notFoundDescription"]()}</p>
-        </div>
-        <Button href="/dashboard/orders" variant="outline" class="h-12 px-8 rounded-xl touch-manipulation">
+    <ErrorState
+        title={m["orders.detail.notFound"]()}
+        description={m["orders.edit.notFoundDescription"]()}
+    >
+        <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8">
             {m["orders.detail.backToList"]()}
         </Button>
-    </div>
+    </ErrorState>
 {:else if !isAdmin}
-    <div class="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold font-heading">
-                    {m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
-                </h1>
-                <p class="text-muted-foreground mt-1">{m['orders.edit.employeeDescription']()}</p>
-            </div>
-            <Button variant="outline" class="h-12 px-6 touch-manipulation" onclick={() => goto(`/dashboard/orders/${id}`)}>
-                {m["common.cancel"]()}
-            </Button>
-        </div>
+    <PageContainer width="narrow">
+        <PageHeader
+            title={m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
+            description={m['orders.edit.employeeDescription']()}
+        >
+            {#snippet actions()}
+                <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto(`/dashboard/orders/${id}`)}>
+                    {m["common.cancel"]()}
+                </Button>
+            {/snippet}
+        </PageHeader>
 
         {#if isLocked}
-            <div
-                role="alert"
-                class="p-4 bg-destructive/10 border border-destructive/30 rounded-xl text-destructive text-sm font-medium flex items-start gap-2"
-            >
-                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>{m["orders.edit.lockedBanner"]()}</span>
-            </div>
+            <InlineAlert text={m["orders.edit.lockedBanner"]()} />
         {/if}
 
-        <form class="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-sm space-y-6" onsubmit={(e) => { e.preventDefault(); handleEmployeeEditSubmit(); }}>
-            <div class="space-y-2 {isLocked || employeeSaving ? 'pointer-events-none opacity-70' : ''}">
-                <label for="employee-delivery-date" class="text-sm font-medium">{m['orders.wizard.deliveryDate']()}</label>
+        <Card.Root class="p-4 sm:p-6">
+        <form class="space-y-6" onsubmit={(e) => { e.preventDefault(); handleEmployeeEditSubmit(); }}>
+            <FormField
+                label={m['orders.wizard.deliveryDate']()}
+                for="employee-delivery-date"
+                class={isLocked || employeeSaving ? 'pointer-events-none opacity-70' : ''}
+            >
                 <AdaptiveDateTimePicker
                     id="employee-delivery-date"
                     value={employeeDeadline}
                     min={defaultMinDeadline()}
                     onValueChange={(v) => { employeeDeadline = v; employeeEditError = ''; }}
                     placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
-                    class="rounded-xl text-lg"
-                />
-            </div>
+                    class="text-lg" />
+            </FormField>
 
-            <div class="space-y-2">
-                <label for="employee-order-notes" class="text-sm font-medium">{m['orders.wizard.orderNotes']()}</label>
+            <FormField label={m['orders.wizard.orderNotes']()} for="employee-order-notes">
                 <Textarea
                     id="employee-order-notes"
                     bind:value={employeeNotes}
@@ -232,98 +219,55 @@
                     class="min-h-32 resize-none text-base"
                     disabled={isLocked || employeeSaving}
                 />
-            </div>
+            </FormField>
 
             {#if employeeEditError}
-                <p class="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2" role="alert">
-                    {employeeEditError}
-                </p>
+                <InlineAlert text={employeeEditError} showIcon={false} class="rounded-lg px-3 py-2" />
             {/if}
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" class="h-12 touch-manipulation" onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
+                <Button size="touch-lg" type="button" variant="outline" onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
                     {m['common.cancel']()}
                 </Button>
-                <Button type="submit" class="h-12 touch-manipulation" disabled={isLocked || employeeSaving}>
+                <Button size="touch-lg" type="submit" disabled={isLocked || employeeSaving}>
                     {employeeSaving ? m['common.saving']() : m['common.saveChanges']()}
                 </Button>
             </div>
         </form>
-    </div>
+        </Card.Root>
+    </PageContainer>
 {:else}
     {@const currentStepIndex = draft?.currentStep ?? 0}
 
     <div class="flex flex-col flex-1 min-h-0">
         <!-- Status lock banner for DELIVERED / CANCELLED orders -->
         {#if isLocked}
-            <div
-                role="alert"
-                class="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-xl text-destructive text-sm font-medium flex items-start gap-2"
-            >
-                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>{m["orders.edit.lockedBanner"]()}</span>
-            </div>
+            <InlineAlert text={m["orders.edit.lockedBanner"]()} class="mb-4" />
         {/if}
 
-        <!-- Stepper Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold font-heading">
-                    {m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
-                </h1>
-            </div>
-
-            <!-- Stepper Progress UI -->
-            <div class="flex justify-center flex-1">
-                <div class="flex items-center gap-2 overflow-x-auto w-full max-w-sm sm:w-auto pb-2 sm:pb-0">
-                    {#each steps as s, i}
-                        <div class="flex items-center {i < steps.length - 1 ? 'mr-2 sm:mr-4' : ''}">
-                            <div
-                                class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors {currentStepIndex === i ? 'border-primary bg-primary text-primary-foreground' : currentStepIndex > i ? 'border-primary bg-primary/20 text-primary' : 'border-muted text-muted-foreground'}"
-                            >
-                                {i + 1}
-                            </div>
-                            <span class="ml-2 text-sm hidden md:inline font-medium {currentStepIndex === i ? 'text-foreground' : 'text-muted-foreground'}">
-                                {s.title}
-                            </span>
-                            {#if i < steps.length - 1}
-                                <div class="w-8 h-0.5 bg-border ml-2 sm:ml-4 hidden sm:block"></div>
-                            {/if}
-                        </div>
-                    {/each}
-                </div>
-            </div>
-
-            <Button variant="outline" class="h-11 sm:h-12 px-6 touch-manipulation" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
-                {m["common.cancel"]()}
-            </Button>
-        </div>
+        <WizardHeader
+            title={m["orders.edit.title"]({ ticket: existingOrder?.ticketNumber ? `#${existingOrder.ticketNumber}` : '' })}
+            {steps}
+            currentStep={currentStepIndex}
+            showTray={false}
+        >
+            {#snippet actions()}
+                <Button size="touch-lg" variant="outline" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
+                    {m["common.cancel"]()}
+                </Button>
+            {/snippet}
+        </WizardHeader>
 
         <!-- Step Content (read-only if locked) -->
-        {#if isLocked}
-            <div class="flex-1 overflow-y-auto flex flex-col pt-4 pointer-events-none opacity-60 select-none">
-                {#if steps[currentStepIndex]}
-                    {@const ActiveComponent = steps[currentStepIndex].component}
-                    {#if currentStepIndex === 1}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
-                    {:else}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} />
-                    {/if}
+        <LockedRegion locked={isLocked} class="flex flex-1 flex-col pt-4">
+            {#if steps[currentStepIndex]}
+                {@const ActiveComponent = steps[currentStepIndex].component}
+                {#if currentStepIndex === 1}
+                    <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
+                {:else}
+                    <ActiveComponent onNext={handleNext} onBack={handleBack} />
                 {/if}
-            </div>
-        {:else}
-            <div class="flex-1 overflow-y-auto flex flex-col pt-4">
-                {#if steps[currentStepIndex]}
-                    {@const ActiveComponent = steps[currentStepIndex].component}
-                    {#if currentStepIndex === 1}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} isEditMode={true} />
-                    {:else}
-                        <ActiveComponent onNext={handleNext} onBack={handleBack} />
-                    {/if}
-                {/if}
-            </div>
-        {/if}
+            {/if}
+        </LockedRegion>
     </div>
 {/if}

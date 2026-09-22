@@ -1,5 +1,9 @@
 <script lang="ts">
+  import { getIntlLocale } from '$lib/utils/formatUtils';
+  import { Spinner } from '$lib/components/ui/spinner';
   import { onMount } from 'svelte';
+  import WorkdayRow from '$lib/components/schedule/workday-row.svelte';
+  import { PageHeader, StatePanel, TableFrame, PageContainer } from '$lib/components/common';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -9,7 +13,7 @@
   import * as Form from '$lib/components/ui/form';
   import { AdaptiveDatePicker, adaptiveConfirm } from '$lib/components/ui/responsive';
   import { toast } from 'svelte-sonner';
-  import { CalendarDays, AlertTriangle, Trash2, Loader2 } from '@lucide/svelte';
+  import { CalendarDays, AlertTriangle, Trash2 } from '@lucide/svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
@@ -131,31 +135,25 @@
 </script>
 
 {#if guard.checking}
-  <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-    {m['schedule.validating']()}
-  </div>
+  <StatePanel message={m['schedule.validating']()} />
 {:else if guard.allowed}
-<div class="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
-  <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m['schedule.page.title']()}</h1>
-  </div>
+<PageContainer width="wide">
+  <PageHeader title={m['schedule.page.title']()} />
 
   <Tabs.Root bind:value={activeTab} class="space-y-6">
-    <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="weekly" class="px-6 font-bold flex items-center gap-2">
+    <Tabs.List variant="bordered">
+      <Tabs.Trigger value="weekly">
         <CalendarDays class="w-4 h-4" />
         {m['schedule.tab.weekly']()}
       </Tabs.Trigger>
-      <Tabs.Trigger value="holidays" class="px-6 font-bold flex items-center gap-2">
+      <Tabs.Trigger value="holidays">
         <AlertTriangle class="w-4 h-4" />
         {m['schedule.tab.holidays']()}
       </Tabs.Trigger>
     </Tabs.List>
 
     {#if isLoading && workDays.length === 0}
-      <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-        {m['schedule.loading']()}
-      </div>
+      <StatePanel message={m['schedule.loading']()} />
     {:else}
       <!-- Tab 1: Weekly Schedule -->
       <Tabs.Content value="weekly">
@@ -165,47 +163,14 @@
             <Card.Description>{m['schedule.card.weeklyDesc']()}</Card.Description>
           </Card.Header>
           <Card.Content class="space-y-2">
-            <div class="border rounded-md divide-y divide-border">
-              {#each workDays as day, index}
-                <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 hover:bg-muted/10 transition-colors">
-                  <div class="w-40 font-medium capitalize text-foreground flex items-center">
-                    <label class="flex min-h-11 items-center gap-3 cursor-pointer touch-manipulation">
-                      <input
-                        type="checkbox"
-                        class="checkbox-custom"
-                        bind:checked={day.open}
-                      />
-                      {getDayName(day.dayOfWeek)}
-                    </label>
-                  </div>
-
-                  <div class="flex-1 flex flex-wrap items-center gap-3">
-                    {#if day.open}
-                      <div class="flex items-center gap-3 bg-card border rounded-lg p-2">
-                        <Input
-                          type="time"
-                          bind:value={day.openTime}
-                          aria-label={m['schedule.label.openTime']({ day: getDayName(day.dayOfWeek) })}
-                          class="w-32 h-11 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
-                        />
-                        <span class="text-muted-foreground text-sm font-medium">{m['schedule.label.to']()}</span>
-                        <Input
-                          type="time"
-                          bind:value={day.closeTime}
-                          aria-label={m['schedule.label.closeTime']({ day: getDayName(day.dayOfWeek) })}
-                          class="w-32 h-11 shadow-none border-0 bg-transparent text-center px-0 font-mono text-base focus-visible:ring-0"
-                        />
-                      </div>
-                    {:else}
-                      <span class="text-muted-foreground text-sm px-4 py-2 bg-muted/50 rounded-lg">{m['schedule.label.closed']()}</span>
-                    {/if}
-                  </div>
-                </div>
+            <TableFrame class="divide-y divide-border">
+              {#each workDays as _, index}
+                <WorkdayRow bind:day={workDays[index]} dayName={getDayName(workDays[index].dayOfWeek)} />
               {/each}
-            </div>
+            </TableFrame>
 
             <div class="flex justify-end pt-6">
-              <Button onclick={saveWeeklySchedule} disabled={isLoading} class="h-12 px-6 shadow-sm">
+              <Button size="touch-lg" onclick={saveWeeklySchedule} disabled={isLoading} class="px-6 shadow-sm">
                 {isLoading ? m['common.loading']() : m['schedule.button.saveWeekly']()}
               </Button>
             </div>
@@ -246,17 +211,15 @@
                           {...constraints}
                           id="hol-desc"
                           placeholder={m['schedule.holiday.descPlaceholder']()}
-                          bind:value={$holidayForm.description}
-                          class="h-12"
-                        />
+                          bind:value={$holidayForm.description} />
                       {/snippet}
                     </Form.Control>
                     <Form.FieldErrors />
                   {/snippet}
                 </Form.Field>
-                <Button type="submit" disabled={isHolidaySubmitting} class="w-full h-12 shadow-sm">
+                <Button size="touch-lg" type="submit" disabled={isHolidaySubmitting} class="w-full shadow-sm">
                   {#if isHolidaySubmitting}
-                    <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+                    <Spinner data-icon="inline-start" aria-hidden="true" />
                     {m['schedule.holiday.adding']()}
                   {:else}
                     {m['schedule.holiday.addButton']()}
@@ -274,12 +237,9 @@
             </Card.Header>
             <Card.Content>
               {#if holidays.length === 0}
-                <div class="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
-                  <AlertTriangle class="w-8 h-8 mx-auto mb-3 opacity-50" />
-                  <p>{m['schedule.holiday.empty']()}</p>
-                </div>
+                <StatePanel message={m['schedule.holiday.empty']()} size="inset" />
               {:else}
-                <div class="border rounded-md overflow-x-auto">
+                <TableFrame>
                   <Table.Root class="min-w-100">
                     <Table.Header class="bg-secondary/20">
                       <Table.Row>
@@ -292,7 +252,7 @@
                       {#each holidays as h}
                         <Table.Row class="hover:bg-muted/30">
                           <Table.Cell class="p-4 font-medium tabular-nums">
-                            {new Date(h.date).toLocaleDateString('es-ES', {
+                            {new Date(h.date).toLocaleDateString(getIntlLocale(), {
                               weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
                             })}
                           </Table.Cell>
@@ -301,20 +261,19 @@
                           </Table.Cell>
                           <Table.Cell class="p-4 text-right">
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              class="text-destructive hover:bg-destructive/10 hover:text-destructive h-9 touch-manipulation"
+                              variant="destructive-outline"
+                              size="icon-touch"
+                              aria-label={m['common.delete']()}
                               onclick={() => h.id && handleDeleteHoliday(h.id, h.description)}
                             >
                               <Trash2 class="w-4 h-4" />
-                              <span class="sr-only">{m['common.delete']()}</span>
                             </Button>
                           </Table.Cell>
                         </Table.Row>
                       {/each}
                     </Table.Body>
                   </Table.Root>
-                </div>
+                </TableFrame>
               {/if}
             </Card.Content>
           </Card.Root>
@@ -322,5 +281,5 @@
       </Tabs.Content>
     {/if}
   </Tabs.Root>
-</div>
+</PageContainer>
 {/if}

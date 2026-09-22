@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { FormField, PageHeader, StatePanel, PageContainer } from '$lib/components/common';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -107,16 +108,14 @@
   });
 </script>
 
-<div class="space-y-6 max-w-3xl mx-auto animate-in fade-in duration-300">
-  <div>
-    <h1 class="text-3xl font-heading font-bold text-foreground">{m['adminSettings.page.title']()}</h1>
-    <p class="text-muted-foreground">{m['adminSettings.page.desc']()}</p>
-  </div>
+<PageContainer width="narrow">
+  <PageHeader
+    title={m['adminSettings.page.title']()}
+    description={m['adminSettings.page.desc']()}
+  />
 
   {#if isLoading}
-    <div class="h-64 flex items-center justify-center text-muted-foreground border border-border rounded-xl bg-card">
-      {m['adminSettings.loading']()}
-    </div>
+    <StatePanel message={m['adminSettings.loading']()} />
   {:else}
     <form method="POST" use:enhance class="space-y-6">
 
@@ -132,38 +131,27 @@
           </Card.Description>
         </Card.Header>
         <Card.Content class="space-y-4">
-          <div class="space-y-2">
-            <label for="est-name" class="text-sm font-medium">{m['adminSettings.label.name']()} <span class="text-destructive">*</span></label>
+          <FormField label={m['adminSettings.label.name']()} for="est-name" required error={$errors.name}>
             <Input
               id="est-name"
               bind:value={$form.name}
               required
-              class="h-12"
-              placeholder={m['adminSettings.placeholder.name']()}
-            />
-            {#if $errors.name}<span class="text-xs text-destructive">{$errors.name}</span>{/if}
-          </div>
-          <div class="space-y-2">
-            <label for="est-owner" class="text-sm font-medium">{m['adminSettings.label.owner']()}</label>
+              placeholder={m['adminSettings.placeholder.name']()} />
+          </FormField>
+          <FormField label={m['adminSettings.label.owner']()} for="est-owner">
             <Input
               id="est-owner"
               bind:value={$form.ownerName}
-              class="h-12"
-              placeholder={m["adminSettings.ownerPlaceholder"]()}
-            />
-          </div>
-          <div class="space-y-2">
-            <label for="est-capacity" class="text-sm font-medium">{m['adminSettings.label.capacity']()}</label>
+              placeholder={m["adminSettings.ownerPlaceholder"]()} />
+          </FormField>
+          <FormField label={m['adminSettings.label.capacity']()} for="est-capacity" error={$errors.dailyCapacityMinutes} hint={m['adminSettings.hint.capacity']()}>
             <Input
               id="est-capacity"
               type="number"
               bind:value={$form.dailyCapacityMinutes}
-              class="h-12 font-mono"
-              placeholder={m["adminSettings.capacityPlaceholder"]()}
-            />
-            {#if $errors.dailyCapacityMinutes}<span class="text-xs text-destructive">{$errors.dailyCapacityMinutes}</span>{/if}
-            <p class="text-xs text-muted-foreground">{m['adminSettings.hint.capacity']()}</p>
-          </div>
+              class="font-mono"
+              placeholder={m["adminSettings.capacityPlaceholder"]()} />
+          </FormField>
         </Card.Content>
       </Card.Root>
 
@@ -180,43 +168,32 @@
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label for="tax-rfc" class="text-sm font-medium">{m['adminSettings.label.rfc']()}</label>
+            <FormField label={m['adminSettings.label.rfc']()} for="tax-rfc">
               <Input
                 id="tax-rfc"
                 bind:value={$form.rfc}
-                class="h-12 uppercase"
-                placeholder="ABCD123456XYZ"
-              />
-            </div>
-            <div class="space-y-2">
-              <label for="tax-regime" class="text-sm font-medium">{m['adminSettings.label.regime']()}</label>
+                class="uppercase"
+                placeholder="ABCD123456XYZ" />
+            </FormField>
+            <FormField label={m['adminSettings.label.regime']()} for="tax-regime">
               <Input
                 id="tax-regime"
                 bind:value={$form.regime}
-                class="h-12"
-                placeholder={m["adminSettings.regimePlaceholder"]()}
-              />
-            </div>
+                placeholder={m["adminSettings.regimePlaceholder"]()} />
+            </FormField>
           </div>
-          <div class="space-y-2">
-            <label for="tax-address" class="text-sm font-medium">{m['adminSettings.label.address']()}</label>
+          <FormField label={m['adminSettings.label.address']()} for="tax-address">
             <Input
               id="tax-address"
               bind:value={$form.address}
-              class="h-12"
-              placeholder={m['adminSettings.placeholder.address']()}
-            />
-          </div>
-          <div class="space-y-2">
-            <label for="tax-phone" class="text-sm font-medium">{m['adminSettings.label.phone']()}</label>
+              placeholder={m['adminSettings.placeholder.address']()} />
+          </FormField>
+          <FormField label={m['adminSettings.label.phone']()} for="tax-phone">
             <Input
               id="tax-phone"
               bind:value={$form.contactPhone}
-              class="h-12"
-              placeholder={m["adminSettings.phonePlaceholder"]()}
-            />
-          </div>
+              placeholder={m["adminSettings.phonePlaceholder"]()} />
+          </FormField>
         </Card.Content>
       </Card.Root>
 
@@ -234,32 +211,24 @@
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Brand Color Picker -->
-            <div class="space-y-2">
-              <label for="brand-color" class="text-sm font-medium">{m['adminSettings.label.color']()}</label>
+            <FormField label={m['adminSettings.label.color']()} for="brand-color" hint={m["adminSettings.colorHint"]()} error={$errors.primaryColor}>
               <div class="flex items-center gap-3">
-                <input
+                <Input
                   id="brand-color"
                   type="color"
                   bind:value={$form.primaryColor}
-                  class="h-12 w-16 border border-input rounded cursor-pointer"
-                />
-                <input
+                  class="w-16 cursor-pointer p-1" />
+                <Input
                   type="text"
                   bind:value={$form.primaryColor}
                   aria-label={m['settings.label.colorHex']({ name: m['adminSettings.label.color']() })}
                   placeholder="#FF6B6B"
-                  class="flex-1 h-12 px-3 border border-input rounded text-xs font-mono"
-                />
+                  class="flex-1 font-mono text-xs" />
               </div>
-              {#if $errors.primaryColor}
-                <span class="text-xs text-destructive">{$errors.primaryColor}</span>
-              {/if}
-              <p class="text-xs text-muted-foreground">{m["adminSettings.colorHint"]()}</p>
-            </div>
+            </FormField>
 
             <!-- Font Family Dropdown -->
-            <div class="space-y-2">
-              <label for="font-family" class="text-sm font-medium">{m['adminSettings.label.font']()}</label>
+            <FormField label={m['adminSettings.label.font']()} for="font-family" error={$errors.fontFamily}>
               <Select.Root
                 type="single"
                 value={$form.fontFamily || ''}
@@ -267,11 +236,11 @@
                   $form.fontFamily = (v || '') as 'Inter' | 'Outfit' | 'Merriweather' | '';
                 }}
               >
-                <Select.Trigger id="font-family" class="h-12">
+                <Select.Trigger id="font-family">
                   {#if $form.fontFamily}
                     {$form.fontFamily === 'Inter' ? m['adminSettings.font.inter']() : $form.fontFamily === 'Outfit' ? m['adminSettings.font.outfit']() : m['adminSettings.font.merriweather']()}
                   {:else}
-                    <span class="text-muted-foreground">{m['adminSettings.placeholder.font']()}</span>
+                    {m['adminSettings.placeholder.font']()}
                   {/if}
                 </Select.Trigger>
                 <Select.Content>
@@ -280,10 +249,7 @@
                   <Select.Item value="Merriweather">{m['adminSettings.font.merriweather']()}</Select.Item>
                 </Select.Content>
               </Select.Root>
-              {#if $errors.fontFamily}
-                <span class="text-xs text-destructive">{$errors.fontFamily}</span>
-              {/if}
-            </div>
+            </FormField>
           </div>
         </Card.Content>
       </Card.Root>
@@ -301,65 +267,53 @@
         </Card.Header>
         <Card.Content class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="space-y-2">
-              <label for="threshold-green" class="text-sm font-medium">{m['adminSettings.threshold.label.green']()}</label>
+            <FormField label={m['adminSettings.threshold.label.green']()} for="threshold-green" error={$errors.capacityThresholdGreen} hint={m['adminSettings.threshold.hint.green']()}>
               <Input
                 id="threshold-green"
                 type="number"
                 min="1"
                 max="100"
                 bind:value={$form.capacityThresholdGreen}
-                class="h-12 font-mono"
-              />
-              {#if $errors.capacityThresholdGreen}<span class="text-xs text-destructive">{$errors.capacityThresholdGreen}</span>{/if}
-              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.green']()}</p>
-            </div>
-            <div class="space-y-2">
-              <label for="threshold-amber" class="text-sm font-medium">{m['adminSettings.threshold.label.amber']()}</label>
+                class="font-mono" />
+            </FormField>
+            <FormField label={m['adminSettings.threshold.label.amber']()} for="threshold-amber" error={$errors.capacityThresholdAmber} hint={m['adminSettings.threshold.hint.amber']()}>
               <Input
                 id="threshold-amber"
                 type="number"
                 min="1"
                 max="100"
                 bind:value={$form.capacityThresholdAmber}
-                class="h-12 font-mono"
-              />
-              {#if $errors.capacityThresholdAmber}<span class="text-xs text-destructive">{$errors.capacityThresholdAmber}</span>{/if}
-              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.amber']()}</p>
-            </div>
-            <div class="space-y-2">
-              <label for="threshold-atrisk" class="text-sm font-medium">{m['adminSettings.threshold.label.atRisk']()}</label>
+                class="font-mono" />
+            </FormField>
+            <FormField label={m['adminSettings.threshold.label.atRisk']()} for="threshold-atrisk" error={$errors.atRiskDaysThreshold} hint={m['adminSettings.threshold.hint.atRisk']()}>
               <Input
                 id="threshold-atrisk"
                 type="number"
                 min="1"
                 bind:value={$form.atRiskDaysThreshold}
-                class="h-12 font-mono"
-              />
-              {#if $errors.atRiskDaysThreshold}<span class="text-xs text-destructive">{$errors.atRiskDaysThreshold}</span>{/if}
-              <p class="text-xs text-muted-foreground">{m['adminSettings.threshold.hint.atRisk']()}</p>
-            </div>
+                class="font-mono" />
+            </FormField>
           </div>
         </Card.Content>
       </Card.Root>
 
       <div class="flex justify-end gap-4 pt-4">
-        <Button
+        <Button size="touch-lg"
           variant="outline"
           type="button"
-          class="h-12 px-6 touch-manipulation font-medium"
+          class="px-6 font-medium"
           href="/dashboard"
         >
           {m['common.cancel']()}
         </Button>
-        <Button
+        <Button size="touch-lg"
           type="submit"
           disabled={isSaving}
-          class="h-12 px-8 touch-manipulation font-medium shadow-sm"
+          class="px-8 font-medium shadow-sm"
         >
           {isSaving ? m['adminSettings.button.saving']() : m['adminSettings.button.save']()}
         </Button>
       </div>
     </form>
   {/if}
-</div>
+</PageContainer>

@@ -27,6 +27,8 @@
 	--success-foreground: oklch(0.145 0 0);
 	--success-muted: oklch(0.948 0.052 162);
 	--success-text: oklch(0.37 0.12 162);
+	--success-strong: oklch(0.52 0.12 160);
+	--success-strong-foreground: oklch(0.985 0 0);
 	--warning: oklch(0.75 0.15 75);
 	--warning-foreground: oklch(0.145 0 0);
 	--warning-muted: oklch(0.97 0.05 90);
@@ -39,8 +41,8 @@
 	--destructive-text: oklch(0.4 0.15 25);
 	--success-background: var(--success-muted);
 	--success-background-foreground: var(--success-text);
-	--success-emphasis: var(--success);
-	--success-emphasis-foreground: var(--success-foreground);
+	--success-emphasis: var(--success-strong);
+	--success-emphasis-foreground: var(--success-strong-foreground);
 	--success-border: color-mix(in oklch, var(--success-emphasis) 30%, transparent);
 	--warning-background: var(--warning-muted);
 	--warning-background-foreground: var(--warning-text);
@@ -96,6 +98,8 @@
 	--success-foreground: oklch(0.145 0 0);
 	--success-muted: oklch(0.25 0.06 162);
 	--success-text: oklch(0.85 0.12 162);
+	--success-strong: var(--success);
+	--success-strong-foreground: var(--success-foreground);
 	--warning: oklch(0.80 0.14 75);
 	--warning-foreground: oklch(0.145 0 0);
 	--warning-muted: oklch(0.26 0.05 90);
@@ -276,49 +280,6 @@
 	}
 }
 
-@layer components {
-	.status-badge {
-		@apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide border border-border/50 shadow-sm transition-colors;
-		
-		&[data-status="PENDING"] {
-			@apply bg-warning-muted text-warning-text border-warning/20;
-		}
-		&[data-status="RECEIVED"], &[data-status="IN_PROGRESS"] {
-			@apply bg-info-muted text-info-text border-info/20;
-		}
-		&[data-status="READY"] {
-			@apply bg-success-muted text-success-text border-success/20;
-		}
-		&[data-status="DELIVERED"] {
-			@apply bg-muted text-muted-foreground border-border;
-		}
-		&[data-status="CANCELLED"] {
-			@apply bg-destructive-muted text-destructive-text border-destructive/20;
-		}
-		&[data-status="PAID"] {
-			@apply bg-success-muted text-success-text border-success/20;
-		}
-		&[data-status="UNPAID"] {
-			@apply bg-destructive-muted text-destructive-text border-destructive/20;
-		}
-	}
-
-	.checkbox-custom {
-		@apply relative w-6 h-6 border-2 border-border rounded appearance-none checked:bg-primary checked:border-primary shrink-0 flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none after:content-['✓'] after:text-primary-foreground after:font-bold after:hidden checked:after:block after:text-sm;
-	}
-
-	/* Keep the box visually compact but give it a 44px touch target. */
-	.checkbox-custom::before {
-		content: '';
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		translate: -50% -50%;
-		width: 44px;
-		height: 44px;
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
@@ -327,11 +288,5 @@
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
-	}
-
-	/* Neutralise the hover/press scaling used on nav tiles and cards. */
-	.hover\:scale-105:hover,
-	.active\:scale-95:active {
-		scale: 1 !important;
 	}
 }

@@ -1,19 +1,17 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import * as m from '$lib/paraglide/messages';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from '@lucide/svelte';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { GarmentTypeResponse } from '$lib/types/dtos';
 
-  const mobile = useIsMobile();
 
   import GarmentDialog from '$lib/components/catalog/garment-dialog.svelte';
 
@@ -77,61 +75,36 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m["catalog.garments.title"]()}</h1>
-      <p class="text-muted-foreground">{m["catalog.garments.description"]()}</p>
-    </div>
-    {#if isAdmin}
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">{m["catalog.garments.addButton"]()}</Button>
-    {/if}
-  </div>
-
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet garmentActions(row: Row<GarmentTypeResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m["common.edit"]()}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-          onclick={() => handleDeleteClick(row.original)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
+<PageContainer>
+  <PageHeader
+    title={m["catalog.garments.title"]()}
+    description={m["catalog.garments.description"]()}
+  >
+    {#snippet actions()}
+      {#if isAdmin}
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto"><PlusIcon data-icon="inline-start" />{m["catalog.garments.addButton"]()}</Button>
+      {/if}
     {/snippet}
+  </PageHeader>
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={garments}
-        {loading}
-        emptyMessage={m["catalog.garments.emptyMessage"]()}
-        filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
-        actionCell={garmentActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={garments}
-        {loading}
-        emptyMessage={m["catalog.garments.emptyMessage"]()}
-        filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
-        actionCell={garmentActions}
-      />
-    {/if}
-  </div>
+
+  <Card.Root class="p-4">
+    
+
+    <ResponsiveDataView
+      {columns}
+      data={garments}
+      {loading}
+      emptyMessage={m["catalog.garments.emptyMessage"]()}
+      filterPlaceholder={m["catalog.garments.searchPlaceholder"]()}
+      actionCell={garmentActions}
+    />
+  </Card.Root>
 
   <GarmentDialog item={editingGarment} onClose={() => editingGarment = null} onSuccess={handleFormSuccess} />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet garmentActions(row: Row<GarmentTypeResponse>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => handleDeleteClick(row.original)} />
+{/snippet}

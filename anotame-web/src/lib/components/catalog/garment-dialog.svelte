@@ -1,13 +1,13 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
-  import { Button } from '$lib/components/ui/button';
+  import { cn } from '$lib/utils';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from '@lucide/svelte';
   import { apiService, API_CATALOG, ApiValidationError } from '$lib/services/api.svelte';
   import { isApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  
   import { superForm, defaults, setError } from 'sveltekit-superforms';
   import * as m from '$lib/paraglide/messages';
   import { zod4 } from 'sveltekit-superforms/adapters';
@@ -21,11 +21,13 @@
     description: z.string().trim().optional().or(z.literal(''))
   });
 
-  let { item, onClose, onSuccess } = $props<{
+  interface Props {
     item: any | null;
     onClose: () => void;
     onSuccess?: () => void;
-  }>();
+  }
+
+  let { item, onClose, onSuccess }: Props = $props();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
@@ -94,7 +96,7 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{item?.id ? m['garmentDialog.title.edit']() : m['garmentDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
@@ -107,7 +109,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['garmentDialog.label.name']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.name']()} bind:value={$form.name} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -119,7 +121,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['garmentDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.description']()} bind:value={$form.description} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -127,12 +129,12 @@
       </Form.Field>
 
       <Dialog.Footer class="pt-4">
-        <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
+        <Dialog.Close class={cn(buttonVariants({ variant: 'outline', size: 'touch-lg' }), 'w-full sm:w-auto')}>
           {m['common.cancel']()}
         </Dialog.Close>
-        <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
+        <Button size="touch-lg" type="submit" disabled={isSubmitting} class="w-full sm:w-auto px-6">
           {#if isSubmitting}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m['common.saving']()}
           {:else}
             {m['common.save']()}

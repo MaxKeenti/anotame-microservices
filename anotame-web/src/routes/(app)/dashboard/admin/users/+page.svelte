@@ -1,18 +1,16 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import { apiService, API_IDENTITY } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { UserResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
-  const mobile = useIsMobile();
 
   import UserDialog from '$lib/components/users/user-dialog.svelte';
 
@@ -78,61 +76,32 @@
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h1 class="text-3xl font-heading font-bold text-foreground">{m['nav.users.name']()}</h1>
-        <p class="text-muted-foreground">{m['users.page.desc']()}</p>
-      </div>
-      <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 shadow-sm touch-manipulation">
+<PageContainer>
+    <PageHeader
+      title={m['nav.users.name']()}
+      description={m['users.page.desc']()}
+    >
+      {#snippet actions()}
+        <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto">
+        <PlusIcon data-icon="inline-start" />
         {m['users.button.new']()}
-      </Button>
-    </div>
-
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet userActions(row: Row<UserResponse>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m['common.edit']()}
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-          onclick={() => handleDeleteClick(row.original)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m['common.delete']()}
-        </Button>
-      </div>
-    {/snippet}
+      {/snippet}
+    </PageHeader>
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={users}
-        {loading}
-        emptyMessage={m['common.noData']()}
-        filterPlaceholder={m['common.searchEllipsis']()}
-        actionCell={userActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={users}
-        {loading}
-        emptyMessage={m['common.noData']()}
-        filterPlaceholder={m['common.searchEllipsis']()}
-        actionCell={userActions}
-      />
-    {/if}
-  </div>
+
+  <Card.Root class="p-4">
+    
+
+    <ResponsiveDataView
+      {columns}
+      data={users}
+      {loading}
+      emptyMessage={m['common.noData']()}
+      filterPlaceholder={m['common.searchEllipsis']()}
+      actionCell={userActions}
+    />
+  </Card.Root>
 
   <UserDialog
     item={editingUser}
@@ -140,4 +109,9 @@
     onClose={() => editingUser = null}
     onSuccess={handleFormSuccess}
   />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet userActions(row: Row<UserResponse>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => handleDeleteClick(row.original)} />
+{/snippet}

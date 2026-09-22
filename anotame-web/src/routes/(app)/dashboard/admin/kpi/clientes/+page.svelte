@@ -1,5 +1,6 @@
 <script lang="ts">
-  import FinancialKpiPanel from '$lib/components/dashboard/FinancialKpiPanel.svelte';
+  import FinancialKpiPanel from '$lib/components/dashboard/financial-kpi-panel.svelte';
+  import { LeadText, StatePanel } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
   import { getKpiDashboard } from '../kpiContext';
 
@@ -7,14 +8,10 @@
 </script>
 
 {#if dashboard.isLoading}
-  <div class="flex h-64 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
-    {m['kpi.loading']()}
-  </div>
+  <StatePanel message={m['kpi.loading']()} />
 {:else}
   <div class="space-y-6">
-    <p class="max-w-3xl text-sm text-muted-foreground">
-      {m['kpi.section.customersDesc']()}
-    </p>
+    <LeadText text={m['kpi.section.customersDesc']()} />
 
     <FinancialKpiPanel atRiskDaysThreshold={dashboard.atRiskDaysThreshold} />
   </div>

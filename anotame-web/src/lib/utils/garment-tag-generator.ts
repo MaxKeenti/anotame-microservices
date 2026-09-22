@@ -1,15 +1,6 @@
 import * as m from '$lib/paraglide/messages';
-import { getLocale } from '$lib/paraglide/runtime';
+import { getIntlLocale } from '$lib/utils/formatUtils';
 import { escapeHtml } from '$lib/utils/html';
-
-const localeMap: Record<string, string> = {
-  es: 'es-MX',
-  en: 'en-US',
-};
-
-function getIntlLocale(): string {
-  return localeMap[getLocale()] ?? 'es-MX';
-}
 
 export interface GarmentTag {
   ticketNumber: string;

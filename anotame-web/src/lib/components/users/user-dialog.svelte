@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import { onMount, untrack } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
-  import { Button } from '$lib/components/ui/button';
+  import { cn } from '$lib/utils';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from '@lucide/svelte';
+  import { FormField } from '$lib/components/common';
   import { apiService, API_IDENTITY, ApiValidationError } from '$lib/services/api.svelte';
   import { toast } from 'svelte-sonner';
 
@@ -24,12 +26,14 @@
     email: z.string().email(m['userDialog.zod.emailInvalid']()),
   });
 
-  let { item, onClose, onSuccess, id: formId = 'user-dialog' } = $props<{
+  interface Props {
     item: any | null;
     onClose: () => void;
     onSuccess?: () => void;
     id?: string;
-  }>();
+  }
+
+  let { item, onClose, onSuccess, id: formId = 'user-dialog' }: Props = $props();
 
   const open = $derived(item !== null);
   let isSubmitting = $state(false);
@@ -124,7 +128,7 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{$form.id ? m['userDialog.title.edit']() : m['userDialog.title.new']()}</Dialog.Title>
       <Dialog.Description>
@@ -134,12 +138,9 @@
     <form method="POST" use:enhance class="space-y-4 py-4">
       {#if $form.id}
         <!-- Username: read-only -->
-        <div class="space-y-2">
-          <Form.Label>{m['common.user']()}</Form.Label>
-          <div id="u-username" class="flex h-12 w-full items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
-            {$form.username}
-          </div>
-        </div>
+        <FormField label={m['common.user']()} for="u-username">
+          <Input id="u-username" value={$form.username} readonly class="bg-muted text-muted-foreground" />
+        </FormField>
       {:else}
         <!-- Username input for creation -->
         <Form.Field form={superform} name="username">
@@ -147,7 +148,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['userDialog.label.username']()} <span class="text-destructive">*</span></Form.Label>
-                <Input {...props} {...constraints} bind:value={$form.username} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.username} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -160,7 +161,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['userDialog.label.password']()} <span class="text-destructive">*</span></Form.Label>
-                <Input {...props} {...constraints} type="password" bind:value={$form.password} class="h-12" />
+                <Input {...props} {...constraints} type="password" bind:value={$form.password} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -190,7 +191,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['common.firstName']()}</Form.Label>
-                <Input {...props} {...constraints} bind:value={$form.firstName} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.firstName} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -201,7 +202,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['common.lastName']()}</Form.Label>
-                <Input {...props} {...constraints} bind:value={$form.lastName} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.lastName} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -214,7 +215,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['userDialog.label.email']()}</Form.Label>
-              <Input {...props} {...constraints} type="email" bind:value={$form.email} class="h-12" />
+              <Input {...props} {...constraints} type="email" bind:value={$form.email} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -222,12 +223,12 @@
       </Form.Field>
 
       <Dialog.Footer class="pt-4">
-        <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
+        <Dialog.Close class={cn(buttonVariants({ variant: 'outline', size: 'touch-lg' }), 'w-full sm:w-auto')}>
           {m['common.cancel']()}
         </Dialog.Close>
-        <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
+        <Button size="touch-lg" type="submit" disabled={isSubmitting} class="w-full sm:w-auto px-6">
           {#if isSubmitting}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m['common.saving']()}
           {:else}
             {$form.id ? m['common.saveChanges']() : m['common.save']()}

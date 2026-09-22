@@ -1,15 +1,6 @@
 import * as m from '$lib/paraglide/messages';
-import { getLocale } from '$lib/paraglide/runtime';
+import { formatCurrency, getIntlLocale } from '$lib/utils/formatUtils';
 import { escapeHtml } from '$lib/utils/html';
-
-const localeMap: Record<string, string> = {
-  es: 'es-MX',
-  en: 'en-US',
-};
-
-function getIntlLocale(): string {
-  return localeMap[getLocale()] ?? 'es-MX';
-}
 
 export const generateReceiptHtml = (data: {
   ticketNumber: string;
@@ -109,7 +100,7 @@ export const generateReceiptHtml = (data: {
         ${item.services.map(service => `
             <div class="row" style="padding-left: 5px;">
                 <span style="flex: 1; margin-right: 2px;">+ ${escapeHtml(service.name)}</span>
-                <span>$${(service.price + (service.adjustment || 0)).toFixed(2)}</span>
+                <span>${formatCurrency(service.price + (service.adjustment || 0))}</span>
             </div>
             ${service.adjustment ? `<div style="padding-left: 10px; font-size: 10px; font-style: italic;">${m["receipt.adjustment"]()}: ${service.adjustment > 0 ? '+' : ''}${service.adjustment} (${escapeHtml(service.adjustmentReason)})</div>` : ''}
             ${service.instructions ? `<div class="item-detail">${escapeHtml(service.instructions)}</div>` : ''}
@@ -122,15 +113,15 @@ export const generateReceiptHtml = (data: {
   <div class="section totals">
     <div class="row">
       <span>${m["receipt.total"]()}:</span>
-      <span>$${data.total.toFixed(2)}</span>
+      <span>${formatCurrency(data.total)}</span>
     </div>
     <div class="row">
       <span>${m["receipt.deposit"]()}:</span>
-      <span>$${data.amountPaid.toFixed(2)}</span>
+      <span>${formatCurrency(data.amountPaid)}</span>
     </div>
     <div class="row" style="font-size: 14px;">
       <span>${m["receipt.remaining"]()}:</span>
-      <span>$${data.balance.toFixed(2)}</span>
+      <span>${formatCurrency(data.balance)}</span>
     </div>
   </div>
 

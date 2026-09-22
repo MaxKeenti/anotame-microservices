@@ -7,6 +7,8 @@
 			variant: {
 				default: "cn-tabs-list-variant-default bg-muted",
 				line: "cn-tabs-list-variant-line gap-1 bg-transparent",
+				/** Framed page-level switcher with roomy, bold triggers. */
+				bordered: "bg-muted border border-border/50 shadow-sm *:data-[slot=tabs-trigger]:px-6 *:data-[slot=tabs-trigger]:font-bold",
 			},
 		},
 		defaultVariants: {

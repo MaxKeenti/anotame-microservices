@@ -1,15 +1,18 @@
 <script lang="ts">
+  import CheckboxField from '$lib/components/common/checkbox-field.svelte';
+  import * as Card from '$lib/components/ui/card';
+  import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
+  import * as InputOTP from '$lib/components/ui/input-otp';
+  import { REGEXP_ONLY_DIGITS } from 'bits-ui';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
-  import { CreditCard, DollarSign, Wallet } from '@lucide/svelte';
+  import PaymentMethodPicker, { type PaymentMethod } from '$lib/components/common/payment-method-picker.svelte';
   import * as m from '$lib/paraglide/messages';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
-  type PaymentMethod = 'CASH' | 'CARD' | 'TRANSFER';
 
   type Props = {
     open: boolean;
@@ -47,11 +50,6 @@
     }
   });
 
-  function handleInput(e: Event) {
-    const target = e.target as HTMLInputElement;
-    pickupCode = target.value.replace(/\D/g, '').slice(0, 6);
-    errorMessage = '';
-  }
 
   function reset() {
     pickupCode = '';
@@ -98,7 +96,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={(v) => { if (!v) handleClose(); }}>
-  <Dialog.Content class="sm:max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{m["orders.pickup.title"]()}</Dialog.Title>
       <Dialog.Description>
@@ -107,97 +105,68 @@
     </Dialog.Header>
 
     <div class="space-y-4 py-2">
-      <Input
+      <InputOTP.Root
         id="pickup-code-input"
-        type="text"
-        inputmode="numeric"
         maxlength={6}
-        pattern="[0-9]{6}"
-        placeholder="000000"
+        pattern={REGEXP_ONLY_DIGITS}
+        inputmode="numeric"
+        autocomplete="one-time-code"
         aria-label={m["orders.pickup.ariaLabel"]()}
         aria-describedby={errorMessage ? 'pickup-code-error' : undefined}
-        value={pickupCode}
-        oninput={handleInput}
-        class="text-center text-2xl tracking-widest font-mono h-14 touch-manipulation ring-primary focus-visible:ring-primary"
-        autocomplete="off"
-      />
+        aria-invalid={errorMessage ? true : undefined}
+        bind:value={pickupCode}
+        onValueChange={() => (errorMessage = '')}
+        class="justify-center"
+      >
+        {#snippet children({ cells })}
+          <InputOTP.Group>
+            {#each cells as cell, i (i)}
+              <InputOTP.Slot {cell} class="size-12 font-mono text-2xl" />
+            {/each}
+          </InputOTP.Group>
+        {/snippet}
+      </InputOTP.Root>
       {#if errorMessage}
         <p id="pickup-code-error" class="text-sm text-destructive" role="alert">{errorMessage}</p>
       {/if}
 
       {#if hasRemainingBalance}
-        <div class="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+        <Card.Root tone="muted" size="sm" class="gap-3">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p class="text-sm font-medium text-muted-foreground">
                 {m["orders.pickup.remainingBalance"]()}
               </p>
-              <p class="text-xl font-bold text-destructive">
+              <Text variant="metric" size="sm" class="text-destructive">
                 {formatCurrency(remainingBalance)}
-              </p>
+              </Text>
             </div>
 
-            <label for="pickup-mark-fully-paid" class="flex items-center gap-3 cursor-pointer touch-manipulation">
-              <input
-                id="pickup-mark-fully-paid"
-                type="checkbox"
-                class="checkbox-custom"
-                bind:checked={markFullyPaid}
-                disabled={submitting}
-              />
-              <span class="text-sm font-semibold">{m["orders.pickup.markFullyPaid"]()}</span>
-            </label>
+            <CheckboxField
+              id="pickup-mark-fully-paid"
+              label={m["orders.pickup.markFullyPaid"]()}
+              bind:checked={markFullyPaid}
+              disabled={submitting}
+            />
           </div>
 
           {#if markFullyPaid}
             <div class="space-y-2">
               <p class="text-sm font-medium">{m["orders.pickup.paymentMethod"]()}</p>
-              <div class="grid grid-cols-3 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={submitting}
-                  onclick={() => paymentMethod = 'CASH'}
-                  class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'CASH' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-                >
-                  <DollarSign class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center break-words">{m["orders.detail.paymentCash"]()}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={submitting}
-                  onclick={() => paymentMethod = 'CARD'}
-                  class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'CARD' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-                >
-                  <CreditCard class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center break-words">{m["orders.detail.paymentCard"]()}</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={submitting}
-                  onclick={() => paymentMethod = 'TRANSFER'}
-                  class={`h-auto min-h-16 flex flex-col items-center justify-center px-2 py-3 rounded-lg border-2 transition-all ${paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary' : 'border-border'}`}
-                >
-                  <Wallet class="w-5 h-5 mb-1" />
-                  <span class="text-xs font-semibold leading-tight text-center break-words">{m["orders.detail.paymentTransfer"]()}</span>
-                </Button>
-              </div>
+              <PaymentMethodPicker bind:value={paymentMethod} label={m["orders.pickup.paymentMethod"]()} disabled={submitting} />
             </div>
           {/if}
-        </div>
+        </Card.Root>
       {/if}
     </div>
 
     <Dialog.Footer class="gap-2">
-      <Button variant="outline" onclick={handleClose} class="h-12 touch-manipulation">
+      <Button size="touch-lg" variant="outline" onclick={handleClose}>
         {m["common.cancel"]()}
       </Button>
-      <Button
+      <Button size="touch-lg"
         onclick={handleSubmit}
         disabled={!isValid || submitting}
-        class="h-12 touch-manipulation"
       >
         {submitting ? m["orders.pickup.confirming"]() : m["orders.pickup.confirmDelivery"]()}
       </Button>

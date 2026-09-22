@@ -95,7 +95,13 @@ class ApiService {
       }
 
       // Throw ApiError with status code so catch blocks can check error.status / error.errorCode
-      throw new ApiError(backendMessage, response.status, errorData, errorCode);
+      throw new ApiError(
+        backendMessage,
+        response.status,
+        errorData,
+        errorCode,
+        response.headers.get("X-Request-Id") ?? undefined,
+      );
     }
 
     // Handle empty responses

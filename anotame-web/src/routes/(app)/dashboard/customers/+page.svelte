@@ -1,20 +1,18 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
+  import * as Card from '$lib/components/ui/card';
   import { apiService, API_SALES } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Edit, Trash2 } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { CustomerDto } from '$lib/types/dtos';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
-  import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
+  import { PageHeader, ResponsiveDataView, PageContainer, RowActions } from '$lib/components/common';
   import * as m from '$lib/paraglide/messages';
 
   import CustomerDialog from '$lib/components/customers/customer-dialog.svelte';
 
-  const mobile = useIsMobile();
 
   type CustomerEditorItem = Omit<Partial<CustomerDto>, 'id'> & { id?: string | null };
 
@@ -76,61 +74,35 @@
   }
 </script>
 
-<div class="space-y-3">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-bold text-foreground">{m["customers.page.title"]()}</h1>
-      <p class="text-muted-foreground">{m["customers.page.subtitle"]()}</p>
-    </div>
-    <Button onclick={handleCreateClick} class="w-full sm:w-auto h-12 touch-manipulation">{m["customers.button.new"]()}</Button>
-  </div>
-
-  <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-    {#snippet customerActions(row: Row<CustomerDto>)}
-      <div class="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 touch-manipulation font-medium"
-          onclick={() => handleEditClick(row.original)}
-        >
-          <Edit class="w-4 h-4 mr-2" />
-          {m["common.edit"]()}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          class="h-11 px-4 text-destructive hover:text-destructive/90 touch-manipulation font-medium"
-          onclick={() => row.original.id && handleDeleteClick(row.original.id)}
-        >
-          <Trash2 class="w-4 h-4 mr-2" />
-          {m["common.delete"]()}
-        </Button>
-      </div>
+<PageContainer>
+  <PageHeader
+    title={m["customers.page.title"]()}
+    description={m["customers.page.subtitle"]()}
+  >
+    {#snippet actions()}
+      <Button size="touch-lg" onclick={handleCreateClick} class="w-full sm:w-auto"><PlusIcon data-icon="inline-start" />{m["customers.button.new"]()}</Button>
     {/snippet}
+  </PageHeader>
 
-    {#if mobile.current}
-      <CardGridWrapper
-        {columns}
-        data={customers}
-        loading={loading}
-        emptyMessage={m["customers.empty"]()}
-        filterPlaceholder={m["customers.filter.placeholder"]()}
-        showFilter={true}
-        actionCell={customerActions}
-      />
-    {:else}
-      <DataTableWrapper
-        {columns}
-        data={customers}
-        loading={loading}
-        emptyMessage={m["customers.empty"]()}
-        filterPlaceholder={m["customers.filter.placeholder"]()}
-        showFilter={true}
-        actionCell={customerActions}
-      />
-    {/if}
-  </div>
+
+  <Card.Root class="p-4">
+    
+
+    <ResponsiveDataView
+      {columns}
+      data={customers}
+      loading={loading}
+      emptyMessage={m["customers.empty"]()}
+      filterPlaceholder={m["customers.filter.placeholder"]()}
+      showFilter={true}
+      actionCell={customerActions}
+    />
+  </Card.Root>
 
   <CustomerDialog item={editingCustomer} onClose={() => editingCustomer = null} onSuccess={handleFormSuccess} />
-</div>
+</PageContainer>
+
+<!-- Row actions shared by the table and card views. -->
+{#snippet customerActions(row: Row<CustomerDto>)}
+  <RowActions onEdit={() => handleEditClick(row.original)} onDelete={() => row.original.id && handleDeleteClick(row.original.id)} />
+{/snippet}

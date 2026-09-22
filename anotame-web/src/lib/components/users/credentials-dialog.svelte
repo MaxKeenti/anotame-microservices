@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { Spinner } from '$lib/components/ui/spinner';
   import { untrack } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
-  import { Button } from '$lib/components/ui/button';
+  import { cn } from '$lib/utils';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import { Loader2 } from '@lucide/svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { ApiError } from '$lib/services/ApiError';
   import { toast } from 'svelte-sonner';
@@ -47,17 +48,19 @@
     }
   });
 
+  interface Props {
+    open: boolean;
+    onClose: () => void;
+    onSuccess?: () => void;
+    id?: string;
+  }
+
   let {
     open = $bindable(false),
     onClose,
     onSuccess,
     id: formId = 'credentials-dialog',
-  } = $props<{
-    open: boolean;
-    onClose: () => void;
-    onSuccess?: () => void;
-    id?: string;
-  }>();
+  }: Props = $props();
 
   let isSubmitting = $state(false);
   let wasOpen = $state(false);
@@ -112,7 +115,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={handleOpenChange}>
-  <Dialog.Content class="max-w-md">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{m['credentials.dialog.title']()}</Dialog.Title>
       <Dialog.Description>
@@ -132,9 +135,7 @@
                 id="credentials-current-password"
                 type="password"
                 autocomplete="current-password"
-                bind:value={$form.currentPassword}
-                class="h-12"
-              />
+                bind:value={$form.currentPassword} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -153,9 +154,7 @@
                 type="text"
                 autocomplete="username"
                 placeholder={authService.user?.username || m['common.user']()}
-                bind:value={$form.newUsername}
-                class="h-12"
-              />
+                bind:value={$form.newUsername} />
             {/snippet}
           </Form.Control>
           <Form.Description>{m['credentials.hint.blankUsername']()}</Form.Description>
@@ -174,9 +173,7 @@
                 id="credentials-new-password"
                 type="password"
                 autocomplete="new-password"
-                bind:value={$form.newPassword}
-                class="h-12"
-              />
+                bind:value={$form.newPassword} />
             {/snippet}
           </Form.Control>
           <Form.Description>{m['credentials.hint.passwordLength']()}</Form.Description>
@@ -195,9 +192,7 @@
                 id="credentials-confirm-password"
                 type="password"
                 autocomplete="new-password"
-                bind:value={$form.confirmPassword}
-                class="h-12"
-              />
+                bind:value={$form.confirmPassword} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -205,12 +200,12 @@
       </Form.Field>
 
       <Dialog.Footer class="pt-4">
-        <Dialog.Close class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 w-full sm:w-auto px-6 mt-2 sm:mt-0">
+        <Dialog.Close class={cn(buttonVariants({ variant: 'outline', size: 'touch-lg' }), 'w-full sm:w-auto')}>
           {m['common.cancel']()}
         </Dialog.Close>
-        <Button type="submit" disabled={isSubmitting} class="h-12 w-full sm:w-auto px-6">
+        <Button size="touch-lg" type="submit" disabled={isSubmitting} class="w-full sm:w-auto px-6">
           {#if isSubmitting}
-            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+            <Spinner data-icon="inline-start" aria-hidden="true" />
             {m['common.saving']()}
           {:else}
             {m['credentials.button.save']()}

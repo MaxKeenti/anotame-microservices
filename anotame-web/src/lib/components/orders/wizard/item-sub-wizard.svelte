@@ -1,11 +1,21 @@
 <script lang="ts">
+    import { FormField } from '$lib/components/common';
+    import { Slider } from '$lib/components/ui/slider';
+    import * as Card from '$lib/components/ui/card';
+    import IconMedallion from '$lib/components/common/icon-medallion.svelte';
+    import { formatCurrency } from '$lib/utils/formatUtils';
+    import * as Item from '$lib/components/ui/item';
+    import * as ButtonGroup from '$lib/components/ui/button-group';
+    import * as InputGroup from '$lib/components/ui/input-group';
+    import { Badge } from '$lib/components/ui/badge';
+	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount } from 'svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import { apiService, API_CATALOG } from '$lib/services/api.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { ArrowLeft, CheckCircle2, Pencil, Plus, X } from '@lucide/svelte';
+	import { ArrowLeft, CheckCircle2, Clock, Pencil, Plus, Shirt, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages';
 	import type { GarmentTypeResponse, OrderContentSource, ServiceResponse } from '$lib/types/dtos';
@@ -28,11 +38,13 @@
 		effectivePrice?: number;
 	};
 
-	let props = $props<{
-		initialItem?: DraftOrderItem,
-		onSave: (item: DraftOrderItem) => void,
-		onCancel: () => void
-	}>();
+	interface Props {
+		initialItem?: DraftOrderItem;
+		onSave: (item: DraftOrderItem) => void;
+		onCancel: () => void;
+	}
+
+	let props: Props = $props();
 
 	function getInitialStep() {
 		return props.initialItem ? 1 : 0;
@@ -376,7 +388,7 @@
         <!-- Header -->
         <div class="flex items-center gap-4 border-b border-border pb-4 mb-4">
             {#if step > 0}
-                <Button variant="ghost" size="sm" class="px-2 h-12 w-12 touch-manipulation" onclick={() => {
+                <Button variant="ghost" size="icon-touch" aria-label={m['orders.detail.back']()} onclick={() => {
                     if (step === 2) { editingServiceIndex = -1; step = 1; }
                     else if (step === 3) step = 1;
                     else if (step === 1) step = 0;
@@ -384,51 +396,46 @@
                     <ArrowLeft class="w-6 h-6" />
                 </Button>
             {/if}
-            <h3 class="text-xl font-bold truncate">
+            <Heading level={2} as="h3" class="truncate">
                 {#if step === 0} {m['orders.wizard.stepSelectGarment']()}
                 {:else if step === 1} {m['orders.wizard.stepAddServices']()}
                 {:else if step === 2} {m['orders.wizard.stepConfigureService']()}
                 {:else} {m['orders.wizard.stepGarmentNotes']()} {/if}
-            </h3>
-            <Button variant="ghost" size="sm" class="ml-auto text-destructive hover:bg-destructive/10 h-11 px-4 touch-manipulation" onclick={props.onCancel}>{m['common.cancel']()}</Button>
+            </Heading>
+            <Button variant="destructive" size="touch" class="ml-auto px-4" onclick={props.onCancel}>{m['common.cancel']()}</Button>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-1 custom-scrollbar">
+        <div class="flex-1 px-1">
             <!-- STEP 0 -->
             {#if step === 0}
                 <div class="space-y-4">
                     {#if showCustomGarmentForm}
-                        <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 space-y-4">
-                            <div class="space-y-2">
-                                <label class="font-medium" for="custom-garment-name">{m['itemSubWizard.customGarment.nameLabel']()}</label>
-                                <Input
+                        <Card.Root tone="highlight" class="py-5 px-5 gap-4">
+                            <FormField label={m['itemSubWizard.customGarment.nameLabel']()} for="custom-garment-name">
+                                <Input inputSize="lg"
                                     id="custom-garment-name"
-                                    class="h-14 text-lg rounded-xl"
                                     placeholder={m['itemSubWizard.customGarment.namePlaceholder']()}
-                                    bind:value={customGarmentName}
-                                />
-                            </div>
-                            <Button class="w-full h-14 rounded-xl touch-manipulation" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
+                                    bind:value={customGarmentName} />
+                            </FormField>
+                            <Button size="xl" class="w-full" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
                                 {m['itemSubWizard.customGarment.continue']()}
                             </Button>
-                        </div>
+                        </Card.Root>
                     {/if}
 
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         <Button
                             variant="outline"
-                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal touch-manipulation py-3"
-                            onclick={() => showCustomGarmentForm = !showCustomGarmentForm}
-                        >
+                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal py-3"
+                            onclick={() => showCustomGarmentForm = !showCustomGarmentForm}>
                             <Plus class="w-7 h-7" />
                             <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight">{m['itemSubWizard.customGarment.action']()}</span>
                         </Button>
                         {#each garmentTypes as g}
                             <Button
                                 variant="outline"
-                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal touch-manipulation py-3"
-                                onclick={() => handleGarmentSelect(g)}
-                            >
+                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal py-3"
+                                onclick={() => handleGarmentSelect(g)}>
                                 <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
                                 {#if g.description}
                                     <span class="text-xs text-muted-foreground text-center px-2 leading-snug w-full line-clamp-2">{g.description}</span>
@@ -442,69 +449,69 @@
             <!-- STEP 1 -->
             {#if step === 1 && selectedGarment}
                 <div class="space-y-6">
-                    <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
-                        <div class="w-14 h-14 bg-background rounded-full flex items-center justify-center text-3xl shadow-sm">👕</div>
+                    <Card.Root tone="muted" class="flex-row items-center gap-4">
+                        <IconMedallion tone="surface" size="md"><Shirt /></IconMedallion>
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="font-bold text-2xl">{selectedGarment.name}</div>
                                 {#if selectedGarment.source === 'CUSTOM'}
-                                    <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                    <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                 {/if}
                             </div>
                             {#if selectedGarment.description}
                                 <div class="text-sm text-muted-foreground mt-0.5">{selectedGarment.description}</div>
                             {/if}
                         </div>
-                    </div>
+                    </Card.Root>
 
                     {#if addedServices.length > 0}
                         <div class="space-y-3">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.servicesAdded']()}</h4>
+                            <Text variant="label" as="h4">{m['orders.wizard.servicesAdded']()}</Text>
                             {#each addedServices as s, idx}
-                                <div class="bg-card border border-border p-4 rounded-lg flex items-center justify-between shadow-sm animate-in slide-in-from-top-2">
-                                    <div>
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <div class="font-medium text-lg">{s.serviceName}</div>
+                                <Item.Root variant="outline" class="animate-in slide-in-from-top-2 bg-card p-4 shadow-sm">
+                                    <Item.Content class="min-w-0">
+                                        <Item.Title class="line-clamp-none flex-wrap text-lg">
+                                            {s.serviceName}
                                             {#if s.source === 'CUSTOM'}
-                                                <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                                <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                                             {/if}
-                                        </div>
-                                        <div class="flex gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
+                                        </Item.Title>
+                                        <div class="flex flex-wrap gap-2 text-xs font-medium uppercase tracking-tight text-muted-foreground">
                                             {#if s.adjustmentReason}
                                                 <span>{m['orders.wizard.adjustmentShort']()} {s.adjustmentReason}</span>
                                             {/if}
-                                            <span>⏱️ {s.durationMin} min</span>
+                                            <span class="inline-flex items-center gap-1"><Clock class="size-3.5" aria-hidden="true" />{s.durationMin} min</span>
                                         </div>
                                         {#if s.instructions}
-                                            <div class="text-sm text-muted-foreground mt-1">{s.instructions}</div>
+                                            <Item.Description class="line-clamp-none">{s.instructions}</Item.Description>
                                         {/if}
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <div class="text-right">
-                                            <div class="font-mono font-bold text-lg">${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)}</div>
-                                        </div>
-                                        <Button variant="ghost" size="icon" class="h-12 w-12 text-muted-foreground hover:bg-secondary touch-manipulation" onclick={() => handleEditService(idx)}>
-                                            <Pencil class="w-5 h-5" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" class="h-12 w-12 text-destructive hover:bg-destructive/10 touch-manipulation" onclick={() => handleRemoveService(idx)}>
-                                            <X class="w-6 h-6" />
-                                        </Button>
-                                    </div>
-                                </div>
+                                    </Item.Content>
+                                    <Item.Actions>
+                                        <Text variant="metric" size="sm" as="span">{formatCurrency(s.unitPrice + (s.adjustmentAmount ?? 0))}</Text>
+                                        <ButtonGroup.Root>
+                                            <Button variant="outline" size="icon-touch" aria-label={m['common.edit']()} onclick={() => handleEditService(idx)}>
+                                                <Pencil class="size-5" />
+                                            </Button>
+                                            <Button variant="destructive-outline" size="icon-touch" aria-label={m['common.delete']()} onclick={() => handleRemoveService(idx)}>
+                                                <X class="size-5" />
+                                            </Button>
+                                        </ButtonGroup.Root>
+                                    </Item.Actions>
+                                </Item.Root>
                             {/each}
                             <div class="text-right font-bold pt-3 border-t text-xl">
-                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: {formatCurrency(addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0))}
                             </div>
                         </div>
                     {/if}
 
                     <div class="space-y-4 pt-4">
                         <div class="flex justify-between items-center">
-                            <h4 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">{m['orders.wizard.addService']()}</h4>
+                            <Text variant="label" as="h4">{m['orders.wizard.addService']()}</Text>
                             {#if selectedGarment.source === 'CATALOG'}
                                 <Button
                                     variant="ghost"
-                                    class="text-sm text-primary underline h-auto p-0 hover:bg-transparent touch-manipulation py-2 px-2"
+                                    class="text-sm text-primary underline h-auto p-0 hover:bg-transparent py-2 px-2"
                                     onclick={() => { showAllServices = !showAllServices; serviceFilter = ""; }}
                                 >
                                     {showAllServices ? m['orders.wizard.viewRecommended']() : m['orders.wizard.viewAll']()}
@@ -514,7 +521,7 @@
 
                         <Button
                             variant="outline"
-                            class="w-full min-h-14 border-dashed border-primary/60 bg-primary/5 hover:bg-primary/10 touch-manipulation"
+                            class="w-full min-h-14 border-dashed border-primary/60 bg-primary/5 hover:bg-primary/10"
                             onclick={handleCustomServiceSelect}
                         >
                             <Plus class="w-5 h-5 mr-2" />
@@ -524,9 +531,7 @@
                         <Input
                             type="search"
                             placeholder={m['orders.wizard.searchServicePlaceholder']()}
-                            class="h-11 rounded-xl"
-                            bind:value={serviceFilter}
-                        />
+                            bind:value={serviceFilter} />
 
                         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {#each visibleServices as s}
@@ -548,17 +553,17 @@
                                         {#if priceListMap.size > 0}
                                             {@const plPrice = priceListMap.get(s.id)}
                                             {#if plPrice !== undefined}
-                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
-                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">${plPrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">{formatCurrency(s.basePrice)}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">{formatCurrency(plPrice)}</span>
                                             {:else}
-                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-muted-foreground">${s.basePrice}</span>
+                                                <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-muted-foreground">{formatCurrency(s.basePrice)}</span>
                                             {/if}
                                         {:else}
                                             {#if s.effectivePrice && s.effectivePrice !== s.basePrice}
-                                                <span class="text-xs text-muted-foreground line-through">${s.basePrice}</span>
+                                                <span class="text-xs text-muted-foreground line-through">{formatCurrency(s.basePrice)}</span>
                                             {/if}
                                             <span class="font-mono bg-secondary px-2 py-0.5 rounded-md text-sm md:text-base font-bold text-primary">
-                                                ${s.effectivePrice ?? s.basePrice}
+                                                {formatCurrency(s.effectivePrice ?? s.basePrice)}
                                             </span>
                                         {/if}
                                     </div>
@@ -576,87 +581,82 @@
 
             <!-- STEP 2 -->
             {#if step === 2 && tempService}
-                <div class="max-w-md mx-auto space-y-8 py-6">
-                    <div class="text-center space-y-2">
-                        {#if tempService.source === 'CUSTOM'}
-                            <div class="space-y-3 text-left">
-                                <label class="text-base font-medium" for="custom-service-name">{m['itemSubWizard.customService.nameLabel']()}</label>
-                                <Input
-                                    id="custom-service-name"
-                                    class="h-14 text-lg rounded-xl"
-                                    placeholder={m['itemSubWizard.customService.namePlaceholder']()}
-                                    bind:value={tempService.name}
-                                />
-                            </div>
-                        {:else}
-                            <h4 class="text-2xl font-bold">{tempService.name}</h4>
+                <div class="space-y-6 py-6">
+                    {#if tempService.source === 'CUSTOM'}
+                        <FormField label={m['itemSubWizard.customService.nameLabel']()} for="custom-service-name">
+                            <Input inputSize="lg"
+                                id="custom-service-name"
+                                placeholder={m['itemSubWizard.customService.namePlaceholder']()}
+                                bind:value={tempService.name} />
+                        </FormField>
+                    {:else}
+                        <div class="space-y-2 text-center md:text-left">
+                            <Heading level={2} as="h4">{tempService.name}</Heading>
                             <p class="text-base text-muted-foreground">{tempService.description}</p>
-                        {/if}
-                    </div>
+                        </div>
+                    {/if}
 
-                    <div class="space-y-3">
-                        <label class="text-base font-medium" for="precio-base">{m['itemSubWizard.label.basePrice']()}</label>
-                        <div class="relative">
-                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground text-2xl">$</span>
-                            <Input
-                                id="precio-base"
-                                type="number"
-                                class="pl-14 h-20 text-4xl font-bold text-center rounded-xl"
-                                bind:value={price}
-                            />
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div class="space-y-6">
+                            <FormField label={m['itemSubWizard.label.basePrice']()} for="precio-base">
+                                <InputGroup.Root class="h-20">
+                                    <InputGroup.Input
+                                        id="precio-base"
+                                        type="number"
+                                        class="text-4xl font-bold text-center"
+                                        bind:value={price}
+                                    />
+                                    <InputGroup.Addon><span class="text-2xl">$</span></InputGroup.Addon>
+                                </InputGroup.Root>
+                            </FormField>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <FormField label={m['itemSubWizard.label.adjustment']()} for="ajuste">
+                                    <Input inputSize="lg"
+                                        id="ajuste"
+                                        type="number"
+                                        class="text-center"
+                                        placeholder={m['itemSubWizard.placeholder.adjustment']()}
+                                        bind:value={adj} />
+                                </FormField>
+                                <FormField label={m['orders.wizard.adjustmentReason']()} for="razon-ajuste">
+                                    <Input inputSize="lg"
+                                        id="razon-ajuste"
+                                        placeholder={m['orders.wizard.reasonPlaceholder']()}
+                                        bind:value={adjReason} />
+                                </FormField>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <Card.Root tone="highlight" size="sm" class="gap-5">
+                                <div class="flex items-center justify-between">
+                                    <span id="duracion-label" class="text-base font-bold text-primary">{m['itemSubWizard.label.effort']()}</span>
+                                    <Text variant="metric" as="span" class="text-primary">{duration}m</Text>
+                                </div>
+                                <Slider
+                                    type="single"
+                                    min={5}
+                                    max={300}
+                                    step={5}
+                                    bind:value={duration}
+                                    aria-labelledby="duracion-label"
+                                    class="py-4 **:data-[slot=slider-thumb]:size-7 **:data-[slot=slider-track]:h-2"
+                                />
+                                <Text variant="small" class="italic text-center">{m['itemSubWizard.effortHint']()}</Text>
+                            </Card.Root>
+
+                            <FormField label={m['itemSubWizard.customService.instructionsLabel']()} for="service-instructions">
+                                <Textarea
+                                    id="service-instructions"
+                                    class="min-h-28 resize-none text-base p-4"
+                                    placeholder={m['itemSubWizard.customService.instructionsPlaceholder']()}
+                                    bind:value={instructions} />
+                            </FormField>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="space-y-3">
-                            <label class="text-base font-medium" for="ajuste">{m['itemSubWizard.label.adjustment']()}</label>
-                            <Input
-                                id="ajuste"
-                                type="number"
-                                class="h-16 text-xl text-center rounded-xl"
-                                placeholder={m['itemSubWizard.placeholder.adjustment']()}
-                                bind:value={adj}
-                            />
-                        </div>
-                        <div class="space-y-3">
-                            <label class="text-base font-medium" for="razon-ajuste">{m['orders.wizard.adjustmentReason']()}</label>
-                            <Input
-                                id="razon-ajuste"
-                                class="h-16 text-lg rounded-xl"
-                                placeholder={m['orders.wizard.reasonPlaceholder']()}
-                                bind:value={adjReason}
-                            />
-                        </div>
-                    </div>
-
-                    <div class="space-y-3 bg-primary/5 p-4 rounded-xl border border-primary/20">
-                        <div class="flex justify-between items-center">
-                            <label class="text-base font-bold text-primary" for="duracion">{m['itemSubWizard.label.effort']()}</label>
-                            <span class="font-mono text-2xl font-bold text-primary">{duration}m</span>
-                        </div>
-                        <Input
-                            id="duracion"
-                            type="range"
-                            min="5"
-                            max="300"
-                            step="5"
-                            class="h-11 cursor-pointer accent-primary"
-                            bind:value={duration}
-                        />
-                        <p class="text-xs text-muted-foreground italic text-center">{m['itemSubWizard.effortHint']()}</p>
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="text-base font-medium" for="service-instructions">{m['itemSubWizard.customService.instructionsLabel']()}</label>
-                        <Textarea
-                            id="service-instructions"
-                            class="min-h-28 resize-none text-base p-4 rounded-xl"
-                            placeholder={m['itemSubWizard.customService.instructionsPlaceholder']()}
-                            bind:value={instructions}
-                        />
-                    </div>
-
-                    <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-12 touch-manipulation" onclick={handleAddService}>
+                    <Button size="xl" class="w-full mt-6" onclick={handleAddService}>
                         {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
                 </div>
@@ -665,45 +665,43 @@
             <!-- STEP 3 -->
             {#if step === 3}
                 <div class="space-y-8 pt-6">
-                    <div class="bg-secondary/20 p-6 rounded-xl border border-border">
+                    <Card.Root tone="muted" class="gap-0">
                         <div class="flex flex-wrap items-center gap-2 mb-4">
-                            <h4 class="font-bold text-2xl">{selectedGarment?.name}</h4>
+                            <Heading level={2} as="h4">{selectedGarment?.name}</Heading>
                             {#if selectedGarment?.source === 'CUSTOM'}
-                                <span class="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary px-2 py-1 rounded-full">{m['orders.custom.badge']()}</span>
+                                <Badge variant="brand">{m['orders.custom.badge']()}</Badge>
                             {/if}
                         </div>
                         <ul class="space-y-2 text-base text-muted-foreground">
                             {#each addedServices as s}
                                 <li>
-                                    • {s.serviceName} (${(s.unitPrice + (s.adjustmentAmount ?? 0)).toFixed(2)})
+                                    • {s.serviceName} ({formatCurrency(s.unitPrice + (s.adjustmentAmount ?? 0))})
                                     {#if s.source === 'CUSTOM'}<span class="ml-1 text-primary">· {m['orders.custom.badge']()}</span>{/if}
                                 </li>
                             {/each}
                         </ul>
                         <div class="mt-4 pt-4 border-t border-dashed border-foreground/20 flex flex-col items-end gap-3">
                             <div class="font-bold text-xl">
-                                {m['orders.wizard.total']()}: ${addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0).toFixed(2)}
+                                {m['orders.wizard.total']()}: {formatCurrency(addedServices.reduce((acc, s) => acc + s.unitPrice + (s.adjustmentAmount ?? 0), 0))}
                             </div>
-                            <Button
+                            <Button size="touch-lg"
                                 variant="outline"
-                                class="h-12 px-4 touch-manipulation"
+                                class="px-4"
                                 onclick={() => step = 1}
                             >
                                 <Plus class="w-4 h-4 mr-2" />
                                 {m['orders.wizard.addAnotherService']()}
                             </Button>
                         </div>
-                    </div>
+                    </Card.Root>
 
-                    <div class="space-y-3">
-                        <label class="text-base font-medium" for="notas-prenda">{m['orders.wizard.garmentNotes']()}</label>
+                    <FormField label={m['orders.wizard.garmentNotes']()} for="notas-prenda">
                         <Textarea
                             id="notas-prenda"
-                            class="min-h-[160px] resize-none text-lg p-4 rounded-xl"
+                            class="min-h-40 resize-none text-lg p-4"
                             placeholder={m['orders.wizard.notesPlaceholder']()}
-                            bind:value={notes}
-                        />
-                    </div>
+                            bind:value={notes} />
+                    </FormField>
                 </div>
             {/if}
         </div>
@@ -712,8 +710,8 @@
         {#if step === 1}
             <div class="pt-6 border-t border-border mt-auto pb-4">
                 <Button
-                    size="lg"
-                    class="w-full h-16 text-xl rounded-xl shadow-md touch-manipulation"
+                    size="xl"
+                    class="w-full shadow-md"
                     onclick={() => step = 3}
                     disabled={addedServices.length === 0}
                 >
@@ -724,7 +722,7 @@
 
         {#if step === 3}
             <div class="pt-6 border-t border-border mt-auto pb-4">
-                <Button size="lg" class="w-full h-16 text-xl rounded-xl shadow-lg touch-manipulation" onclick={handleConfirmItem}>
+                <Button size="xl" class="w-full shadow-lg" onclick={handleConfirmItem}>
                     <CheckCircle2 class="mr-2 w-6 h-6" />
                     {m['itemSubWizard.button.confirmGarment']()}
                 </Button>

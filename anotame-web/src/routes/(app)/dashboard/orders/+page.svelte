@@ -1,19 +1,20 @@
 <script lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { onMount } from 'svelte';
+  import GarmentNamesSummary from '$lib/components/orders/garment-names-summary.svelte';
+  import * as Card from '$lib/components/ui/card';
   import { apiService, API_SALES, API_CATALOG } from '$lib/services/api.svelte';
   import { orderWizardState, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
-  import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
+  import { FilterField, PageHeader, ResponsiveDataView, StatusBadge, PageContainer } from '$lib/components/common';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
-  import { formatCurrency, formatDate } from '$lib/utils/formatUtils';
+  import { formatCurrency, formatDate, toTimestamp } from '$lib/utils/formatUtils';
   import { Trash2, Eye, SquarePen } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
-  import DataTableWrapper from '$lib/components/ui/DataTableWrapper.svelte';
-  import CardGridWrapper from '$lib/components/ui/CardGridWrapper.svelte';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import { ApiError } from '$lib/services/ApiError';
 
@@ -31,8 +32,16 @@
   let ordersPageIndex = $state(0);
   let ordersTotalPages = $state(0);
 
-  // Bulk selection state
+  // Bulk selection state. The row selection itself lives inside the data view,
+  // so clearing it has to go through the view — resetting this mirror alone
+  // leaves the checkboxes ticked and the view pushes the rows straight back.
   let selectedOrders = $state<OrderSummaryResponse[]>([]);
+  let activeOrdersView = $state<ReturnType<typeof ResponsiveDataView> | undefined>();
+
+  function clearOrderSelection() {
+    activeOrdersView?.clearSelection();
+    selectedOrders = [];
+  }
 
   // Filters
   let searchQuery = $state("");
@@ -73,15 +82,15 @@
     { id: 'customer', accessorFn: (row) => `${row.customer?.firstName ?? ''} ${row.customer?.lastName ?? ''}`, header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'status', accessorFn: (row) => row.status, header: m["orders.column.status"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garments', accessorFn: (row) => formatNames(row.garmentNames), header: m["orders.column.garmentsSummary"](), enableSorting: false, meta: { cardGroup: 'body' } },
-    { id: 'deadline', accessorFn: (row) => formatDate(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body' } },
-    { id: 'total', accessorFn: (row) => formatCurrency(row.totalAmount), header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'deadline', accessorFn: (row) => toTimestamp(row.committedDeadline), header: m["orders.column.deadline"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatDate(v as number | undefined) } },
+    { id: 'total', accessorFn: (row) => row.totalAmount, header: m["orders.column.total"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => formatCurrency(v as number | undefined) } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
   const draftsColumns: ColumnDef<DraftOrder>[] = [
     { id: 'customer', accessorFn: (row) => formatDraftCustomer(row), header: m["orders.column.customer"](), enableSorting: true, meta: { cardGroup: 'header' } },
     { id: 'garments', accessorFn: (row) => formatDraftGarments(row), header: m["orders.column.garments"](), enableSorting: false, meta: { cardGroup: 'header' } },
-    { id: 'lastModified', accessorFn: (row) => new Date(row.lastModified).toLocaleString(), header: m["orders.column.lastModified"](), enableSorting: true, meta: { cardGroup: 'body' } },
+    { id: 'lastModified', accessorFn: (row) => row.lastModified, header: m["orders.column.lastModified"](), enableSorting: true, meta: { cardGroup: 'body', format: (v) => (v == null ? '-' : new Date(v as number).toLocaleString()) } },
     { id: 'actions', header: m["common.actions"](), enableSorting: false, meta: { cardGroup: 'hidden' } },
   ];
 
@@ -89,17 +98,8 @@
     return names?.filter(Boolean).join(', ') || '-';
   }
 
-  function cleanGarmentNames(names: string[] | undefined): string[] {
-    return names?.map((name) => name.trim()).filter(Boolean) ?? [];
-  }
 
-  function visibleGarmentNames(names: string[] | undefined): string[] {
-    return cleanGarmentNames(names).slice(0, MAX_GARMENT_SUMMARY_ITEMS);
-  }
 
-  function hiddenGarmentCount(names: string[] | undefined): number {
-    return Math.max(0, cleanGarmentNames(names).length - MAX_GARMENT_SUMMARY_ITEMS);
-  }
 
   function formatDraftCustomer(draft: DraftOrder): string {
     const customer = draft.customer;
@@ -233,7 +233,7 @@
     if (successCount > 0) {
       toast.success(m["orders.bulk.updateSuccess"]({ count: String(successCount) }));
     }
-    selectedOrders = [];
+    clearOrderSelection();
     fetchOrders();
   }
 
@@ -265,46 +265,41 @@
     if (successCount > 0) {
       toast.success(m["orders.bulk.updateSuccess"]({ count: String(successCount) }));
     }
-    selectedOrders = [];
+    clearOrderSelection();
     ordersPageIndex = 0;
     fetchOrders(0, ordersPageSize);
   }
 
   function handleBulkCancel() {
-    selectedOrders = [];
+    clearOrderSelection();
   }
 </script>
 
-<div class="space-y-6 animate-in fade-in duration-300">
-  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-    <div>
-      <h1 class="text-3xl font-heading font-brand font-bold text-foreground">{m["orders.page.title"]()}</h1>
-      <p class="text-muted-foreground">{m["orders.page.description"]()}</p>
-    </div>
-    <Button href="/dashboard/orders/new" class="w-full sm:w-auto h-12 px-6 text-lg font-bold touch-manipulation shadow-md">+ {m["orders.new"]()}</Button>
-  </div>
+<PageContainer>
+  <PageHeader title={m["orders.page.title"]()} description={m["orders.page.description"]()}>
+    {#snippet actions()}
+      <Button size="touch-lg" href="/dashboard/orders/new" class="w-full sm:w-auto"><PlusIcon data-icon="inline-start" />{m["orders.new"]()}</Button>
+    {/snippet}
+  </PageHeader>
 
   <Tabs.Root bind:value={view} class="space-y-6">
-    <Tabs.List class="shadow-sm border border-border/50">
-      <Tabs.Trigger value="active" class="px-6 font-bold">{m["orders.tab.active"]()}</Tabs.Trigger>
-      <Tabs.Trigger value="drafts" class="px-6 font-bold">
+    <Tabs.List variant="bordered">
+      <Tabs.Trigger value="active">{m["orders.tab.active"]()}</Tabs.Trigger>
+      <Tabs.Trigger value="drafts">
         {m["orders.tab.drafts"]()} {drafts.length > 0 ? `(${drafts.length})` : ''}
       </Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="active" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-card border border-border rounded-xl shadow-sm">
-        <div class="col-span-1 md:col-span-2 space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="search-orders">{m["common.search"]()}</label>
+      <Card.Root class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+        <FilterField label={m["common.search"]()} for="search-orders" class="col-span-1 md:col-span-2">
           <Input
             id="search-orders"
             placeholder={m["orders.filter.searchPlaceholder"]()}
             bind:value={searchQuery}
-            class="h-12 text-base touch-manipulation"
-          />
-        </div>
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-garment">{m["orders.filter.garment"]()}</label>
+            class="text-base touch-manipulation" />
+        </FilterField>
+        <FilterField label={m["orders.filter.garment"]()} for="filter-garment">
           <AdaptiveSelect
             id="filter-garment"
             bind:value={garmentFilter}
@@ -315,26 +310,25 @@
             ]}
             allowClear={true}
             clearText={m["orders.filter.allGarments"]()}
-            class=""
+           
           />
-        </div>
-        <div class="space-y-1.5">
-          <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground" for="filter-date">{m["orders.filter.deadline"]()}</label>
+        </FilterField>
+        <FilterField label={m["orders.filter.deadline"]()} for="filter-date">
           <AdaptiveDatePicker
             id="filter-date"
             bind:value={dateFilter}
             placeholder={m["orders.filter.selectDate"]()}
           />
-        </div>
-      </div>
+        </FilterField>
+      </Card.Root>
 
       <!-- Clear selection button -->
       {#if selectedOrders.length > 0}
         <div class="flex justify-end">
-          <Button
+          <Button size="touch-lg"
             variant="ghost"
-            class="h-12 px-4 touch-manipulation text-muted-foreground hover:text-foreground"
-            onclick={() => { selectedOrders = []; }}
+            class="px-4 text-muted-foreground hover:text-foreground"
+            onclick={clearOrderSelection}
           >
             {m["orders.clearSelection"]({ count: String(selectedOrders.length) })}
           </Button>
@@ -342,123 +336,87 @@
       {/if}
 
       <!-- Active Orders Table / Card Grid -->
-      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet statusCell(row: Row<OrderSummaryResponse>)}
-          <StatusBadge status={row.original.status} />
-        {/snippet}
 
-        {#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
-          <div class="max-w-sm min-w-0 whitespace-normal wrap-break-word leading-6" title={formatNames(row.original.garmentNames)}>
-            {#if cleanGarmentNames(row.original.garmentNames).length > 0}
-              {visibleGarmentNames(row.original.garmentNames).join(', ')}
-              {#if hiddenGarmentCount(row.original.garmentNames) > 0}
-                <span class="ml-1 inline-flex whitespace-nowrap rounded-sm bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                  +{hiddenGarmentCount(row.original.garmentNames)}
-                </span>
-              {/if}
-            {:else}
-              -
-            {/if}
-          </div>
-        {/snippet}
+      <Card.Root class="p-4">
+        
 
-        {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
+        
+
+        
+
+        <ResponsiveDataView
+          bind:this={activeOrdersView}
+          columns={activeColumns}
+          data={orders}
+          loading={loading}
+          emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
+          filterPlaceholder={m["orders.searchPlaceholder"]()}
+          showFilter={false}
+          cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
+          bulkActions={true}
+          bulkMode={true}
+          manualPagination={true}
+          pageSize={ordersPageSize}
+          mobilePageSize={ordersPageSize}
+          pageIndex={ordersPageIndex}
+          pageCount={ordersTotalPages}
+          onPageChange={(page) => { ordersPageIndex = page; }}
+          onSelectionChange={(rows) => { selectedOrders = rows; }}
+          actionCell={activeOrderActions}
+        />
+      </Card.Root>
+
+    </Tabs.Content>
+
+    <Tabs.Content value="drafts" class="space-y-6">
+
+      <Card.Root class="p-4">
+        
+
+        <ResponsiveDataView
+          columns={draftsColumns}
+          data={drafts}
+          emptyMessage={m["orders.drafts.empty"]()}
+          filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
+          showFilter={false}
+          actionCell={draftActions}
+        />
+      </Card.Root>
+    </Tabs.Content>
+  </Tabs.Root>
+</PageContainer>
+
+<!-- Cell renderers shared by the views above. -->
+{#snippet draftActions(row: Row<DraftOrder>)}
+<div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+  <Button size="touch" variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="w-full px-4 font-medium hover:text-primary hover:bg-primary/10 flex items-center justify-center sm:w-auto">
+    <SquarePen class="w-4 h-4 mr-2" />
+    <span>{m["orders.editDraft"]()}</span>
+  </Button>
+  <Button size="touch" variant="destructive" class="w-full px-4 font-medium sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
+    <Trash2 class="w-4 h-4 mr-2" />
+    <span>{m["common.delete"]()}</span>
+  </Button>
+</div>
+{/snippet}
+
+{#snippet statusCell(row: Row<OrderSummaryResponse>)}
+    <StatusBadge status={row.original.status} />
+  {/snippet}
+
+{#snippet garmentsSummaryCell(row: Row<OrderSummaryResponse>)}
+  <GarmentNamesSummary names={row.original.garmentNames} max={MAX_GARMENT_SUMMARY_ITEMS} />
+{/snippet}
+
+{#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
           <div class="flex justify-end gap-2 whitespace-nowrap">
-            <Button variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="h-11 px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation">
+            <Button size="touch" variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="px-4 font-medium hover:text-primary hover:bg-primary/10">
               <SquarePen class="w-4 h-4 mr-2" />
               {m["common.edit"]()}
             </Button>
-            <Button variant="outline" href={`/dashboard/orders/${row.original.id}`} class="h-11 px-4 font-medium touch-manipulation">
+            <Button size="touch" variant="outline" href={`/dashboard/orders/${row.original.id}`} class="px-4 font-medium">
               <Eye class="w-4 h-4 mr-2" />
               {m["orders.details"]()}
             </Button>
           </div>
         {/snippet}
-
-        {#if mobile.current}
-          <CardGridWrapper
-            columns={activeColumns}
-            data={orders}
-            loading={loading}
-            emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
-            filterPlaceholder={m["orders.searchPlaceholder"]()}
-            showFilter={false}
-            cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
-            bulkActions={true}
-            bulkMode={true}
-            manualPagination={true}
-            pageIndex={ordersPageIndex}
-            pageCount={ordersTotalPages}
-            pageSize={ordersPageSize}
-            onPageChange={(page) => { ordersPageIndex = page; }}
-            onSelectionChange={(rows) => { selectedOrders = rows; }}
-            actionCell={activeOrderActions}
-          />
-        {:else}
-          <DataTableWrapper
-            columns={activeColumns}
-            data={orders}
-            loading={loading}
-            emptyMessage={loadError ? m["orders.list.loadError"]() : m["orders.empty"]()}
-            filterPlaceholder={m["orders.searchPlaceholder"]()}
-            showFilter={false}
-            cellRenders={{ status: statusCell, garments: garmentsSummaryCell }}
-            bulkActions={true}
-            bulkMode={true}
-            manualPagination={true}
-            pageIndex={ordersPageIndex}
-            pageCount={ordersTotalPages}
-            pageSize={ordersPageSize}
-            onPageChange={(page) => { ordersPageIndex = page; }}
-            onSelectionChange={(rows) => { selectedOrders = rows; }}
-          >
-            {#snippet actionCell(row)}
-              {@render activeOrderActions(row)}
-            {/snippet}
-          </DataTableWrapper>
-        {/if}
-      </div>
-
-    </Tabs.Content>
-
-    <Tabs.Content value="drafts" class="space-y-6">
-      <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm p-4">
-        {#snippet draftActions(row: Row<DraftOrder>)}
-          <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <Button variant="ghost" href={`/dashboard/orders/new?draftId=${row.original.id}`} class="h-11 w-full px-4 font-medium hover:text-primary hover:bg-primary/10 touch-manipulation flex items-center justify-center sm:w-auto">
-              <SquarePen class="w-4 h-4 mr-2" />
-              <span>{m["orders.editDraft"]()}</span>
-            </Button>
-            <Button variant="ghost" class="h-11 w-full px-4 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation sm:w-auto" onclick={() => handleDeleteDraft(row.original.id)}>
-              <Trash2 class="w-4 h-4 mr-2" />
-              <span>{m["common.delete"]()}</span>
-            </Button>
-          </div>
-        {/snippet}
-
-        {#if mobile.current}
-          <CardGridWrapper
-            columns={draftsColumns}
-            data={drafts}
-            emptyMessage={m["orders.drafts.empty"]()}
-            filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
-            showFilter={false}
-            actionCell={draftActions}
-          />
-        {:else}
-          <DataTableWrapper
-            columns={draftsColumns}
-            data={drafts}
-            emptyMessage={m["orders.drafts.empty"]()}
-            filterPlaceholder={m["orders.drafts.searchPlaceholder"]()}
-            showFilter={false}
-          >
-            {#snippet actionCell(row)}
-              {@render draftActions(row)}
-            {/snippet}
-          </DataTableWrapper>
-        {/if}
-      </div>
-    </Tabs.Content>
-  </Tabs.Root>
-</div>
