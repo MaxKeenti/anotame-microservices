@@ -1,7 +1,7 @@
 <script lang="ts">
+  import NavLink from '$lib/components/common/nav-link.svelte';
   import { page } from '$app/state';
   import type ActivityIcon from '@lucide/svelte/icons/activity';
-  import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
 
   /** One section of the KPI dashboard. */
@@ -33,15 +33,8 @@
   <div class="flex w-max min-w-full gap-1 rounded-xl border border-border bg-muted/40 p-1">
     {#each tabs as tab (tab.href)}
       {@const active = isActive(tab.href)}
-      <a
-        href={tab.href}
-        aria-current={active ? 'page' : undefined}
-        class={cn(
-          'flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none',
-          active ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-        )}
-      >
-        <tab.icon class="h-4 w-4" />
+      <NavLink href={tab.href} variant="tab" current={active}>
+        <tab.icon aria-hidden="true" />
         {tab.label}
         {#if tab.alert}
           <span
@@ -49,7 +42,7 @@
             aria-label={m['kpi.tabs.needsAttention']()}
           ></span>
         {/if}
-      </a>
+      </NavLink>
     {/each}
   </div>
 </nav>

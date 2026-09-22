@@ -1,4 +1,5 @@
 <script lang="ts">
+  import NavLink from '$lib/components/common/nav-link.svelte';
   import type { Snippet } from 'svelte';
   import * as m from '$lib/paraglide/messages';
 
@@ -16,12 +17,9 @@
 </script>
 
 <div class="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
-  <a
-    href="#main-content"
-    class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-100 focus:rounded-md focus:bg-background focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:ring-2 focus:ring-ring"
-  >
+  <NavLink href="#main-content" variant="skip">
     {m['common.skipToContent']()}
-  </a>
+  </NavLink>
 
   {@render overlays?.()}
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import NavLink from '$lib/components/common/nav-link.svelte';
   import { page } from '$app/state';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import { menuItems, adminOnlyItems } from '$lib/config/menu';
@@ -42,18 +43,10 @@
           {#if isAllowed}
             {@const isActive = page.url.pathname === item.href}
             {@const SvelteIcon = item.icon}
-            <a
-              href={item.href}
-              onclick={handleClose}
-              class="flex flex-col items-center justify-center gap-4 p-8 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100
-                {isActive
-                  ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                  : 'border-border bg-card hover:border-primary/50 hover:bg-secondary/50 text-muted-foreground hover:text-foreground'
-                }"
-            >
-              <SvelteIcon class="w-12 h-12 {isActive ? 'text-primary' : 'text-muted-foreground'}" />
-              <span class="text-lg font-semibold text-center">{item.getName()}</span>
-            </a>
+            <NavLink href={item.href} variant="tile" current={isActive} onclick={handleClose}>
+              <SvelteIcon aria-hidden="true" />
+              <span class="text-lg font-semibold">{item.getName()}</span>
+            </NavLink>
           {/if}
         {/each}
       </div>

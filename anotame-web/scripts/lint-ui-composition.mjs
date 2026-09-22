@@ -22,7 +22,9 @@
  *   - re-rounds a <Button> or <Card.Root> (`rounded-*`), which their variants own;
  *   - leaves an icon-only <Button> (`size="icon…"`) without an `aria-label`;
  *   - styles a raw <label> (anything but `sr-only`) instead of FormField or
- *     CheckboxField.
+ *     CheckboxField;
+ *   - styles a raw <a> instead of <NavLink> (navigation) or <Button href>
+ *     (actions).
  *
  * Usage: node scripts/lint-ui-composition.mjs
  */
@@ -36,6 +38,8 @@ const DASHBOARD_ROUTES = join(SRC, 'routes', '(app)', 'dashboard') + sep;
 
 /** Files allowed a raw control, with the reason recorded in ADR 0007. */
 const RAW_CONTROL_ALLOW = new Set([join('src', 'lib', 'components', 'layout', 'dock-tile.svelte')]);
+/** The link component itself is where anchor styling lives. */
+const LINK_ALLOW = new Set([join('src', 'lib', 'components', 'common', 'nav-link.svelte')]);
 /** The single place an Intl locale is spelled out. */
 const LOCALE_ALLOW = new Set([join('src', 'lib', 'utils', 'formatUtils.ts')]);
 
@@ -133,6 +137,14 @@ for (const file of walk(SRC)) {
 		const tag = openingTag(src, m.index);
 		if (/\ssize="icon[^"]*"/.test(tag) && !/\saria-label(?:=|ledby=)/.test(tag)) {
 			report(file, lineOf(src, m.index), 'icon-only <Button> without aria-label');
+		}
+	}
+
+	if (!RAW_CONTROL_ALLOW.has(rel) && !LINK_ALLOW.has(rel)) {
+		for (const m of src.matchAll(/<a\b/g)) {
+			if (/\sclass=/.test(openingTag(src, m.index))) {
+				report(file, lineOf(src, m.index), 'styled <a>; use <NavLink variant=…> for navigation or <Button href> for actions');
+			}
 		}
 	}
 

@@ -1,7 +1,7 @@
 <script lang="ts">
+  import NavLink from '$lib/components/common/nav-link.svelte';
   import { Text } from '$lib/components/ui/typography';
   import type { HelpTopic } from '$lib/config/help';
-  import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
 
   /**
@@ -29,17 +29,9 @@
     </Text>
     <div class="max-h-[calc(100vh-18rem)] space-y-1 overflow-y-auto pr-1">
       {#each topics as topic (topic.id)}
-        <a
-          href={`#${topic.id}`}
-          class={cn(
-            'flex min-h-11 items-center rounded-md px-3 py-2 text-sm transition-colors touch-manipulation hover:bg-muted/70',
-            activeId === topic.id
-              ? 'bg-primary/10 font-semibold text-primary'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-        >
+        <NavLink href={`#${topic.id}`} variant="sidebar" current={activeId === topic.id ? 'location' : false}>
           {topic.title()}
-        </a>
+        </NavLink>
       {/each}
     </div>
   </nav>
@@ -52,19 +44,14 @@
       class="no-scrollbar flex gap-2 overflow-x-auto mask-[linear-gradient(to_right,black_calc(100%-1.5rem),transparent)]"
     >
       {#each topics as topic (topic.id)}
-        <a
+        <NavLink
           href={`#${topic.id}`}
+          variant="chip"
+          current={activeId === topic.id ? 'location' : false}
           data-mobile-help-topic={topic.id}
-          aria-current={activeId === topic.id ? 'true' : undefined}
-          class={cn(
-            'shrink-0 rounded-full border px-3 py-2 text-sm font-medium transition-colors',
-            activeId === topic.id
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground'
-          )}
         >
           {topic.title()}
-        </a>
+        </NavLink>
       {/each}
     </div>
   </nav>

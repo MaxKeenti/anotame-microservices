@@ -32,13 +32,15 @@ Variants added by the audit, and what they replace:
 - `Tabs.List` variant `bordered`; `Text variant="metric"` sizes up to `2xl`.
 - `StatePanel` prop `size`: `screen`, `page`, `section`, `inset`, `inline`.
 
-Compositions added: `CheckboxField` (checkbox and label as one touch target), `PageContainer`
+Compositions added: `NavLink` (navigation link shapes `tab`, `sidebar`, `chip`, `tile`, `card`, `skip`,
+styled from `data-current` so the highlight and `aria-current` never disagree), `CheckboxField`
+(checkbox and label as one touch target), `PageContainer`
 (page width `full`/`wide`/`form`/`narrow`, section rhythm, entry animation), `RowActions`, `SimplePager`, `PaymentMethodPicker`, `IconMedallion`, and the shared
 `DOCK_SURFACE` style for the dock and the bulk-action bar that replaces it.
 
 **Enforcement:** `scripts/lint-ui-composition.mjs` runs as `bun run lint:ui` in `prebuild` and fails
 the build on raw form controls in components (the dock tile excepted), class-sized or re-rounded
-buttons, fields and cards, icon-only buttons without a label, styled `<label>`s, bare `max-w-*` on
+buttons, fields and cards, icon-only buttons without a label, styled `<label>`s and `<a>`s, bare `max-w-*` on
 dialogs, hand-rolled spinners, hand-formatted money, hard-coded locales, the `$props<{…}>()` form, and
 page width or animation set on dashboard routes.
 

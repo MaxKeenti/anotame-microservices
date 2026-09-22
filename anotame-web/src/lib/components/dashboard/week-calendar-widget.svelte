@@ -1,4 +1,5 @@
 <script lang="ts">
+  import NavLink from '$lib/components/common/nav-link.svelte';
   import { getIntlLocale } from '$lib/utils/formatUtils';
   import { Text } from '$lib/components/ui/typography';
   import { onMount } from 'svelte';
@@ -56,11 +57,7 @@
 </script>
 
 {#if !loading && days.length > 0}
-<a
-  {href}
-  aria-label={m["calendar.title"]()}
-  class="block rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
->
+<NavLink {href} variant="card" aria-label={m["calendar.title"]()}>
   <div class="flex items-center gap-2 mb-3">
     <Calendar class="w-4 h-4 text-primary" />
     <span class="text-sm font-semibold font-heading">{m["calendar.widget.title"]()}</span>
@@ -77,5 +74,5 @@
       </div>
     {/each}
   </div>
-</a>
+</NavLink>
 {/if}
