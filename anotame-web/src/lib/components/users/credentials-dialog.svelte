@@ -135,9 +135,7 @@
                 id="credentials-current-password"
                 type="password"
                 autocomplete="current-password"
-                bind:value={$form.currentPassword}
-                class="h-12"
-              />
+                bind:value={$form.currentPassword} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -156,9 +154,7 @@
                 type="text"
                 autocomplete="username"
                 placeholder={authService.user?.username || m['common.user']()}
-                bind:value={$form.newUsername}
-                class="h-12"
-              />
+                bind:value={$form.newUsername} />
             {/snippet}
           </Form.Control>
           <Form.Description>{m['credentials.hint.blankUsername']()}</Form.Description>
@@ -177,9 +173,7 @@
                 id="credentials-new-password"
                 type="password"
                 autocomplete="new-password"
-                bind:value={$form.newPassword}
-                class="h-12"
-              />
+                bind:value={$form.newPassword} />
             {/snippet}
           </Form.Control>
           <Form.Description>{m['credentials.hint.passwordLength']()}</Form.Description>
@@ -198,9 +192,7 @@
                 id="credentials-confirm-password"
                 type="password"
                 autocomplete="new-password"
-                bind:value={$form.confirmPassword}
-                class="h-12"
-              />
+                bind:value={$form.confirmPassword} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />

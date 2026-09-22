@@ -108,8 +108,7 @@
             id="rdv-filter"
             placeholder={resolvedFilterPlaceholder}
             bind:value={state.globalFilter}
-            class="h-12 touch-manipulation"
-          />
+            class="touch-manipulation" />
         </div>
       {/if}
 
@@ -124,8 +123,7 @@
             items={col.meta?.filterOptions ?? []}
             allowClear
             clearText={m['common.allOption']()}
-            class="min-w-40 h-12 text-sm"
-          />
+            class="min-w-40 text-sm" />
         </div>
       {/each}
 
@@ -148,8 +146,7 @@
           {#if currentSortId}
             <Button
               variant="outline"
-              size="touch-lg"
-              class="w-12 p-0"
+              size="icon-touch"
               aria-label={currentSortDesc ? m['cardGrid.sortAscending']() : m['cardGrid.sortDescending']()}
               onclick={() => {
                 if (state.sorting[0]) {

@@ -233,10 +233,9 @@
     type="number"
     step="0.01"
     min="0"
-    class="h-12 w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
+    class="w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
     placeholder={m["catalog.pricelist.overridePlaceholder"]()}
-    bind:value={overrides[row.original.id]}
-  />
+    bind:value={overrides[row.original.id]} />
 {/snippet}
 
 <PageContainer width="form">
@@ -257,7 +256,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m["catalog.pricelist.nameLabel"]()}<RequiredMark /></Form.Label>
-                <Input {...props} {...constraints} placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} class="h-12" />
+                <Input {...props} {...constraints} placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -270,7 +269,7 @@
               <Form.Control>
                 {#snippet children({ props })}
                   <Form.Label>{m["catalog.pricelist.priorityLabel"]()}</Form.Label>
-                  <Input {...props} {...constraints} type="number" bind:value={$form.priority} class="h-12 font-mono" />
+                  <Input {...props} {...constraints} type="number" bind:value={$form.priority} class="font-mono" />
                 {/snippet}
               </Form.Control>
               <Form.Description class="mt-1 text-xs">{m["catalog.pricelist.priorityHint"]()}</Form.Description>
@@ -377,8 +376,8 @@
 
 
     <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-4">
-      <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto px-8 text-lg" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
-      <Button size="xl" type="submit" disabled={isLoading} class="w-full sm:w-auto px-8 text-lg shadow-md">
+      <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button size="xl" type="submit" disabled={isLoading} class="w-full sm:w-auto shadow-md">
         {#if isLoading}
           <Spinner data-icon="inline-start" aria-hidden="true" />
           {m["catalog.pricelist.creating"]()}

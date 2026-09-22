@@ -204,7 +204,7 @@
     title={m["orders.detail.notFound"]()}
     description={m["orders.detail.notFoundDescription"]()}
   >
-    <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8 rounded-xl">
+    <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8">
       {m["orders.detail.backToList"]()}
     </Button>
   </ErrorState>

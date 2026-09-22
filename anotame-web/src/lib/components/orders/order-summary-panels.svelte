@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge';
   import { Heading } from '$lib/components/ui/typography';
   import * as Card from '$lib/components/ui/card';
   import { DetailRow } from '$lib/components/common';
@@ -37,10 +38,10 @@
     <Card.Title class="mb-4"><Heading level={3}>{m["orders.detail.orderDetails"]()}</Heading></Card.Title>
     <div class="space-y-3 text-sm">
       <DetailRow label={m["orders.detail.created"]()} layout="spread">
-        <span class="max-w-full wrap-break-word whitespace-normal font-mono bg-secondary/30 px-2 py-1 rounded sm:text-right">{formatDateTime(order.createdAt)}</span>
+        <Badge variant="secondary" class="h-auto max-w-full whitespace-normal font-mono">{formatDateTime(order.createdAt)}</Badge>
       </DetailRow>
       <DetailRow label={m["orders.detail.estimatedDelivery"]()} layout="spread">
-        <span class="max-w-full wrap-break-word whitespace-normal font-medium bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20 sm:text-right">{formatDateTime(order.committedDeadline)}</span>
+        <Badge variant="brand" class="h-auto max-w-full whitespace-normal normal-case tracking-normal">{formatDateTime(order.committedDeadline)}</Badge>
       </DetailRow>
       <DetailRow label={m["orders.detail.workload"]()} layout="spread">
         <span class="font-bold text-foreground">{order.totalDurationMin || 0} min</span>

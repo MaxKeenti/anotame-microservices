@@ -171,10 +171,9 @@
       type="number"
       step="0.01"
       min="0"
-      class="h-12 w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
+      class="w-full max-w-45 mx-auto text-center font-mono font-bold text-primary shadow-sm bg-background"
       placeholder={m["catalog.pricelist.overridePlaceholder"]()}
-      bind:value={overrides[row.original.id]}
-    />
+      bind:value={overrides[row.original.id]} />
   {/snippet}
 
   {@const cellRenders = {
@@ -202,7 +201,7 @@
               <Form.Control>
                 {#snippet children({ props })}
                   <Form.Label>{m["catalog.pricelist.nameLabel"]()}<RequiredMark /></Form.Label>
-                  <Input {...props} {...constraints} placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} class="h-12" />
+                  <Input {...props} {...constraints} placeholder={m["catalog.pricelist.namePlaceholder"]()} bind:value={$form.name} />
                 {/snippet}
               </Form.Control>
               <Form.FieldErrors />
@@ -215,7 +214,7 @@
                 <Form.Control>
                   {#snippet children({ props })}
                     <Form.Label>{m["catalog.pricelist.priorityLabel"]()}</Form.Label>
-                    <Input {...props} {...constraints} type="number" bind:value={$form.priority} class="h-12 font-mono" />
+                    <Input {...props} {...constraints} type="number" bind:value={$form.priority} class="font-mono" />
                   {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -300,7 +299,7 @@
         >
           {m["catalog.pricelist.discardChanges"]()}
         </Button>
-        <Button size="xl" type="submit" disabled={isSaving} class="w-full sm:w-auto px-8 text-lg shadow-md">
+        <Button size="xl" type="submit" disabled={isSaving} class="w-full sm:w-auto shadow-md">
           {#if isSaving}
             <Spinner data-icon="inline-start" aria-hidden="true" />
             {m["catalog.pricelist.saving"]()}

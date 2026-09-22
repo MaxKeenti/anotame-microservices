@@ -29,12 +29,11 @@
   <span class="w-28 shrink-0 text-sm font-medium">{label}</span>
   <Input
     type="text"
-    class="h-11 flex-1 font-mono text-sm"
+    class="flex-1 font-mono text-sm"
     aria-label={m['settings.label.colorHex']({ name: label })}
     {placeholder}
     {value}
-    oninput={(e) => onInput(e.currentTarget.value)}
-  />
+    oninput={(e) => onInput(e.currentTarget.value)} />
   {#if value}
     <Button variant="ghost" size="sm" class="shrink-0" onclick={onReset}>
       {m['settings.palette.restore']()}

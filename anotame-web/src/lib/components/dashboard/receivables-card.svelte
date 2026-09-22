@@ -200,7 +200,6 @@
       {/if}
 
       <Tabs.Root
-
         value={showDelivered ? 'delivered' : 'open'}
 
         onValueChange={(v) => selectTab(v === 'delivered')}

@@ -167,7 +167,7 @@
     <aside class="lg:sticky lg:top-0 space-y-4">
       <Card.Root class="gap-0 p-4">
         <label for="help-search" class="sr-only">{m['common.search']()}</label>
-        <InputGroup.Root class="h-12">
+        <InputGroup.Root>
           <InputGroup.Input
             id="help-search"
             bind:value={searchQuery}

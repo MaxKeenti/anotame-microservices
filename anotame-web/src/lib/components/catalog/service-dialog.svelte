@@ -144,7 +144,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['serviceDialog.label.name']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.name']()} bind:value={$form.name} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -156,7 +156,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['serviceDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['serviceDialog.placeholder.description']()} bind:value={$form.description} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -169,7 +169,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['serviceDialog.label.basePrice']()}</Form.Label>
-                <Input {...props} {...constraints} type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} class="h-12" />
+                <Input {...props} {...constraints} type="number" step="0.01" min="0" placeholder="0.00" bind:value={$form.basePrice} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -180,7 +180,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['serviceDialog.label.duration']()}</Form.Label>
-                <Input {...props} {...constraints} type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} class="h-12" />
+                <Input {...props} {...constraints} type="number" min="1" placeholder="30" bind:value={$form.defaultDurationMin} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />

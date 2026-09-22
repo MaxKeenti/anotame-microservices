@@ -147,7 +147,7 @@
             for="ticket-share-url"
             hint={m['ticketShare.expires']({ date: formatDateTime(createdShare?.expiresAt) })}
           >
-            <Input id="ticket-share-url" value={shareUrl} readonly class="h-11 bg-muted font-mono text-xs" />
+            <Input id="ticket-share-url" value={shareUrl} readonly class="bg-muted font-mono text-xs" />
           </FormField>
           <div class="grid grid-cols-2 gap-2">
             <Button size="touch" onclick={shareLink}>{m['ticketShare.share']()}</Button>

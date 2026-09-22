@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatCurrency } from '$lib/utils/formatUtils';
   import * as ButtonGroup from '$lib/components/ui/button-group';
   import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
@@ -35,7 +36,7 @@
         class="border-success/30 font-mono text-success-text hover:bg-success/10 hover:text-success-text"
         onclick={() => onAdjust(amount)}
       >
-        +${amount}
+        +{formatCurrency(amount)}
       </Button>
     {/each}
   </ButtonGroup.Root>
@@ -51,7 +52,7 @@
         class="font-mono"
         onclick={() => onAdjust(-amount)}
       >
-        -${amount}
+        −{formatCurrency(amount)}
       </Button>
     {/each}
   </ButtonGroup.Root>

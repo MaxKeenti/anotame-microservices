@@ -241,8 +241,7 @@
         id="search-operations"
         placeholder={m["operations.searchPlaceholder"]()}
         bind:value={searchQuery}
-        class="h-12 text-base touch-manipulation"
-      />
+        class="text-base touch-manipulation" />
     </FilterField>
 
   </Card.Root>

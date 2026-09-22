@@ -24,6 +24,8 @@
 				/** Touch-first sizes: 44px minimum target, larger for primary actions. */
 				touch: "h-11 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
 				"touch-lg": "h-12 gap-2 px-6 has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
+				/** Wizard navigation: compact on phones, prominent from `sm` up. */
+				step: "h-11 gap-1.5 rounded-xl px-4 text-sm sm:h-14 sm:gap-2 sm:px-8 sm:text-lg",
 				xl: "h-14 gap-2 rounded-xl px-8 text-lg has-data-[icon=inline-end]:pr-6 has-data-[icon=inline-start]:pl-6 [&_svg:not([class*='size-'])]:size-5",
 				icon: "size-9",
 				"icon-xs": "size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",

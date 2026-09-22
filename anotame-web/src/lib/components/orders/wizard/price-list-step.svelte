@@ -172,16 +172,16 @@
 
 	<!-- Footer with navigation buttons -->
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
-		<Button
+		<Button size="step"
 			variant="outline"
 			onclick={onBack}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg"
+			class="flex-1"
 		>
 			{m['orders.detail.back']()}
 		</Button>
-		<Button
+		<Button size="step"
 			type="submit"
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md"
+			class="flex-1 font-bold shadow-md"
 			onclick={handleContinue}
 		>
 			{m['common.continue']()}

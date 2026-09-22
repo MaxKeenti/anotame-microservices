@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CheckboxField from '$lib/components/common/checkbox-field.svelte';
   import * as Card from '$lib/components/ui/card';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -10,7 +11,6 @@
   import { toast } from 'svelte-sonner';
   import PaymentMethodPicker, { type PaymentMethod } from '$lib/components/common/payment-method-picker.svelte';
   import * as m from '$lib/paraglide/messages';
-  import { Checkbox } from '$lib/components/ui/checkbox';
   import { formatCurrency } from '$lib/utils/formatUtils';
 
 
@@ -131,7 +131,7 @@
       {/if}
 
       {#if hasRemainingBalance}
-        <Card.Root tone="muted" size="sm" class="gap-3 rounded-lg py-3 px-3">
+        <Card.Root tone="muted" size="sm" class="gap-3">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p class="text-sm font-medium text-muted-foreground">
@@ -142,20 +142,12 @@
               </Text>
             </div>
 
-            <div class="flex items-center gap-3">
-              <Checkbox
-                id="pickup-mark-fully-paid"
-                class="size-5"
-                bind:checked={markFullyPaid}
-                disabled={submitting}
-              />
-              <label
-                for="pickup-mark-fully-paid"
-                class="flex min-h-11 items-center text-sm font-semibold cursor-pointer touch-manipulation"
-              >
-                {m["orders.pickup.markFullyPaid"]()}
-              </label>
-            </div>
+            <CheckboxField
+              id="pickup-mark-fully-paid"
+              label={m["orders.pickup.markFullyPaid"]()}
+              bind:checked={markFullyPaid}
+              disabled={submitting}
+            />
           </div>
 
           {#if markFullyPaid}
@@ -175,7 +167,6 @@
       <Button size="touch-lg"
         onclick={handleSubmit}
         disabled={!isValid || submitting}
-        
       >
         {submitting ? m["orders.pickup.confirming"]() : m["orders.pickup.confirmDelivery"]()}
       </Button>

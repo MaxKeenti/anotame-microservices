@@ -75,9 +75,9 @@
             isDraft={Boolean(draft?.id) && !draft?.isEditing}
         >
             {#snippet actions()}
-                <Button
+                <Button size="touch-lg"
                     variant="outline"
-                    class="h-11 sm:h-12 px-3 sm:px-6 text-sm sm:text-base shrink-0"
+                    class="shrink-0"
                     onclick={() => { orderWizardState.clearActiveDraft(); goto("/dashboard/orders"); }}
                 >
                     {draft?.isEditing ? m["common.cancel"]() : m["orders.new.exit"]()}

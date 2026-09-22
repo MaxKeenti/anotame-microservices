@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CheckboxField from '$lib/components/common/checkbox-field.svelte';
   import * as Item from '$lib/components/ui/item';
   import { Text } from '$lib/components/ui/typography';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -171,12 +172,13 @@
         </div>
       </div>
 
-      <div class="space-y-2 border-t border-border pt-4">
-        <div class="flex items-center gap-3">
-          <Checkbox id="garment-tag-qr" class="size-5 shrink-0" bind:checked={includeQr} />
-          <label for="garment-tag-qr" class="text-sm font-medium">{m['garmentTag.includeQr']()}</label>
-        </div>
-        <Text variant="small">{m['garmentTag.qrNotice']()}</Text>
+      <div class="border-t border-border pt-4">
+        <CheckboxField
+          id="garment-tag-qr"
+          label={m['garmentTag.includeQr']()}
+          description={m['garmentTag.qrNotice']()}
+          bind:checked={includeQr}
+        />
       </div>
 
       <Button size="touch-lg"

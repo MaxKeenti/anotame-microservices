@@ -102,7 +102,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['common.firstName']()}</Form.Label>
-                <Input {...props} {...constraints} bind:value={$form.firstName} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.firstName} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -113,7 +113,7 @@
             <Form.Control>
               {#snippet children({ props })}
                 <Form.Label>{m['common.lastName']()}</Form.Label>
-                <Input {...props} {...constraints} bind:value={$form.lastName} class="h-12" />
+                <Input {...props} {...constraints} bind:value={$form.lastName} />
               {/snippet}
             </Form.Control>
             <Form.FieldErrors />
@@ -125,7 +125,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['customerDialog.label.phone']()}</Form.Label>
-              <Input {...props} {...constraints} type="tel" bind:value={$form.phoneNumber} class="h-12" />
+              <Input {...props} {...constraints} type="tel" bind:value={$form.phoneNumber} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -136,7 +136,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['customerDialog.label.email']()}</Form.Label>
-              <Input {...props} {...constraints} type="email" bind:value={$form.email} class="h-12" />
+              <Input {...props} {...constraints} type="email" bind:value={$form.email} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />

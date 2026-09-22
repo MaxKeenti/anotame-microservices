@@ -297,8 +297,7 @@
             id="search-orders"
             placeholder={m["orders.filter.searchPlaceholder"]()}
             bind:value={searchQuery}
-            class="h-12 text-base touch-manipulation"
-          />
+            class="text-base touch-manipulation" />
         </FilterField>
         <FilterField label={m["orders.filter.garment"]()} for="filter-garment">
           <AdaptiveSelect
@@ -311,7 +310,7 @@
             ]}
             allowClear={true}
             clearText={m["orders.filter.allGarments"]()}
-            class=""
+           
           />
         </FilterField>
         <FilterField label={m["orders.filter.deadline"]()} for="filter-date">

@@ -470,30 +470,28 @@
         {#if !data.atRiskCustomers || data.atRiskCustomers.length === 0}
           <StatePanel message={m['kpi.financial.atRisk.empty']()} size="inline" />
         {:else}
-          <div class="space-y-2">
+          <Item.Group class="gap-2">
             {#each data.atRiskCustomers as customer}
-              <div class="p-3 bg-warning/5 rounded-lg border border-warning/20 hover:border-warning/40 transition-colors">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="text-sm font-semibold text-foreground truncate">
-                    {getAtRiskName(customer)}
-                  </p>
-                  <span class="text-xs font-mono font-bold text-warning-text shrink-0">
-                    {getAtRiskAgeLabel(customer)}
-                  </span>
-                </div>
-                <Text variant="small" class="mt-1">
-                  {m['kpi.financial.atRisk.lastOrder']()}:
-                  <span class="font-mono">{getLastOrderLabel(customer)}</span>
-                </Text>
-              </div>
+              <Item.Root variant="outline" size="sm">
+                <Item.Content class="min-w-0">
+                  <Item.Title class="font-semibold">{getAtRiskName(customer)}</Item.Title>
+                  <Item.Description>
+                    {m['kpi.financial.atRisk.lastOrder']()}:
+                    <span class="font-mono">{getLastOrderLabel(customer)}</span>
+                  </Item.Description>
+                </Item.Content>
+                <Item.Actions>
+                  <Badge variant="warning" class="font-mono">{getAtRiskAgeLabel(customer)}</Badge>
+                </Item.Actions>
+              </Item.Root>
             {/each}
-          </div>
+          </Item.Group>
         {/if}
       </Card.Content>
     </Card.Root>
 
     <!-- Total Revenue Summary -->
-    <Card.Root class="bg-linear-to-br from-success/10 to-primary/10 border border-success/30">
+    <Card.Root tone="highlight">
       <Card.Content class="pt-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>

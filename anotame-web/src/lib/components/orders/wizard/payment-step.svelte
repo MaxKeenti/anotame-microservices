@@ -316,7 +316,7 @@
 					<Form.Control>
 						{#snippet children({ props })}
 							<Form.Label>{m['orders.wizard.amountReceived']()}</Form.Label>
-							<InputGroup.Root class="h-14 rounded-xl">
+							<InputGroup.Root inputSize="lg">
 								<InputGroup.Input
 									{...props}
 									{...constraints}
@@ -392,8 +392,7 @@
 							$form.committedDeadline = v;
 						}}
 						placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
-						class="rounded-xl text-lg"
-					/>
+						class="text-lg" />
 					<Form.FieldErrors />
 				{/snippet}
 			</Form.Field>
@@ -407,9 +406,8 @@
 								{...constraints}
 								id="order-notes"
 								placeholder={m['orders.wizard.orderNotesPlaceholder']()}
-								class="h-12 rounded-xl text-lg"
-								bind:value={$form.notes}
-							/>
+								class="text-lg"
+								bind:value={$form.notes} />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />
@@ -450,19 +448,19 @@
 	{/if}
 
 	<div class="border-t border-border pt-4 mt-auto flex justify-between gap-4">
-		<Button
+		<Button size="step"
 			type="button"
 			variant="outline"
 			onclick={props.onBack}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg"
+			class="flex-1"
 			disabled={isSubmitting}
 		>
 			{m['orders.detail.back']()}
 		</Button>
-		<Button
+		<Button size="step"
 			type="submit"
 			disabled={isSubmitting}
-			class="flex-1 rounded-xl h-11 sm:h-14 text-sm sm:text-lg font-bold shadow-md uppercase tracking-wide"
+			class="flex-1 font-bold shadow-md uppercase tracking-wide"
 		>
 			{#if isSubmitting}
 				<Spinner data-icon="inline-start" aria-hidden="true" />

@@ -1,4 +1,5 @@
 <script lang="ts" generics="TData">
+  import CheckboxField from './checkbox-field.svelte';
   import { Text } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
@@ -74,15 +75,13 @@
 
 {#if bulkActions && bulkMode && state.table.getRowModel().rows.length > 0}
   <div class="flex min-h-11 items-center gap-3 py-2 px-1">
-    <Checkbox
+    <CheckboxField
       id="cgw-select-all"
-      class={SELECT_CHECKBOX_CLASS}
-      aria-label={m['common.selectAll']()}
+      label={m['common.selectAll']()}
       checked={state.table.getIsAllRowsSelected()}
       indeterminate={state.table.getIsSomeRowsSelected()}
-      onCheckedChange={(v) => state.table.toggleAllRowsSelected(v === true)}
+      onCheckedChange={(v) => state.table.toggleAllRowsSelected(v)}
     />
-    <label for="cgw-select-all" class="flex min-h-11 items-center text-sm font-medium cursor-pointer select-none touch-manipulation">{m['common.selectAll']()}</label>
   </div>
 {/if}
 
@@ -139,8 +138,8 @@
             {#if hasAccordion}
               <Button
                 variant="ghost"
-                size="touch"
-                class="w-11 p-0 shrink-0"
+                size="icon-touch"
+                class="shrink-0"
                 aria-label={isOpen ? m['cardGrid.collapseDetails']() : m['cardGrid.expandDetails']()}
                 onclick={() => toggleRow(row.id)}
               >

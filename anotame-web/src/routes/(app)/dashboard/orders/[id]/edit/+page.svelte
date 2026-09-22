@@ -174,7 +174,7 @@
         title={m["orders.detail.notFound"]()}
         description={m["orders.edit.notFoundDescription"]()}
     >
-        <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8 rounded-xl">
+        <Button size="touch-lg" href="/dashboard/orders" variant="outline" class="px-8">
             {m["orders.detail.backToList"]()}
         </Button>
     </ErrorState>
@@ -208,8 +208,7 @@
                     min={defaultMinDeadline()}
                     onValueChange={(v) => { employeeDeadline = v; employeeEditError = ''; }}
                     placeholder={m['orders.wizard.selectDateTimePlaceholder']()}
-                    class="rounded-xl text-lg"
-                />
+                    class="text-lg" />
             </FormField>
 
             <FormField label={m['orders.wizard.orderNotes']()} for="employee-order-notes">
@@ -227,10 +226,10 @@
             {/if}
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                <Button size="touch-lg" type="button" variant="outline"  onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
+                <Button size="touch-lg" type="button" variant="outline" onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
                     {m['common.cancel']()}
                 </Button>
-                <Button size="touch-lg" type="submit"  disabled={isLocked || employeeSaving}>
+                <Button size="touch-lg" type="submit" disabled={isLocked || employeeSaving}>
                     {employeeSaving ? m['common.saving']() : m['common.saveChanges']()}
                 </Button>
             </div>
@@ -253,7 +252,7 @@
             showTray={false}
         >
             {#snippet actions()}
-                <Button variant="outline" class="h-11 sm:h-12 px-6" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
+                <Button size="touch-lg" variant="outline" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
                     {m["common.cancel"]()}
                 </Button>
             {/snippet}

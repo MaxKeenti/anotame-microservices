@@ -92,7 +92,7 @@
   </div>
 
   {#if showTray && stepsExpanded}
-    <Card.Root tone="muted" size="sm" class="mt-2 rounded-lg py-3 px-3 sm:hidden">
+    <Card.Root tone="muted" size="sm" class="mt-2 sm:hidden">
       <ol class="flex flex-col gap-2">
         {#each steps as step, i}
           <li

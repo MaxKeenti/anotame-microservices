@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Checkbox } from '$lib/components/ui/checkbox';
+  import CheckboxField from '$lib/components/common/checkbox-field.svelte';
   import { Input } from '$lib/components/ui/input';
   import type { WorkDay } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
@@ -20,15 +20,7 @@
 
 <div class="flex flex-col gap-4 p-4 transition-colors hover:bg-muted/10 sm:flex-row sm:items-center">
   <div class="flex w-40 items-center font-medium capitalize text-foreground">
-    <div class="flex min-h-11 items-center gap-3">
-      <Checkbox id={`workday-open-${day.dayOfWeek}`} class="size-5" bind:checked={day.open} />
-      <label
-        for={`workday-open-${day.dayOfWeek}`}
-        class="flex min-h-11 cursor-pointer items-center touch-manipulation"
-      >
-        {dayName}
-      </label>
-    </div>
+    <CheckboxField id={`workday-open-${day.dayOfWeek}`} label={dayName} bind:checked={day.open} />
   </div>
 
   <div class="flex flex-1 flex-wrap items-center gap-3">

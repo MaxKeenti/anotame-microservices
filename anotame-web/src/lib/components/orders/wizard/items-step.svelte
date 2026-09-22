@@ -87,7 +87,7 @@
                <Heading level={2}>{m['itemsStep.title']()}</Heading>
                <p class="text-muted-foreground">{m['itemsStep.subtitle']()}</p>
            </div>
-           <Button onclick={() => isAddingItem = true} size="xl" class="rounded-xl px-8 w-full sm:w-auto shadow-md">
+           <Button onclick={() => isAddingItem = true} size="xl" class="px-8 w-full sm:w-auto shadow-md">
                <Plus class="w-5 h-5 mr-2" />
                {m['itemsStep.addGarment']()}
            </Button>
@@ -167,19 +167,19 @@
                <Text variant="metric" size="xl" as="span" class="text-primary">{formatCurrency(total)}</Text>
            </div>
            <div class="hidden sm:flex gap-4">
-               <Button variant="outline" class="flex-1 h-16 text-lg rounded-xl" onclick={onBack}>{m['orders.detail.back']()}</Button>
-               <Button class="flex-1 h-16 text-lg rounded-xl shadow-lg" onclick={onNext} disabled={items.length === 0}>
+               <Button size="xl" variant="outline" class="flex-1" onclick={onBack}>{m['orders.detail.back']()}</Button>
+               <Button size="xl" class="flex-1 shadow-lg" onclick={onNext} disabled={items.length === 0}>
                    {m['itemsStep.continueToPayment']()}
                </Button>
            </div>
            <!-- Mobile: single compact row — back | total | continue -->
            <div class="flex sm:hidden items-center gap-2">
-               <Button size="touch" variant="outline" class="px-3 text-sm rounded-xl shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
+               <Button size="touch" variant="outline" class="px-3 text-sm shrink-0" onclick={onBack}>{m['orders.detail.back']()}</Button>
                <div class="flex-1 flex flex-col items-center leading-tight">
                    <span class="text-xs text-muted-foreground">{m['orders.wizard.total']()}</span>
                    <Text variant="metric" size="sm" as="span" class="text-primary">{formatCurrency(total)}</Text>
                </div>
-               <Button size="touch" class="px-3 text-sm rounded-xl shadow-lg shrink-0" onclick={onNext} disabled={items.length === 0}>
+               <Button size="touch" class="px-3 text-sm shadow-lg shrink-0" onclick={onNext} disabled={items.length === 0}>
                    {m['common.continue']()}
                </Button>
            </div>

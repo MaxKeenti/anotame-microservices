@@ -136,26 +136,21 @@
               id="est-name"
               bind:value={$form.name}
               required
-              class="h-12"
-              placeholder={m['adminSettings.placeholder.name']()}
-            />
+              placeholder={m['adminSettings.placeholder.name']()} />
           </FormField>
           <FormField label={m['adminSettings.label.owner']()} for="est-owner">
             <Input
               id="est-owner"
               bind:value={$form.ownerName}
-              class="h-12"
-              placeholder={m["adminSettings.ownerPlaceholder"]()}
-            />
+              placeholder={m["adminSettings.ownerPlaceholder"]()} />
           </FormField>
           <FormField label={m['adminSettings.label.capacity']()} for="est-capacity" error={$errors.dailyCapacityMinutes} hint={m['adminSettings.hint.capacity']()}>
             <Input
               id="est-capacity"
               type="number"
               bind:value={$form.dailyCapacityMinutes}
-              class="h-12 font-mono"
-              placeholder={m["adminSettings.capacityPlaceholder"]()}
-            />
+              class="font-mono"
+              placeholder={m["adminSettings.capacityPlaceholder"]()} />
           </FormField>
         </Card.Content>
       </Card.Root>
@@ -177,34 +172,27 @@
               <Input
                 id="tax-rfc"
                 bind:value={$form.rfc}
-                class="h-12 uppercase"
-                placeholder="ABCD123456XYZ"
-              />
+                class="uppercase"
+                placeholder="ABCD123456XYZ" />
             </FormField>
             <FormField label={m['adminSettings.label.regime']()} for="tax-regime">
               <Input
                 id="tax-regime"
                 bind:value={$form.regime}
-                class="h-12"
-                placeholder={m["adminSettings.regimePlaceholder"]()}
-              />
+                placeholder={m["adminSettings.regimePlaceholder"]()} />
             </FormField>
           </div>
           <FormField label={m['adminSettings.label.address']()} for="tax-address">
             <Input
               id="tax-address"
               bind:value={$form.address}
-              class="h-12"
-              placeholder={m['adminSettings.placeholder.address']()}
-            />
+              placeholder={m['adminSettings.placeholder.address']()} />
           </FormField>
           <FormField label={m['adminSettings.label.phone']()} for="tax-phone">
             <Input
               id="tax-phone"
               bind:value={$form.contactPhone}
-              class="h-12"
-              placeholder={m["adminSettings.phonePlaceholder"]()}
-            />
+              placeholder={m["adminSettings.phonePlaceholder"]()} />
           </FormField>
         </Card.Content>
       </Card.Root>
@@ -229,15 +217,13 @@
                   id="brand-color"
                   type="color"
                   bind:value={$form.primaryColor}
-                  class="h-12 w-16 cursor-pointer p-1"
-                />
+                  class="w-16 cursor-pointer p-1" />
                 <Input
                   type="text"
                   bind:value={$form.primaryColor}
                   aria-label={m['settings.label.colorHex']({ name: m['adminSettings.label.color']() })}
                   placeholder="#FF6B6B"
-                  class="h-12 flex-1 font-mono text-xs"
-                />
+                  class="flex-1 font-mono text-xs" />
               </div>
             </FormField>
 
@@ -250,7 +236,7 @@
                   $form.fontFamily = (v || '') as 'Inter' | 'Outfit' | 'Merriweather' | '';
                 }}
               >
-                <Select.Trigger id="font-family" class="h-12">
+                <Select.Trigger id="font-family">
                   {#if $form.fontFamily}
                     {$form.fontFamily === 'Inter' ? m['adminSettings.font.inter']() : $form.fontFamily === 'Outfit' ? m['adminSettings.font.outfit']() : m['adminSettings.font.merriweather']()}
                   {:else}
@@ -288,8 +274,7 @@
                 min="1"
                 max="100"
                 bind:value={$form.capacityThresholdGreen}
-                class="h-12 font-mono"
-              />
+                class="font-mono" />
             </FormField>
             <FormField label={m['adminSettings.threshold.label.amber']()} for="threshold-amber" error={$errors.capacityThresholdAmber} hint={m['adminSettings.threshold.hint.amber']()}>
               <Input
@@ -298,8 +283,7 @@
                 min="1"
                 max="100"
                 bind:value={$form.capacityThresholdAmber}
-                class="h-12 font-mono"
-              />
+                class="font-mono" />
             </FormField>
             <FormField label={m['adminSettings.threshold.label.atRisk']()} for="threshold-atrisk" error={$errors.atRiskDaysThreshold} hint={m['adminSettings.threshold.hint.atRisk']()}>
               <Input
@@ -307,8 +291,7 @@
                 type="number"
                 min="1"
                 bind:value={$form.atRiskDaysThreshold}
-                class="h-12 font-mono"
-              />
+                class="font-mono" />
             </FormField>
           </div>
         </Card.Content>

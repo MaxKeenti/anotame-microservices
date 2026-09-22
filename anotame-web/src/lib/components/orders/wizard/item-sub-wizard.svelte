@@ -388,7 +388,7 @@
         <!-- Header -->
         <div class="flex items-center gap-4 border-b border-border pb-4 mb-4">
             {#if step > 0}
-                <Button variant="ghost" size="touch-lg" class="px-2 w-12" onclick={() => {
+                <Button variant="ghost" size="icon-touch" aria-label={m['orders.detail.back']()} onclick={() => {
                     if (step === 2) { editingServiceIndex = -1; step = 1; }
                     else if (step === 3) step = 1;
                     else if (step === 1) step = 0;
@@ -411,16 +411,13 @@
                 <div class="space-y-4">
                     {#if showCustomGarmentForm}
                         <Card.Root tone="highlight" class="py-5 px-5 gap-4">
-                            <div class="space-y-2">
-                                <label class="font-medium" for="custom-garment-name">{m['itemSubWizard.customGarment.nameLabel']()}</label>
-                                <Input
+                            <FormField label={m['itemSubWizard.customGarment.nameLabel']()} for="custom-garment-name">
+                                <Input inputSize="lg"
                                     id="custom-garment-name"
-                                    class="h-14 text-lg rounded-xl"
                                     placeholder={m['itemSubWizard.customGarment.namePlaceholder']()}
-                                    bind:value={customGarmentName}
-                                />
-                            </div>
-                            <Button size="xl" class="w-full rounded-xl" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
+                                    bind:value={customGarmentName} />
+                            </FormField>
+                            <Button size="xl" class="w-full" onclick={handleCustomGarmentSelect} disabled={!customGarmentName.trim()}>
                                 {m['itemSubWizard.customGarment.continue']()}
                             </Button>
                         </Card.Root>
@@ -429,18 +426,16 @@
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                         <Button
                             variant="outline"
-                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal py-3"
-                            onclick={() => showCustomGarmentForm = !showCustomGarmentForm}
-                        >
+                            class="min-h-28 h-auto flex flex-col items-center justify-center gap-2 border-2 border-dashed border-primary/60 bg-primary/5 hover:border-primary hover:bg-primary/10 whitespace-normal py-3"
+                            onclick={() => showCustomGarmentForm = !showCustomGarmentForm}>
                             <Plus class="w-7 h-7" />
                             <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight">{m['itemSubWizard.customGarment.action']()}</span>
                         </Button>
                         {#each garmentTypes as g}
                             <Button
                                 variant="outline"
-                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 rounded-xl border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal py-3"
-                                onclick={() => handleGarmentSelect(g)}
-                            >
+                                class="min-h-28 h-auto flex flex-col items-center justify-center gap-1 border-2 hover:border-primary hover:bg-primary/5 transition-all shadow-sm whitespace-normal py-3"
+                                onclick={() => handleGarmentSelect(g)}>
                                 <span class="font-bold text-lg lg:text-xl text-center px-2 leading-tight w-full wrap-break-word">{g.name}</span>
                                 {#if g.description}
                                     <span class="text-xs text-muted-foreground text-center px-2 leading-snug w-full line-clamp-2">{g.description}</span>
@@ -454,7 +449,7 @@
             <!-- STEP 1 -->
             {#if step === 1 && selectedGarment}
                 <div class="space-y-6">
-                    <div class="bg-secondary/20 p-4 rounded-xl flex items-center gap-4 border border-border">
+                    <Card.Root tone="muted" class="flex-row items-center gap-4">
                         <IconMedallion tone="surface" size="md"><Shirt /></IconMedallion>
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
@@ -467,7 +462,7 @@
                                 <div class="text-sm text-muted-foreground mt-0.5">{selectedGarment.description}</div>
                             {/if}
                         </div>
-                    </div>
+                    </Card.Root>
 
                     {#if addedServices.length > 0}
                         <div class="space-y-3">
@@ -536,9 +531,7 @@
                         <Input
                             type="search"
                             placeholder={m['orders.wizard.searchServicePlaceholder']()}
-                            class="h-11 rounded-xl"
-                            bind:value={serviceFilter}
-                        />
+                            bind:value={serviceFilter} />
 
                         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {#each visibleServices as s}
@@ -591,12 +584,10 @@
                 <div class="space-y-6 py-6">
                     {#if tempService.source === 'CUSTOM'}
                         <FormField label={m['itemSubWizard.customService.nameLabel']()} for="custom-service-name">
-                            <Input
+                            <Input inputSize="lg"
                                 id="custom-service-name"
-                                class="h-14 text-lg rounded-xl"
                                 placeholder={m['itemSubWizard.customService.namePlaceholder']()}
-                                bind:value={tempService.name}
-                            />
+                                bind:value={tempService.name} />
                         </FormField>
                     {:else}
                         <div class="space-y-2 text-center md:text-left">
@@ -608,7 +599,7 @@
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div class="space-y-6">
                             <FormField label={m['itemSubWizard.label.basePrice']()} for="precio-base">
-                                <InputGroup.Root class="h-20 rounded-xl">
+                                <InputGroup.Root class="h-20">
                                     <InputGroup.Input
                                         id="precio-base"
                                         type="number"
@@ -621,21 +612,18 @@
 
                             <div class="grid grid-cols-2 gap-4">
                                 <FormField label={m['itemSubWizard.label.adjustment']()} for="ajuste">
-                                    <Input
+                                    <Input inputSize="lg"
                                         id="ajuste"
                                         type="number"
-                                        class="h-16 text-xl text-center rounded-xl"
+                                        class="text-center"
                                         placeholder={m['itemSubWizard.placeholder.adjustment']()}
-                                        bind:value={adj}
-                                    />
+                                        bind:value={adj} />
                                 </FormField>
                                 <FormField label={m['orders.wizard.adjustmentReason']()} for="razon-ajuste">
-                                    <Input
+                                    <Input inputSize="lg"
                                         id="razon-ajuste"
-                                        class="h-16 text-lg rounded-xl"
                                         placeholder={m['orders.wizard.reasonPlaceholder']()}
-                                        bind:value={adjReason}
-                                    />
+                                        bind:value={adjReason} />
                                 </FormField>
                             </div>
                         </div>
@@ -661,15 +649,14 @@
                             <FormField label={m['itemSubWizard.customService.instructionsLabel']()} for="service-instructions">
                                 <Textarea
                                     id="service-instructions"
-                                    class="min-h-28 resize-none text-base p-4 rounded-xl"
+                                    class="min-h-28 resize-none text-base p-4"
                                     placeholder={m['itemSubWizard.customService.instructionsPlaceholder']()}
-                                    bind:value={instructions}
-                                />
+                                    bind:value={instructions} />
                             </FormField>
                         </div>
                     </div>
 
-                    <Button size="lg" class="w-full h-16 text-xl rounded-xl mt-6" onclick={handleAddService}>
+                    <Button size="xl" class="w-full mt-6" onclick={handleAddService}>
                         {editingServiceIndex >= 0 ? m['itemSubWizard.button.updateService']() : m['itemSubWizard.button.confirmService']()}
                     </Button>
                 </div>
@@ -678,7 +665,7 @@
             <!-- STEP 3 -->
             {#if step === 3}
                 <div class="space-y-8 pt-6">
-                    <div class="bg-secondary/20 p-6 rounded-xl border border-border">
+                    <Card.Root tone="muted" class="gap-0">
                         <div class="flex flex-wrap items-center gap-2 mb-4">
                             <Heading level={2} as="h4">{selectedGarment?.name}</Heading>
                             {#if selectedGarment?.source === 'CUSTOM'}
@@ -706,17 +693,15 @@
                                 {m['orders.wizard.addAnotherService']()}
                             </Button>
                         </div>
-                    </div>
+                    </Card.Root>
 
-                    <div class="space-y-3">
-                        <label class="text-base font-medium" for="notas-prenda">{m['orders.wizard.garmentNotes']()}</label>
+                    <FormField label={m['orders.wizard.garmentNotes']()} for="notas-prenda">
                         <Textarea
                             id="notas-prenda"
-                            class="min-h-40 resize-none text-lg p-4 rounded-xl"
+                            class="min-h-40 resize-none text-lg p-4"
                             placeholder={m['orders.wizard.notesPlaceholder']()}
-                            bind:value={notes}
-                        />
-                    </div>
+                            bind:value={notes} />
+                    </FormField>
                 </div>
             {/if}
         </div>
@@ -725,8 +710,8 @@
         {#if step === 1}
             <div class="pt-6 border-t border-border mt-auto pb-4">
                 <Button
-                    size="lg"
-                    class="w-full h-16 text-xl rounded-xl shadow-md"
+                    size="xl"
+                    class="w-full shadow-md"
                     onclick={() => step = 3}
                     disabled={addedServices.length === 0}
                 >
@@ -737,7 +722,7 @@
 
         {#if step === 3}
             <div class="pt-6 border-t border-border mt-auto pb-4">
-                <Button size="lg" class="w-full h-16 text-xl rounded-xl shadow-lg" onclick={handleConfirmItem}>
+                <Button size="xl" class="w-full shadow-lg" onclick={handleConfirmItem}>
                     <CheckCircle2 class="mr-2 w-6 h-6" />
                     {m['itemSubWizard.button.confirmGarment']()}
                 </Button>

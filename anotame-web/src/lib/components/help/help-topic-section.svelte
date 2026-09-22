@@ -100,12 +100,9 @@
       </Text>
       <div class="mt-2 flex flex-wrap gap-2">
         {#each topic.related as relatedId}
-          <a
-            href={`#${relatedId}`}
-            class="inline-flex min-h-11 items-center rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground touch-manipulation"
-          >
+          <Button href={`#${relatedId}`} variant="outline" size="touch" class="text-muted-foreground">
             {relatedTitle(relatedId)}
-          </a>
+          </Button>
         {/each}
       </div>
     </div>

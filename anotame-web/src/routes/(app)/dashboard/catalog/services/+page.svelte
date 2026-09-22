@@ -141,8 +141,7 @@
         id="search-services"
         placeholder={m["catalog.services.searchPlaceholder"]()}
         bind:value={searchQuery}
-        class="h-12 text-base touch-manipulation"
-      />
+        class="text-base touch-manipulation" />
     </FilterField>
     <FilterField label={m["catalog.services.filterGarmentLabel"]()} for="filter-garment-service">
       <AdaptiveSelect

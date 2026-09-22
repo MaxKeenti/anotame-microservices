@@ -75,8 +75,8 @@
                 <Text variant="muted">{draft?.customer?.email}</Text>
 
                 <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <Button variant="outline" class="h-11 sm:h-14 px-6 sm:px-8 text-sm sm:text-lg rounded-xl" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
-                    <Button class="h-11 sm:h-14 px-8 sm:px-12 text-sm sm:text-lg rounded-xl" onclick={onNext}>{m['common.continue']()}</Button>
+                    <Button size="step" variant="outline" class="px-6" onclick={clearCustomer}>{m['customerStep.change']()}</Button>
+                    <Button size="step" onclick={onNext}>{m['common.continue']()}</Button>
                 </div>
             </Card.Root>
         {:else}
@@ -84,7 +84,7 @@
                 <Command.Root shouldFilter={false} label={m['orders.wizard.searchPlaceholder']()} class="relative overflow-visible rounded-none! bg-transparent p-0">
                     <CommandPrimitive.Input bind:value={query}>
                         {#snippet child({ props })}
-                            <InputGroup.Root class="h-16 rounded-xl shadow-sm">
+                            <InputGroup.Root inputSize="lg">
                                 <InputGroup.Input
                                     {...props}
                                     placeholder={m['orders.wizard.searchPlaceholder']()}
@@ -120,7 +120,7 @@
 
                 <Field.Separator class="my-4">{m['common.or']()}</Field.Separator>
 
-                <Button href="/dashboard/customers" variant="secondary" class="w-full h-16 text-lg rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 gap-2">
+                <Button size="xl" href="/dashboard/customers" variant="secondary" class="w-full border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 gap-2">
                     <Plus class="w-6 h-6" />
                     {m['customerStep.goCreate']()}
                 </Button>
@@ -130,8 +130,8 @@
 
     {#if !draft?.customer}
         <div class="flex justify-between items-center py-3 sm:py-4 border-t border-border mt-auto">
-            <Button variant="ghost" class="h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base" onclick={onBack}>{m['common.cancel']()}</Button>
-            <Button disabled class="h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base rounded-xl">{m['customerStep.selectPrompt']()}</Button>
+            <Button size="touch-lg" variant="ghost" onclick={onBack}>{m['common.cancel']()}</Button>
+            <Button size="touch-lg" disabled>{m['customerStep.selectPrompt']()}</Button>
         </div>
     {/if}
 </div>

@@ -143,7 +143,6 @@
         <Button
           variant="outline"
           size="touch"
-          
           href={`/dashboard/catalog/pricelists/${row.original.id}`}
         >
           <Eye class="w-4 h-4 mr-2" />
@@ -152,7 +151,6 @@
         <Button
           variant="destructive-outline"
           size="touch"
-          class=""
           onclick={() => handleDelete(row.original.id, row.original.name)}
         >
           <Trash2 class="w-4 h-4 mr-2" />

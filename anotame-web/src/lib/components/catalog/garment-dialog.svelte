@@ -109,7 +109,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['garmentDialog.label.name']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.name']()} bind:value={$form.name} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.name']()} bind:value={$form.name} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />
@@ -121,7 +121,7 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>{m['garmentDialog.label.description']()}</Form.Label>
-              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.description']()} bind:value={$form.description} class="h-12" />
+              <Input {...props} {...constraints} placeholder={m['garmentDialog.placeholder.description']()} bind:value={$form.description} />
             {/snippet}
           </Form.Control>
           <Form.FieldErrors />

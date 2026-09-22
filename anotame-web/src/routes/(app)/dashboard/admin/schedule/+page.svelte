@@ -211,9 +211,7 @@
                           {...constraints}
                           id="hol-desc"
                           placeholder={m['schedule.holiday.descPlaceholder']()}
-                          bind:value={$holidayForm.description}
-                          class="h-12"
-                        />
+                          bind:value={$holidayForm.description} />
                       {/snippet}
                     </Form.Control>
                     <Form.FieldErrors />
@@ -265,10 +263,10 @@
                             <Button
                               variant="destructive-outline"
                               size="icon-touch"
+                              aria-label={m['common.delete']()}
                               onclick={() => h.id && handleDeleteHoliday(h.id, h.description)}
                             >
                               <Trash2 class="w-4 h-4" />
-                              <span class="sr-only">{m['common.delete']()}</span>
                             </Button>
                           </Table.Cell>
                         </Table.Row>
