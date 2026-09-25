@@ -10,6 +10,8 @@
     icon: typeof RocketIcon;
     /** The current page belongs to this entry. */
     active: boolean;
+    /** Opened this session, so the dock shows its running dot. */
+    running: boolean;
   };
 </script>
 
@@ -81,7 +83,7 @@
 >
   {#snippet tile(item: DockEntry)}
     {@const Icon = item.icon}
-    <DockTile label={item.label} href={item.href} active={item.active}>
+    <DockTile label={item.label} href={item.href} active={item.active} running={item.running}>
       <Icon
         class="size-1/2 {item.active
           ? 'text-primary-foreground'

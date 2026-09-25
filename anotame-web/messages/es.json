@@ -865,7 +865,7 @@
   "help.nav.keywords": "menu dock launchpad apps inicio ayuda navegacion mostrador catalogo ajustes",
   "help.nav.stepDashboard": "El Launchpad (último ícono del dock, con el cohete) muestra las apps disponibles para tu rol, junto con tu cuenta y el botón para cerrar sesión. El primer ícono del dock te lleva al Inicio.",
   "help.nav.stepDock": "El dock inferior abre cada app y te regresa a la última sección que usaste en ella; las apps que no caben aparecen como recientes.",
-  "help.nav.stepMenu": "Dentro de una app, la barra superior cambia entre sus secciones.",
+  "help.nav.stepMenu": "Dentro de una app, la barra superior cambia entre sus secciones. En tableta y computadora, la barra de menús de arriba muestra la app actual, el menú Ir con todas las apps y tu cuenta; usa Buscar (⌘K o Ctrl+K) para abrir cualquier app, sección o acción.",
   "help.nav.stepMobile": "En móvil, usa el dock y el Launchpad para navegar con controles táctiles grandes.",
   "help.nav.tip": "La ruta del manual es estable: /dashboard/help.",
   "help.roles.title": "Roles y permisos",
@@ -1153,5 +1153,15 @@
   "launchpad.dialog.description": "Todas tus apps en un solo lugar",
   "home.page.title": "Hola, {name}",
   "home.page.description": "Abre el Launchpad para ver todas tus apps.",
-  "home.page.openLaunchpad": "Abrir Launchpad"
+  "home.page.openLaunchpad": "Abrir Launchpad",
+  "palette.dialog.title": "Buscar",
+  "palette.dialog.description": "Busca una app, una sección o una acción",
+  "palette.input.placeholder": "Busca apps, secciones o acciones…",
+  "palette.empty": "Sin resultados.",
+  "palette.group.apps": "Apps",
+  "palette.group.sections": "Secciones",
+  "palette.group.actions": "Acciones",
+  "palette.action.newOrder": "Nuevo pedido",
+  "palette.trigger.label": "Buscar",
+  "menubar.go.label": "Ir"
 }

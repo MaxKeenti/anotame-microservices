@@ -865,7 +865,7 @@
   "help.nav.keywords": "menu dock launchpad apps home help navigation front desk catalog settings",
   "help.nav.stepDashboard": "The Launchpad (last dock icon, the rocket) shows the apps available to your role, along with your account and the sign-out button. The first dock icon takes you Home.",
   "help.nav.stepDock": "The bottom dock opens each app and takes you back to the last section you used in it; apps that do not fit appear as recents.",
-  "help.nav.stepMenu": "Inside an app, the top bar switches between its sections.",
+  "help.nav.stepMenu": "Inside an app, the top bar switches between its sections. On tablets and computers, the menu bar at the top shows the current app, the Go menu with every app, and your account; use Search (⌘K or Ctrl+K) to open any app, section, or action.",
   "help.nav.stepMobile": "On mobile, use the dock and the Launchpad for navigation with large touch controls.",
   "help.nav.tip": "The manual route is stable: /dashboard/help.",
   "help.roles.title": "Roles and access",
@@ -1153,5 +1153,15 @@
   "launchpad.dialog.description": "Every app in one place",
   "home.page.title": "Hello, {name}",
   "home.page.description": "Open the Launchpad to see all your apps.",
-  "home.page.openLaunchpad": "Open Launchpad"
+  "home.page.openLaunchpad": "Open Launchpad",
+  "palette.dialog.title": "Search",
+  "palette.dialog.description": "Search for an app, a section, or an action",
+  "palette.input.placeholder": "Search apps, sections, or actions…",
+  "palette.empty": "No results.",
+  "palette.group.apps": "Apps",
+  "palette.group.sections": "Sections",
+  "palette.group.actions": "Actions",
+  "palette.action.newOrder": "New order",
+  "palette.trigger.label": "Search",
+  "menubar.go.label": "Go"
 }
