@@ -5,7 +5,7 @@
   import * as Menubar from '$lib/components/ui/menubar';
   import { Button } from '$lib/components/ui/button';
   import { Kbd } from '$lib/components/ui/kbd';
-  import { home, launchpad, openHref, resolveApp, visibleApps } from '$lib/config/apps';
+  import { home, launchpad, openHref, resolveApp, resolveSection, visibleApps } from '$lib/config/apps';
   import { navigate } from '$lib/desktop/navigate';
   import { currentPathname } from '$lib/desktop/location.svelte';
   import { windowsStore, type TileLayout } from '$lib/desktop/windows.svelte';
@@ -36,6 +36,16 @@
   const currentEntry = $derived(entries.find((e) => e.app.key === current?.app.key));
 
   const focusedWindow = $derived(windowsStore.active ? windowsStore.focused : undefined);
+
+  /** Open windows for the Window menu's list, in the order they were opened. */
+  const windowList = $derived(
+    windowsStore.windows.map((win) => {
+      const app = entries.find((e) => e.app.key === win.appKey)?.app;
+      const section = resolveSection(new URL(win.url, 'http://x').pathname)?.getName();
+      const name = app?.getName() ?? '';
+      return { win, icon: app?.icon, title: section && section !== name ? `${name} — ${section}` : name };
+    })
+  );
 
   /** The Window menu's Move & Resize choices, in macOS order. */
   const moveResize: { group: () => string; items: { layout: TileLayout; label: () => string }[] }[] = [
@@ -134,6 +144,18 @@
               {/if}
             </Menubar.Item>
           {/each}
+          {#if windowsStore.active}
+            <Menubar.Separator />
+            <Menubar.Item
+              class="min-h-11"
+              onSelect={() =>
+                windowsStore.open(openHref(currentEntry, appSessionStore.lastSection[currentEntry.app.key]), {
+                  newWindow: true,
+                })}
+            >
+              {m['menubar.window.newWindow']()}
+            </Menubar.Item>
+          {/if}
         {:else}
           <Menubar.Item class="min-h-11" onSelect={() => (launchpadStore.open = true)}>
             <LaunchpadIcon aria-hidden="true" />
@@ -166,7 +188,7 @@
         <Menubar.Trigger class="min-h-11 px-3">{m['menubar.window.label']()}</Menubar.Trigger>
         <Menubar.Content>
           {#if focusedWindow}
-            {@const key = focusedWindow.appKey}
+            {@const key = focusedWindow.id}
             <Menubar.Item class="min-h-11" onSelect={() => windowsStore.minimize(key)}>
               {m['desktop.window.minimize']()}
             </Menubar.Item>
@@ -200,10 +222,24 @@
             {m['menubar.window.bringAllToFront']()}
           </Menubar.Item>
           {#if focusedWindow}
-            {@const key = focusedWindow.appKey}
+            {@const key = focusedWindow.id}
             <Menubar.Item class="min-h-11" onSelect={() => windowsStore.close(key)}>
               {m['desktop.window.close']()}
             </Menubar.Item>
+          {/if}
+          <!-- Every open window, like the list at the bottom of macOS's Window menu -->
+          {#if windowList.length > 0}
+            <Menubar.Separator />
+            {#each windowList as item (item.win.id)}
+              {@const Icon = item.icon}
+              <Menubar.Item class="min-h-11" onSelect={() => windowsStore.focus(item.win.id)}>
+                {#if Icon}<Icon aria-hidden="true" />{/if}
+                <span class="truncate" class:text-muted-foreground={item.win.minimized}>{item.title}</span>
+                {#if item.win.id === focusedWindow?.id}
+                  <CheckIcon class="ml-auto" aria-hidden="true" />
+                {/if}
+              </Menubar.Item>
+            {/each}
           {/if}
         </Menubar.Content>
       </Menubar.Menu>

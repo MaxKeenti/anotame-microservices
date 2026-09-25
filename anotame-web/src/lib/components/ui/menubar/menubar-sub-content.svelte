@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Menubar as MenubarPrimitive } from "bits-ui";
 	import { cn } from "$lib/utils.js";
+	import MenubarPortal from "./menubar-portal.svelte";
 
 	let {
 		ref = $bindable(null),
@@ -9,6 +10,8 @@
 	}: MenubarPrimitive.SubContentProps = $props();
 </script>
 
+<!-- Portaled so the parent menu's overflow-hidden doesn't clip the submenu away -->
+<MenubarPortal>
 <MenubarPrimitive.SubContent
 	bind:ref
 	data-slot="menubar-sub-content"
@@ -18,3 +21,4 @@
 	)}
 	{...restProps}
 />
+</MenubarPortal>

@@ -22,7 +22,7 @@
   });
 
   const entries = $derived(visibleApps(authService.user?.role === 'ADMIN'));
-  const focusedKey = $derived(windowsStore.focused?.appKey);
+  const focusedId = $derived(windowsStore.focused?.id);
   const preview = $derived(windowsStore.snapPreview ? tileGeometry(windowsStore.snapPreview) : null);
 </script>
 
@@ -44,7 +44,7 @@
     ></div>
   {/if}
 
-  {#each windowsStore.windows as win (win.appKey)}
-    <AppWindow {win} entry={entries.find((e) => e.app.key === win.appKey)} focused={win.appKey === focusedKey} />
+  {#each windowsStore.windows as win (win.id)}
+    <AppWindow {win} entry={entries.find((e) => e.app.key === win.appKey)} focused={win.id === focusedId} />
   {/each}
 </div>

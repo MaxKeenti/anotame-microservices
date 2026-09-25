@@ -9,9 +9,12 @@ touch tablets included — and the user has not turned "Abrir apps en ventanas" 
 logo menu. Below that, or with the toggle off, every app opens full-page as before. Leaving desktop
 mode lands on the focused window's page as a normal route.
 
-**One window per app.** `windowsStore` (`src/lib/desktop/windows.svelte.ts`) keeps one window per
-app, like macOS apps: its URL, its own back history, geometry, stacking order, and
-minimized/maximized state. The desktop is saved per user on the device
+**Windows per app.** `windowsStore` (`src/lib/desktop/windows.svelte.ts`) keeps each window by its
+own id: its app, URL, back history, geometry, stacking order, and minimized/maximized state. An app
+can have several, like macOS apps: the app menu's **Nueva ventana** opens another at the app's last
+section. The dock, Launchpad, and menus bring back the app's frontmost window; a link inside a
+window navigates that window (found through its `data-window-id`). The Ventana menu lists every open
+window to switch between them. The desktop is saved per user on the device
 (`localStorage`, `anotame:desktop:<username>`) and restored on sign-in, dropping apps the user can
 no longer open.
 
@@ -50,7 +53,9 @@ the focused window. The app navbar (`SectionTabs`) moves into each window.
 **Sizing windows, like macOS.** The menu bar's **Ventana** menu acts on the focused window:
 Minimize, Zoom, Fill, Center, *Move & Resize* (halves and quarters, with an 8px gap), Bring All to
 Front, and Close. Dragging a window's title bar to the top edge of the desktop fills it; to the left
-or right edge tiles it to that half, with a preview of where it lands. A tiled or zoomed window
+or right edge tiles it to that half, with a preview of where it lands. As on macOS, a window can be
+dragged partly off the sides (160px stays on screen), so the pointer can reach the edge; a drag
+also turns off text selection on the page, so the desktop underneath isn't highlighted. A tiled or zoomed window
 remembers its earlier size (`preTile`) and gets it back when dragged away. With a mouse, windows
 resize from any edge or corner; on tablets the Ventana menu is the way to size them, since thin
 edge handles do not suit a finger (the 44px bottom-right corner still works by touch).
