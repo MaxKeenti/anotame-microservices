@@ -8,12 +8,16 @@
   import { toast } from 'svelte-sonner';
   import { Eye, Trash2, Copy } from '@lucide/svelte';
   import { useAuthGuard } from '$lib/guards/index.svelte';
-  import { goto } from '$app/navigation';
+  import { useRoute } from '$lib/desktop/route-context.svelte';
   import { PageHeader, ResponsiveDataView, StatePanel, PageContainer } from '$lib/components/common';
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { PriceListResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
   import { formatDate, toTimestamp } from '$lib/utils/formatUtils';
+
+  // Params and navigation come from the frame this page is shown in: the
+  // whole app, or a desktop window (see docs/adr/0008).
+  const route = useRoute();
 
   // Guard: Protect this route, strictly checking 'ADMIN'
   const guard = useAuthGuard(true, '/dashboard');
@@ -88,7 +92,7 @@
 
   function handleClone(id: string) {
     // Clone passes the source id via query parameter to the `new` route
-    goto(`/dashboard/catalog/pricelists/new?cloneFrom=${id}`);
+    route.goto(`/dashboard/catalog/pricelists/new?cloneFrom=${id}`);
   }
 </script>
 

@@ -4,14 +4,16 @@
   import { Heading, Text } from '$lib/components/ui/typography';
   import type { VisibleApp } from '$lib/config/apps';
 
-  /** Large touch target opening an app from the Launchpad grid. */
+  /** Large touch target opening an app from the Launchpad. */
   interface Props {
     entry: VisibleApp;
     /** Where the app opens: its last-visited section, or its first. */
     href: string;
+    /** Runs on open, e.g. to close the Launchpad overlay. */
+    onclick?: () => void;
   }
 
-  let { entry, href }: Props = $props();
+  let { entry, href, onclick }: Props = $props();
 
   const Icon = $derived(entry.app.icon);
   // The sections double as the description, so it always matches the user's
@@ -23,12 +25,13 @@
   );
 </script>
 
-<NavLink {href} variant="card" class="flex h-full flex-col items-center gap-4 p-6 text-center md:p-8">
+<NavLink {href} {onclick} variant="card" class="flex h-full flex-col items-center gap-3 p-4 text-center sm:gap-4 sm:p-6 md:p-8">
   <IconMedallion class="transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
     <Icon />
   </IconMedallion>
   <div>
     <Heading level={2}>{entry.app.getName()}</Heading>
-    <Text variant="muted" class="mt-2">{description}</Text>
+    <!-- Phones get an icon grid, like the macOS Launchpad; the sections show from sm up. -->
+    <Text variant="muted" class="mt-2 hidden sm:block">{description}</Text>
   </div>
 </NavLink>

@@ -12,7 +12,6 @@ related **sections**:
 
 | App | Sections |
 |---|---|
-| Launchpad | `/dashboard` — the home grid of apps |
 | Mostrador (front desk) | orders, operations, customers |
 | Catálogo | garments, services, price lists |
 | Métricas | KPI (which keeps its own operación / dinero / clientes tabs) |
@@ -27,15 +26,17 @@ How it is built:
   keeps working and nothing moved on disk.
 - **A section is still the unit of access.** Admin gating stays per section (`adminOnlyItems`); an
   app shows only the sections its user may open, and disappears when none are left.
-- **The dock lists apps.** The Launchpad tile is pinned first (like Finder), then the pinned apps,
-  then recently opened apps that did not fit, then the full-menu button. Reopening an app returns
+- **The dock lists apps.** The home tile (`/dashboard`) is pinned first (like Finder), then the
+  pinned apps, then recently opened apps that did not fit, then the Launchpad. Reopening an app returns
   to the section it was left on (`appSessionStore`, in memory for the session), which is what makes
   the dock feel like switching between running apps rather than following links.
 - **Multi-section apps get a navbar.** The `(app)` layout renders `SectionTabs` above the page when
   the current app has more than one visible section. KPI keeps its own `SectionTabs` inside its
   layout; being a single-section app, it never gets a second bar.
-- **The Launchpad names itself.** `/dashboard` is titled "Launchpad", its tiles are apps (described
-  by the sections they contain), and the full menu groups sections by app with a shortcut back to it.
+- **The Launchpad is the menu.** The overlay opened from the dock's last tile (or the home page's
+  button) is a grid of apps, each described by the sections it contains, plus the account actions
+  (edit credentials, sign out). There is no separate section-level menu: inside an app, its navbar
+  reaches the sections. The home page is just the logo, a greeting, and the admin's week widget.
 - **Document titles** read `Section · App · Anotame`, derived from the same resolution.
 
 **Adding a section** means adding a `menuItems` entry and listing its key in one app's `sections`.
@@ -49,12 +50,12 @@ appears in the dock is decided in `apps.ts`, not `menu.ts`.
 The model is staged so later steps build on it rather than replace it:
 
 1. **Apps over routes** — this decision.
-2. **Desktop chrome, still route-based** — a thin top menu bar (current app's name, its sections as
-   menus, a ⌘K launcher, and the account actions that live in the full menu today) and optionally
-   route groups such as `routes/(app)/catalog/…`; purely cosmetic because grouping already lives in
-   `apps.ts`.
-3. **Windows** — several apps on screen at once, PostHog-style. SvelteKit renders one route at a
-   time; a second route can be shown in a window with shallow routing (`preloadData` + `pushState`),
-   but pages that read `page.url` / `page.params` or call `goto()` directly would act on the main
-   URL. Each app's pages must first take their params and navigation from a context (window or full
-   page). The app boundaries from step 1 define what migrates together, one app at a time.
+2. **Desktop chrome, still route-based** — *done in #56.* From `md` up, `MenuBar` shows the logo
+   menu (Inicio, Launchpad, search), the current app's sections, a "Go" menu of every app, search,
+   the clock, and the account menu; its targets are 44px because the shop runs on touch screens.
+   `CommandPalette` (⌘K / Ctrl+K) searches apps, sections, and quick actions. The dock's dot now
+   marks every app opened this session, as on macOS, while the highlight marks the current one.
+   Route groups were not needed: grouping lives in `apps.ts`.
+3. **Windows** — *done in #56; see `0009-desktop-windows.md`.* From 1024px up, apps open in
+   movable, resizable windows over the home page; pages read params and navigate through
+   `useRoute()`, which follows the window they are in.

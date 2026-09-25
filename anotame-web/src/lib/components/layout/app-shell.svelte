@@ -3,17 +3,21 @@
   import type { Snippet } from 'svelte';
   import * as m from '$lib/paraglide/messages';
 
-  /** Frame of the authenticated app: skip link, scrolling content, floating dock. */
+  /** Frame of the authenticated app: skip link, menu bar, scrolling content, floating dock. */
   interface Props {
     /** Page content. */
     children: Snippet;
     /** Modals and dialogs mounted once for the whole app. */
     overlays?: Snippet;
+    /** Bar pinned above the content, like the macOS menu bar. */
+    menubar?: Snippet;
+    /** Window layer floating over the content area (desktop mode). */
+    desktop?: Snippet;
     /** Floating bottom bar: the dock, or a page's bulk-action bar. */
     dock?: Snippet;
   }
 
-  let { children, overlays, dock }: Props = $props();
+  let { children, overlays, menubar, desktop, dock }: Props = $props();
 </script>
 
 <div class="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
@@ -22,6 +26,8 @@
   </NavLink>
 
   {@render overlays?.()}
+
+  {@render menubar?.()}
 
   <!-- The bottom padding lives on an inner wrapper, not the scroll
        container: Safari ignores padding-bottom on the scroller itself,
@@ -38,11 +44,15 @@
        output, so it silently overrides padding-bottom at >=md and wipes
        out the dock clearance. Keeping pb-28 the only padding-bottom rule
        makes it win at every breakpoint. -->
-  <main id="main-content" tabindex="-1" class="w-full flex-1 overflow-y-auto outline-none">
-    <div class="mx-auto flex min-h-full w-full max-w-7xl flex-col px-4 pt-4 pb-28 md:px-6 md:pt-6 lg:px-8 lg:pt-8">
-      {@render children()}
-    </div>
-  </main>
+  <div class="relative flex min-h-0 flex-1 flex-col">
+    <main id="main-content" tabindex="-1" class="w-full flex-1 overflow-y-auto outline-none">
+      <div class="mx-auto flex min-h-full w-full max-w-7xl flex-col px-4 pt-4 pb-28 md:px-6 md:pt-6 lg:px-8 lg:pt-8">
+        {@render children()}
+      </div>
+    </main>
+
+    {@render desktop?.()}
+  </div>
 
   <!-- Floats over content like the macOS dock. -->
   <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-3">

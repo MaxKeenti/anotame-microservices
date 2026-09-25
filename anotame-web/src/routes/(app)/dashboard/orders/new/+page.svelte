@@ -2,8 +2,7 @@
     import { onMount } from 'svelte';
     import { StatePanel } from '$lib/components/common';
     import WizardHeader from '$lib/components/orders/wizard/wizard-header.svelte';
-    import { page } from '$app/state';
-    import { goto } from '$app/navigation';
+    import { useRoute } from '$lib/desktop/route-context.svelte';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
     import CustomerStep from '$lib/components/orders/wizard/customer-step.svelte';
     import PriceListStep from '$lib/components/orders/wizard/price-list-step.svelte';
@@ -12,6 +11,10 @@
     import { Button } from '$lib/components/ui/button';
     import * as m from '$lib/paraglide/messages';
     import { ChevronDown } from '@lucide/svelte';
+
+    // Params and navigation come from the frame this page is shown in: the
+    // whole app, or a desktop window (see docs/adr/0008).
+    const route = useRoute();
 
     let isLoading = $state(true);
 
@@ -56,7 +59,7 @@
             orderWizardState.updateActiveDraft({ currentStep: orderWizardState.activeDraft.currentStep - 1 });
         } else {
             orderWizardState.clearActiveDraft();
-            goto('/dashboard/orders');
+            route.goto('/dashboard/orders');
         }
     }
     let draft = $derived(orderWizardState.activeDraft);
@@ -78,7 +81,7 @@
                 <Button size="touch-lg"
                     variant="outline"
                     class="shrink-0"
-                    onclick={() => { orderWizardState.clearActiveDraft(); goto("/dashboard/orders"); }}
+                    onclick={() => { orderWizardState.clearActiveDraft(); route.goto("/dashboard/orders"); }}
                 >
                     {draft?.isEditing ? m["common.cancel"]() : m["orders.new.exit"]()}
                 </Button>

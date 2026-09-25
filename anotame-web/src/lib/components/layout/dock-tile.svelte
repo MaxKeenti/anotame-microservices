@@ -10,15 +10,17 @@
     label: string;
     /** Destination for a navigation tile. */
     href?: string;
-    /** Marks the tile as the current section. */
+    /** Marks the tile as the current app. */
     active?: boolean;
+    /** Shows the running-app dot: the app was opened this session. */
+    running?: boolean;
     /** Action for a non-navigating tile, such as opening the menu. */
     onclick?: () => void;
     /** The tile's icon. */
     children: Snippet;
   }
 
-  let { label, href, active = false, onclick, children }: Props = $props();
+  let { label, href, active = false, running = false, onclick, children }: Props = $props();
 
   const TILE =
     'group relative flex w-[calc(var(--scale,1)*44px)] sm:w-[calc(var(--scale,1)*52px)] shrink-0 flex-col items-center justify-end outline-none transition-[width] duration-150 ease-out will-change-[width]';
@@ -42,7 +44,7 @@
   >
     {@render children()}
   </div>
-  {#if active}
+  {#if running}
     <!-- Running-app dot, neutral like macOS -->
     <span
       class="absolute -bottom-1.25 left-1/2 size-1 -translate-x-1/2 rounded-full bg-foreground/60"

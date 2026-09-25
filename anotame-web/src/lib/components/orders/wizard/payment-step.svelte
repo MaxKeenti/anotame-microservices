@@ -5,7 +5,7 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Heading, Text } from '$lib/components/ui/typography';
 	import { onMount, untrack, tick } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { useRoute } from '$lib/desktop/route-context.svelte';
 	import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
 	import type { DraftOrder, DraftOrderItem } from '$lib/services/orders/OrderWizardState.svelte';
 	import { authService } from '$lib/services/auth.svelte';
@@ -31,6 +31,10 @@
 	import type { OrderResponse, WorkloadDayResponse, Establishment } from '$lib/types/dtos';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+
+	// Params and navigation come from the frame this page is shown in: the
+	// whole app, or a desktop window (see docs/adr/0008).
+	const route = useRoute();
 
 	type DraftService = DraftOrderItem['services'][number];
 
@@ -141,7 +145,7 @@
 					// Clear draft before navigation to avoid UI "blink" back to Step 1
 					orderWizardState.clearActiveDraft();
 					toast.success(m['orders.wizard.saveSuccess']());
-					await goto(`/dashboard/orders/${targetId}`);
+					await route.goto(`/dashboard/orders/${targetId}`);
 				} else {
 					const res = await apiService.request<OrderResponse>(`${API_SALES}/orders`, {
 						method: 'POST',
@@ -152,9 +156,9 @@
 
 					// Navigate first, then cleanup to avoid UI "blink" to Step 1
 					if (targetId) {
-						await goto(`/dashboard/orders/${targetId}?action=print`);
+						await route.goto(`/dashboard/orders/${targetId}?action=print`);
 					} else {
-						await goto('/dashboard/orders');
+						await route.goto('/dashboard/orders');
 					}
 					orderWizardState.completeActiveDraft();
 				}

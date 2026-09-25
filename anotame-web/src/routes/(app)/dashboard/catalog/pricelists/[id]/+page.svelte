@@ -4,8 +4,7 @@
   import { onMount } from 'svelte';
   import BulkAdjustBar from '$lib/components/catalog/bulk-adjust-bar.svelte';
   import { Separator } from '$lib/components/ui/separator';
-  import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { useRoute } from '$lib/desktop/route-context.svelte';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -23,8 +22,12 @@
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
 
+  // Params and navigation come from the frame this page is shown in: the
+  // whole app, or a desktop window (see docs/adr/0008).
+  const route = useRoute();
+
   // Derived ID
-  let listId = $derived($page.params.id);
+  let listId = $derived(route.params.id);
 
 
   // State
@@ -77,7 +80,7 @@
         });
 
         toast.success(m["catalog.pricelist.updateSuccess"]());
-        await goto('/dashboard/catalog/pricelists');
+        await route.goto('/dashboard/catalog/pricelists');
       } catch (err: any) {
         toast.error(err.message || m["catalog.pricelist.updateError"]());
       } finally {
@@ -140,7 +143,7 @@
       }
     } catch (err: any) {
       toast.error(err.message || m["catalog.pricelist.loadError"]());
-      goto('/dashboard/catalog/pricelists');
+      route.goto('/dashboard/catalog/pricelists');
     } finally {
       isLoading = false;
     }
@@ -186,7 +189,7 @@
       description={m["catalog.pricelist.editSubtitle"]({ name: $form.name })}
     >
       {#snippet actions()}
-        <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+        <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => route.goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       {/snippet}
     </PageHeader>
 
@@ -294,7 +297,7 @@
               title: m["catalog.pricelist.discardTitle"](),
               description: m["catalog.pricelist.discardDescription"]()
             });
-            if(ok) goto('/dashboard/catalog/pricelists');
+            if(ok) route.goto('/dashboard/catalog/pricelists');
           }}
         >
           {m["catalog.pricelist.discardChanges"]()}
