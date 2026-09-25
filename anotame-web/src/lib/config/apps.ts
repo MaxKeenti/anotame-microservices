@@ -1,4 +1,5 @@
 import RocketIcon from "@lucide/svelte/icons/rocket";
+import HomeIcon from "@lucide/svelte/icons/home";
 import ConciergeBellIcon from "@lucide/svelte/icons/concierge-bell";
 import ShirtIcon from "@lucide/svelte/icons/shirt";
 import ChartLineIcon from "@lucide/svelte/icons/chart-line";
@@ -24,9 +25,15 @@ export type AppDef = {
 /** An app narrowed to the sections the current user can open. */
 export type VisibleApp = { app: AppDef; sections: MenuItem[] };
 
-/** The home screen: a grid of every app, reachable from the first dock tile. */
-export const launchpad = {
+/** The home page, pinned as the first dock tile (like Finder). */
+export const home = {
     href: "/dashboard",
+    icon: HomeIcon,
+    getName: () => m["nav.home.name"](),
+};
+
+/** Overlay grid of every app, opened from the last dock tile. */
+export const launchpad = {
     icon: RocketIcon,
     getName: () => m["nav.launchpad.name"](),
 };
@@ -64,7 +71,7 @@ export function resolveSection(pathname: string): MenuItem | undefined {
         .sort((a, b) => b.href.length - a.href.length)[0];
 }
 
-/** The app owning the current URL; undefined on the launchpad itself. */
+/** The app owning the current URL; undefined on the home page. */
 export function resolveApp(pathname: string): { app: AppDef; section: MenuItem } | undefined {
     const section = resolveSection(pathname);
     if (!section) return undefined;

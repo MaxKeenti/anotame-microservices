@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import type RocketIcon from '@lucide/svelte/icons/rocket';
 
-  /** One app (or the Launchpad) as the dock shows it. */
+  /** One app (or the home page) as the dock shows it. */
   export type DockEntry = {
     key: string;
     label: string;
@@ -17,22 +17,24 @@
   import DockTile from './dock-tile.svelte';
   import { DOCK_SURFACE } from './dock-surface';
   import { cn } from '$lib/utils';
-  import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
+  import { launchpad } from '$lib/config/apps';
   import * as m from '$lib/paraglide/messages';
 
   /** Bottom dock of the authenticated shell. */
   interface Props {
-    /** The Launchpad tile, pinned first like Finder. */
+    /** The home tile, pinned first like Finder. */
     home: DockEntry;
     /** Pinned apps, always shown. */
     items: DockEntry[];
     /** Recently opened apps that are not pinned, shown after a divider. */
     recent?: DockEntry[];
-    /** Opens the full menu modal. */
-    onOpenMenu: () => void;
+    /** Opens the Launchpad overlay. */
+    onOpenLaunchpad: () => void;
   }
 
-  let { home, items, recent = [], onOpenMenu }: Props = $props();
+  let { home, items, recent = [], onOpenLaunchpad }: Props = $props();
+
+  const LaunchpadIcon = launchpad.icon;
 
   // Magnification mirrors the macOS dock: a cosine falloff in *width* (not
   // transform) centred on the cursor, so neighbours genuinely displace each
@@ -74,7 +76,7 @@
   bind:this={dockEl}
   onpointermove={magnifyDock}
   onpointerleave={resetDockMagnify}
-  aria-label={m['layout.menuButton']()}
+  aria-label={m['layout.dock.label']()}
   class={cn(DOCK_SURFACE, 'items-end pb-2.5')}
 >
   {#snippet tile(item: DockEntry)}
@@ -103,7 +105,7 @@
 
   <div class="h-8 w-px shrink-0 self-center bg-border/60 sm:h-9"></div>
 
-  <DockTile label={m['layout.menuButton']()} onclick={onOpenMenu}>
-    <LayoutGridIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
+  <DockTile label={launchpad.getName()} onclick={onOpenLaunchpad}>
+    <LaunchpadIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
   </DockTile>
 </nav>

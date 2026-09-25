@@ -5,13 +5,14 @@
   import { page } from '$app/state';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
-  import MenuModal from '$lib/components/layout/menu-modal.svelte';
+  import LaunchpadModal from '$lib/components/layout/launchpad-modal.svelte';
+  import { launchpadStore } from '$lib/stores/launchpad.svelte';
   import CredentialsDialog from '$lib/components/users/credentials-dialog.svelte';
   import { paletteStore } from '$lib/stores/palette.svelte';
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
-  import { launchpad, openHref, resolveApp, visibleApps, type VisibleApp } from '$lib/config/apps';
+  import { home, openHref, resolveApp, visibleApps, type VisibleApp } from '$lib/config/apps';
   import { FloatingActionBar, SectionTabs, StatePanel } from '$lib/components/common';
   import { appSessionStore } from '$lib/stores/app-session.svelte';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
@@ -19,7 +20,6 @@
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
 
-  let isMenuOpen = $state(false);
   let isCredentialsOpen = $state(false);
 
   const user = $derived(authService.user);
@@ -51,7 +51,7 @@
   // Every dashboard route -- including detail pages like /dashboard/orders/[id]
   // -- gets a stable document title from the section and app it belongs to.
   const pageTitle = $derived.by(() => {
-    if (!current) return `${launchpad.getName()} · ${m["common.appName"]()}`;
+    if (!current) return `${home.getName()} · ${m["common.appName"]()}`;
     const section = current.section.getName();
     const app = current.app.getName();
     return section === app
@@ -73,14 +73,14 @@
   }
 
   const homeEntry = $derived<DockEntry>({
-    key: 'launchpad',
-    label: launchpad.getName(),
-    href: launchpad.href,
-    icon: launchpad.icon,
-    active: page.url.pathname === launchpad.href,
+    key: 'home',
+    label: home.getName(),
+    href: home.href,
+    icon: home.icon,
+    active: page.url.pathname === home.href,
   });
 
-  // Mobile: Launchpad + 2 pinned apps + 1 recent. Desktop: dynamic based on
+  // Mobile: home + 2 pinned apps + 1 recent + Launchpad. Desktop: dynamic based on
   // available width. 64px per slot = 52px icon cell + 8px gap, plus headroom
   // so the magnification spread never pushes the dock past the viewport edge.
   const reservedWidth = $derived(32 + 64 + (maxRecents * 64) + 24 + 64);
@@ -170,7 +170,7 @@
   <!-- The authenticated shell with global touch-first UI rules -->
   <AppShell>
     {#snippet overlays()}
-      <MenuModal bind:isOpen={isMenuOpen} onOpenProfile={() => { isMenuOpen = false; isCredentialsOpen = true; }} />
+      <LaunchpadModal onOpenProfile={() => { launchpadStore.open = false; isCredentialsOpen = true; }} />
       <CredentialsDialog
         bind:open={isCredentialsOpen}
         id="credentials-edit"
@@ -197,7 +197,7 @@
           onCancel={bulkAction.onCancel}
         />
       {:else}
-        <AppDock home={homeEntry} items={dockItems} recent={recentItems} onOpenMenu={() => (isMenuOpen = true)} />
+        <AppDock home={homeEntry} items={dockItems} recent={recentItems} onOpenLaunchpad={() => (launchpadStore.open = true)} />
       {/if}
     {/snippet}
   </AppShell>
