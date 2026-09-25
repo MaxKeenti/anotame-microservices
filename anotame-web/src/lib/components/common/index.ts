@@ -34,3 +34,5 @@ export { default as IconMedallion, iconMedallionVariants } from "./icon-medallio
 export { default as CheckboxField } from "./checkbox-field.svelte";
 export { default as NavLink, navLinkVariants, type NavLinkVariant } from "./nav-link.svelte";
 export { default as SectionTabs, type SectionTab } from "./section-tabs.svelte";
+export { default as SectionSidebar } from "./section-sidebar.svelte";
+export { default as SectionFrame } from "./section-frame.svelte";

@@ -23,14 +23,33 @@ export type AppWindow = {
 	z: number;
 	minimized: boolean;
 	maximized: boolean;
+	/** Size before the window was tiled or snapped; dragging it away restores this. */
+	preTile?: { w: number; h: number } | null;
 };
+
+/** Window placements from the Window menu and edge snapping, like macOS. */
+export type TileLayout =
+	| 'fill'
+	| 'center'
+	| 'left'
+	| 'right'
+	| 'top'
+	| 'bottom'
+	| 'top-left'
+	| 'top-right'
+	| 'bottom-left'
+	| 'bottom-right';
 
 type Bounds = { width: number; height: number };
 
 /** Clearance kept free for the floating dock at the bottom of the desktop. */
 export const DOCK_CLEARANCE = 88;
 const MIN_W = 420;
-const MIN_H = 320;
+const MIN_H = 280;
+/** Smallest window, shared with the resize handles. */
+export const MIN_WINDOW = { w: MIN_W, h: MIN_H };
+/** Gap kept around tiled windows. */
+const TILE_GAP = 8;
 const CASCADE = 32;
 
 let _windows = $state<AppWindow[]>([]);
@@ -40,6 +59,7 @@ let _wide = $state(false);
 /** The signed-in user's saved desktop has been loaded. */
 let _ready = $state(false);
 let _storageKey: string | null = null;
+let _snapPreview = $state<TileLayout | null>(null);
 let _zTop = 1;
 
 function persist() {
@@ -56,6 +76,40 @@ function clampGeometry(win: Pick<AppWindow, 'x' | 'y' | 'w' | 'h'>) {
 	const x = Math.min(Math.max(win.x, 0), Math.max(0, _bounds.width - w));
 	const y = Math.min(Math.max(win.y, 0), Math.max(0, maxH - h));
 	return { x, y, w, h };
+}
+
+/** Where a layout puts a window within the current desktop. */
+export function tileGeometry(layout: TileLayout, current?: { w: number; h: number }) {
+	const W = _bounds.width;
+	const H = _bounds.height - DOCK_CLEARANCE;
+	const g = TILE_GAP;
+	const halfW = (W - g * 3) / 2;
+	const halfH = (H - g * 3) / 2;
+	switch (layout) {
+		case 'fill':
+			return { x: g, y: g, w: W - g * 2, h: H - g * 2 };
+		case 'center': {
+			const w = Math.min(current?.w ?? W * 0.7, W - g * 2);
+			const h = Math.min(current?.h ?? H * 0.8, H - g * 2);
+			return { x: (W - w) / 2, y: (H - h) / 2, w, h };
+		}
+		case 'left':
+			return { x: g, y: g, w: halfW, h: H - g * 2 };
+		case 'right':
+			return { x: g * 2 + halfW, y: g, w: halfW, h: H - g * 2 };
+		case 'top':
+			return { x: g, y: g, w: W - g * 2, h: halfH };
+		case 'bottom':
+			return { x: g, y: g * 2 + halfH, w: W - g * 2, h: halfH };
+		case 'top-left':
+			return { x: g, y: g, w: halfW, h: halfH };
+		case 'top-right':
+			return { x: g * 2 + halfW, y: g, w: halfW, h: halfH };
+		case 'bottom-left':
+			return { x: g, y: g * 2 + halfH, w: halfW, h: halfH };
+		case 'bottom-right':
+			return { x: g * 2 + halfW, y: g * 2 + halfH, w: halfW, h: halfH };
+	}
 }
 
 function defaultGeometry() {
@@ -197,6 +251,43 @@ export const windowsStore = {
 		win.z = ++_zTop;
 		win.minimized = false;
 		recordVisit(win);
+		persist();
+	},
+
+	/** Edge-snap target while a window is dragged, drawn as a preview. */
+	get snapPreview(): TileLayout | null {
+		return _snapPreview;
+	},
+	setSnapPreview(layout: TileLayout | null) {
+		if (_snapPreview !== layout) _snapPreview = layout;
+	},
+
+	/** Places a window in a layout, remembering its size to restore on drag. */
+	tile(appKey: string, layout: TileLayout) {
+		const win = find(appKey);
+		if (!win) return;
+		if (layout !== 'center' && !win.preTile) win.preTile = { w: win.w, h: win.h };
+		const geometry = tileGeometry(layout, win);
+		Object.assign(win, clampGeometry(geometry), { maximized: false, minimized: false });
+		if (layout === 'center') win.preTile = null;
+		win.z = ++_zTop;
+		persist();
+	},
+
+	/** Drops the remembered pre-tile size, returning it (for dragging a tiled window away). */
+	takePreTile(appKey: string): { w: number; h: number } | null {
+		const win = find(appKey);
+		const size = win?.preTile ?? null;
+		if (win) win.preTile = null;
+		return size;
+	},
+
+	/** Restores every minimized window, like "Bring All to Front". */
+	bringAllToFront() {
+		for (const win of [..._windows].sort((a, b) => a.z - b.z)) {
+			win.minimized = false;
+			win.z = ++_zTop;
+		}
 		persist();
 	},
 

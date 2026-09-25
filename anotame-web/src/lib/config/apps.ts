@@ -20,6 +20,8 @@ export type AppDef = {
     /** `menuItems` keys, in navbar order. */
     sections: string[];
     showInDock?: boolean;
+    /** How the app moves between sections: a tab bar, or a sidebar like System Settings. */
+    nav?: 'tabs' | 'sidebar';
 };
 
 /** An app narrowed to the sections the current user can open. */
@@ -42,7 +44,7 @@ export const apps: AppDef[] = [
     { key: "frontDesk", icon: ConciergeBellIcon, getName: () => m["nav.app.frontDesk"](), sections: ["orders", "operations", "customers"] },
     { key: "catalog", icon: ShirtIcon, getName: () => m["nav.app.catalog"](), sections: ["garments", "services", "pricelists"] },
     { key: "metrics", icon: ChartLineIcon, getName: () => m["nav.app.metrics"](), sections: ["kpi"] },
-    { key: "settings", icon: SettingsIcon, getName: () => m["nav.app.settings"](), sections: ["preferences", "business", "schedule", "users"] },
+    { key: "settings", icon: SettingsIcon, getName: () => m["nav.app.settings"](), sections: ["preferences", "desktop", "business", "schedule", "users"], nav: "sidebar" },
     { key: "help", icon: CircleHelpIcon, getName: () => m["nav.app.help"](), sections: ["help"], showInDock: false },
 ];
 

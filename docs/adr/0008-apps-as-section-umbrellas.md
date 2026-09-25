@@ -15,7 +15,7 @@ related **sections**:
 | Mostrador (front desk) | orders, operations, customers |
 | Catálogo | garments, services, price lists |
 | Métricas | KPI (which keeps its own operación / dinero / clientes tabs) |
-| Ajustes | preferences, business, schedule, users |
+| Ajustes | preferences, desktop, business, schedule, users (sidebar, like System Settings) |
 | Ayuda | help (not pinned to the dock) |
 
 How it is built:
