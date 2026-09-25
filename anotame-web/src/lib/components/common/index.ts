@@ -33,3 +33,4 @@ export { default as SimplePager } from "./simple-pager.svelte";
 export { default as IconMedallion, iconMedallionVariants } from "./icon-medallion.svelte";
 export { default as CheckboxField } from "./checkbox-field.svelte";
 export { default as NavLink, navLinkVariants, type NavLinkVariant } from "./nav-link.svelte";
+export { default as SectionTabs, type SectionTab } from "./section-tabs.svelte";

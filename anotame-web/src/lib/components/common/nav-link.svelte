@@ -10,7 +10,7 @@
     base: 'touch-manipulation outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50',
     variants: {
       variant: {
-        /** Segment in a tab track (see KpiTabs); the current tab lifts onto the card surface. */
+        /** Segment in a tab track (see SectionTabs); the current tab lifts onto the card surface. */
         tab: "flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-semibold text-muted-foreground hover:text-foreground data-[current=true]:bg-card data-[current=true]:text-foreground data-[current=true]:shadow-sm [&_svg:not([class*='size-'])]:size-4",
         /** Row in a vertical table of contents. */
         sidebar:

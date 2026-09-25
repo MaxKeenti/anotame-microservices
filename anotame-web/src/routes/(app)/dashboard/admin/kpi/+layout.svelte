@@ -1,13 +1,12 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
-  import { PageHeader, PageContainer } from '$lib/components/common';
+  import { PageHeader, PageContainer, SectionTabs } from '$lib/components/common';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { formatCurrency } from '$lib/utils/formatUtils';
   import { Activity, Banknote, Users } from '@lucide/svelte';
   import type { Establishment } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
   import KpiSummaryStrip from '$lib/components/dashboard/kpi-summary-strip.svelte';
-  import KpiTabs from '$lib/components/dashboard/kpi-tabs.svelte';
   import { toast } from 'svelte-sonner';
   import {
     getMonthParam,
@@ -167,7 +166,7 @@
        the at-a-glance read the old hero provided. -->
   <KpiSummaryStrip items={summaryItems} loading={isLoading} />
 
-  <KpiTabs {tabs} />
+  <SectionTabs {tabs} ariaLabel={m['kpi.tabs.ariaLabel']()} />
 
   {@render children()}
 </PageContainer>

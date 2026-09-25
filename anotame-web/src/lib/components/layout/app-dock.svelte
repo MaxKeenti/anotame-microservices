@@ -1,25 +1,40 @@
+<script lang="ts" module>
+  import type RocketIcon from '@lucide/svelte/icons/rocket';
+
+  /** One app (or the home page) as the dock shows it. */
+  export type DockEntry = {
+    key: string;
+    label: string;
+    /** Where the tile opens, e.g. the app's last-visited section. */
+    href: string;
+    icon: typeof RocketIcon;
+    /** The current page belongs to this entry. */
+    active: boolean;
+  };
+</script>
+
 <script lang="ts">
-  import type { menuItems } from '$lib/config/menu';
   import DockTile from './dock-tile.svelte';
   import { DOCK_SURFACE } from './dock-surface';
   import { cn } from '$lib/utils';
-  import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-  import { page } from '$app/state';
+  import { launchpad } from '$lib/config/apps';
   import * as m from '$lib/paraglide/messages';
-
-  type DockItem = (typeof menuItems)[number];
 
   /** Bottom dock of the authenticated shell. */
   interface Props {
-    /** Primary sections, always shown. */
-    items: DockItem[];
-    /** Recently visited sections, shown after a divider when present. */
-    recent?: DockItem[];
-    /** Opens the full menu modal. */
-    onOpenMenu: () => void;
+    /** The home tile, pinned first like Finder. */
+    home: DockEntry;
+    /** Pinned apps, always shown. */
+    items: DockEntry[];
+    /** Recently opened apps that are not pinned, shown after a divider. */
+    recent?: DockEntry[];
+    /** Opens the Launchpad overlay. */
+    onOpenLaunchpad: () => void;
   }
 
-  let { items, recent = [], onOpenMenu }: Props = $props();
+  let { home, items, recent = [], onOpenLaunchpad }: Props = $props();
+
+  const LaunchpadIcon = launchpad.icon;
 
   // Magnification mirrors the macOS dock: a cosine falloff in *width* (not
   // transform) centred on the cursor, so neighbours genuinely displace each
@@ -61,20 +76,21 @@
   bind:this={dockEl}
   onpointermove={magnifyDock}
   onpointerleave={resetDockMagnify}
-  aria-label={m['layout.menuButton']()}
+  aria-label={m['layout.dock.label']()}
   class={cn(DOCK_SURFACE, 'items-end pb-2.5')}
 >
-  {#snippet tile(item: DockItem)}
+  {#snippet tile(item: DockEntry)}
     {@const Icon = item.icon}
-    {@const active = page.url.pathname.startsWith(item.href)}
-    <DockTile label={item.getName()} href={item.href} {active}>
+    <DockTile label={item.label} href={item.href} active={item.active}>
       <Icon
-        class="size-1/2 {active
+        class="size-1/2 {item.active
           ? 'text-primary-foreground'
           : 'text-muted-foreground group-hover:text-foreground'}"
       />
     </DockTile>
   {/snippet}
+
+  {@render tile(home)}
 
   {#each items as item (item.key)}
     {@render tile(item)}
@@ -89,7 +105,7 @@
 
   <div class="h-8 w-px shrink-0 self-center bg-border/60 sm:h-9"></div>
 
-  <DockTile label={m['layout.menuButton']()} onclick={onOpenMenu}>
-    <LayoutGridIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
+  <DockTile label={launchpad.getName()} onclick={onOpenLaunchpad}>
+    <LaunchpadIcon class="size-1/2 text-muted-foreground group-hover:text-foreground" />
   </DockTile>
 </nav>
