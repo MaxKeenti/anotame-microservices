@@ -38,7 +38,7 @@
     const pathname = new URL(href, url).pathname;
     const target = resolveApp(pathname);
     if (!target) return goto(href);
-    if (target.app.key === win.appKey) windowsStore.navigate(win.appKey, href, { replace });
+    if (target.app.key === win.appKey) windowsStore.navigate(win.id, href, { replace });
     else windowsStore.open(href);
     return Promise.resolve();
   }
@@ -51,7 +51,7 @@
       return view.status === 'ready' ? view.params : {};
     },
     goto: (href, opts) => route(href, opts?.replaceState),
-    replaceUrl: (href) => windowsStore.navigate(win.appKey, href, { replace: true, silent: true }),
+    replaceUrl: (href) => windowsStore.navigate(win.id, href, { replace: true, silent: true }),
   });
 
   $effect(() => {

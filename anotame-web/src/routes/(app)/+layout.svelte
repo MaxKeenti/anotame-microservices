@@ -111,8 +111,8 @@
         windowsStore.minimizeAll();
         return;
       }
-      const fromAppKey = anchor.closest('[data-window-app]')?.getAttribute('data-window-app') ?? undefined;
-      if (windowsStore.open(`${url.pathname}${url.search}`, { fromAppKey })) e.preventDefault();
+      const fromWindowId = anchor.closest('[data-window-id]')?.getAttribute('data-window-id') ?? undefined;
+      if (windowsStore.open(`${url.pathname}${url.search}`, { fromWindowId })) e.preventDefault();
     };
     document.addEventListener('click', handleClick, true);
     return () => document.removeEventListener('click', handleClick, true);
@@ -143,9 +143,9 @@
   const maxRecents = $derived(isMobile ? 1 : 3);
 
   function toDockEntry(entry: VisibleApp): DockEntry {
-    // In desktop mode a dock tile brings the app's window back as it was, and
-    // its dot means the window is open.
-    const win = desktopActive ? windowsStore.windows.find((w) => w.appKey === entry.app.key) : undefined;
+    // In desktop mode a dock tile brings the app's front window back as it
+    // was, and its dot means the app has a window open.
+    const win = desktopActive ? windowsStore.frontmostOf(entry.app.key) : undefined;
     return {
       key: entry.app.key,
       label: entry.app.getName(),

@@ -44,13 +44,22 @@
     const startX = e.clientX;
     const startY = e.clientY;
     el.setPointerCapture(e.pointerId);
+    // Without this, dragging selects the text of whatever the pointer crosses.
+    e.preventDefault();
+    document.getSelection()?.removeAllRanges();
+    const root = document.documentElement.style;
+    const userSelect = root.userSelect;
+    root.userSelect = 'none';
+    root.setProperty('-webkit-user-select', 'none');
     const move = (ev: PointerEvent) => apply(ev.clientX - startX, ev.clientY - startY, ev);
     const end = () => {
       el.removeEventListener('pointermove', move);
       el.removeEventListener('pointerup', end);
       el.removeEventListener('pointercancel', end);
+      root.userSelect = userSelect;
+      root.removeProperty('-webkit-user-select');
       done();
-      windowsStore.setGeometry(win.appKey, {}, true);
+      windowsStore.setGeometry(win.id, {}, true);
     };
     el.addEventListener('pointermove', move);
     el.addEventListener('pointerup', end);
@@ -58,7 +67,7 @@
   }
 
   /** How close to a desktop edge the pointer must get to snap, in px. */
-  const SNAP_EDGE = 12;
+  const SNAP_EDGE = 16;
 
   /** The snap a pointer position asks for: top edge fills, side edges tile a half. */
   function snapFor(ev: PointerEvent, desktop: DOMRect): TileLayout | null {
@@ -71,14 +80,14 @@
   function startDrag(e: PointerEvent) {
     // Buttons in the title bar keep their own behaviour.
     if ((e.target as Element).closest('button')) return;
-    windowsStore.focus(win.appKey);
+    windowsStore.focus(win.id);
     const sectionEl = (e.currentTarget as HTMLElement).closest('section')!;
     const desktop = (sectionEl.offsetParent as HTMLElement).getBoundingClientRect();
     const origin = { ...geometry };
 
     // Dragging a tiled or zoomed window away gives it back its earlier size,
     // keeping the grab point at the same place along the title bar.
-    const restored = win.maximized ? { w: win.w, h: win.h } : windowsStore.takePreTile(win.appKey);
+    const restored = win.maximized ? { w: win.w, h: win.h } : windowsStore.takePreTile(win.id);
     if (restored) {
       const grab = (e.clientX - desktop.left - origin.x) / origin.w;
       origin.x = e.clientX - desktop.left - grab * restored.w;
@@ -90,7 +99,7 @@
     track(
       e,
       (dx, dy, ev) => {
-        windowsStore.setGeometry(win.appKey, { x: origin.x + dx, y: origin.y + dy, w: origin.w, h: origin.h });
+        windowsStore.setGeometry(win.id, { x: origin.x + dx, y: origin.y + dy, w: origin.w, h: origin.h });
         snap = snapFor(ev, desktop);
         windowsStore.setSnapPreview(snap);
       },
@@ -98,8 +107,8 @@
         windowsStore.setSnapPreview(null);
         if (snap) {
           // Remember the size it had before snapping, not the tiled one.
-          windowsStore.setGeometry(win.appKey, { w: origin.w, h: origin.h });
-          windowsStore.tile(win.appKey, snap);
+          windowsStore.setGeometry(win.id, { w: origin.w, h: origin.h });
+          windowsStore.tile(win.id, snap);
         }
       }
     );
@@ -108,8 +117,8 @@
   /** Resizes from an edge or corner; `edges` holds n, s, e, w as needed. */
   function startResize(e: PointerEvent, edges: string) {
     e.stopPropagation();
-    windowsStore.focus(win.appKey);
-    windowsStore.takePreTile(win.appKey);
+    windowsStore.focus(win.id);
+    windowsStore.takePreTile(win.id);
     const o = { ...geometry };
     track(e, (dx, dy) => {
       let { x, y, w, h } = o;
@@ -123,7 +132,7 @@
         h = Math.max(MIN_WINDOW.h, o.h - dy);
         y = o.y + o.h - h;
       }
-      windowsStore.setGeometry(win.appKey, { x, y, w, h });
+      windowsStore.setGeometry(win.id, { x, y, w, h });
     });
   }
 
@@ -142,9 +151,9 @@
 </script>
 
 <section
-  data-window-app={win.appKey}
+  data-window-id={win.id}
   aria-label={title}
-  onpointerdowncapture={() => windowsStore.focus(win.appKey)}
+  onpointerdowncapture={() => windowsStore.focus(win.id)}
   class={cn(
     'pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border bg-background transition-shadow',
     focused ? 'border-border shadow-2xl shadow-black/25' : 'border-border/60 shadow-lg',
@@ -162,20 +171,20 @@
     tabindex="-1"
     aria-label={title}
     onpointerdown={startDrag}
-    ondblclick={() => windowsStore.toggleMaximize(win.appKey)}
+    ondblclick={() => windowsStore.toggleMaximize(win.id)}
     class={cn(
       'flex h-12 shrink-0 touch-none select-none items-center gap-1 border-b border-border/60 px-1',
       focused ? 'bg-muted' : 'bg-muted/50'
     )}
   >
     <div class="flex items-center" class:opacity-60={!focused}>
-      <Button variant="ghost" size="icon-touch" aria-label={m['desktop.window.close']()} onclick={() => windowsStore.close(win.appKey)}>
+      <Button variant="ghost" size="icon-touch" aria-label={m['desktop.window.close']()} onclick={() => windowsStore.close(win.id)}>
         <span class="size-3.5 rounded-full bg-destructive" aria-hidden="true"></span>
       </Button>
-      <Button variant="ghost" size="icon-touch" aria-label={m['desktop.window.minimize']()} onclick={() => windowsStore.minimize(win.appKey)}>
+      <Button variant="ghost" size="icon-touch" aria-label={m['desktop.window.minimize']()} onclick={() => windowsStore.minimize(win.id)}>
         <span class="size-3.5 rounded-full bg-warning" aria-hidden="true"></span>
       </Button>
-      <Button variant="ghost" size="icon-touch" aria-label={m['desktop.window.zoom']()} onclick={() => windowsStore.toggleMaximize(win.appKey)}>
+      <Button variant="ghost" size="icon-touch" aria-label={m['desktop.window.zoom']()} onclick={() => windowsStore.toggleMaximize(win.id)}>
         <span class="size-3.5 rounded-full bg-success" aria-hidden="true"></span>
       </Button>
     </div>
@@ -185,7 +194,7 @@
       size="icon-touch"
       aria-label={m['desktop.window.back']()}
       disabled={win.history.length === 0}
-      onclick={() => windowsStore.back(win.appKey)}
+      onclick={() => windowsStore.back(win.id)}
     >
       <ArrowLeftIcon aria-hidden="true" />
     </Button>

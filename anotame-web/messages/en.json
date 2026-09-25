@@ -1210,5 +1210,6 @@
   "menubar.window.topRight": "Top Right",
   "menubar.window.bottomLeft": "Bottom Left",
   "menubar.window.bottomRight": "Bottom Right",
+  "menubar.window.newWindow": "New Window",
   "menubar.window.bringAllToFront": "Bring All to Front"
 }
