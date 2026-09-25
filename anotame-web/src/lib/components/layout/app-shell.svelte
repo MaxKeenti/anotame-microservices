@@ -3,17 +3,19 @@
   import type { Snippet } from 'svelte';
   import * as m from '$lib/paraglide/messages';
 
-  /** Frame of the authenticated app: skip link, scrolling content, floating dock. */
+  /** Frame of the authenticated app: skip link, menu bar, scrolling content, floating dock. */
   interface Props {
     /** Page content. */
     children: Snippet;
     /** Modals and dialogs mounted once for the whole app. */
     overlays?: Snippet;
+    /** Bar pinned above the content, like the macOS menu bar. */
+    menubar?: Snippet;
     /** Floating bottom bar: the dock, or a page's bulk-action bar. */
     dock?: Snippet;
   }
 
-  let { children, overlays, dock }: Props = $props();
+  let { children, overlays, menubar, dock }: Props = $props();
 </script>
 
 <div class="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
@@ -22,6 +24,8 @@
   </NavLink>
 
   {@render overlays?.()}
+
+  {@render menubar?.()}
 
   <!-- The bottom padding lives on an inner wrapper, not the scroll
        container: Safari ignores padding-bottom on the scroller itself,

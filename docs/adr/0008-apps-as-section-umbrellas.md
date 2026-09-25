@@ -50,10 +50,12 @@ appears in the dock is decided in `apps.ts`, not `menu.ts`.
 The model is staged so later steps build on it rather than replace it:
 
 1. **Apps over routes** — this decision.
-2. **Desktop chrome, still route-based** — a thin top menu bar (current app's name, its sections as
-   menus, a ⌘K launcher, and the account actions that live in the Launchpad today) and optionally
-   route groups such as `routes/(app)/catalog/…`; purely cosmetic because grouping already lives in
-   `apps.ts`.
+2. **Desktop chrome, still route-based** — *done in #56.* From `md` up, `MenuBar` shows the logo
+   menu (Inicio, Launchpad, search), the current app's sections, a "Go" menu of every app, search,
+   the clock, and the account menu; its targets are 44px because the shop runs on touch screens.
+   `CommandPalette` (⌘K / Ctrl+K) searches apps, sections, and quick actions. The dock's dot now
+   marks every app opened this session, as on macOS, while the highlight marks the current one.
+   Route groups were not needed: grouping lives in `apps.ts`.
 3. **Windows** — several apps on screen at once, PostHog-style. SvelteKit renders one route at a
    time; a second route can be shown in a window with shallow routing (`preloadData` + `pushState`),
    but pages that read `page.url` / `page.params` or call `goto()` directly would act on the main

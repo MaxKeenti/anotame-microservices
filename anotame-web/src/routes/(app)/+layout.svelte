@@ -6,6 +6,8 @@
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import LaunchpadModal from '$lib/components/layout/launchpad-modal.svelte';
+  import CommandPalette from '$lib/components/layout/command-palette.svelte';
+  import MenuBar from '$lib/components/layout/menu-bar.svelte';
   import { launchpadStore } from '$lib/stores/launchpad.svelte';
   import CredentialsDialog from '$lib/components/users/credentials-dialog.svelte';
   import { paletteStore } from '$lib/stores/palette.svelte';
@@ -69,6 +71,7 @@
       href: openHref(entry, appSessionStore.lastSection[entry.app.key]),
       icon: entry.app.icon,
       active: entry.app.key === current?.app.key,
+      running: appSessionStore.recentApps.includes(entry.app.key),
     };
   }
 
@@ -78,6 +81,8 @@
     href: home.href,
     icon: home.icon,
     active: page.url.pathname === home.href,
+    // Home is always there, like Finder.
+    running: true,
   });
 
   // Mobile: home + 2 pinned apps + 1 recent + Launchpad. Desktop: dynamic based on
@@ -171,11 +176,16 @@
   <AppShell>
     {#snippet overlays()}
       <LaunchpadModal onOpenProfile={() => { launchpadStore.open = false; isCredentialsOpen = true; }} />
+      <CommandPalette onOpenProfile={() => (isCredentialsOpen = true)} />
       <CredentialsDialog
         bind:open={isCredentialsOpen}
         id="credentials-edit"
         onClose={() => { isCredentialsOpen = false; }}
       />
+    {/snippet}
+
+    {#snippet menubar()}
+      <MenuBar onOpenProfile={() => (isCredentialsOpen = true)} />
     {/snippet}
 
     {#if currentEntry && appTabs.length > 0}
