@@ -13,7 +13,7 @@ import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
 import CircleHelpIcon from "@lucide/svelte/icons/circle-help";
 import * as m from '$lib/paraglide/messages';
 
-type MenuItem = {
+export type MenuItem = {
     key: string;
     href: string;
     icon: typeof HomeIcon;

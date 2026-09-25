@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type Snippet, untrack } from 'svelte';
-  import AppDock from '$lib/components/layout/app-dock.svelte';
+  import AppDock, { type DockEntry } from '$lib/components/layout/app-dock.svelte';
   import AppShell from '$lib/components/layout/app-shell.svelte';
   import { page } from '$app/state';
   import type { LayoutData } from './$types';
@@ -11,9 +11,9 @@
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
-  import { menuItems, adminOnlyItems } from '$lib/config/menu';
-  import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-  import { FloatingActionBar, StatePanel } from '$lib/components/common';
+  import { launchpad, openHref, resolveApp, visibleApps, type VisibleApp } from '$lib/config/apps';
+  import { FloatingActionBar, SectionTabs, StatePanel } from '$lib/components/common';
+  import { appSessionStore } from '$lib/stores/app-session.svelte';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
@@ -36,63 +36,82 @@
     return () => window.removeEventListener('resize', handleResize);
   });
 
-  let recentPaths = $state<string[]>([]);
+  const isAdmin = $derived(user?.role === 'ADMIN');
+  const entries = $derived(visibleApps(isAdmin));
+  const current = $derived(resolveApp(page.url.pathname));
+  const currentEntry = $derived(entries.find((e) => e.app.key === current?.app.key));
 
-  // Track recent paths intelligently
+  // Remember the section each app was left on, so reopening it from the dock
+  // or the Launchpad returns there, and feed the dock's recent apps.
   $effect(() => {
-    const currentPath = page.url.pathname;
-    untrack(() => {
-      let matchedItem = menuItems.find(m => currentPath === m.href);
-      if (!matchedItem) {
-        matchedItem = menuItems.find(m => currentPath.startsWith(m.href) && m.href !== '/dashboard' && m.href !== '/');
-      }
-
-      if (matchedItem) {
-        const newPaths = recentPaths.filter(p => p !== matchedItem.key);
-        newPaths.unshift(matchedItem.key);
-        recentPaths = newPaths.slice(0, 10);
-      }
-    });
+    const match = current;
+    if (match) untrack(() => appSessionStore.visit(match.app.key, match.section.href));
   });
 
-  // Longest-prefix match against the menu config gives every dashboard route --
-  // including detail pages like /dashboard/orders/[id] -- a stable document
-  // title, instead of each page inheriting whatever the last one set.
+  // Every dashboard route -- including detail pages like /dashboard/orders/[id]
+  // -- gets a stable document title from the section and app it belongs to.
   const pageTitle = $derived.by(() => {
-    const path = page.url.pathname;
-    const match = menuItems
-      .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
-      .sort((a, b) => b.href.length - a.href.length)[0];
-    return match ? `${match.getName()} · ${m["common.appName"]()}` : m["common.appName"]();
+    if (!current) return `${launchpad.getName()} · ${m["common.appName"]()}`;
+    const section = current.section.getName();
+    const app = current.app.getName();
+    return section === app
+      ? `${section} · ${m["common.appName"]()}`
+      : `${section} · ${app} · ${m["common.appName"]()}`;
   });
 
   const isMobile = $derived(windowWidth < 640);
   const maxRecents = $derived(isMobile ? 1 : 3);
 
-  const allAvailableItems = $derived.by(() => {
-    return menuItems.filter(item => {
-      if (item.showInDock === false) return false;
-      const isAdmin = user?.role === 'ADMIN';
-      return adminOnlyItems.includes(item.key) ? isAdmin : true;
-    });
+  function toDockEntry(entry: VisibleApp): DockEntry {
+    return {
+      key: entry.app.key,
+      label: entry.app.getName(),
+      href: openHref(entry, appSessionStore.lastSection[entry.app.key]),
+      icon: entry.app.icon,
+      active: entry.app.key === current?.app.key,
+    };
+  }
+
+  const homeEntry = $derived<DockEntry>({
+    key: 'launchpad',
+    label: launchpad.getName(),
+    href: launchpad.href,
+    icon: launchpad.icon,
+    active: page.url.pathname === launchpad.href,
   });
 
-  // Mobile: 3 pinned icons + 1 recent. Desktop: dynamic based on available width.
-  // 64px per slot = 52px icon cell + 8px gap, plus headroom so the
-  // magnification spread never pushes the dock past the viewport edge.
-  const reservedWidth = $derived(32 + (maxRecents * 64) + 24 + 64);
-  const maxVisibleDockItems = $derived(isMobile ? 3 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 64)));
+  // Mobile: Launchpad + 2 pinned apps + 1 recent. Desktop: dynamic based on
+  // available width. 64px per slot = 52px icon cell + 8px gap, plus headroom
+  // so the magnification spread never pushes the dock past the viewport edge.
+  const reservedWidth = $derived(32 + 64 + (maxRecents * 64) + 24 + 64);
+  const maxVisibleDockItems = $derived(isMobile ? 2 : Math.max(1, Math.floor((windowWidth - reservedWidth) / 64)));
 
-  const dockItems = $derived(allAvailableItems.slice(0, maxVisibleDockItems));
+  const pinnedEntries = $derived(
+    entries.filter((e) => e.app.showInDock !== false).slice(0, maxVisibleDockItems)
+  );
+  const dockItems = $derived(pinnedEntries.map(toDockEntry));
 
   const recentItems = $derived.by(() => {
-    const visibleDockKeys = new Set(dockItems.map(i => i.key));
-    const recents = recentPaths
-      .map(key => menuItems.find(m => m.key === key)!)
-      .filter(item => item && item.showInDock !== false && !visibleDockKeys.has(item.key));
-    return recents.slice(0, maxRecents);
+    const pinned = new Set(pinnedEntries.map((e) => e.app.key));
+    return appSessionStore.recentApps
+      .filter((key) => !pinned.has(key))
+      .map((key) => entries.find((e) => e.app.key === key))
+      .filter((e): e is VisibleApp => !!e)
+      .slice(0, maxRecents)
+      .map(toDockEntry);
   });
 
+  // An app with several sections gets a navbar to move between them, like the
+  // tabs of a standalone app.
+  const appTabs = $derived(
+    currentEntry && currentEntry.sections.length > 1
+      ? currentEntry.sections.map((section) => ({
+          href: section.href,
+          label: section.getName(),
+          icon: section.icon,
+        }))
+      : []
+  );
 
   // Initialize store with server-loaded theme during hydration
   // We use untrack to avoid dependency tracking on the store itself, preventing hydration loops
@@ -159,6 +178,10 @@
       />
     {/snippet}
 
+    {#if currentEntry && appTabs.length > 0}
+      <SectionTabs tabs={appTabs} ariaLabel={currentEntry.app.getName()} class="mb-4" />
+    {/if}
+
     {@render children()}
 
     <!-- While a page registers a bulk action (e.g. orders selection) the dock
@@ -174,7 +197,7 @@
           onCancel={bulkAction.onCancel}
         />
       {:else}
-        <AppDock items={dockItems} recent={recentItems} onOpenMenu={() => (isMenuOpen = true)} />
+        <AppDock home={homeEntry} items={dockItems} recent={recentItems} onOpenMenu={() => (isMenuOpen = true)} />
       {/if}
     {/snippet}
   </AppShell>

@@ -1,25 +1,38 @@
+<script lang="ts" module>
+  import type RocketIcon from '@lucide/svelte/icons/rocket';
+
+  /** One app (or the Launchpad) as the dock shows it. */
+  export type DockEntry = {
+    key: string;
+    label: string;
+    /** Where the tile opens, e.g. the app's last-visited section. */
+    href: string;
+    icon: typeof RocketIcon;
+    /** The current page belongs to this entry. */
+    active: boolean;
+  };
+</script>
+
 <script lang="ts">
-  import type { menuItems } from '$lib/config/menu';
   import DockTile from './dock-tile.svelte';
   import { DOCK_SURFACE } from './dock-surface';
   import { cn } from '$lib/utils';
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-  import { page } from '$app/state';
   import * as m from '$lib/paraglide/messages';
-
-  type DockItem = (typeof menuItems)[number];
 
   /** Bottom dock of the authenticated shell. */
   interface Props {
-    /** Primary sections, always shown. */
-    items: DockItem[];
-    /** Recently visited sections, shown after a divider when present. */
-    recent?: DockItem[];
+    /** The Launchpad tile, pinned first like Finder. */
+    home: DockEntry;
+    /** Pinned apps, always shown. */
+    items: DockEntry[];
+    /** Recently opened apps that are not pinned, shown after a divider. */
+    recent?: DockEntry[];
     /** Opens the full menu modal. */
     onOpenMenu: () => void;
   }
 
-  let { items, recent = [], onOpenMenu }: Props = $props();
+  let { home, items, recent = [], onOpenMenu }: Props = $props();
 
   // Magnification mirrors the macOS dock: a cosine falloff in *width* (not
   // transform) centred on the cursor, so neighbours genuinely displace each
@@ -64,17 +77,18 @@
   aria-label={m['layout.menuButton']()}
   class={cn(DOCK_SURFACE, 'items-end pb-2.5')}
 >
-  {#snippet tile(item: DockItem)}
+  {#snippet tile(item: DockEntry)}
     {@const Icon = item.icon}
-    {@const active = page.url.pathname.startsWith(item.href)}
-    <DockTile label={item.getName()} href={item.href} {active}>
+    <DockTile label={item.label} href={item.href} active={item.active}>
       <Icon
-        class="size-1/2 {active
+        class="size-1/2 {item.active
           ? 'text-primary-foreground'
           : 'text-muted-foreground group-hover:text-foreground'}"
       />
     </DockTile>
   {/snippet}
+
+  {@render tile(home)}
 
   {#each items as item (item.key)}
     {@render tile(item)}

@@ -1,25 +1,21 @@
 <script lang="ts">
-  import { menuItems, adminOnlyItems } from '$lib/config/menu';
+  import { launchpad, openHref, visibleApps } from '$lib/config/apps';
   import { PageHeader, PageContainer } from '$lib/components/common';
-  import DashboardTile from '$lib/components/dashboard/dashboard-tile.svelte';
+  import LaunchpadTile from '$lib/components/dashboard/launchpad-tile.svelte';
   import { authService } from '$lib/services/auth.svelte';
+  import { appSessionStore } from '$lib/stores/app-session.svelte';
   import * as m from '$lib/paraglide/messages';
   import WeekCalendarWidget from '$lib/components/dashboard/week-calendar-widget.svelte';
 
-  const userRole = $derived(authService.user?.role);
-  const isAdmin = $derived(userRole === 'ADMIN');
-
-  const visibleItems = $derived(menuItems.filter((item) => {
-    if (item.showInDashboard === false) return false;
-    if (adminOnlyItems.includes(item.key)) return isAdmin;
-    return true;
-  }));
+  const isAdmin = $derived(authService.user?.role === 'ADMIN');
+  const entries = $derived(visibleApps(isAdmin));
 </script>
 
 <PageContainer>
   <PageHeader
-    title={m["dashboard.greeting"]({ name: authService.user?.username || m["common.user"]() })}
-    description={m["dashboard.welcome"]()}
+    title={launchpad.getName()}
+    description={m["launchpad.page.description"]({ name: authService.user?.username || m["common.user"]() })}
+    icon={launchpad.icon}
   />
 
   {#if isAdmin}
@@ -27,8 +23,8 @@
   {/if}
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-    {#each visibleItems as item (item.href)}
-      <DashboardTile {item} />
+    {#each entries as entry (entry.app.key)}
+      <LaunchpadTile {entry} href={openHref(entry, appSessionStore.lastSection[entry.app.key])} />
     {/each}
   </div>
 </PageContainer>
