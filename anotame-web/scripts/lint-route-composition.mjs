@@ -9,6 +9,10 @@
  *     element or a link — layout utilities (flex, grid, gap, spacing) are fine;
  *   - uses a raw <button>, <input>, <select> or <textarea> instead of a primitive;
  *   - sets an inline `style` attribute.
+ * Dashboard pages and the components they render must not import `page` or
+ * `goto` from `$app/*`: they can be shown inside a desktop window, so they use
+ * `useRoute()` (ADR 0008). The shell (`components/layout`, `components/desktop`)
+ * is exempt.
  * It also fails when any `.svelte` file under `src/` contains a <style> block,
  * since styling is Tailwind-only, or when a hand-written component file is not
  * kebab-case (matching what `shadcn-svelte add` generates). Outside the generated
@@ -123,6 +127,25 @@ for (const file of walk(ROUTES)) {
 
 	for (const style of src.matchAll(/\sstyle=/g)) {
 		report(file, lineOf(src, style.index), 'inline style attribute');
+	}
+}
+
+// Dashboard pages, and the components they render, can be shown inside a
+// desktop window (ADR 0008). They read params and navigate through
+// `useRoute()`, which follows the window they are in; the global `page` and
+// `goto` would act on the whole app instead. The shell (layout/, desktop/) and
+// guards legitimately drive the global router.
+const WINDOWABLE = [join(ROUTES, '(app)', 'dashboard'), join(SRC, 'lib', 'components')];
+const SHELL = [join(SRC, 'lib', 'components', 'layout'), join(SRC, 'lib', 'components', 'desktop')];
+const GLOBAL_ROUTER =
+	/import\s*\{[^}]*\b(page|goto)\b[^}]*\}\s*from\s*['"]\$app\/(state|stores|navigation)['"]/g;
+for (const dir of WINDOWABLE) {
+	for (const file of walk(dir)) {
+		if (SHELL.some((shell) => file.startsWith(shell))) continue;
+		const src = readFileSync(file, 'utf8');
+		for (const hit of src.matchAll(GLOBAL_ROUTER)) {
+			report(file, lineOf(src, hit.index), `imports \`${hit[1]}\` from $app/${hit[2]}; use useRoute() from $lib/desktop/route-context.svelte`);
+		}
 	}
 }
 

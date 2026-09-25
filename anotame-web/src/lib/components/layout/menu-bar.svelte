@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { page } from '$app/state';
   import SearchIcon from '@lucide/svelte/icons/search';
   import CheckIcon from '@lucide/svelte/icons/check';
   import logoUrl from '$lib/assets/favicon.svg';
@@ -8,6 +6,9 @@
   import { Button } from '$lib/components/ui/button';
   import { Kbd } from '$lib/components/ui/kbd';
   import { home, launchpad, openHref, resolveApp, visibleApps } from '$lib/config/apps';
+  import { navigate } from '$lib/desktop/navigate';
+  import { currentPathname } from '$lib/desktop/location.svelte';
+  import { windowsStore } from '$lib/desktop/windows.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { appSessionStore } from '$lib/stores/app-session.svelte';
   import { commandPaletteStore } from '$lib/stores/command-palette.svelte';
@@ -23,13 +24,15 @@
   interface Props {
     /** Opens the credentials dialog for the signed-in user. */
     onOpenProfile: () => void;
+    /** The screen is wide enough for windows, so offer the toggle. */
+    canUseWindows: boolean;
   }
 
-  let { onOpenProfile }: Props = $props();
+  let { onOpenProfile, canUseWindows }: Props = $props();
 
   const user = $derived(authService.user);
   const entries = $derived(visibleApps(user?.role === 'ADMIN'));
-  const current = $derived(resolveApp(page.url.pathname));
+  const current = $derived(resolveApp(currentPathname()));
   const currentEntry = $derived(entries.find((e) => e.app.key === current?.app.key));
 
   const HomeIcon = home.icon;
@@ -64,7 +67,7 @@
         <img src={logoUrl} alt="" class="size-6 rounded-md" />
       </Menubar.Trigger>
       <Menubar.Content>
-        <Menubar.Item class="min-h-11" onSelect={() => goto(home.href)}>
+        <Menubar.Item class="min-h-11" onSelect={() => navigate(home.href)}>
           <HomeIcon aria-hidden="true" />
           {home.getName()}
         </Menubar.Item>
@@ -77,6 +80,16 @@
           {m['palette.trigger.label']()}
           <Menubar.Shortcut>{shortcutKey} K</Menubar.Shortcut>
         </Menubar.Item>
+        {#if canUseWindows}
+          <Menubar.Separator />
+          <Menubar.CheckboxItem
+            class="min-h-11"
+            checked={windowsStore.enabled}
+            onCheckedChange={(value) => (windowsStore.enabled = value)}
+          >
+            {m['menubar.windows.toggle']()}
+          </Menubar.CheckboxItem>
+        {/if}
       </Menubar.Content>
     </Menubar.Menu>
 
@@ -89,7 +102,7 @@
         {#if currentEntry}
           {#each currentEntry.sections as section (section.key)}
             {@const Icon = section.icon}
-            <Menubar.Item class="min-h-11" onSelect={() => goto(section.href)}>
+            <Menubar.Item class="min-h-11" onSelect={() => navigate(section.href, { fromAppKey: currentEntry.app.key })}>
               <Icon aria-hidden="true" />
               {section.getName()}
               {#if section.key === current?.section.key}
@@ -114,7 +127,7 @@
           {@const Icon = entry.app.icon}
           <Menubar.Item
             class="min-h-11"
-            onSelect={() => goto(openHref(entry, appSessionStore.lastSection[entry.app.key]))}
+            onSelect={() => navigate(openHref(entry, appSessionStore.lastSection[entry.app.key]))}
           >
             <Icon aria-hidden="true" />
             {entry.app.getName()}

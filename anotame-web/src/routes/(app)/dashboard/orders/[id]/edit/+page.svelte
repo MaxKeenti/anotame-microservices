@@ -3,8 +3,7 @@
     import WizardHeader from '$lib/components/orders/wizard/wizard-header.svelte';
     import * as Card from '$lib/components/ui/card';
     import { ErrorState, FormField, InlineAlert, LockedRegion, PageHeader, StatePanel, PageContainer } from '$lib/components/common';
-    import { page } from '$app/stores';
-    import { goto } from '$app/navigation';
+    import { useRoute } from '$lib/desktop/route-context.svelte';
     import { orderWizardState } from '$lib/services/orders/OrderWizardState.svelte';
     import { authService } from '$lib/services/auth.svelte';
     import { apiService, API_SALES } from '$lib/services/api.svelte';
@@ -20,7 +19,11 @@
     import { toast } from 'svelte-sonner';
     import * as m from '$lib/paraglide/messages';
 
-    let id = $derived($page.params.id);
+    // Params and navigation come from the frame this page is shown in: the
+    // whole app, or a desktop window (see docs/adr/0008).
+    const route = useRoute();
+
+    let id = $derived(route.params.id);
     let isLoading = $state(true);
     let notFound = $state(false);
     let existingOrder = $state<OrderResponse | null>(null);
@@ -80,10 +83,10 @@
             if (e instanceof ApiError && e.status === 404) {
                 notFound = true;
             } else if (e instanceof ApiError && e.status === 401) {
-                await goto('/login');
+                await route.goto('/login');
             } else {
                 toast.error(m["orders.edit.loadError"](), { description: (e as any)?.message });
-                await goto('/dashboard/orders');
+                await route.goto('/dashboard/orders');
             }
         } finally {
             isLoading = false;
@@ -112,7 +115,7 @@
             orderWizardState.activeDraft = { ...orderWizardState.activeDraft, currentStep: prev };
         } else {
             orderWizardState.clearActiveDraft();
-            goto(`/dashboard/orders/${id}`);
+            route.goto(`/dashboard/orders/${id}`);
         }
     }
 
@@ -158,7 +161,7 @@
                 }),
             });
             toast.success(m['orders.wizard.saveSuccess']());
-            await goto(`/dashboard/orders/${id}`);
+            await route.goto(`/dashboard/orders/${id}`);
         } catch (e: any) {
             toast.error(e.message || m['orders.wizard.processOrderError']());
         } finally {
@@ -185,7 +188,7 @@
             description={m['orders.edit.employeeDescription']()}
         >
             {#snippet actions()}
-                <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto(`/dashboard/orders/${id}`)}>
+                <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => route.goto(`/dashboard/orders/${id}`)}>
                     {m["common.cancel"]()}
                 </Button>
             {/snippet}
@@ -226,7 +229,7 @@
             {/if}
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                <Button size="touch-lg" type="button" variant="outline" onclick={() => goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
+                <Button size="touch-lg" type="button" variant="outline" onclick={() => route.goto(`/dashboard/orders/${id}`)} disabled={employeeSaving}>
                     {m['common.cancel']()}
                 </Button>
                 <Button size="touch-lg" type="submit" disabled={isLocked || employeeSaving}>
@@ -252,7 +255,7 @@
             showTray={false}
         >
             {#snippet actions()}
-                <Button size="touch-lg" variant="outline" onclick={() => { orderWizardState.clearActiveDraft(); goto(`/dashboard/orders/${id}`); }}>
+                <Button size="touch-lg" variant="outline" onclick={() => { orderWizardState.clearActiveDraft(); route.goto(`/dashboard/orders/${id}`); }}>
                     {m["common.cancel"]()}
                 </Button>
             {/snippet}

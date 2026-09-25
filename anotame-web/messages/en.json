@@ -866,7 +866,7 @@
   "help.nav.stepDashboard": "The Launchpad (last dock icon, the rocket) shows the apps available to your role, along with your account and the sign-out button. The first dock icon takes you Home.",
   "help.nav.stepDock": "The bottom dock opens each app and takes you back to the last section you used in it; apps that do not fit appear as recents.",
   "help.nav.stepMenu": "Inside an app, the top bar switches between its sections. On tablets and computers, the menu bar at the top shows the current app, the Go menu with every app, and your account; use Search (⌘K or Ctrl+K) to open any app, section, or action.",
-  "help.nav.stepMobile": "On mobile, use the dock and the Launchpad for navigation with large touch controls.",
+  "help.nav.stepMobile": "On computers and tablets (from 1024px), apps open in windows you can move, resize, minimize, and maximize; the Home icon shows the desktop. Turn them off from the logo menu with \"Open apps in windows\". On phones, each app fills the screen.",
   "help.nav.tip": "The manual route is stable: /dashboard/help.",
   "help.roles.title": "Roles and access",
   "help.roles.summary": "The manual describes expected app behavior. Visible actions depend on each user's role.",
@@ -1163,5 +1163,13 @@
   "palette.group.actions": "Actions",
   "palette.action.newOrder": "New order",
   "palette.trigger.label": "Search",
-  "menubar.go.label": "Go"
+  "menubar.go.label": "Go",
+  "desktop.window.loading": "Opening…",
+  "desktop.window.errorTitle": "Couldn't open",
+  "desktop.window.errorDescription": "This section is not available in a window. Try again or close it.",
+  "desktop.window.close": "Close window",
+  "desktop.window.minimize": "Minimize window",
+  "desktop.window.zoom": "Maximize window",
+  "desktop.window.back": "Back",
+  "menubar.windows.toggle": "Open apps in windows"
 }

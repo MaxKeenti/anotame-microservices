@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { navigate } from '$lib/desktop/navigate';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import KeyRoundIcon from '@lucide/svelte/icons/key-round';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
@@ -49,7 +49,7 @@
     <Command.Empty>{m['palette.empty']()}</Command.Empty>
 
     <Command.Group heading={m['palette.group.apps']()}>
-      <Command.Item value="home" keywords={[home.getName()]} onSelect={() => run(() => goto(home.href))} class="min-h-11">
+      <Command.Item value="home" keywords={[home.getName()]} onSelect={() => run(() => navigate(home.href))} class="min-h-11">
         <HomeIcon aria-hidden="true" />
         {home.getName()}
       </Command.Item>
@@ -62,7 +62,7 @@
         <Command.Item
           value={`app-${entry.app.key}`}
           keywords={[entry.app.getName()]}
-          onSelect={() => run(() => goto(openHref(entry, appSessionStore.lastSection[entry.app.key])))}
+          onSelect={() => run(() => navigate(openHref(entry, appSessionStore.lastSection[entry.app.key])))}
           class="min-h-11"
         >
           <Icon aria-hidden="true" />
@@ -80,7 +80,7 @@
           <Command.Item
             value={`section-${section.key}`}
             keywords={[section.getName(), entry.app.getName(), section.getDescription()]}
-            onSelect={() => run(() => goto(section.href))}
+            onSelect={() => run(() => navigate(section.href, { fromAppKey: entry.app.key }))}
             class="min-h-11"
           >
             <Icon aria-hidden="true" />
@@ -94,7 +94,7 @@
     <Command.Separator />
 
     <Command.Group heading={m['palette.group.actions']()}>
-      <Command.Item value="new-order" keywords={[m['palette.action.newOrder']()]} onSelect={() => run(() => goto('/dashboard/orders/new'))} class="min-h-11">
+      <Command.Item value="new-order" keywords={[m['palette.action.newOrder']()]} onSelect={() => run(() => navigate('/dashboard/orders/new', { fromAppKey: 'frontDesk' }))} class="min-h-11">
         <PlusIcon aria-hidden="true" />
         {m['palette.action.newOrder']()}
       </Command.Item>

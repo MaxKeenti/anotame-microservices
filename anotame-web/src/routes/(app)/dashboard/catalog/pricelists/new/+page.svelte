@@ -4,8 +4,7 @@
   import { onMount } from 'svelte';
   import BulkAdjustBar from '$lib/components/catalog/bulk-adjust-bar.svelte';
   import { Separator } from '$lib/components/ui/separator';
-  import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { useRoute } from '$lib/desktop/route-context.svelte';
   import { apiService, API_CATALOG } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -22,6 +21,10 @@
   import type { ColumnDef, Row } from '@tanstack/table-core';
   import type { ServiceResponse, PriceListResponse, PriceListItemDto } from '$lib/types/dtos';
 
+  // Params and navigation come from the frame this page is shown in: the
+  // whole app, or a desktop window (see docs/adr/0008).
+  const route = useRoute();
+
 
   // State
   let isLoading = $state(false);
@@ -30,7 +33,7 @@
   let availableLists = $state<PriceListResponse[]>([]);
   
   // Clone parameter
-  let cloneFromId = $derived($page.url.searchParams.get('cloneFrom'));
+  let cloneFromId = $derived(route.url.searchParams.get('cloneFrom'));
 
   const pricelistSchema = z.object({
     name: z.string().min(1, m["catalog.pricelist.zodNameRequired"]()),
@@ -75,7 +78,7 @@
         });
 
         toast.success(m["catalog.pricelist.createSuccess"]());
-        await goto('/dashboard/catalog/pricelists');
+        await route.goto('/dashboard/catalog/pricelists');
       } catch (err: any) {
         toast.error(err.message || m["catalog.pricelist.createError"]());
       } finally {
@@ -241,7 +244,7 @@
 <PageContainer width="form">
   <PageHeader title={m["catalog.pricelist.newTitle"]()}>
     {#snippet actions()}
-      <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button size="touch-lg" variant="outline" class="w-full sm:w-auto" onclick={() => route.goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
     {/snippet}
   </PageHeader>
 
@@ -376,7 +379,7 @@
 
 
     <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-4">
-      <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto" onclick={() => goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
+      <Button size="xl" type="button" variant="outline" class="w-full sm:w-auto" onclick={() => route.goto('/dashboard/catalog/pricelists')}>{m["common.cancel"]()}</Button>
       <Button size="xl" type="submit" disabled={isLoading} class="w-full sm:w-auto shadow-md">
         {#if isLoading}
           <Spinner data-icon="inline-start" aria-hidden="true" />

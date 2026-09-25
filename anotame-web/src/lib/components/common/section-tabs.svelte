@@ -13,7 +13,7 @@
 
 <script lang="ts">
   import NavLink from '$lib/components/common/nav-link.svelte';
-  import { page } from '$app/state';
+  import { useRoute } from '$lib/desktop/route-context.svelte';
   import * as m from '$lib/paraglide/messages';
   import { cn } from '$lib/utils';
 
@@ -31,12 +31,15 @@
 
   let { tabs, ariaLabel, class: className }: Props = $props();
 
+  // The window's route when inside one, so the right tab lights up there too.
+  const route = useRoute();
+
   let trackEl = $state<HTMLElement | undefined>(undefined);
 
   // On narrow screens the track scrolls sideways; centre the current tab. Only
   // the track's scrollLeft moves -- scrollIntoView would also scroll the page.
   $effect(() => {
-    void page.url.pathname;
+    void route.url.pathname;
     const current = trackEl?.querySelector<HTMLElement>('[aria-current]');
     if (!trackEl || !current) return;
     trackEl.scrollLeft = current.offsetLeft - (trackEl.clientWidth - current.offsetWidth) / 2;
@@ -44,7 +47,7 @@
 
   /** A tab stays active on its own nested routes. */
   function isActive(href: string): boolean {
-    return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+    return route.url.pathname === href || route.url.pathname.startsWith(`${href}/`);
   }
 </script>
 

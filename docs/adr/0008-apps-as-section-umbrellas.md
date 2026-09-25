@@ -56,8 +56,6 @@ The model is staged so later steps build on it rather than replace it:
    `CommandPalette` (⌘K / Ctrl+K) searches apps, sections, and quick actions. The dock's dot now
    marks every app opened this session, as on macOS, while the highlight marks the current one.
    Route groups were not needed: grouping lives in `apps.ts`.
-3. **Windows** — several apps on screen at once, PostHog-style. SvelteKit renders one route at a
-   time; a second route can be shown in a window with shallow routing (`preloadData` + `pushState`),
-   but pages that read `page.url` / `page.params` or call `goto()` directly would act on the main
-   URL. Each app's pages must first take their params and navigation from a context (window or full
-   page). The app boundaries from step 1 define what migrates together, one app at a time.
+3. **Windows** — *done in #56; see `0009-desktop-windows.md`.* From 1024px up, apps open in
+   movable, resizable windows over the home page; pages read params and navigate through
+   `useRoute()`, which follows the window they are in.

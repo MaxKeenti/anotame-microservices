@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as Card from '$lib/components/ui/card';
-  import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
+  import { useRoute } from "$lib/desktop/route-context.svelte";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
@@ -25,8 +24,12 @@
   import { Pencil, Printer, Send, Share2, Tags, XCircle } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
-  let id = $derived($page.params.id);
-  let action = $derived($page.url.searchParams.get("action"));
+  // Params and navigation come from the frame this page is shown in: the
+  // whole app, or a desktop window (see docs/adr/0008).
+  const route = useRoute();
+
+  let id = $derived(route.params.id);
+  let action = $derived(route.url.searchParams.get("action"));
 
   let order = $state<OrderResponse | null>(null);
   let loading = $state(true);
@@ -76,9 +79,9 @@
   $effect(() => {
     // We only need the order to be loaded; establishment can be null (we have fallbacks in handlePrint)
     if (action === 'print' && order && !loading) {
-      const url = new URL(window.location.href);
+      const url = new URL(route.url);
       url.searchParams.delete('action');
-      window.history.replaceState(null, '', url.toString());
+      route.replaceUrl(`${url.pathname}${url.search}`);
 
       setTimeout(async () => {
         const ok = await adaptiveConfirm({
@@ -100,7 +103,7 @@
     try {
       await apiService.request(`${API_SALES}/orders/${order.id}`, { method: "DELETE" });
       toast.success(m["orders.detail.cancelSuccess"]());
-      goto("/dashboard/orders");
+      route.goto("/dashboard/orders");
     } catch (e: any) {
       console.error(e);
       toast.error(m["orders.detail.cancelError"](), { description: e?.message });
