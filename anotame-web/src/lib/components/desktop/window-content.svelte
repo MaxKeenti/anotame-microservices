@@ -6,7 +6,7 @@
   import { setWindowRoute } from '$lib/desktop/route-context.svelte';
   import { windowsStore, type AppWindow } from '$lib/desktop/windows.svelte';
   import { StatePanel, ErrorState } from '$lib/components/common';
-  import SectionTabs from '$lib/components/common/section-tabs.svelte';
+  import SectionFrame from '$lib/components/common/section-frame.svelte';
   import RouteStack from './route-stack.svelte';
   import type { VisibleApp } from '$lib/config/apps';
   import * as m from '$lib/paraglide/messages';
@@ -95,16 +95,14 @@
   );
 </script>
 
-{#if tabs.length > 0 && entry}
-  <SectionTabs {tabs} ariaLabel={entry.app.getName()} class="mb-4" />
-{/if}
-
-{#if view.status === 'loading'}
-  <StatePanel message={m['desktop.window.loading']()} spinner size="page" />
-{:else if view.status === 'error'}
-  <ErrorState title={m['desktop.window.errorTitle']()} description={m['desktop.window.errorDescription']()} />
-{:else}
-  {#key win.rev}
-    <RouteStack stack={view.stack} data={view.data} />
-  {/key}
-{/if}
+<SectionFrame {tabs} ariaLabel={entry?.app.getName() ?? ''} nav={entry?.app.nav}>
+  {#if view.status === 'loading'}
+    <StatePanel message={m['desktop.window.loading']()} spinner size="page" />
+  {:else if view.status === 'error'}
+    <ErrorState title={m['desktop.window.errorTitle']()} description={m['desktop.window.errorDescription']()} />
+  {:else}
+    {#key win.rev}
+      <RouteStack stack={view.stack} data={view.data} />
+    {/key}
+  {/if}
+</SectionFrame>

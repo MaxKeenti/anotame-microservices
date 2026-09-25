@@ -8,7 +8,7 @@
   import { home, launchpad, openHref, resolveApp, visibleApps } from '$lib/config/apps';
   import { navigate } from '$lib/desktop/navigate';
   import { currentPathname } from '$lib/desktop/location.svelte';
-  import { windowsStore } from '$lib/desktop/windows.svelte';
+  import { windowsStore, type TileLayout } from '$lib/desktop/windows.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import { appSessionStore } from '$lib/stores/app-session.svelte';
   import { commandPaletteStore } from '$lib/stores/command-palette.svelte';
@@ -34,6 +34,30 @@
   const entries = $derived(visibleApps(user?.role === 'ADMIN'));
   const current = $derived(resolveApp(currentPathname()));
   const currentEntry = $derived(entries.find((e) => e.app.key === current?.app.key));
+
+  const focusedWindow = $derived(windowsStore.active ? windowsStore.focused : undefined);
+
+  /** The Window menu's Move & Resize choices, in macOS order. */
+  const moveResize: { group: () => string; items: { layout: TileLayout; label: () => string }[] }[] = [
+    {
+      group: () => m['menubar.window.halves'](),
+      items: [
+        { layout: 'left', label: () => m['menubar.window.left']() },
+        { layout: 'right', label: () => m['menubar.window.right']() },
+        { layout: 'top', label: () => m['menubar.window.top']() },
+        { layout: 'bottom', label: () => m['menubar.window.bottom']() },
+      ],
+    },
+    {
+      group: () => m['menubar.window.quarters'](),
+      items: [
+        { layout: 'top-left', label: () => m['menubar.window.topLeft']() },
+        { layout: 'top-right', label: () => m['menubar.window.topRight']() },
+        { layout: 'bottom-left', label: () => m['menubar.window.bottomLeft']() },
+        { layout: 'bottom-right', label: () => m['menubar.window.bottomRight']() },
+      ],
+    },
+  ];
 
   const HomeIcon = home.icon;
   const LaunchpadIcon = launchpad.icon;
@@ -135,6 +159,55 @@
         {/each}
       </Menubar.Content>
     </Menubar.Menu>
+    <!-- The focused window, like macOS's Window menu; on tablets this is how
+         windows are sized, since edge resizing needs a mouse. -->
+    {#if windowsStore.active}
+      <Menubar.Menu>
+        <Menubar.Trigger class="min-h-11 px-3">{m['menubar.window.label']()}</Menubar.Trigger>
+        <Menubar.Content>
+          {#if focusedWindow}
+            {@const key = focusedWindow.appKey}
+            <Menubar.Item class="min-h-11" onSelect={() => windowsStore.minimize(key)}>
+              {m['desktop.window.minimize']()}
+            </Menubar.Item>
+            <Menubar.Item class="min-h-11" onSelect={() => windowsStore.toggleMaximize(key)}>
+              {m['menubar.window.zoom']()}
+            </Menubar.Item>
+            <Menubar.Separator />
+            <Menubar.Item class="min-h-11" onSelect={() => windowsStore.tile(key, 'fill')}>
+              {m['menubar.window.fill']()}
+            </Menubar.Item>
+            <Menubar.Item class="min-h-11" onSelect={() => windowsStore.tile(key, 'center')}>
+              {m['menubar.window.center']()}
+            </Menubar.Item>
+            <Menubar.Sub>
+              <Menubar.SubTrigger class="min-h-11">{m['menubar.window.moveResize']()}</Menubar.SubTrigger>
+              <Menubar.SubContent>
+                {#each moveResize as section, i (i)}
+                  {#if i > 0}<Menubar.Separator />{/if}
+                  <Menubar.Label>{section.group()}</Menubar.Label>
+                  {#each section.items as item (item.layout)}
+                    <Menubar.Item class="min-h-11" onSelect={() => windowsStore.tile(key, item.layout)}>
+                      {item.label()}
+                    </Menubar.Item>
+                  {/each}
+                {/each}
+              </Menubar.SubContent>
+            </Menubar.Sub>
+            <Menubar.Separator />
+          {/if}
+          <Menubar.Item class="min-h-11" onSelect={() => windowsStore.bringAllToFront()}>
+            {m['menubar.window.bringAllToFront']()}
+          </Menubar.Item>
+          {#if focusedWindow}
+            {@const key = focusedWindow.appKey}
+            <Menubar.Item class="min-h-11" onSelect={() => windowsStore.close(key)}>
+              {m['desktop.window.close']()}
+            </Menubar.Item>
+          {/if}
+        </Menubar.Content>
+      </Menubar.Menu>
+    {/if}
   </Menubar.Root>
 
   <div class="flex items-center gap-1">

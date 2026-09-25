@@ -13,11 +13,13 @@
     menubar?: Snippet;
     /** Window layer floating over the content area (desktop mode). */
     desktop?: Snippet;
+    /** Background behind the content area, such as the desktop wallpaper. */
+    wallpaper?: Snippet;
     /** Floating bottom bar: the dock, or a page's bulk-action bar. */
     dock?: Snippet;
   }
 
-  let { children, overlays, menubar, desktop, dock }: Props = $props();
+  let { children, overlays, menubar, desktop, wallpaper, dock }: Props = $props();
 </script>
 
 <div class="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
@@ -45,7 +47,13 @@
        out the dock clearance. Keeping pb-28 the only padding-bottom rule
        makes it win at every breakpoint. -->
   <div class="relative flex min-h-0 flex-1 flex-col">
-    <main id="main-content" tabindex="-1" class="w-full flex-1 overflow-y-auto outline-none">
+    {#if wallpaper}
+      <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
+        {@render wallpaper()}
+      </div>
+    {/if}
+
+    <main id="main-content" tabindex="-1" class="relative w-full flex-1 overflow-y-auto outline-none">
       <div class="mx-auto flex min-h-full w-full max-w-7xl flex-col px-4 pt-4 pb-28 md:px-6 md:pt-6 lg:px-8 lg:pt-8">
         {@render children()}
       </div>

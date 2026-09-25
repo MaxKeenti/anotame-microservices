@@ -9,6 +9,17 @@
     /** Flags the tab when something in that section needs attention. */
     alert?: boolean;
   };
+
+  /**
+   * The tab for `pathname`: the longest href it is on or under, so a nested
+   * section (e.g. /settings/desktop) never also lights up its parent.
+   */
+  export function activeTabHref(tabs: SectionTab[], pathname: string): string | undefined {
+    return tabs
+      .map((tab) => tab.href)
+      .filter((href) => pathname === href || pathname.startsWith(`${href}/`))
+      .sort((a, b) => b.length - a.length)[0];
+  }
 </script>
 
 <script lang="ts">
@@ -45,10 +56,7 @@
     trackEl.scrollLeft = current.offsetLeft - (trackEl.clientWidth - current.offsetWidth) / 2;
   });
 
-  /** A tab stays active on its own nested routes. */
-  function isActive(href: string): boolean {
-    return route.url.pathname === href || route.url.pathname.startsWith(`${href}/`);
-  }
+  const activeHref = $derived(activeTabHref(tabs, route.url.pathname));
 </script>
 
 <nav
@@ -61,7 +69,7 @@
 >
   <div class="flex w-max min-w-full gap-1 rounded-xl border border-border bg-muted/40 p-1">
     {#each tabs as tab (tab.href)}
-      {@const active = isActive(tab.href)}
+      {@const active = tab.href === activeHref}
       <NavLink href={tab.href} variant="tab" current={active}>
         <tab.icon aria-hidden="true" />
         {tab.label}

@@ -47,6 +47,30 @@ reload (or any deep link) to an app route opens that route in its window over th
 Inicio shows the desktop (minimizes every window). The menu bar's app menu and the page title follow
 the focused window. The app navbar (`SectionTabs`) moves into each window.
 
+**Sizing windows, like macOS.** The menu bar's **Ventana** menu acts on the focused window:
+Minimize, Zoom, Fill, Center, *Move & Resize* (halves and quarters, with an 8px gap), Bring All to
+Front, and Close. Dragging a window's title bar to the top edge of the desktop fills it; to the left
+or right edge tiles it to that half, with a preview of where it lands. A tiled or zoomed window
+remembers its earlier size (`preTile`) and gets it back when dragged away. With a mouse, windows
+resize from any edge or corner; on tablets the Ventana menu is the way to size them, since thin
+edge handles do not suit a finger (the 44px bottom-right corner still works by touch).
+
+**Wallpaper.** The home page — the desktop — shows the user's wallpaper: a preset gradient built
+from theme tokens (`src/lib/config/wallpapers.ts`), or a photo they upload. The choice is per user
+and follows them across devices: `/desktop/wallpaper` (a SvelteKit server endpoint) stores a small
+JSON record and the photo in the Railway bucket `anotame-assets` under `users/<id>/`, identifying
+the user through the identity service's `/auth/me` with their session cookie. Photos are scaled
+down in the browser (≤2560px, WebP) before upload, and served back as presigned URLs signed on the
+hour so the browser can cache them. This is a UI preference with no business meaning, so it lives in
+the web app's server rather than a domain service. The web service reads the bucket through `S3_*`
+variables that reference the bucket in each Railway environment; an environment without them
+simply offers presets only.
+
+**Settings like System Settings.** Apps can declare `nav: 'sidebar'` (Ajustes does) to show their
+sections in a System Settings–style sidebar instead of a tab bar; `SectionFrame` picks the layout
+with a container query, so a narrow window or phone falls back to tabs. Ajustes gained an
+**Escritorio** section for the wallpaper and the windows toggle.
+
 **Touch.** Title-bar controls (close, minimize, zoom, back) and the resize corner are 44px; dragging
 uses pointer events with `touch-action: none`, so moving and resizing work with a finger.
 

@@ -11,6 +11,7 @@ import UserIcon from "@lucide/svelte/icons/user";
 import StoreIcon from "@lucide/svelte/icons/store";
 import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
 import CircleHelpIcon from "@lucide/svelte/icons/circle-help";
+import MonitorIcon from "@lucide/svelte/icons/monitor";
 import * as m from '$lib/paraglide/messages';
 
 export type MenuItem = {
@@ -37,6 +38,7 @@ const menuNameMessages: Record<string, () => string> = {
     users: m["nav.users.name"],
     customers: m["nav.customers.name"],
     help: m["nav.help.name"],
+    desktop: m["nav.desktop.name"],
 };
 
 const menuDescMessages: Record<string, () => string> = {
@@ -53,6 +55,7 @@ const menuDescMessages: Record<string, () => string> = {
     users: m["nav.users.description"],
     customers: m["nav.customers.description"],
     help: m["nav.help.description"],
+    desktop: m["nav.desktop.description"],
 };
 
 export const menuItems: MenuItem[] = [
@@ -69,6 +72,7 @@ export const menuItems: MenuItem[] = [
     { key: "customers", href: "/dashboard/customers", icon: UserIcon, getName: () => menuNameMessages.customers(), getDescription: () => menuDescMessages.customers() },
     { key: "help", href: "/dashboard/help", icon: CircleHelpIcon, getName: () => menuNameMessages.help(), getDescription: () => menuDescMessages.help(), showInDock: false },
     { key: "preferences", href: "/dashboard/settings", icon: SettingsIcon, getName: () => menuNameMessages.preferences(), getDescription: () => menuDescMessages.preferences(), showInDock: false },
+    { key: "desktop", href: "/dashboard/settings/desktop", icon: MonitorIcon, getName: () => menuNameMessages.desktop(), getDescription: () => menuDescMessages.desktop(), showInDock: false, showInDashboard: false },
 ];
 
 export const adminOnlyItems = ["users", "business", "schedule", "pricelists", "kpi"];

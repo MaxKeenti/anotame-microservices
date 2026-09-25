@@ -17,7 +17,8 @@
   const LaunchpadIcon = launchpad.icon;
 </script>
 
-<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+<!-- Glass panel, so the greeting stays readable over any wallpaper. -->
+<div class="flex flex-col gap-4 rounded-2xl border border-border/60 bg-background/75 p-4 shadow-sm backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
   <div class="flex min-w-0 items-center gap-4">
     <img src={logoUrl} alt={m['common.appName']()} class="size-14 shrink-0 rounded-2xl shadow-sm" />
     <div class="min-w-0">

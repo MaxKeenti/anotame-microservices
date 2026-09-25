@@ -2,7 +2,7 @@
   import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
   import { Button } from '$lib/components/ui/button';
   import { resolveSection, type VisibleApp } from '$lib/config/apps';
-  import { windowsStore, DOCK_CLEARANCE, type AppWindow } from '$lib/desktop/windows.svelte';
+  import { windowsStore, DOCK_CLEARANCE, MIN_WINDOW, type AppWindow, type TileLayout } from '$lib/desktop/windows.svelte';
   import { cn } from '$lib/utils';
   import WindowContent from './window-content.svelte';
   import * as m from '$lib/paraglide/messages';
@@ -35,16 +35,21 @@
   );
 
   /** Tracks a drag or resize from the pointer that started it. */
-  function track(e: PointerEvent, apply: (dx: number, dy: number) => void) {
+  function track(
+    e: PointerEvent,
+    apply: (dx: number, dy: number, ev: PointerEvent) => void,
+    done: () => void = () => {}
+  ) {
     const el = e.currentTarget as HTMLElement;
     const startX = e.clientX;
     const startY = e.clientY;
     el.setPointerCapture(e.pointerId);
-    const move = (ev: PointerEvent) => apply(ev.clientX - startX, ev.clientY - startY);
+    const move = (ev: PointerEvent) => apply(ev.clientX - startX, ev.clientY - startY, ev);
     const end = () => {
       el.removeEventListener('pointermove', move);
       el.removeEventListener('pointerup', end);
       el.removeEventListener('pointercancel', end);
+      done();
       windowsStore.setGeometry(win.appKey, {}, true);
     };
     el.addEventListener('pointermove', move);
@@ -52,23 +57,88 @@
     el.addEventListener('pointercancel', end);
   }
 
+  /** How close to a desktop edge the pointer must get to snap, in px. */
+  const SNAP_EDGE = 12;
+
+  /** The snap a pointer position asks for: top edge fills, side edges tile a half. */
+  function snapFor(ev: PointerEvent, desktop: DOMRect): TileLayout | null {
+    if (ev.clientY <= desktop.top + SNAP_EDGE) return 'fill';
+    if (ev.clientX <= desktop.left + SNAP_EDGE) return 'left';
+    if (ev.clientX >= desktop.right - SNAP_EDGE) return 'right';
+    return null;
+  }
+
   function startDrag(e: PointerEvent) {
     // Buttons in the title bar keep their own behaviour.
     if ((e.target as Element).closest('button')) return;
     windowsStore.focus(win.appKey);
+    const sectionEl = (e.currentTarget as HTMLElement).closest('section')!;
+    const desktop = (sectionEl.offsetParent as HTMLElement).getBoundingClientRect();
     const origin = { ...geometry };
-    track(e, (dx, dy) =>
-      windowsStore.setGeometry(win.appKey, { x: origin.x + dx, y: origin.y + dy, w: origin.w, h: origin.h })
+
+    // Dragging a tiled or zoomed window away gives it back its earlier size,
+    // keeping the grab point at the same place along the title bar.
+    const restored = win.maximized ? { w: win.w, h: win.h } : windowsStore.takePreTile(win.appKey);
+    if (restored) {
+      const grab = (e.clientX - desktop.left - origin.x) / origin.w;
+      origin.x = e.clientX - desktop.left - grab * restored.w;
+      origin.w = restored.w;
+      origin.h = restored.h;
+    }
+
+    let snap: TileLayout | null = null;
+    track(
+      e,
+      (dx, dy, ev) => {
+        windowsStore.setGeometry(win.appKey, { x: origin.x + dx, y: origin.y + dy, w: origin.w, h: origin.h });
+        snap = snapFor(ev, desktop);
+        windowsStore.setSnapPreview(snap);
+      },
+      () => {
+        windowsStore.setSnapPreview(null);
+        if (snap) {
+          // Remember the size it had before snapping, not the tiled one.
+          windowsStore.setGeometry(win.appKey, { w: origin.w, h: origin.h });
+          windowsStore.tile(win.appKey, snap);
+        }
+      }
     );
   }
 
-  function startResize(e: PointerEvent) {
+  /** Resizes from an edge or corner; `edges` holds n, s, e, w as needed. */
+  function startResize(e: PointerEvent, edges: string) {
+    e.stopPropagation();
     windowsStore.focus(win.appKey);
-    const origin = { ...geometry };
-    track(e, (dx, dy) =>
-      windowsStore.setGeometry(win.appKey, { x: origin.x, y: origin.y, w: origin.w + dx, h: origin.h + dy })
-    );
+    windowsStore.takePreTile(win.appKey);
+    const o = { ...geometry };
+    track(e, (dx, dy) => {
+      let { x, y, w, h } = o;
+      if (edges.includes('e')) w = o.w + dx;
+      if (edges.includes('s')) h = o.h + dy;
+      if (edges.includes('w')) {
+        w = Math.max(MIN_WINDOW.w, o.w - dx);
+        x = o.x + o.w - w;
+      }
+      if (edges.includes('n')) {
+        h = Math.max(MIN_WINDOW.h, o.h - dy);
+        y = o.y + o.h - h;
+      }
+      windowsStore.setGeometry(win.appKey, { x, y, w, h });
+    });
   }
+
+  // Thin edge strips and small corners for the mouse; the finger-sized corner
+  // below covers touch, and the menu bar's Window menu covers exact sizes.
+  const resizeHandles = [
+    { edges: 'n', class: 'inset-x-3 top-0 h-1.5 cursor-ns-resize' },
+    { edges: 's', class: 'inset-x-3 bottom-0 h-1.5 cursor-ns-resize' },
+    { edges: 'w', class: 'inset-y-3 left-0 w-1.5 cursor-ew-resize' },
+    { edges: 'e', class: 'inset-y-3 right-0 w-1.5 cursor-ew-resize' },
+    { edges: 'nw', class: 'top-0 left-0 size-3 cursor-nwse-resize' },
+    { edges: 'ne', class: 'top-0 right-0 size-3 cursor-nesw-resize' },
+    { edges: 'sw', class: 'bottom-0 left-0 size-3 cursor-nesw-resize' },
+    { edges: 'se', class: 'right-0 bottom-0 size-11 cursor-nwse-resize' },
+  ];
 </script>
 
 <section
@@ -137,11 +207,12 @@
   </div>
 
   {#if !win.maximized}
-    <!-- Resize corner, finger-sized -->
-    <div
-      role="presentation"
-      onpointerdown={startResize}
-      class="absolute right-0 bottom-0 size-11 cursor-nwse-resize touch-none"
-    ></div>
+    {#each resizeHandles as handle (handle.edges)}
+      <div
+        role="presentation"
+        onpointerdown={(e) => startResize(e, handle.edges)}
+        class={cn('absolute z-10 touch-none', handle.class)}
+      ></div>
+    {/each}
   {/if}
 </section>

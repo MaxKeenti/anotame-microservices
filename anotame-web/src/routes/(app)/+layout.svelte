@@ -16,12 +16,14 @@
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
   import { home, openHref, resolveApp, visibleApps, type VisibleApp } from '$lib/config/apps';
-  import { FloatingActionBar, SectionTabs, StatePanel } from '$lib/components/common';
+  import { FloatingActionBar, SectionFrame, StatePanel } from '$lib/components/common';
   import { appSessionStore } from '$lib/stores/app-session.svelte';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
   import DesktopWindows from '$lib/components/desktop/desktop-windows.svelte';
   import { windowsStore } from '$lib/desktop/windows.svelte';
   import { currentPathname } from '$lib/desktop/location.svelte';
+  import DesktopWallpaper from '$lib/components/desktop/desktop-wallpaper.svelte';
+  import { wallpaperStore } from '$lib/stores/wallpaper.svelte';
 
   let { data, children }: { data: LayoutData; children: Snippet } = $props();
   const guard = useAuthGuard('/login');
@@ -55,7 +57,10 @@
     const username = user?.username;
     if (!username || restoredFor === username) return;
     restoredFor = username;
-    untrack(() => windowsStore.restore(username, (key) => entries.some((e) => e.app.key === key)));
+    untrack(() => {
+      windowsStore.restore(username, (key) => entries.some((e) => e.app.key === key));
+      wallpaperStore.load();
+    });
   });
 
   // A deep link (or reload) to an app route opens it in a window over the
@@ -260,6 +265,14 @@
       />
     {/snippet}
 
+    <!-- The wallpaper sits behind the home page, which is also the desktop
+         that windows float over. -->
+    {#snippet wallpaper()}
+      {#if page.url.pathname === home.href}
+        <DesktopWallpaper wallpaper={wallpaperStore.state} class="size-full" />
+      {/if}
+    {/snippet}
+
     {#snippet desktop()}
       {#if desktopActive}
         <DesktopWindows />
@@ -270,11 +283,9 @@
       <MenuBar onOpenProfile={() => (isCredentialsOpen = true)} canUseWindows={windowWidth >= 1024} />
     {/snippet}
 
-    {#if currentEntry && appTabs.length > 0}
-      <SectionTabs tabs={appTabs} ariaLabel={currentEntry.app.getName()} class="mb-4" />
-    {/if}
-
-    {@render children()}
+    <SectionFrame tabs={appTabs} ariaLabel={currentEntry?.app.getName() ?? ''} nav={currentEntry?.app.nav}>
+      {@render children()}
+    </SectionFrame>
 
     <!-- While a page registers a bulk action (e.g. orders selection) the dock
          swaps for that action bar, keeping the user on the page until done. -->
