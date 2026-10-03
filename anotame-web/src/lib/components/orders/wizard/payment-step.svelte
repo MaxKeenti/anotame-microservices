@@ -28,7 +28,7 @@
 	import { AdaptiveDateTimePicker } from '$lib/components/ui/responsive';
 	import { superForm, defaults, setError } from 'sveltekit-superforms';
 	import * as m from '$lib/paraglide/messages';
-	import type { OrderResponse, WorkloadDayResponse, Establishment } from '$lib/types/dtos';
+	import type { DashboardMetricsResponse, OrderResponse, WorkloadDayResponse, Establishment } from '$lib/types/dtos';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 
@@ -249,7 +249,7 @@
 		try {
 			const [estData, metricsData] = await Promise.all([
 				apiService.request<Establishment>(`${API_OPERATIONS}/establishment`),
-				apiService.request<{ dailyWorkload?: WorkloadDayResponse[] }>(`${API_SALES}/orders/kpi/dashboard`)
+				apiService.request<DashboardMetricsResponse>(`${API_SALES}/orders/kpi/dashboard`)
 			]);
 			if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
 			if (metricsData?.dailyWorkload) dailyWorkload = metricsData.dailyWorkload;

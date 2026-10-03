@@ -6,7 +6,7 @@
   import { capacityTone } from '$lib/utils/capacity';
   import { apiService, API_SALES, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Calendar } from '@lucide/svelte';
-  import type { Establishment, WorkloadDayResponse } from '$lib/types/dtos';
+  import type { DashboardMetricsResponse, Establishment, WorkloadDayResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
 
   interface Props {
@@ -40,7 +40,7 @@
   onMount(async () => {
     try {
       const [kpiData, estData] = await Promise.all([
-        apiService.request<{ dailyWorkload: WorkloadDayResponse[] }>(`${API_SALES}/orders/kpi/dashboard`),
+        apiService.request<DashboardMetricsResponse>(`${API_SALES}/orders/kpi/dashboard`),
         apiService.request<Establishment>(`${API_OPERATIONS}/establishment`)
       ]);
       if (estData?.dailyCapacityMinutes) capacity = estData.dailyCapacityMinutes;
