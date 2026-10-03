@@ -1,0 +1,512 @@
+---
+openapi: 3.1.0
+components:
+  schemas:
+    GarmentTypeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    GarmentTypeResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+        description:
+          type: string
+    ItemRequest:
+      type: object
+      properties:
+        serviceId:
+          $ref: "#/components/schemas/UUID"
+        price:
+          type: number
+    LocalDateTime:
+      type: string
+      format: date-time
+      examples:
+      - 2022-03-10T12:15:50
+    PriceListItemDto:
+      type: object
+      properties:
+        serviceId:
+          $ref: "#/components/schemas/UUID"
+        serviceName:
+          type: string
+        price:
+          type: number
+        basePrice:
+          type: number
+    PriceListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        validFrom:
+          $ref: "#/components/schemas/LocalDateTime"
+        validTo:
+          $ref: "#/components/schemas/LocalDateTime"
+        active:
+          type: boolean
+        priority:
+          type: integer
+          format: int32
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ItemRequest"
+    PriceListResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+        validFrom:
+          $ref: "#/components/schemas/LocalDateTime"
+        validTo:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/LocalDateTime"
+          - type: "null"
+        active:
+          type: boolean
+        priority:
+          type: integer
+          format: int32
+        items:
+          type:
+          - array
+          - "null"
+          items:
+            $ref: "#/components/schemas/PriceListItemDto"
+    PricingCalculationRequest:
+      type: object
+      properties:
+        serviceId:
+          $ref: "#/components/schemas/UUID"
+        date:
+          $ref: "#/components/schemas/LocalDateTime"
+    PricingCalculationResponse:
+      type: object
+      properties:
+        serviceId:
+          $ref: "#/components/schemas/UUID"
+        finalPrice:
+          type: number
+        source:
+          type: string
+        priceListId:
+          $ref: "#/components/schemas/UUID"
+    ServiceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        defaultDurationMin:
+          type: integer
+          format: int32
+        basePrice:
+          type: number
+        garmentTypeId:
+          $ref: "#/components/schemas/UUID"
+    ServiceResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+        description:
+          type: string
+        defaultDurationMin:
+          type: integer
+          format: int32
+        basePrice:
+          type: number
+        effectivePrice:
+          type:
+          - number
+          - "null"
+        garmentTypeId:
+          anyOf:
+          - $ref: "#/components/schemas/UUID"
+          - type: "null"
+    UUID:
+      type: string
+      format: uuid
+      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+  securitySchemes:
+    SecurityScheme:
+      description: Authentication
+      type: apiKey
+      name: jwt
+      in: cookie
+paths:
+  /catalog/garments:
+    get:
+      operationId: CatalogController_getGarments
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GarmentTypeResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Garments
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: CatalogController_createGarment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GarmentTypeRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GarmentTypeResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Create Garment
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+  /catalog/garments/{id}:
+    put:
+      operationId: CatalogController_updateGarment
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GarmentTypeRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GarmentTypeResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update Garment
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+    delete:
+      operationId: CatalogController_deleteGarment
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Delete Garment
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+  /catalog/services:
+    get:
+      operationId: CatalogController_getServices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Services
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: CatalogController_createService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Create Service
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+  /catalog/services/{id}:
+    put:
+      operationId: CatalogController_updateService
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update Service
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+    delete:
+      operationId: CatalogController_deleteService
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Delete Service
+      tags:
+      - Catalog Controller
+      security:
+      - SecurityScheme: []
+  /pricelists:
+    get:
+      operationId: PriceListController_getAll
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PriceListResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get All
+      tags:
+      - Price List Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: PriceListController_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceListRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceListResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Create
+      tags:
+      - Price List Controller
+      security:
+      - SecurityScheme: []
+  /pricelists/{id}:
+    put:
+      operationId: PriceListController_update
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceListRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceListResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update
+      tags:
+      - Price List Controller
+      security:
+      - SecurityScheme: []
+    get:
+      operationId: PriceListController_getById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceListResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get By Id
+      tags:
+      - Price List Controller
+      security:
+      - SecurityScheme: []
+    delete:
+      operationId: PriceListController_delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Delete
+      tags:
+      - Price List Controller
+      security:
+      - SecurityScheme: []
+  /pricing/calculate:
+    post:
+      operationId: PricingController_calculate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingCalculationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingCalculationResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Calculate
+      tags:
+      - Pricing Controller
+      security:
+      - SecurityScheme: []
+info:
+  title: catalog-service API
+  version: 0.0.1-SNAPSHOT
+servers:
+- url: http://localhost:8082
+  description: Auto generated value
+- url: http://0.0.0.0:8082
+  description: Auto generated value

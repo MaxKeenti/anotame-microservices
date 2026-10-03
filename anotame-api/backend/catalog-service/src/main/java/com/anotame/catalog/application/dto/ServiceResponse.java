@@ -3,6 +3,7 @@ package com.anotame.catalog.application.dto;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
 public class ServiceResponse {
@@ -11,7 +12,9 @@ public class ServiceResponse {
     private String description;
     private Integer defaultDurationMin;
     private BigDecimal basePrice;
+    @Schema(nullable = true)
     private BigDecimal effectivePrice;
+    @Schema(nullable = true)
     private UUID garmentTypeId;
 
     public BigDecimal getEffectivePrice() {

@@ -1,0 +1,1580 @@
+---
+openapi: 3.1.0
+components:
+  schemas:
+    AddPaymentRequest:
+      type: object
+      required:
+      - amount
+      properties:
+        amount:
+          type: number
+        paymentMethod:
+          type: string
+        notes:
+          type: string
+    AgingBucket:
+      type: object
+      properties:
+        bucket:
+          type: string
+          enum:
+          - '0_30'
+          - 31_60
+          - 61_90
+          - 90_PLUS
+        orderCount:
+          type: integer
+          format: int64
+        balance:
+          type: number
+    AtRiskCustomerItem:
+      type: object
+      properties:
+        customerId:
+          $ref: "#/components/schemas/UUID"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        lastOrderDate:
+          type:
+          - string
+          - "null"
+        daysSinceLastOrder:
+          type:
+          - integer
+          - "null"
+          format: int64
+    AuditLogResponse:
+      type: object
+      properties:
+        userId:
+          $ref: "#/components/schemas/UUID"
+        fieldName:
+          type: string
+        oldValue:
+          type:
+          - string
+          - "null"
+        newValue:
+          type:
+          - string
+          - "null"
+        changedAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+    BranchBreakdown:
+      type: object
+      properties:
+        branchId:
+          $ref: "#/components/schemas/UUID"
+        orderCount:
+          type: integer
+          format: int64
+        balance:
+          type: number
+    CalendarDayResponse:
+      type: object
+      properties:
+        date:
+          $ref: "#/components/schemas/LocalDate"
+        totalMinutesUsed:
+          type: integer
+          format: int32
+        orderCount:
+          type: integer
+          format: int32
+        scheduledRevenue:
+          type: number
+        capacityPercent:
+          type: number
+          format: double
+        isHoliday:
+          type: boolean
+        isOpen:
+          type: boolean
+    CalendarMonthResponse:
+      type: object
+      properties:
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarDayResponse"
+    CreateOrderRequest:
+      required:
+      - customer
+      - items
+      type: object
+      properties:
+        customer:
+          $ref: "#/components/schemas/CustomerDto"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemDto"
+        committedDeadline:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        notes:
+          type:
+          - string
+          - "null"
+        amountPaid:
+          type:
+          - number
+          - "null"
+        paymentMethod:
+          type:
+          - string
+          - "null"
+        priceListId:
+          anyOf:
+          - $ref: "#/components/schemas/UUID"
+          - type: "null"
+        priceListName:
+          type:
+          - string
+          - "null"
+    CreatedTicketShareResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        token:
+          type: string
+        expiresAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+    CustomerDto:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        firstName:
+          type: string
+          pattern: \S
+        lastName:
+          type:
+          - string
+          - "null"
+        email:
+          type:
+          - string
+          - "null"
+        phoneNumber:
+          type: string
+          pattern: \S
+        preferences:
+          type:
+          - object
+          - "null"
+          additionalProperties: {}
+      required:
+      - firstName
+      - phoneNumber
+    DashboardMetricsResponse:
+      type: object
+      properties:
+        workload:
+          $ref: "#/components/schemas/WorkloadMetrics"
+        finance:
+          $ref: "#/components/schemas/FinanceMetrics"
+        weeklyRevenueChart:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklyChartPoint"
+        dailyWorkload:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkloadDayPoint"
+    DeliverOrderRequest:
+      type: object
+      required:
+      - pickupCode
+      properties:
+        pickupCode:
+          type: string
+          pattern: "[0-9]{6}"
+          minLength: 6
+          maxLength: 6
+        markFullyPaid:
+          type: boolean
+        paymentMethod:
+          type: string
+          pattern: CASH|CARD|TRANSFER
+    FinanceMetrics:
+      type: object
+      properties:
+        todayRevenue:
+          type: number
+        monthlyRevenue:
+          type: number
+        monthlyRevenueByPaymentMethod:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentMethodTotal"
+        monthlyBilled:
+          type: number
+        monthlyCollected:
+          type: number
+        monthlyPending:
+          type: number
+        openReceivable:
+          type: number
+        deliveredUnpaid:
+          type: number
+    FinancialKpiResponse:
+      type: object
+      properties:
+        revenueTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/RevenueTrendPoint"
+        serviceBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceRevenueItem"
+        topCustomers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopCustomerItem"
+        atRiskCustomers:
+          type: array
+          items:
+            $ref: "#/components/schemas/AtRiskCustomerItem"
+        repeatRate:
+          type: number
+        totalCustomersInPeriod:
+          type: integer
+          format: int64
+        repeatCustomers:
+          type: integer
+          format: int64
+    LocalDate:
+      type: string
+      format: date
+      examples:
+      - 2022-03-10
+    OffsetDateTime:
+      type: string
+      format: date-time
+      examples:
+      - 2022-03-10T12:15:50-04:00
+    OrderContentSource:
+      type: string
+      enum:
+      - CATALOG
+      - CUSTOM
+    OrderItemDto:
+      type: object
+      properties:
+        garmentTypeId:
+          anyOf:
+          - $ref: "#/components/schemas/UUID"
+          - type: "null"
+        source:
+          $ref: "#/components/schemas/OrderContentSource"
+        garmentName:
+          type: string
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemServiceDto"
+        quantity:
+          type: integer
+          format: int32
+        notes:
+          type: string
+      required:
+      - source
+    OrderItemResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        garmentTypeId:
+          anyOf:
+          - $ref: "#/components/schemas/UUID"
+          - type: "null"
+        source:
+          $ref: "#/components/schemas/OrderContentSource"
+        garmentName:
+          type: string
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemServiceDto"
+        quantity:
+          type: integer
+          format: int32
+        unitPrice:
+          type: number
+        subtotal:
+          type: number
+        notes:
+          type:
+          - string
+          - "null"
+    OrderItemServiceDto:
+      type: object
+      required:
+      - source
+      - serviceName
+      - unitPrice
+      - durationMin
+      properties:
+        serviceId:
+          anyOf:
+          - $ref: "#/components/schemas/UUID"
+          - type: "null"
+        source:
+          $ref: "#/components/schemas/OrderContentSource"
+        serviceName:
+          type: string
+        unitPrice:
+          type: number
+        adjustmentAmount:
+          type:
+          - number
+          - "null"
+        adjustmentReason:
+          type:
+          - string
+          - "null"
+        durationMin:
+          type: integer
+          format: int32
+        instructions:
+          type:
+          - string
+          - "null"
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        ticketNumber:
+          type: string
+        customer:
+          $ref: "#/components/schemas/CustomerDto"
+        committedDeadline:
+          $ref: "#/components/schemas/OffsetDateTime"
+        status:
+          type: string
+        totalAmount:
+          type: number
+        amountPaid:
+          type: number
+        paymentMethod:
+          type:
+          - string
+          - "null"
+        notes:
+          type:
+          - string
+          - "null"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemResponse"
+        createdAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+        totalDurationMin:
+          type:
+          - integer
+          - "null"
+          format: int32
+        pickupCode:
+          type:
+          - string
+          - "null"
+        deliveredAt:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        priceListId:
+          anyOf:
+          - $ref: "#/components/schemas/UUID"
+          - type: "null"
+        priceListName:
+          type:
+          - string
+          - "null"
+    OrderSummaryPageResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderSummaryResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    OrderSummaryResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        ticketNumber:
+          type: string
+        customer:
+          $ref: "#/components/schemas/CustomerDto"
+        committedDeadline:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        status:
+          type: string
+        totalAmount:
+          type: number
+        amountPaid:
+          type: number
+        totalDurationMin:
+          type:
+          - integer
+          - "null"
+          format: int32
+        createdAt:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        deliveredAt:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        garmentNames:
+          type: array
+          items:
+            type: string
+        serviceNames:
+          type: array
+          items:
+            type: string
+    PaymentMethodTotal:
+      type: object
+      properties:
+        paymentMethod:
+          type: string
+          enum:
+          - CASH
+          - CARD
+          - TRANSFER
+          - UNSPECIFIED
+        total:
+          type: number
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        orderId:
+          $ref: "#/components/schemas/UUID"
+        amount:
+          type: number
+        paymentMethod:
+          type:
+          - string
+          - "null"
+        notes:
+          type:
+          - string
+          - "null"
+        recordedAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+        orderAmountPaid:
+          type: number
+        orderTotalAmount:
+          type: number
+        orderBalance:
+          type: number
+    PublicHandlingItem:
+      type: object
+      properties:
+        garmentName:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+        notes:
+          type:
+          - string
+          - "null"
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicHandlingService"
+    PublicHandlingService:
+      type: object
+      properties:
+        serviceName:
+          type: string
+        instructions:
+          type:
+          - string
+          - "null"
+    PublicHandlingTicketResponse:
+      type: object
+      properties:
+        ticketNumber:
+          type: string
+        customerName:
+          type: string
+        phoneNumber:
+          type:
+          - string
+          - "null"
+        committedDeadline:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        status:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicHandlingItem"
+    PublicTicketItem:
+      type: object
+      properties:
+        garmentName:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+        notes:
+          type:
+          - string
+          - "null"
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicTicketService"
+    PublicTicketResponse:
+      type: object
+      properties:
+        ticketNumber:
+          type: string
+        customerName:
+          type: string
+        phoneNumber:
+          type:
+          - string
+          - "null"
+        committedDeadline:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        status:
+          type: string
+        totalAmount:
+          type: number
+        amountPaid:
+          type: number
+        balance:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicTicketItem"
+        pickupCode:
+          type:
+          - string
+          - "null"
+        createdAt:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        updatedAt:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+    PublicTicketService:
+      type: object
+      properties:
+        serviceName:
+          type: string
+        unitPrice:
+          type: number
+        adjustmentAmount:
+          type: number
+        adjustmentReason:
+          type:
+          - string
+          - "null"
+        instructions:
+          type:
+          - string
+          - "null"
+    ReceivableOrderItem:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        ticketNumber:
+          type: string
+        branchId:
+          $ref: "#/components/schemas/UUID"
+        customerName:
+          type:
+          - string
+          - "null"
+        createdAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+        committedDeadline:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+        totalAmount:
+          type: number
+        amountPaid:
+          type: number
+        balance:
+          type: number
+        daysOutstanding:
+          type: integer
+          format: int32
+        status:
+          type: string
+    ReceivableOrderPageResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReceivableOrderItem"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        totalBalance:
+          type: number
+    ReceivablesResponse:
+      type: object
+      properties:
+        openReceivable:
+          type: number
+        deliveredUnpaid:
+          type: number
+        openOrderCount:
+          type: integer
+          format: int64
+        deliveredUnpaidOrderCount:
+          type: integer
+          format: int64
+        aging:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgingBucket"
+        byStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusBreakdown"
+        byBranch:
+          type: array
+          items:
+            $ref: "#/components/schemas/BranchBreakdown"
+        ledgerReconciled:
+          type: boolean
+        ledgerDifference:
+          type: number
+    RevenueTrendPoint:
+      type: object
+      properties:
+        period:
+          type: string
+        totalRevenue:
+          type: number
+        paymentCount:
+          type: integer
+          format: int64
+    ServiceRevenueItem:
+      type: object
+      properties:
+        source:
+          $ref: "#/components/schemas/OrderContentSource"
+        serviceName:
+          type: string
+        totalRevenue:
+          type: number
+        orderCount:
+          type: integer
+          format: int64
+        totalDurationMin:
+          type: integer
+          format: int64
+        revenuePerMinute:
+          type: number
+        percentShare:
+          type: number
+    StatusBreakdown:
+      type: object
+      properties:
+        status:
+          type: string
+        orderCount:
+          type: integer
+          format: int64
+        balance:
+          type: number
+    TicketShareResponse:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        scope:
+          $ref: "#/components/schemas/TicketShareScope"
+        createdAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+        expiresAt:
+          $ref: "#/components/schemas/OffsetDateTime"
+        revokedAt:
+          type:
+          - string
+          - "null"
+          anyOf:
+          - $ref: "#/components/schemas/OffsetDateTime"
+          - type: "null"
+    TicketShareScope:
+      type: string
+      enum:
+      - CUSTOMER
+      - HANDLING
+    TopCustomerItem:
+      type: object
+      properties:
+        customerId:
+          $ref: "#/components/schemas/UUID"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        totalSpend:
+          type: number
+        orderCount:
+          type: integer
+          format: int64
+        lastOrderDate:
+          type: string
+    UUID:
+      type: string
+      format: uuid
+      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+    UpdateOrderRequest:
+      type: object
+      properties:
+        customer:
+          $ref: "#/components/schemas/CustomerDto"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemDto"
+        committedDeadline:
+          $ref: "#/components/schemas/OffsetDateTime"
+        notes:
+          type: string
+    WeeklyChartPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        totalPaid:
+          type: number
+    WorkloadDayPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        totalMinutesUsed:
+          type: integer
+          format: int64
+    WorkloadMetrics:
+      type: object
+      properties:
+        todayDeliveries:
+          type: integer
+          format: int64
+        comingDeliveries:
+          type: integer
+          format: int64
+        pendingPipeline:
+          type: integer
+          format: int64
+        readyForPickup:
+          type: integer
+          format: int64
+        totalActive:
+          type: integer
+          format: int64
+  securitySchemes:
+    SecurityScheme:
+      description: Authentication
+      type: apiKey
+      name: jwt
+      in: cookie
+paths:
+  /api/customers:
+    post:
+      operationId: CustomerController_createCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Create Customer
+      tags:
+      - Customer Controller
+      security:
+      - SecurityScheme: []
+  /api/customers/search:
+    get:
+      operationId: CustomerController_searchCustomers
+      parameters:
+      - name: query
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Search Customers
+      tags:
+      - Customer Controller
+      security:
+      - SecurityScheme: []
+  /api/customers/{id}:
+    put:
+      operationId: CustomerController_updateCustomer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update Customer
+      tags:
+      - Customer Controller
+      security:
+      - SecurityScheme: []
+    get:
+      operationId: CustomerController_getCustomer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Customer
+      tags:
+      - Customer Controller
+      security:
+      - SecurityScheme: []
+    delete:
+      operationId: CustomerController_deleteCustomer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Delete Customer
+      tags:
+      - Customer Controller
+      security:
+      - SecurityScheme: []
+  /orders:
+    get:
+      operationId: OrdersController_getOrders
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Orders
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: OrdersController_createOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Create Order
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+  /orders/kpi/calendar:
+    get:
+      operationId: OrderKpiController_getCalendarData
+      parameters:
+      - name: dailyCapacityMinutes
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 480
+      - name: month
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarMonthResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Calendar Data
+      tags:
+      - Order Kpi Controller
+      security:
+      - SecurityScheme: []
+  /orders/kpi/dashboard:
+    get:
+      operationId: OrderKpiController_getDashboardMetrics
+      parameters:
+      - name: month
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardMetricsResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Dashboard Metrics
+      tags:
+      - Order Kpi Controller
+      security:
+      - SecurityScheme: []
+  /orders/kpi/financial:
+    get:
+      operationId: OrderKpiController_getFinancialKpis
+      parameters:
+      - name: atRiskDays
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 60
+      - name: granularity
+        in: query
+        schema:
+          type: string
+          default: day
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialKpiResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Financial Kpis
+      tags:
+      - Order Kpi Controller
+      security:
+      - SecurityScheme: []
+  /orders/kpi/receivables:
+    get:
+      operationId: OrderKpiController_getReceivables
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceivablesResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Receivables
+      tags:
+      - Order Kpi Controller
+      security:
+      - SecurityScheme: []
+  /orders/kpi/receivables/orders:
+    get:
+      operationId: OrderKpiController_getReceivableOrders
+      parameters:
+      - name: delivered
+        in: query
+        schema:
+          type: boolean
+          default: false
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceivableOrderPageResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Receivable Orders
+      tags:
+      - Order Kpi Controller
+      security:
+      - SecurityScheme: []
+  /orders/summary:
+    get:
+      operationId: OrdersController_getOrderSummaries
+      parameters:
+      - name: deadline
+        in: query
+        schema:
+          $ref: "#/components/schemas/LocalDate"
+      - name: garmentId
+        in: query
+        schema:
+          $ref: "#/components/schemas/UUID"
+      - name: garmentSource
+        in: query
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: search
+        in: query
+        schema:
+          type: string
+      - name: size
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      - name: status
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderSummaryPageResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Order Summaries
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+  /orders/{id}:
+    put:
+      operationId: OrdersController_updateOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update Order
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+    get:
+      operationId: OrdersController_getOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Order
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+    delete:
+      operationId: OrdersController_deleteOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Delete Order
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+  /orders/{id}/audit:
+    get:
+      operationId: OrdersController_getAuditLog
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLogResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Audit Log
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+  /orders/{id}/deliver:
+    patch:
+      operationId: OrdersController_deliverOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliverOrderRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Deliver Order
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+  /orders/{id}/status:
+    patch:
+      operationId: OrdersController_updateStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Update Status
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
+  /orders/{orderId}/payments:
+    get:
+      operationId: OrderPaymentController_getPayments
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Payments
+      tags:
+      - Order Payment Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: OrderPaymentController_addPayment
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddPaymentRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+          description: Created
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Add Payment
+      tags:
+      - Order Payment Controller
+      security:
+      - SecurityScheme: []
+  /orders/{orderId}/ticket-shares:
+    get:
+      operationId: TicketShareController_list
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TicketShareResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: List
+      tags:
+      - Ticket Share Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: TicketShareController_create
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      - name: scope
+        in: query
+        schema:
+          type: string
+          default: CUSTOMER
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatedTicketShareResponse"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Create
+      tags:
+      - Ticket Share Controller
+      security:
+      - SecurityScheme: []
+  /orders/{orderId}/ticket-shares/{shareId}:
+    delete:
+      operationId: TicketShareController_revoke
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      - name: shareId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Revoke
+      tags:
+      - Ticket Share Controller
+      security:
+      - SecurityScheme: []
+  /tickets/handling/{token}:
+    get:
+      operationId: PublicTicketController_getHandling
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicHandlingTicketResponse"
+      summary: Get Handling
+      tags:
+      - Public Ticket Controller
+  /tickets/shared/{token}:
+    get:
+      operationId: PublicTicketController_get
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicTicketResponse"
+      summary: Get
+      tags:
+      - Public Ticket Controller
+info:
+  title: sales-service API
+  version: 0.0.1-SNAPSHOT
+servers:
+- url: http://localhost:8083
+  description: Auto generated value
+- url: http://0.0.0.0:8083
+  description: Auto generated value

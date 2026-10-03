@@ -9,8 +9,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/tickets")
 @Produces(MediaType.APPLICATION_JSON)
@@ -21,20 +21,20 @@ public class PublicTicketController {
 
     @GET
     @Path("/shared/{token}")
-    public Response get(@PathParam("token") String token) {
+    public RestResponse<PublicTicketResponse> get(@PathParam("token") String token) {
         PublicTicketResponse ticket = ticketShareService.getPublicTicket(token);
         return publicResponse(ticket);
     }
 
     @GET
     @Path("/handling/{token}")
-    public Response getHandling(@PathParam("token") String token) {
+    public RestResponse<PublicHandlingTicketResponse> getHandling(@PathParam("token") String token) {
         PublicHandlingTicketResponse ticket = ticketShareService.getHandlingTicket(token);
         return publicResponse(ticket);
     }
 
-    private Response publicResponse(Object body) {
-        return Response.ok(body)
+    private <T> RestResponse<T> publicResponse(T body) {
+        return RestResponse.ResponseBuilder.ok(body)
                 .header("Cache-Control", "no-store")
                 .header("X-Robots-Tag", "noindex, nofollow")
                 .build();

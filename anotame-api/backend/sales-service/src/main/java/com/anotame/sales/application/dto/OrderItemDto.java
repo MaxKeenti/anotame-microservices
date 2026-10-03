@@ -7,9 +7,11 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.util.UUID;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
 public class OrderItemDto {
+    @Schema(nullable = true)
     private UUID garmentTypeId;
     @NotNull
     private OrderContentSource source = OrderContentSource.CATALOG;

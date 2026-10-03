@@ -12,6 +12,8 @@ import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.jboss.resteasy.reactive.RestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +79,9 @@ public class OrdersController {
     @Path("/{id}/deliver")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public jakarta.ws.rs.core.Response deliverOrder(@PathParam("id") UUID id,
-                                                     @jakarta.validation.Valid DeliverOrderRequest body) {
+    @APIResponse(responseCode = "200", description = "OK")
+    public RestResponse<Void> deliverOrder(@PathParam("id") UUID id,
+                                           @jakarta.validation.Valid DeliverOrderRequest body) {
         UUID userId = requireUuidClaim("user_id");
         salesService.deliverOrder(
                 id,
@@ -86,7 +89,7 @@ public class OrdersController {
                 userId,
                 Boolean.TRUE.equals(body.getMarkFullyPaid()),
                 body.getPaymentMethod());
-        return jakarta.ws.rs.core.Response.ok().build();
+        return RestResponse.ok();
     }
 
     @GET

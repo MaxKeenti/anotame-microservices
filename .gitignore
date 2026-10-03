@@ -44,6 +44,8 @@ buildNumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
+# OpenAPI contracts: the build writes both formats, only the YAML is tracked
+anotame-api/backend/*/openapi/openapi.json
 
 # Eclipse m2e generated files
 .project

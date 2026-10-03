@@ -4,7 +4,6 @@ import com.anotame.operations.application.service.EstablishmentService;
 import com.anotame.operations.domain.model.Establishment;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 
 @Path("/establishment")
@@ -17,12 +16,12 @@ public class EstablishmentController {
     private final EstablishmentService service;
 
     @GET
-    public Response getSettings() {
-        return Response.ok(service.getSettings()).build();
+    public Establishment getSettings() {
+        return service.getSettings();
     }
 
     @PUT
-    public Response updateSettings(Establishment establishment) {
-        return Response.ok(service.updateSettings(establishment)).build();
+    public Establishment updateSettings(Establishment establishment) {
+        return service.updateSettings(establishment);
     }
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
  * What someone holding a garment needs in order to return it to the right
@@ -16,7 +17,9 @@ import java.util.List;
 public class PublicHandlingTicketResponse {
     private String ticketNumber;
     private String customerName;
+    @Schema(nullable = true)
     private String phoneNumber;
+    @Schema(nullable = true)
     private OffsetDateTime committedDeadline;
     private String status;
     private List<PublicHandlingItem> items;
@@ -26,6 +29,7 @@ public class PublicHandlingTicketResponse {
     public static class PublicHandlingItem {
         private String garmentName;
         private Integer quantity;
+        @Schema(nullable = true)
         private String notes;
         private List<PublicHandlingService> services;
     }
@@ -34,6 +38,7 @@ public class PublicHandlingTicketResponse {
     @Builder
     public static class PublicHandlingService {
         private String serviceName;
+        @Schema(nullable = true)
         private String instructions;
     }
 }
