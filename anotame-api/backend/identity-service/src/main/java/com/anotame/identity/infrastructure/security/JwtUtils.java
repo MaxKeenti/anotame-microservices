@@ -18,11 +18,10 @@ public class JwtUtils implements TokenGeneratorPort {
     /**
      * @param username  The user's login name (used as upn).
      * @param userId    The user's real UUID from tca_user.id_user. Always present.
-     * @param branchId  The user's active branch UUID from tce_employee_assignment.
-     *                  May be null for users with no active branch assignment
-     *                  (e.g., newly registered users). When null, the claim is
-     *                  omitted from the token and branch-scoped sales operations
-     *                  reject the request until an active assignment exists.
+     * @param branchId  The branch the token is scoped to: the configured default
+     *                  branch (app.default-branch-id). When null, the claim is
+     *                  omitted and the other services fall back to their own
+     *                  default branch.
      * @param roles     Role codes (e.g. {"EMPLOYEE"}).
      */
     @Override
