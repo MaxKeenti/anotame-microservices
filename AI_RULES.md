@@ -24,6 +24,11 @@ The backend strictly adheres to **Hexagonal Architecture** and **Domain-Driven D
 - **Audit Fields**: Every transactional table must include `created_at` (`@CreationTimestamp`) and `updated_at` (`@UpdateTimestamp`).
 - **Naming Conventions**: Use `snake_case` for database tables and columns (e.g., `tca_user`, `password_hash`).
 
+### API Contract (see `docs/adr/0010-backend-contracts-generate-frontend-types.md`)
+- **Generated, committed**: every Maven build rewrites `<service>/openapi/openapi.yaml`. Commit it with the change that caused it, then run `bun run gen:api` in `anotame-web` and commit the regenerated types.
+- **Typed endpoints**: return the DTO, or `RestResponse<T>` when the endpoint sets cookies, headers or a status. Never return an untyped `Response` from a controller — the contract and a native image both lose the type.
+- **Say what can be empty**: a response field that can be `null` carries `@Schema(nullable = true)`; a request DTO declares what the server needs with Bean Validation or `@Schema(requiredProperties = …)`. Keep these annotations on application DTOs, not on domain models.
+
 ## 3. Frontend Standards (Svelte 5 & SvelteKit)
 The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns.
 
@@ -32,6 +37,7 @@ The frontend uses **Svelte 5, SvelteKit**, and structured Reactivity patterns.
 - **State & Logic**: Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 - **Services**: Use a class-based singleton pattern leveraging `runed` (e.g., `PersistedState`) for stateful logic, placed in `src/lib/services/`.
 - **Auth Guards**: Protect client routes using guards (`useAuthGuard`, `useGuestGuard`) stored in `src/lib/guards/`.
+- **API Types**: Request and response shapes come from `$lib/types/dtos`, which aliases the types generated from the backend contracts (`src/lib/types/api/*.d.ts` — never edit those by hand). Do not declare an API shape inside a component or type a call as `any`; add the alias to `dtos.ts`. `bun run lint:api` fails the build when the generated types are out of date.
 - **UI Components**: Rely exclusively on Tailwind CSS v4 classes and `shadcn-svelte` components. `src/lib/components/ui/` holds shadcn-generated primitives (plus the adaptive wrappers in `ui/responsive/`) — never put new hand-written components there. Several primitives carry project variants (see "UI Composition" below and `docs/adr/0007-primitive-first-ui.md`), so regenerate them by diffing, not overwriting. Hand-written cross-feature compositions live in `src/lib/components/common/` (exported via its barrel); feature-specific components live in `src/lib/components/<feature>/`. For forms, use the `sveltekit-superforms` single-dialog pattern. For data management pages, use `ResponsiveDataView` from `$lib/components/common` as described in `docs/adr/0004-responsive-data-grids.md`.
 - **Route Pages Compose, They Do Not Style**: Route files under `src/routes/` compose primitives and compositions; they must not put visual utilities (`text-*`, `bg-*`, `border*`, `rounded*`, `shadow*`, `font-*`) on bare HTML elements. Layout utilities (`flex`, `grid`, `gap-*`, spacing) on a wrapper are fine. Extract visual treatments into a component. Enforced at build time by `bun run lint:routes`. See `docs/adr/0006-route-pages-compose.md`.
 - **File Naming**: Component files use `kebab-case.svelte`, matching what `shadcn-svelte add` generates.
