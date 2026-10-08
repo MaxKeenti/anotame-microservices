@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { invalidate } from '$app/navigation';
   import { FormField, PageHeader, StatePanel, PageContainer } from '$lib/components/common';
   import { apiService, API_OPERATIONS } from '$lib/services/api.svelte';
   import { Button } from '$lib/components/ui/button';
@@ -7,7 +8,8 @@
   import * as Card from '$lib/components/ui/card';
   import * as Select from '$lib/components/ui/select';
   import { toast } from 'svelte-sonner';
-  import { Store, ReceiptText, Palette, Sliders } from '@lucide/svelte';
+  import { Store, ReceiptText, Palette, Sliders, Workflow } from '@lucide/svelte';
+  import WorkflowModePicker from '$lib/components/settings/workflow-mode-picker.svelte';
   import { superForm, defaults } from 'sveltekit-superforms';
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
@@ -35,6 +37,7 @@
     capacityThresholdGreen: z.number().min(1).max(100).default(50),
     capacityThresholdAmber: z.number().min(1).max(100).default(85),
     atRiskDaysThreshold: z.number().min(1).default(60),
+    workflowMode: z.enum(['FULL', 'SIMPLE']).default('FULL'),
   });
 
   let isLoading = $state(true);
@@ -63,11 +66,15 @@
           capacityThresholdGreen: f.data.capacityThresholdGreen,
           capacityThresholdAmber: f.data.capacityThresholdAmber,
           atRiskDaysThreshold: f.data.atRiskDaysThreshold,
+          workflowMode: f.data.workflowMode,
         };
         await apiService.request(`${API_OPERATIONS}/establishment`, {
           method: 'PUT',
           body: JSON.stringify(payload),
         });
+        // The app shell reads the workflow from the establishment: reload it so
+        // the sections and order actions follow the new mode right away.
+        await invalidate('establishment:settings');
         toast.success(m['adminSettings.save.success']());
       } catch (err: any) {
         toast.error(err.message || m['adminSettings.save.error']());
@@ -97,6 +104,7 @@
             capacityThresholdGreen: data.capacityThresholdGreen ?? 50,
             capacityThresholdAmber: data.capacityThresholdAmber ?? 85,
             atRiskDaysThreshold: data.atRiskDaysThreshold ?? 60,
+            workflowMode: data.workflowMode === 'SIMPLE' ? 'SIMPLE' : 'FULL',
           },
         });
       }
@@ -152,6 +160,26 @@
               class="font-mono"
               placeholder={m["adminSettings.capacityPlaceholder"]()} />
           </FormField>
+        </Card.Content>
+      </Card.Root>
+
+      <!-- Workflow -->
+      <Card.Root>
+        <Card.Header>
+          <div class="flex items-center gap-2">
+            <Workflow class="w-5 h-5 text-primary" />
+            <Card.Title>{m['adminSettings.workflow.title']()}</Card.Title>
+          </div>
+          <Card.Description>
+            {m['adminSettings.workflow.desc']()}
+          </Card.Description>
+        </Card.Header>
+        <Card.Content>
+          <WorkflowModePicker
+            bind:value={$form.workflowMode}
+            label={m['adminSettings.workflow.title']()}
+            disabled={isSaving}
+          />
         </Card.Content>
       </Card.Root>
 

@@ -23,6 +23,8 @@ export type HelpTopic = {
 	steps?: Text[];
 	callouts?: HelpCallout[];
 	related?: string[];
+	/** Replaces the parts that describe Operations when the shop is on the simple workflow. */
+	simple?: Partial<Pick<HelpTopic, 'summary' | 'appHref' | 'steps' | 'callouts'>>;
 };
 
 export type HelpQuickStart = {
@@ -33,7 +35,14 @@ export type HelpQuickStart = {
 	appHref?: string;
 	adminOnly?: boolean;
 	employeeOnly?: boolean;
+	/** Replaces the parts that describe Operations when the shop is on the simple workflow. */
+	simple?: Partial<Pick<HelpQuickStart, 'title' | 'summary' | 'appHref'>>;
 };
+
+/** The entry as it reads for the shop's workflow (docs/adr/0011). */
+export function forWorkflow<T extends { simple?: Partial<T> }>(entry: T, simple: boolean): T {
+	return simple && entry.simple ? { ...entry, ...entry.simple } : entry;
+}
 
 export type HelpTerm = {
 	id: string;
@@ -68,6 +77,11 @@ export const helpQuickStarts: HelpQuickStart[] = [
 		title: m['help.quick.opsTitle'],
 		summary: m['help.quick.opsSummary'],
 		appHref: '/dashboard/operations',
+		simple: {
+			title: m['help.quick.simpleOpsTitle'],
+			summary: m['help.quick.simpleOpsSummary'],
+			appHref: '/dashboard/orders',
+		},
 	},
 	{
 		id: 'delivery',
@@ -75,6 +89,7 @@ export const helpQuickStarts: HelpQuickStart[] = [
 		title: m['help.quick.deliveryTitle'],
 		summary: m['help.quick.deliverySummary'],
 		appHref: '/dashboard/operations',
+		simple: { appHref: '/dashboard/orders' },
 	},
 	{
 		id: 'payments',
@@ -159,6 +174,18 @@ export const helpTopics: HelpTopic[] = [
 			{ kind: 'important', text: m['help.lifecycle.important'] },
 		],
 		related: ['create-order', 'delivery-pickup', 'payments-refunds'],
+		simple: {
+			summary: m['help.lifecycle.simpleSummary'],
+			steps: [
+				m['help.lifecycle.simpleReceived'],
+				m['help.lifecycle.delivered'],
+				m['help.lifecycle.cancelled'],
+			],
+			callouts: [
+				{ kind: 'important', text: m['help.lifecycle.important'] },
+				{ kind: 'tip', text: m['help.lifecycle.simpleNote'] },
+			],
+		},
 	},
 	{
 		id: 'create-order',
@@ -251,6 +278,16 @@ export const helpTopics: HelpTopic[] = [
 			{ kind: 'important', text: m['help.delivery.codeImportant'] },
 		],
 		related: ['payments-refunds', 'order-lifecycle'],
+		simple: {
+			summary: m['help.delivery.simpleSummary'],
+			appHref: '/dashboard/orders',
+			steps: [
+				m['help.delivery.simpleStepOpen'],
+				m['help.delivery.stepCode'],
+				m['help.delivery.stepBalance'],
+				m['help.delivery.stepConfirm'],
+			],
+		},
 	},
 	{
 		id: 'customers',

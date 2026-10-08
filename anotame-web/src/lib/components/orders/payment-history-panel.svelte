@@ -7,7 +7,7 @@
   import * as Item from '$lib/components/ui/item';
   import StatePanel from '$lib/components/common/state-panel.svelte';
   import PanelHeading from './panel-heading.svelte';
-  import { DollarSign } from '@lucide/svelte';
+  import { DollarSign, Undo2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   type Payment = {
@@ -24,9 +24,11 @@
     orderId: string;
     refreshKey?: number;
     onRecordPayment?: () => void;
+    /** The action returns money instead of taking it (a cancelled order with a deposit). */
+    refundOnly?: boolean;
   };
 
-  let { orderId, refreshKey = 0, onRecordPayment }: Props = $props();
+  let { orderId, refreshKey = 0, onRecordPayment, refundOnly = false }: Props = $props();
 
   let payments = $state<Payment[]>([]);
   let loading = $state(true);
@@ -72,8 +74,13 @@
     {#snippet action()}
       {#if onRecordPayment}
         <Button onclick={onRecordPayment} size="touch">
-          <DollarSign data-icon="inline-start" />
-          {m['orders.payment.recordPayment']()}
+          {#if refundOnly}
+            <Undo2 data-icon="inline-start" />
+            {m['orders.payment.submitRefund']()}
+          {:else}
+            <DollarSign data-icon="inline-start" />
+            {m['orders.payment.recordPayment']()}
+          {/if}
         </Button>
       {/if}
     {/snippet}

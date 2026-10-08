@@ -2,6 +2,7 @@
   import { Heading } from '$lib/components/ui/typography';
   import type { Snippet } from 'svelte';
   import { StatusBadge } from '$lib/components/common';
+  import type { WorkflowMode } from '$lib/types/dtos';
 
   /** Printable card shell shared by the public ticket and handling-ticket pages. */
   interface Props {
@@ -11,11 +12,13 @@
     title: string;
     /** Order status rendered as a badge beside the title. */
     status: string;
+    /** The establishment's workflow, which decides how the status reads. */
+    workflowMode?: WorkflowMode | null;
     /** Ticket body sections. */
     children: Snippet;
   }
 
-  let { eyebrow, title, status, children }: Props = $props();
+  let { eyebrow, title, status, workflowMode = 'FULL', children }: Props = $props();
 </script>
 
 <main class="min-h-screen bg-muted/40 px-4 py-6 sm:py-10">
@@ -24,7 +27,7 @@
       <p class="text-sm font-medium opacity-90">{eyebrow}</p>
       <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
         <Heading level={1}>{title}</Heading>
-        <StatusBadge {status} class="bg-background text-foreground" />
+        <StatusBadge {status} workflowMode={workflowMode ?? 'FULL'} class="bg-background text-foreground" />
       </div>
     </header>
 

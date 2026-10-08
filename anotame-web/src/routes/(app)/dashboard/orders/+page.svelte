@@ -6,12 +6,21 @@
   import { apiService, API_SALES, API_CATALOG } from '$lib/services/api.svelte';
   import { orderWizardState, type DraftOrder } from '$lib/services/orders/OrderWizardState.svelte';
   import { authService } from '$lib/services/auth.svelte';
-  import { Button } from '$lib/components/ui/button';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { FilterField, PageHeader, ResponsiveDataView, StatusBadge, PageContainer } from '$lib/components/common';
+  import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
+  import OrderStatusFilter, {
+    ORDER_STATUS_FILTER_CODES,
+    type OrderStatusFilterValue,
+  } from '$lib/components/orders/order-status-filter.svelte';
+  import { confirmAndCancelOrder } from '$lib/services/orders/cancel-order';
   import { dockActionStore } from '$lib/stores/dock-action.svelte';
+  import { workflowStore } from '$lib/stores/workflow.svelte';
   import { formatCurrency, formatDate, toTimestamp } from '$lib/utils/formatUtils';
-  import { Trash2, Eye, SquarePen } from '@lucide/svelte';
+  import { isOpenOrderStatus } from '$lib/utils/status-labels';
+  import { Trash2, Eye, SquarePen, PackageCheck, XCircle, MoreVertical } from '@lucide/svelte';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { AdaptiveSelect } from '$lib/components/ui/responsive';
   import { AdaptiveDatePicker } from '$lib/components/ui/responsive';
@@ -48,11 +57,23 @@
   let garmentFilter = $state("");
   let dateFilter = $state("");
 
+  // Simple workflow (docs/adr/0011): there is no Operations page, so the list
+  // shows one status at a time and each open order is delivered or cancelled here.
+  const simple = $derived(workflowStore.simple);
+  let statusFilter = $state<OrderStatusFilterValue>('open');
+  let deliverDialogOpen = $state(false);
+  let deliverTarget = $state<OrderSummaryResponse | null>(null);
+
   let drafts = $derived<DraftOrder[]>(orderWizardState.drafts.current);
   let ordersPageSize = $derived(mobile.current ? 12 : 20);
 
   const isAdmin = $derived(authService.user?.role === 'ADMIN');
-  const allSelectedDeletable = $derived(selectedOrders.length > 0 && selectedOrders.every(o => o.status === 'RECEIVED'));
+  // Orders nobody has worked on yet can be deleted; the simple workflow has no
+  // "worked on" step, so there it is any order still open.
+  const allSelectedDeletable = $derived(
+    selectedOrders.length > 0 &&
+      selectedOrders.every((o) => (simple ? isOpenOrderStatus(o.status) : o.status === 'RECEIVED'))
+  );
   const MAX_GARMENT_SUMMARY_ITEMS = 4;
   const CUSTOM_GARMENT_FILTER = '__CUSTOM__';
 
@@ -135,6 +156,7 @@
       params.set('garmentId', garmentFilter);
     }
     if (dateFilter) params.set('deadline', dateFilter);
+    if (simple) params.set('status', ORDER_STATUS_FILTER_CODES[statusFilter].join(','));
     return `${API_SALES}/orders/summary?${params.toString()}`;
   }
 
@@ -191,7 +213,7 @@
   $effect(() => {
     if (!mounted) return;
     const pageSize = ordersPageSize;
-    const filterKey = [searchQuery.trim(), garmentFilter, dateFilter, pageSize].join('\u0000');
+    const filterKey = [searchQuery.trim(), garmentFilter, dateFilter, pageSize, simple ? statusFilter : ''].join('\u0000');
     if (filterKey !== lastSummaryFilterKey) {
       lastSummaryFilterKey = filterKey;
       if (ordersPageIndex !== 0) {
@@ -273,6 +295,25 @@
   function handleBulkCancel() {
     clearOrderSelection();
   }
+
+  function openDeliverDialog(order: OrderSummaryResponse) {
+    deliverTarget = order;
+    deliverDialogOpen = true;
+  }
+
+  function closeDeliverDialog() {
+    deliverDialogOpen = false;
+    deliverTarget = null;
+  }
+
+  function handleDelivered() {
+    closeDeliverDialog();
+    fetchOrders();
+  }
+
+  async function handleCancelOrder(order: OrderSummaryResponse) {
+    if (await confirmAndCancelOrder(order)) fetchOrders();
+  }
 </script>
 
 <PageContainer>
@@ -284,13 +325,17 @@
 
   <Tabs.Root bind:value={view} class="space-y-6">
     <Tabs.List variant="bordered">
-      <Tabs.Trigger value="active">{m["orders.tab.active"]()}</Tabs.Trigger>
+      <Tabs.Trigger value="active">{simple ? m["orders.tab.orders"]() : m["orders.tab.active"]()}</Tabs.Trigger>
       <Tabs.Trigger value="drafts">
         {m["orders.tab.drafts"]()} {drafts.length > 0 ? `(${drafts.length})` : ''}
       </Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="active" class="space-y-6">
+      {#if simple}
+        <OrderStatusFilter bind:value={statusFilter} />
+      {/if}
+
       <Card.Root class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
         <FilterField label={m["common.search"]()} for="search-orders" class="col-span-1 md:col-span-2">
           <Input
@@ -409,6 +454,9 @@
 {/snippet}
 
 {#snippet activeOrderActions(row: Row<OrderSummaryResponse>)}
+  {#if simple}
+    {@render simpleOrderActions(row.original)}
+  {:else}
           <div class="flex justify-end gap-2 whitespace-nowrap">
             <Button size="touch" variant="ghost" href={`/dashboard/orders/${row.original.id}/edit`} class="px-4 font-medium hover:text-primary hover:bg-primary/10">
               <SquarePen class="w-4 h-4 mr-2" />
@@ -419,4 +467,64 @@
               {m["orders.details"]()}
             </Button>
           </div>
+  {/if}
         {/snippet}
+
+<!-- Simple workflow: an open order is delivered or cancelled from its row. -->
+{#snippet simpleOrderActions(order: OrderSummaryResponse)}
+<div class="flex items-center justify-end gap-2 whitespace-nowrap">
+  {#if isOpenOrderStatus(order.status)}
+    <Button size="touch" class="px-4 font-medium" onclick={() => openDeliverDialog(order)}>
+      <PackageCheck class="w-4 h-4 mr-2" />
+      {m["orders.action.deliver"]()}
+    </Button>
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger
+        class={buttonVariants({ variant: 'outline', size: 'icon-touch' })}
+        aria-label={m["common.actions"]()}
+      >
+        <MoreVertical class="w-4 h-4" />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content class="w-48" align="end">
+        <DropdownMenu.Item>
+          {#snippet child({ props })}
+            <a href={`/dashboard/orders/${order.id}`} {...props}>
+              <Eye class="w-4 h-4" />
+              {m["orders.details"]()}
+            </a>
+          {/snippet}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item>
+          {#snippet child({ props })}
+            <a href={`/dashboard/orders/${order.id}/edit`} {...props}>
+              <SquarePen class="w-4 h-4" />
+              {m["common.edit"]()}
+            </a>
+          {/snippet}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item variant="destructive" onSelect={() => handleCancelOrder(order)}>
+          <XCircle class="w-4 h-4" />
+          {m["orders.action.cancel"]()}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  {:else}
+    <Button size="touch" variant="outline" href={`/dashboard/orders/${order.id}`} class="px-4 font-medium">
+      <Eye class="w-4 h-4 mr-2" />
+      {m["orders.details"]()}
+    </Button>
+  {/if}
+</div>
+{/snippet}
+
+{#if deliverTarget}
+  <PickupCodeDialog
+    bind:open={deliverDialogOpen}
+    orderId={deliverTarget.id}
+    ticketNumber={deliverTarget.ticketNumber}
+    orderTotal={Number(deliverTarget.totalAmount ?? 0)}
+    amountPaid={Number(deliverTarget.amountPaid ?? 0)}
+    onDelivered={handleDelivered}
+    onClose={closeDeliverDialog}
+  />
+{/if}

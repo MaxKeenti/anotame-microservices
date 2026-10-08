@@ -15,6 +15,7 @@
   import type { CalendarDayResponse, CalendarMonthResponse } from '$lib/types/dtos';
   import * as m from '$lib/paraglide/messages';
   import { getKpiDashboard, getMonthParam } from '../kpiContext';
+  import { workflowStore } from '$lib/stores/workflow.svelte';
 
   const dashboard = getKpiDashboard();
   const today = new Date();
@@ -24,6 +25,9 @@
   let calendarData = $state<CalendarDayResponse[]>([]);
   let calendarLoading = $state(true);
   let calendarError = $state<string | null>(null);
+
+  // The "ready for pickup" figures describe a step the simple workflow does not have.
+  const showReadyStep = $derived(!workflowStore.simple);
 
   let metrics = $derived(dashboard.metrics);
   let hasActiveWorkload = $derived((metrics?.workload.totalActive ?? 0) > 0);
@@ -87,14 +91,18 @@
   <div class="space-y-6">
     <LeadText text={m['kpi.section.operationsDesc']()} />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
-      <KpiStatCard
-        title={m['kpi.card.ready']()}
-        value={metrics.workload.readyForPickup}
-        description={m['kpi.card.readyDesc']()}
-        icon={Truck}
-        tone="success"
-      />
+    <div class={showReadyStep
+      ? 'grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4'
+      : 'grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6'}>
+      {#if showReadyStep}
+        <KpiStatCard
+          title={m['kpi.card.ready']()}
+          value={metrics.workload.readyForPickup}
+          description={m['kpi.card.readyDesc']()}
+          icon={Truck}
+          tone="success"
+        />
+      {/if}
 
       <KpiStatCard
         title={m['kpi.card.todayDeliveries']()}
@@ -106,7 +114,7 @@
 
       <KpiStatCard
         title={m['kpi.card.pipeline']()}
-        value={metrics.workload.pendingPipeline}
+        value={showReadyStep ? metrics.workload.pendingPipeline : metrics.workload.totalActive}
         description={m['kpi.card.pipelineDesc']()}
         icon={Clock}
         tone="primary"
@@ -125,6 +133,7 @@
       deliveredUnpaid={metrics.finance.deliveredUnpaid}
     />
 
+    {#if showReadyStep}
     <Card.Root class="p-4">
       <div class="mb-2 flex items-center justify-between">
         <Card.Title class="text-sm font-medium">{m['kpi.workload.progress']()}</Card.Title>
@@ -143,6 +152,7 @@
         aria-label={m['kpi.workload.progress']()}
       />
     </Card.Root>
+    {/if}
 
     <Card.Root id="workload-calendar" class="scroll-mt-24">
       <Card.Header class="gap-4 md:flex md:flex-row md:items-center md:justify-between">

@@ -159,6 +159,7 @@ export interface PublicReceiptSettings {
   rfc?: string | null;
   taxRegime?: string | null;
   contactPhone?: string | null;
+  workflowMode?: WorkflowMode | null;
 }
 
 export interface OrderSummaryResponse {
@@ -256,6 +257,9 @@ export interface Holiday {
   description: string;
 }
 
+/** How much of the order flow the shop works with; see docs/adr/0011. */
+export type WorkflowMode = 'FULL' | 'SIMPLE';
+
 export interface Establishment {
   id?: string;
   name: string;
@@ -268,6 +272,7 @@ export interface Establishment {
   atRiskDaysThreshold?: number;
   primaryColor?: string | null;
   fontFamily?: string | null;
+  workflowMode?: WorkflowMode | null;
 }
 
 export interface UserResponse {

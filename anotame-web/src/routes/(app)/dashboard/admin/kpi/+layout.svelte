@@ -8,6 +8,7 @@
   import * as m from '$lib/paraglide/messages';
   import KpiSummaryStrip from '$lib/components/dashboard/kpi-summary-strip.svelte';
   import { toast } from 'svelte-sonner';
+  import { workflowStore } from '$lib/stores/workflow.svelte';
   import {
     getMonthParam,
     setKpiDashboard,
@@ -87,8 +88,10 @@
 
   // The dot marks the tab that has something waiting on a human today, so the
   // signal the old "actua primero aqui" banner carried survives the split.
+  // The simple workflow has no "ready" step, so nothing waits there.
   let hasOperationsAlert = $derived(
-    (metrics?.workload.readyForPickup ?? 0) > 0 || (metrics?.workload.todayDeliveries ?? 0) > 0
+    (!workflowStore.simple && (metrics?.workload.readyForPickup ?? 0) > 0) ||
+      (metrics?.workload.todayDeliveries ?? 0) > 0
   );
   let hasMoneyAlert = $derived((metrics?.finance.openReceivable ?? 0) > 0);
 
@@ -114,11 +117,18 @@
   ]);
 
   let summaryItems = $derived([
-    {
-      label: m['kpi.card.ready'](),
-      value: String(metrics?.workload.readyForPickup ?? 0),
-      toneClass: 'text-success'
-    },
+    // Without a "ready" step, the first figure is every order still in the shop.
+    workflowStore.simple
+      ? {
+          label: m['kpi.card.pipeline'](),
+          value: String(metrics?.workload.totalActive ?? 0),
+          toneClass: 'text-foreground'
+        }
+      : {
+          label: m['kpi.card.ready'](),
+          value: String(metrics?.workload.readyForPickup ?? 0),
+          toneClass: 'text-success'
+        },
     {
       label: m['kpi.card.todayDeliveries'](),
       value: String(metrics?.workload.todayDeliveries ?? 0),

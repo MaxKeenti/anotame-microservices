@@ -5,7 +5,7 @@
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
   import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
-  import { ErrorState, StatePanel, PageContainer } from '$lib/components/common';
+  import { ErrorState, InlineAlert, StatePanel, PageContainer } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
   import { Button } from "$lib/components/ui/button";
   import AddPaymentModal from "$lib/components/orders/add-payment-modal.svelte";
@@ -19,9 +19,13 @@
   import PickupCodeDisplay from "$lib/components/orders/pickup-code-display.svelte";
   import OrderItemsPanel from "$lib/components/orders/order-items-panel.svelte";
   import AuditLogPanel, { type AuditLogEntry } from "$lib/components/orders/audit-log-panel.svelte";
+  import PickupCodeDialog from "$lib/components/orders/pickup-code-dialog.svelte";
+  import { confirmAndCancelOrder } from "$lib/services/orders/cancel-order";
+  import { workflowStore } from "$lib/stores/workflow.svelte";
+  import { isOpenOrderStatus } from "$lib/utils/status-labels";
   import { toast } from "svelte-sonner";
   import { adaptiveConfirm } from "$lib/components/ui/responsive/confirm-state.svelte";
-  import { Pencil, Printer, Send, Share2, Tags, XCircle } from '@lucide/svelte';
+  import { PackageCheck, Pencil, Printer, Send, Share2, Tags, XCircle } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
 
   // Params and navigation come from the frame this page is shown in: the
@@ -39,7 +43,12 @@
   let paymentRefreshKey = $state(0);
   let showShareTicketDialog = $state(false);
   let showGarmentTagDialog = $state(false);
+  let showDeliverDialog = $state(false);
 
+  // Open orders can still be edited, paid, delivered or cancelled.
+  const isOpen = $derived(!!order && isOpenOrderStatus(order.status));
+  // A cancelled order keeps what the customer paid until it is refunded.
+  const refundDue = $derived(order?.status === 'CANCELLED' && (order.amountPaid ?? 0) > 0.009);
 
   onMount(async () => {
     // Non-blocking establishment fetch
@@ -93,21 +102,30 @@
     }
   });
 
+  /** Refreshes the order and its audit trail after an action changed them. */
+  async function reloadOrder() {
+    try {
+      const [res, log] = await Promise.all([
+        apiService.request<OrderResponse>(`${API_SALES}/orders/${id}`),
+        apiService.request<any[]>(`${API_SALES}/orders/${id}/audit`).catch(() => [])
+      ]);
+      order = res;
+      auditLog = log ?? [];
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async function handleCancel() {
     if (!order) return;
-    const ok = await adaptiveConfirm({
-      title: m["orders.detail.cancelTitle"](),
-      description: m["orders.detail.cancelDescription"]()
-    });
-    if (!ok) return;
-    try {
-      await apiService.request(`${API_SALES}/orders/${order.id}`, { method: "DELETE" });
-      toast.success(m["orders.detail.cancelSuccess"]());
-      route.goto("/dashboard/orders");
-    } catch (e: any) {
-      console.error(e);
-      toast.error(m["orders.detail.cancelError"](), { description: e?.message });
-    }
+    if (await confirmAndCancelOrder(order)) await reloadOrder();
+  }
+
+  async function handleDelivered() {
+    showDeliverDialog = false;
+    // Delivery may have settled the balance, which adds a payment.
+    paymentRefreshKey += 1;
+    await reloadOrder();
   }
 
   function handlePrint() {
@@ -161,12 +179,7 @@
 
   async function handlePaymentSuccess() {
     paymentRefreshKey += 1;
-    try {
-      const res = await apiService.request<OrderResponse>(`${API_SALES}/orders/${id}`);
-      order = res;
-    } catch (e) {
-      console.error(e);
-    }
+    await reloadOrder();
   }
 
   async function handleSendToOps() {
@@ -222,13 +235,19 @@
       <NotesCallout title={m["orders.detail.generalNotes"]()} notes={order.notes} />
     {/if}
 
+    {#if refundDue}
+      <InlineAlert
+        tone="warning"
+        text={m["orders.detail.refundDue"]({ amount: formatCurrency(order.amountPaid ?? 0) })}
+      />
+    {/if}
+
     <!-- Payment History -->
     <PaymentHistoryPanel
       orderId={order.id}
       refreshKey={paymentRefreshKey}
-      onRecordPayment={order.status !== 'DELIVERED' && order.status !== 'CANCELLED'
-        ? () => showPaymentModal = true
-        : undefined}
+      refundOnly={refundDue}
+      onRecordPayment={isOpen || refundDue ? () => showPaymentModal = true : undefined}
     />
 
     <OrderItemsPanel items={order.items} />
@@ -254,30 +273,35 @@
       </div>
     </Card.Root>
 
-    <!-- Order management -->
-    <Card.Root class="gap-0 p-0">
-      <PanelHeading title={m['common.actions']()} divider={false} />
-      <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <div class="flex flex-col gap-2 sm:flex-row">
-          {#if order.status === 'RECEIVED'}
-            <Button size="touch" onclick={handleSendToOps}>
-              <Send />
-              {m["orders.detail.sendToOps"]()}
-            </Button>
-          {/if}
-          {#if order.status !== 'DELIVERED' && order.status !== 'CANCELLED'}
+    <!-- Order management: a delivered or cancelled order has nothing left to do -->
+    {#if isOpen}
+      <Card.Root class="gap-0 p-0">
+        <PanelHeading title={m['common.actions']()} divider={false} />
+        <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div class="flex flex-col gap-2 sm:flex-row">
+            {#if workflowStore.simple}
+              <Button size="touch" onclick={() => showDeliverDialog = true}>
+                <PackageCheck />
+                {m["orders.action.deliver"]()}
+              </Button>
+            {:else if order.status === 'RECEIVED'}
+              <Button size="touch" onclick={handleSendToOps}>
+                <Send />
+                {m["orders.detail.sendToOps"]()}
+              </Button>
+            {/if}
             <Button size="touch" href={`/dashboard/orders/${order.id}/edit`} variant="outline">
               <Pencil />
               {m["orders.detail.editOrder"]()}
             </Button>
-          {/if}
+          </div>
+          <Button size="touch" onclick={handleCancel} variant="destructive">
+            <XCircle />
+            {m["orders.detail.cancelOrder"]()}
+          </Button>
         </div>
-        <Button size="touch" onclick={handleCancel} variant="destructive">
-          <XCircle />
-          {m["orders.detail.cancelOrder"]()}
-        </Button>
-      </div>
-    </Card.Root>
+      </Card.Root>
+    {/if}
 
     <!-- Audit Log -->
     {#if auditLog.length > 0}
@@ -289,8 +313,19 @@
       orderId={order.id}
       orderTotal={order.totalAmount ?? 0}
       amountPaid={order.amountPaid ?? 0}
+      refundOnly={refundDue}
       onSuccess={handlePaymentSuccess}
       onClose={() => showPaymentModal = false}
+    />
+
+    <PickupCodeDialog
+      bind:open={showDeliverDialog}
+      orderId={order.id}
+      ticketNumber={order.ticketNumber}
+      orderTotal={order.totalAmount ?? 0}
+      amountPaid={order.amountPaid ?? 0}
+      onDelivered={handleDelivered}
+      onClose={() => showDeliverDialog = false}
     />
 
     <ShareTicketDialog

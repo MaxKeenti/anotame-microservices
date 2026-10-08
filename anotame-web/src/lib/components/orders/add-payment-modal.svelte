@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import * as Card from '$lib/components/ui/card';
   import { Spinner } from '$lib/components/ui/spinner';
   import * as InputGroup from '$lib/components/ui/input-group';
@@ -18,11 +19,13 @@
     orderId: string;
     orderTotal: number;
     amountPaid: number;
+    /** The order is cancelled: the dialog only returns money, entered as a positive amount. */
+    refundOnly?: boolean;
     onSuccess: () => void;
     onClose: () => void;
   };
 
-  let { open = $bindable(false), orderId, orderTotal, amountPaid, onSuccess, onClose }: Props = $props();
+  let { open = $bindable(false), orderId, orderTotal, amountPaid, refundOnly = false, onSuccess, onClose }: Props = $props();
 
   let amount = $state<number | null>(null);
   let method = $state<PaymentMethod>('CASH');
@@ -30,8 +33,16 @@
   let submitting = $state(false);
   let errorMessage = $state('');
 
-  let isRefund = $derived((amount ?? 0) < 0);
+  let isRefund = $derived(refundOnly || (amount ?? 0) < 0);
   let remaining = $derived(Math.max(0, orderTotal - amountPaid));
+
+  // A refund-only dialog opens on the whole amount paid, the usual case after a cancellation.
+  $effect(() => {
+    if (!open || !refundOnly) return;
+    untrack(() => {
+      if (amount === null) amount = amountPaid;
+    });
+  });
 
   function reset() {
     amount = null;
@@ -49,10 +60,16 @@
 
   async function handleSubmit() {
     errorMessage = '';
-    const amt = amount ?? 0;
+    const entered = amount ?? 0;
+    const amt = refundOnly ? -Math.abs(entered) : entered;
 
     if (amt === 0) {
       errorMessage = m['orders.payment.amountLabel']() + ': required';
+      return;
+    }
+    // Checked here because the server answers every rejected payment with the same generic error.
+    if (amt < 0 && Math.abs(amt) > amountPaid + 0.001) {
+      errorMessage = m['orders.payment.errorRefundExceeds']();
       return;
     }
     if (amt < 0 && !note.trim()) {
@@ -70,7 +87,7 @@
           notes: note.trim() || null
         })
       });
-      toast.success(m['orders.payment.success']());
+      toast.success(amt < 0 ? m['orders.payment.refundSuccess']() : m['orders.payment.success']());
       reset();
       open = false;
       onSuccess();
@@ -100,20 +117,29 @@
 <Dialog.Root bind:open onOpenChange={(v) => { if (!v) handleClose(); }}>
   <Dialog.Content>
     <Dialog.Header>
-      <Dialog.Title>{m['orders.payment.modalTitle']()}</Dialog.Title>
+      <Dialog.Title>{refundOnly ? m['orders.payment.submitRefund']() : m['orders.payment.modalTitle']()}</Dialog.Title>
     </Dialog.Header>
 
     <div class="space-y-5 py-2">
       <!-- Balance info -->
       <Card.Root tone="muted" size="sm" class="flex-row items-center justify-between">
-        <span class="text-muted-foreground font-medium">{m['orders.payment.currentBalance']()}</span>
-        <span class={`font-bold text-lg ${remaining > 0.001 ? 'text-destructive' : 'text-primary'}`}>
-          {formatCurrency(remaining)}
-        </span>
+        {#if refundOnly}
+          <span class="text-muted-foreground font-medium">{m['orders.payment.paidSoFar']()}</span>
+          <span class="font-bold text-lg">{formatCurrency(amountPaid)}</span>
+        {:else}
+          <span class="text-muted-foreground font-medium">{m['orders.payment.currentBalance']()}</span>
+          <span class={`font-bold text-lg ${remaining > 0.001 ? 'text-destructive' : 'text-primary'}`}>
+            {formatCurrency(remaining)}
+          </span>
+        {/if}
       </Card.Root>
 
       <!-- Amount -->
-      <FormField label={m['orders.payment.amountLabel']()} for="payment-amount" hint={m['orders.payment.refundHint']()}>
+      <FormField
+        label={refundOnly ? m['orders.payment.refundAmountLabel']() : m['orders.payment.amountLabel']()}
+        for="payment-amount"
+        hint={refundOnly ? undefined : m['orders.payment.refundHint']()}
+      >
         <InputGroup.Root>
           <InputGroup.Input
             id="payment-amount"
@@ -139,7 +165,7 @@
         <Input
           id="payment-note"
           type="text"
-          placeholder={m['orders.payment.notePlaceholder']()}
+          placeholder={refundOnly ? m['orders.payment.refundNotePlaceholder']() : m['orders.payment.notePlaceholder']()}
           bind:value={note}
           disabled={submitting} />
       </FormField>

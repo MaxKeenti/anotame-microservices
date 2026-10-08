@@ -6,6 +6,7 @@
   import { Button } from '$lib/components/ui/button';
   import * as ToggleGroup from '$lib/components/ui/toggle-group';
   import {
+    forWorkflow,
     helpCategories,
     helpQuickStarts,
     helpTerms,
@@ -21,6 +22,7 @@
   import HelpTile from '$lib/components/help/help-tile.svelte';
   import HelpToc from '$lib/components/help/help-toc.svelte';
   import * as m from '$lib/paraglide/messages';
+  import { workflowStore } from '$lib/stores/workflow.svelte';
   import {
     AlertTriangle,
     BookOpen,
@@ -81,19 +83,25 @@
     return normalize(topicSearchText(topic)).includes(query);
   }
 
+  // Topics and shortcuts read for the shop's workflow, so the manual never
+  // sends anyone to a page their shop does not use.
   let visibleTopics = $derived.by(() => {
-    return helpTopics.filter((topic) => {
-      if (category !== 'all' && topic.category !== category) return false;
-      return topicMatchesSearch(topic);
-    });
+    return helpTopics
+      .map((topic) => forWorkflow(topic, workflowStore.simple))
+      .filter((topic) => {
+        if (category !== 'all' && topic.category !== category) return false;
+        return topicMatchesSearch(topic);
+      });
   });
 
   let visibleQuickStarts = $derived.by(() => {
-    return helpQuickStarts.filter((item) => {
-      if (item.adminOnly && !isAdmin) return false;
-      if (item.employeeOnly && isAdmin) return false;
-      return true;
-    });
+    return helpQuickStarts
+      .map((item) => forWorkflow(item, workflowStore.simple))
+      .filter((item) => {
+        if (item.adminOnly && !isAdmin) return false;
+        if (item.employeeOnly && isAdmin) return false;
+        return true;
+      });
   });
 
   function shouldShowSteps(topic: HelpTopic): boolean {
