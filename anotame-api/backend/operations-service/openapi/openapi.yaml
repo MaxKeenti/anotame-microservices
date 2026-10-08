@@ -1,0 +1,312 @@
+---
+openapi: 3.1.0
+components:
+  schemas:
+    Establishment:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+        ownerName:
+          type: string
+        taxInfo:
+          type: string
+        active:
+          type: boolean
+        dailyCapacityMinutes:
+          type: integer
+          format: int32
+        primaryColor:
+          type: string
+        fontFamily:
+          type: string
+        capacityThresholdGreen:
+          type: integer
+          format: int32
+        capacityThresholdAmber:
+          type: integer
+          format: int32
+        atRiskDaysThreshold:
+          type: integer
+          format: int32
+    Holiday:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        date:
+          $ref: "#/components/schemas/LocalDate"
+        description:
+          type: string
+    LocalDate:
+      type: string
+      format: date
+      examples:
+      - 2022-03-10
+    LocalTime:
+      type: string
+      format: local-time
+      examples:
+      - 13:45:30.123456789
+      externalDocs:
+        description: As defined by 'partial-time' in RFC3339
+        url: https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6
+    PublicReceiptSettingsResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type:
+          - string
+          - "null"
+        rfc:
+          type:
+          - string
+          - "null"
+        taxRegime:
+          type:
+          - string
+          - "null"
+        contactPhone:
+          type:
+          - string
+          - "null"
+    UUID:
+      type: string
+      format: uuid
+      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+    WorkDay:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        dayOfWeek:
+          type: integer
+          format: int32
+        open:
+          type: boolean
+        openTime:
+          $ref: "#/components/schemas/LocalTime"
+        closeTime:
+          $ref: "#/components/schemas/LocalTime"
+  securitySchemes:
+    SecurityScheme:
+      description: Authentication
+      type: apiKey
+      name: jwt
+      in: cookie
+paths:
+  /establishment:
+    put:
+      operationId: EstablishmentController_updateSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Establishment"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Establishment"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update Settings
+      tags:
+      - Establishment Controller
+      security:
+      - SecurityScheme: []
+    get:
+      operationId: EstablishmentController_getSettings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Establishment"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Settings
+      tags:
+      - Establishment Controller
+      security:
+      - SecurityScheme: []
+  /establishment/public-receipt-settings:
+    get:
+      operationId: PublicReceiptSettingsController_get
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicReceiptSettingsResponse"
+      summary: Get
+      tags:
+      - Public Receipt Settings Controller
+  /schedule/check:
+    get:
+      operationId: ScheduleController_checkAvailability
+      parameters:
+      - name: date
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Check Availability
+      tags:
+      - Schedule Controller
+      security:
+      - SecurityScheme: []
+  /schedule/config:
+    put:
+      operationId: ScheduleController_updateWorkDays
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/WorkDay"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkDay"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Update Work Days
+      tags:
+      - Schedule Controller
+      security:
+      - SecurityScheme: []
+    get:
+      operationId: ScheduleController_getWorkDays
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkDay"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Work Days
+      tags:
+      - Schedule Controller
+      security:
+      - SecurityScheme: []
+  /schedule/holidays:
+    get:
+      operationId: ScheduleController_getHolidays
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Holiday"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Get Holidays
+      tags:
+      - Schedule Controller
+      security:
+      - SecurityScheme: []
+    post:
+      operationId: ScheduleController_addHoliday
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Holiday"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Holiday"
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+        "400":
+          description: Bad Request
+      summary: Add Holiday
+      tags:
+      - Schedule Controller
+      security:
+      - SecurityScheme: []
+  /schedule/holidays/{id}:
+    delete:
+      operationId: ScheduleController_deleteHoliday
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Delete Holiday
+      tags:
+      - Schedule Controller
+      security:
+      - SecurityScheme: []
+info:
+  title: operations-service API
+  version: 0.0.1-SNAPSHOT
+servers:
+- url: http://localhost:8084
+  description: Auto generated value
+- url: http://0.0.0.0:8084
+  description: Auto generated value

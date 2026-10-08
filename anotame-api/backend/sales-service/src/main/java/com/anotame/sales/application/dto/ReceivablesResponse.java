@@ -6,6 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 /**
  * Breakdown behind the "Cuentas por Cobrar" figure.
@@ -22,6 +23,7 @@ public class ReceivablesResponse {
     @Builder
     public static class AgingBucket {
         /** One of {@code 0_30}, {@code 31_60}, {@code 61_90}, {@code 90_PLUS}. */
+        @Schema(enumeration = {"0_30", "31_60", "61_90", "90_PLUS"})
         private String bucket;
         private long orderCount;
         private BigDecimal balance;

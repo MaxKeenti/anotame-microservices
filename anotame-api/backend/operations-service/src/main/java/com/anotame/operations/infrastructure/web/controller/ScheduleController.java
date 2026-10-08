@@ -5,7 +5,6 @@ import com.anotame.operations.domain.model.Holiday;
 import com.anotame.operations.domain.model.WorkDay;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -56,9 +55,8 @@ public class ScheduleController {
 
     @DELETE
     @Path("/holidays/{id}")
-    public Response deleteHoliday(@PathParam("id") UUID id) {
+    public void deleteHoliday(@PathParam("id") UUID id) {
         scheduleService.deleteHoliday(id);
-        return Response.noContent().build();
     }
 
     @GET

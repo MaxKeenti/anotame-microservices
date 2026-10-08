@@ -7,18 +7,25 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+// Read back as part of an order, the name and duration are always there; the app sends them too.
+@Schema(requiredProperties = {"source", "serviceName", "unitPrice", "durationMin"})
 @Data
 public class OrderItemServiceDto {
+    @Schema(nullable = true)
     private UUID serviceId;
     @NotNull
     private OrderContentSource source = OrderContentSource.CATALOG;
     private String serviceName;
     @NotNull
     private BigDecimal unitPrice;
+    @Schema(nullable = true)
     private BigDecimal adjustmentAmount;
+    @Schema(nullable = true)
     private String adjustmentReason;
     private Integer durationMin;
+    @Schema(nullable = true)
     private String instructions;
 
     @JsonIgnore

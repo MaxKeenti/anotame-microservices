@@ -35,7 +35,7 @@
 		source: OrderContentSource;
 		defaultDurationMin?: number;
 		basePrice?: number;
-		effectivePrice?: number;
+		effectivePrice?: number | null;
 	};
 
 	interface Props {
@@ -308,7 +308,7 @@
 		const source = s.source ?? (s.serviceId ? 'CATALOG' : 'CUSTOM');
 		tempService = catalogEntry
 			? { ...catalogEntry, source: 'CATALOG' }
-			: { id: source === 'CATALOG' ? s.serviceId : null, name: s.serviceName, description: '', source };
+			: { id: source === 'CATALOG' ? s.serviceId ?? null : null, name: s.serviceName, description: '', source };
 		price = String(s.unitPrice);
 		adj = String(s.adjustmentAmount || '');
 		adjReason = s.adjustmentReason || '';

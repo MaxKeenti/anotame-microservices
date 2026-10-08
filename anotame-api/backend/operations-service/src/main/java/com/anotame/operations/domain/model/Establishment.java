@@ -12,7 +12,7 @@ public class Establishment {
     private String name;
     private String ownerName;
     private String taxInfo; // JSON string or object
-    private boolean isActive;
+    private boolean active;
     private Integer dailyCapacityMinutes;
     private String primaryColor; // Hex format: "#FF6B6B", nullable
     private String fontFamily; // Font family name, nullable

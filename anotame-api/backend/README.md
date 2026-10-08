@@ -27,3 +27,14 @@ Run a service in Quarkus dev mode from this directory:
 ```
 
 Flyway migrations run at service startup. Do not apply manual SQL seed scripts for normal local development.
+
+## API Contract
+
+Every build writes each service's OpenAPI document to `<service>/openapi/openapi.yaml`. The file is committed and the frontend generates its types from it, so after changing a DTO or an endpoint:
+
+```bash
+./mvnw package -DskipTests        # rewrites the contracts
+cd ../../anotame-web && bun run gen:api
+```
+
+Commit the contract and the regenerated types together. In dev mode the live document is at `/q/openapi` and Swagger UI at `/q/swagger-ui`; both are off in production builds. See `../../docs/adr/0010-backend-contracts-generate-frontend-types.md`.

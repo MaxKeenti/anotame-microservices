@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
 @Builder
@@ -45,6 +46,7 @@ public class DashboardMetricsResponse {
     @Data
     @Builder
     public static class PaymentMethodTotal {
+        @Schema(enumeration = {"CASH", "CARD", "TRANSFER", "UNSPECIFIED"})
         private String paymentMethod;
         private BigDecimal total;
     }

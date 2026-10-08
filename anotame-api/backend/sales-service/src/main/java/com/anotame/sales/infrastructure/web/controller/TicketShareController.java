@@ -13,7 +13,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -54,9 +53,8 @@ public class TicketShareController {
 
     @DELETE
     @Path("/{shareId}")
-    public Response revoke(@PathParam("orderId") UUID orderId, @PathParam("shareId") UUID shareId) {
+    public void revoke(@PathParam("orderId") UUID orderId, @PathParam("shareId") UUID shareId) {
         ticketShareService.revoke(orderId, shareId, branchIdFromJwtOrDefault());
-        return Response.noContent().build();
     }
 
     private UUID requireUserId() {

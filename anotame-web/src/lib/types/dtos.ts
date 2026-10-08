@@ -1,180 +1,55 @@
-export interface GarmentTypeResponse {
-  id: string;
-  name: string;
-  description: string;
-}
-
-export interface ServiceResponse {
-  id: string;
-  name: string;
-  description: string;
-  defaultDurationMin: number;
-  basePrice: number;
-  effectivePrice?: number;
-  garmentTypeId?: string;
-}
-
-export interface CustomerDto {
-  id?: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  preferences?: Record<string, any>;
-}
-
-export type OrderContentSource = 'CATALOG' | 'CUSTOM';
-
-export interface OrderItemDto {
-  garmentTypeId: string | null;
-  source: OrderContentSource;
-  garmentName: string;
-  services: Array<{
-    serviceId: string | null;
-    source: OrderContentSource;
-    serviceName: string;
-    unitPrice: number;
-    durationMin: number;
-    adjustmentAmount?: number;
-    adjustmentReason?: string;
-    instructions?: string;
-  }>;
-  quantity: number;
-  notes: string;
-}
-
-export interface CreateOrderRequest {
-  customer: CustomerDto;
-  items: OrderItemDto[];
-  committedDeadline: string; // ISO Date String
-  notes: string;
-}
-
-export interface OrderItemResponse {
-  id: string;
-  garmentTypeId: string | null;
-  source: OrderContentSource;
-  garmentName: string;
-  services: Array<{
-    serviceId: string | null;
-    source: OrderContentSource;
-    serviceName: string;
-    unitPrice: number;
-    durationMin: number;
-    adjustmentAmount?: number;
-    adjustmentReason?: string;
-    instructions?: string;
-  }>;
-  quantity: number;
-  subtotal: number;
-  notes: string;
-}
-
-export interface OrderResponse {
-  id: string;
-  ticketNumber: string;
-  customer: CustomerDto;
-  committedDeadline: string;
-  status: string;
-  totalAmount: number;
-  totalDurationMin?: number;
-  amountPaid: number;
-  paymentMethod: string;
-  notes: string;
-  items: OrderItemResponse[];
-  createdAt: string;
-  pickupCode?: string;
-  deliveredAt?: string;  // ISO string (OffsetDateTime serialized)
-  priceListId?: string | null;
-  priceListName?: string | null;
-}
-
-export type TicketShareScope = 'CUSTOMER' | 'HANDLING';
-
-export interface TicketShareResponse {
-  id: string;
-  scope: TicketShareScope;
-  createdAt: string;
-  expiresAt: string;
-  revokedAt?: string | null;
-}
-
-export interface CreatedTicketShareResponse {
-  id: string;
-  token: string;
-  expiresAt: string;
-}
-
 /**
- * Backing type for the garment-handling view (`/g/<token>`). Mirrors the
- * backend DTO: no pickup code and no amounts, because the tag carrying this
- * link leaves the premises.
+ * Request and response shapes used across the app.
+ *
+ * Everything here derives from the backend contracts in `./api/*.d.ts`, which are generated
+ * (`bun run gen:api`). Alias a schema directly when the backend type is what the app uses;
+ * refine it only where the contract cannot say what the app needs.
  */
-export interface PublicHandlingTicketResponse {
-  ticketNumber: string;
-  customerName: string;
-  phoneNumber?: string | null;
-  committedDeadline?: string | null;
-  status: string;
-  items: Array<{
-    garmentName: string;
-    quantity: number;
-    notes?: string | null;
-    services: Array<{
-      serviceName: string;
-      instructions?: string | null;
-    }>;
-  }>;
-}
+import type { components as Catalog } from './api/catalog';
+import type { components as Identity } from './api/identity';
+import type { components as Operations } from './api/operations';
+import type { components as Sales } from './api/sales';
 
-export interface PublicTicketResponse {
-  ticketNumber: string;
-  customerName: string;
-  phoneNumber?: string | null;
-  committedDeadline?: string | null;
-  status: string;
-  totalAmount: number;
-  amountPaid: number;
-  balance: number;
-  items: Array<{
-    garmentName: string;
-    quantity: number;
-    notes?: string | null;
-    services: Array<{
-      serviceName: string;
-      unitPrice: number;
-      adjustmentAmount: number;
-      adjustmentReason?: string | null;
-      instructions?: string | null;
-    }>;
-  }>;
-  pickupCode?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-}
+type CatalogSchemas = Catalog['schemas'];
+type IdentitySchemas = Identity['schemas'];
+type OperationsSchemas = Operations['schemas'];
+type SalesSchemas = Sales['schemas'];
 
-export interface PublicReceiptSettings {
-  name: string;
-  address?: string | null;
-  rfc?: string | null;
-  taxRegime?: string | null;
-  contactPhone?: string | null;
-}
+/** `K` may be missing or null: the backend leaves it unset, or the app omits it when sending. */
+type Unset<T, K extends keyof T> = Omit<T, K> & { [P in K]?: T[P] | null };
 
-export interface OrderSummaryResponse {
-  id: string;
-  ticketNumber: string;
-  customer: CustomerDto;
-  committedDeadline?: string | null;
-  status: string;
-  totalAmount: number;
-  totalDurationMin?: number;
-  amountPaid: number;
-  createdAt?: string;
-  deliveredAt?: string | null;
-  garmentNames: string[];
-  serviceNames: string[];
-}
+// Catalog
+export type GarmentTypeResponse = CatalogSchemas['GarmentTypeResponse'];
+export type GarmentTypeRequest = CatalogSchemas['GarmentTypeRequest'];
+export type ServiceResponse = CatalogSchemas['ServiceResponse'];
+export type ServiceRequest = CatalogSchemas['ServiceRequest'];
+export type PriceListItemDto = CatalogSchemas['PriceListItemDto'];
+export type PriceListResponse = CatalogSchemas['PriceListResponse'];
+export type PriceListRequest = CatalogSchemas['PriceListRequest'];
+
+// Sales
+export type CustomerDto = SalesSchemas['CustomerDto'];
+export type OrderContentSource = SalesSchemas['OrderContentSource'];
+export type OrderItemServiceDto = SalesSchemas['OrderItemServiceDto'];
+export type OrderItemDto = SalesSchemas['OrderItemDto'];
+export type CreateOrderRequest = SalesSchemas['CreateOrderRequest'];
+export type OrderItemResponse = SalesSchemas['OrderItemResponse'];
+export type OrderResponse = SalesSchemas['OrderResponse'];
+export type OrderSummaryResponse = SalesSchemas['OrderSummaryResponse'];
+export type TicketShareScope = SalesSchemas['TicketShareScope'];
+export type TicketShareResponse = SalesSchemas['TicketShareResponse'];
+export type CreatedTicketShareResponse = SalesSchemas['CreatedTicketShareResponse'];
+export type PublicHandlingTicketResponse = SalesSchemas['PublicHandlingTicketResponse'];
+export type PublicTicketResponse = SalesSchemas['PublicTicketResponse'];
+export type WorkloadDayResponse = SalesSchemas['WorkloadDayPoint'];
+export type CalendarDayResponse = SalesSchemas['CalendarDayResponse'];
+export type CalendarMonthResponse = SalesSchemas['CalendarMonthResponse'];
+export type PaymentResponse = SalesSchemas['PaymentResponse'];
+export type AuditLogResponse = SalesSchemas['AuditLogResponse'];
+export type DashboardMetricsResponse = SalesSchemas['DashboardMetricsResponse'];
+export type ReceivablesResponse = SalesSchemas['ReceivablesResponse'];
+export type ReceivableOrderPageResponse = SalesSchemas['ReceivableOrderPageResponse'];
+export type FinancialKpiResponse = SalesSchemas['FinancialKpiResponse'];
 
 export interface PageResponse<T> {
   items: T[];
@@ -184,106 +59,25 @@ export interface PageResponse<T> {
   totalPages: number;
 }
 
-export interface WorkloadDayResponse {
-  date: string;
-  totalMinutesUsed: number;
-}
+// Operations
+// These three are the backend's domain models, returned and accepted as they are, so the
+// contract carries no nullability for them; the fields below are the ones that can be unset.
+export type PublicReceiptSettings = OperationsSchemas['PublicReceiptSettingsResponse'];
+export type WorkDay = Unset<OperationsSchemas['WorkDay'], 'id' | 'openTime' | 'closeTime'>;
+export type Holiday = Unset<OperationsSchemas['Holiday'], 'id'>;
+export type Establishment = Unset<
+  OperationsSchemas['Establishment'],
+  | 'id'
+  | 'ownerName'
+  | 'taxInfo'
+  | 'dailyCapacityMinutes'
+  | 'capacityThresholdGreen'
+  | 'capacityThresholdAmber'
+  | 'atRiskDaysThreshold'
+  | 'primaryColor'
+  | 'fontFamily'
+>;
 
-export interface CalendarDayResponse {
-  date: string;
-  totalMinutesUsed: number;
-  orderCount: number;
-  scheduledRevenue: number;
-  capacityPercent: number;
-  isHoliday: boolean;
-  isOpen: boolean;
-}
-
-export interface CalendarMonthResponse {
-  days: CalendarDayResponse[];
-}
-
-export interface GarmentTypeRequest {
-  name: string;
-  description: string;
-}
-
-export interface ServiceRequest {
-  name: string;
-  description: string;
-  defaultDurationMin: number;
-  basePrice: number;
-  garmentTypeId?: string;
-}
-
-export interface PriceListItemDto {
-  serviceId: string;
-  serviceName: string;
-  price: number;
-  basePrice: number;
-}
-
-export interface PriceListResponse {
-  id: string;
-  name: string;
-  validFrom: string;
-  validTo?: string;
-  active: boolean;
-  priority: number;
-  items?: PriceListItemDto[];
-}
-
-export interface PriceListRequest {
-  name: string;
-  validFrom: string;
-  validTo?: string;
-  active: boolean;
-  priority: number;
-  items?: Array<{ serviceId: string; price: number }>;
-}
-
-export interface WorkDay {
-  id?: string;
-  dayOfWeek: number; // 1=Mon, 7=Sun
-  open: boolean;
-  openTime?: string; // HH:mm:ss
-  closeTime?: string; // HH:mm:ss
-}
-
-export interface Holiday {
-  id?: string;
-  date: string; // YYYY-MM-DD
-  description: string;
-}
-
-export interface Establishment {
-  id?: string;
-  name: string;
-  ownerName?: string;
-  taxInfo?: string; // JSON
-  active: boolean;
-  dailyCapacityMinutes?: number;
-  capacityThresholdGreen?: number;
-  capacityThresholdAmber?: number;
-  atRiskDaysThreshold?: number;
-  primaryColor?: string | null;
-  fontFamily?: string | null;
-}
-
-export interface UserResponse {
-  id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
-export interface CreateUserRequest {
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  password?: string; // Optional if we auto-generate or something, but usually required
-}
+// Identity
+export type UserResponse = IdentitySchemas['UserResponse'];
+export type CreateUserRequest = IdentitySchemas['CreateUserRequest'];

@@ -11,7 +11,7 @@ import java.util.UUID;
 public class WorkDay {
     private UUID id;
     private int dayOfWeek; // 1=Monday
-    private boolean isOpen;
+    private boolean open;
     private LocalTime openTime;
     private LocalTime closeTime;
 }

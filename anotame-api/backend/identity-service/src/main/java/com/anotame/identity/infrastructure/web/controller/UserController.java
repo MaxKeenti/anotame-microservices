@@ -53,9 +53,8 @@ public class UserController {
 
     @PATCH
     @Path("/{id}/locale")
-    public jakarta.ws.rs.core.Response updateLocale(@PathParam("id") UUID id,
-                                                    @jakarta.validation.Valid UpdateLocaleRequest request) {
+    public void updateLocale(@PathParam("id") UUID id,
+                             @jakarta.validation.Valid UpdateLocaleRequest request) {
         userService.updateLocale(id, request.getLocale());
-        return jakarta.ws.rs.core.Response.noContent().build();
     }
 }

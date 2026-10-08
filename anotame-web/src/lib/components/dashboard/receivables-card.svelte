@@ -12,43 +12,9 @@
   import { cn } from '$lib/utils';
   import * as m from '$lib/paraglide/messages';
   import { Banknote } from '@lucide/svelte';
+  import type { ReceivableOrderPageResponse, ReceivablesResponse } from '$lib/types/dtos';
 
-  type AgingBucket = { bucket: '0_30' | '31_60' | '61_90' | '90_PLUS'; orderCount: number; balance: number };
-  type StatusBreakdown = { status: string; orderCount: number; balance: number };
-
-  interface ReceivablesResponse {
-    openReceivable: number;
-    deliveredUnpaid: number;
-    openOrderCount: number;
-    deliveredUnpaidOrderCount: number;
-    aging: AgingBucket[];
-    byStatus: StatusBreakdown[];
-    byBranch: { branchId: string; orderCount: number; balance: number }[];
-    ledgerReconciled: boolean;
-    ledgerDifference: number;
-  }
-
-  interface ReceivableOrderItem {
-    id: string;
-    ticketNumber: string;
-    customerName: string | null;
-    createdAt: string;
-    committedDeadline: string | null;
-    totalAmount: number;
-    amountPaid: number;
-    balance: number;
-    daysOutstanding: number;
-    status: string;
-  }
-
-  interface ReceivableOrderPageResponse {
-    items: ReceivableOrderItem[];
-    page: number;
-    size: number;
-    total: number;
-    totalPages: number;
-    totalBalance: number;
-  }
+  type AgingBucket = ReceivablesResponse['aging'][number];
 
   type Props = {
     openReceivable: number;
