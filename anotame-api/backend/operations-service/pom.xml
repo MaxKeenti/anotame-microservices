@@ -17,6 +17,8 @@
         <quarkus.platform.version>3.27.2</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.2</surefire-plugin.version>
+        <!-- Every build writes this service's OpenAPI contract to openapi/; anotame-web generates its types from it. -->
+        <quarkus.smallrye-openapi.store-schema-directory>${project.basedir}/openapi</quarkus.smallrye-openapi.store-schema-directory>
     </properties>
 
     <dependencyManagement>
@@ -64,6 +66,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-health</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

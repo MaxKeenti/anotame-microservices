@@ -1,33 +1,7 @@
 import { getContext, setContext } from 'svelte';
-import type { WorkloadDayResponse } from '$lib/types/dtos';
+import type { DashboardMetricsResponse } from '$lib/types/dtos';
 
-export interface DashboardMetrics {
-  workload: {
-    todayDeliveries: number;
-    comingDeliveries: number;
-    pendingPipeline: number;
-    readyForPickup: number;
-    totalActive: number;
-  };
-  finance: {
-    todayRevenue: number;
-    monthlyRevenue: number;
-    monthlyRevenueByPaymentMethod: {
-      paymentMethod: 'CASH' | 'CARD' | 'TRANSFER' | 'UNSPECIFIED';
-      total: number;
-    }[];
-    monthlyBilled: number;
-    monthlyCollected: number;
-    monthlyPending: number;
-    openReceivable: number;
-    deliveredUnpaid: number;
-  };
-  weeklyRevenueChart: {
-    date: string;
-    totalPaid: number;
-  }[];
-  dailyWorkload: WorkloadDayResponse[];
-}
+export type DashboardMetrics = DashboardMetricsResponse;
 
 /**
  * Shared state for the KPI tabs. The layout owns the dashboard payload and the

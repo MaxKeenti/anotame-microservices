@@ -7,8 +7,9 @@ import io.quarkus.security.Authenticated;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponseSchema;
+import org.jboss.resteasy.reactive.ResponseStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,10 +24,11 @@ public class OrderPaymentController {
     private final PaymentService paymentService;
 
     @POST
-    public Response addPayment(@PathParam("orderId") UUID orderId,
-                               @Valid AddPaymentRequest request) {
-        PaymentResponse response = paymentService.addPayment(orderId, request);
-        return Response.status(Response.Status.CREATED).entity(response).build();
+    @ResponseStatus(201)
+    @APIResponseSchema(value = PaymentResponse.class, responseCode = "201")
+    public PaymentResponse addPayment(@PathParam("orderId") UUID orderId,
+                                      @Valid AddPaymentRequest request) {
+        return paymentService.addPayment(orderId, request);
     }
 
     @GET

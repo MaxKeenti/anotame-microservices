@@ -7,8 +7,8 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/establishment/public-receipt-settings")
 @Produces(MediaType.APPLICATION_JSON)
@@ -18,8 +18,8 @@ public class PublicReceiptSettingsController {
     private final EstablishmentService establishmentService;
 
     @GET
-    public Response get() {
-        return Response.ok(establishmentService.getPublicReceiptSettings())
+    public RestResponse<PublicReceiptSettingsResponse> get() {
+        return RestResponse.ResponseBuilder.ok(establishmentService.getPublicReceiptSettings())
                 .header("Cache-Control", "no-store")
                 .header("X-Robots-Tag", "noindex, nofollow")
                 .build();

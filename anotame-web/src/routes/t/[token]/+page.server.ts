@@ -19,7 +19,14 @@ export const load: PageServerLoad = async ({ params, fetch, setHeaders }) => {
   }
 
   const ticket = await ticketResponse.json() as PublicTicketResponse;
-  let establishment: PublicReceiptSettings = { name: 'ANOTAME' };
+  let establishment: PublicReceiptSettings = {
+    name: 'ANOTAME',
+    address: null,
+    rfc: null,
+    taxRegime: null,
+    contactPhone: null,
+    workflowMode: 'FULL',
+  };
   try {
     const settingsResponse = await fetch('/api/operations/establishment/public-receipt-settings');
     if (settingsResponse.ok) establishment = await settingsResponse.json() as PublicReceiptSettings;

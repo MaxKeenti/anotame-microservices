@@ -4,15 +4,18 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
 public class PriceListResponse {
     private UUID id;
     private String name;
     private LocalDateTime validFrom;
+    @Schema(nullable = true)
     private LocalDateTime validTo;
     private boolean active;
     private Integer priority;
+    @Schema(nullable = true)
     private List<PriceListItemDto> items;
 
     public UUID getId() {

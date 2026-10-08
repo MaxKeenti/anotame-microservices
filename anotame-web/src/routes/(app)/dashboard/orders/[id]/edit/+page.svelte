@@ -72,7 +72,7 @@
                         }))
                     })),
                     amountPaid: res.amountPaid,
-                    paymentMethod: res.paymentMethod,
+                    paymentMethod: res.paymentMethod ?? undefined,
                     committedDeadline: res.committedDeadline,
                     notes: res.notes ?? ''
                 };

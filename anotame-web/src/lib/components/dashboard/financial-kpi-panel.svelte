@@ -20,49 +20,10 @@
   import { getFinancialKpiPeriodLabel } from '$lib/utils/kpiPeriodLabel';
   import { TrendingUp, AlertTriangle, Users } from '@lucide/svelte';
 
-  // TypeScript interfaces for API responses
-  interface RevenueTrendPoint {
-    period: string;
-    totalRevenue: number;
-    paymentCount: number;
-  }
+  import type { FinancialKpiResponse } from '$lib/types/dtos';
 
-  interface ServiceRevenueItem {
-    source: 'CATALOG' | 'CUSTOM';
-    serviceName: string;
-    totalRevenue: number;
-    orderCount: number;
-    percentShare: number;
-    totalDurationMin: number;
-    revenuePerMinute: number;
-  }
-
-  interface TopCustomerItem {
-    customerId: string;
-    firstName: string;
-    lastName: string;
-    totalSpend: number;
-    orderCount: number;
-    lastOrderDate: string;
-  }
-
-  interface AtRiskCustomerItem {
-    customerId: string;
-    firstName: string;
-    lastName: string;
-    lastOrderDate: string | null;
-    daysSinceLastOrder: number | null;
-  }
-
-  interface FinancialKpiResponse {
-    revenueTrend: RevenueTrendPoint[];
-    serviceBreakdown: ServiceRevenueItem[];
-    topCustomers: TopCustomerItem[];
-    atRiskCustomers: AtRiskCustomerItem[];
-    repeatRate: number;
-    totalCustomersInPeriod: number;
-    repeatCustomers: number;
-  }
+  type TopCustomerItem = FinancialKpiResponse['topCustomers'][number];
+  type AtRiskCustomerItem = FinancialKpiResponse['atRiskCustomers'][number];
 
   // Props
   type Props = {

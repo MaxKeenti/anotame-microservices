@@ -14,6 +14,7 @@
   import { zod4 } from 'sveltekit-superforms/adapters';
   import { z } from 'zod';
   import * as m from '$lib/paraglide/messages';
+  import type { Establishment } from '$lib/types/dtos';
 
   let { data } = $props();
 
@@ -86,7 +87,7 @@
 
   onMount(async () => {
     try {
-      const data = await apiService.request<any>(`${API_OPERATIONS}/establishment`);
+      const data = await apiService.request<Establishment>(`${API_OPERATIONS}/establishment`);
       if (data) {
         let taxData: any = {};
         try { taxData = data.taxInfo ? JSON.parse(data.taxInfo) : {}; } catch {}
@@ -100,7 +101,7 @@
             address: taxData.address || '',
             contactPhone: taxData.contactPhone || '',
             primaryColor: data.primaryColor || '',
-            fontFamily: data.fontFamily || '',
+            fontFamily: (data.fontFamily || '') as 'Inter' | 'Outfit' | 'Merriweather' | '',
             capacityThresholdGreen: data.capacityThresholdGreen ?? 50,
             capacityThresholdAmber: data.capacityThresholdAmber ?? 85,
             atRiskDaysThreshold: data.atRiskDaysThreshold ?? 60,

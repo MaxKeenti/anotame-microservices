@@ -9,16 +9,7 @@
   import PanelHeading from './panel-heading.svelte';
   import { DollarSign, Undo2 } from '@lucide/svelte';
   import * as m from '$lib/paraglide/messages';
-
-  type Payment = {
-    id: string;
-    amount: number;
-    paymentMethod?: string | null;
-    notes?: string | null;
-    method?: string | null;
-    note?: string | null;
-    recordedAt: string;
-  };
+  import type { PaymentResponse } from '$lib/types/dtos';
 
   type Props = {
     orderId: string;
@@ -30,7 +21,7 @@
 
   let { orderId, refreshKey = 0, onRecordPayment, refundOnly = false }: Props = $props();
 
-  let payments = $state<Payment[]>([]);
+  let payments = $state<PaymentResponse[]>([]);
   let loading = $state(true);
 
   function methodLabel(method: string | null | undefined): string {
@@ -40,17 +31,12 @@
     return method || '-';
   }
 
-  function getPaymentMethod(payment: Payment): string | null | undefined {
-    return payment.paymentMethod ?? payment.method;
-  }
-
-  function noteLabel(payment: Payment): string | null {
-    const note = payment.notes ?? payment.note ?? null;
-    if (note === 'DELIVERY_SETTLEMENT') {
+  function noteLabel(payment: PaymentResponse): string | null {
+    if (payment.notes === 'DELIVERY_SETTLEMENT') {
       return m['orders.payment.deliverySettlementNote']();
     }
 
-    return note;
+    return payment.notes;
   }
 
   $effect(() => {
@@ -61,7 +47,7 @@
     let cancelled = false;
     loading = true;
 
-    apiService.request<Payment[]>(`${API_SALES}/orders/${orderId}/payments`)
+    apiService.request<PaymentResponse[]>(`${API_SALES}/orders/${orderId}/payments`)
       .then(res => { if (!cancelled) { payments = res ?? []; loading = false; } })
       .catch(() => { if (!cancelled) loading = false; });
 
@@ -101,7 +87,7 @@
           </Item.Media>
           <Item.Content class="min-w-0">
             <Item.Title>
-              <Badge variant="secondary">{methodLabel(getPaymentMethod(payment))}</Badge>
+              <Badge variant="secondary">{methodLabel(payment.paymentMethod)}</Badge>
             </Item.Title>
             {#if noteLabel(payment)}
               <Item.Description class="italic">{noteLabel(payment)}</Item.Description>

@@ -3,7 +3,7 @@
   import * as Card from '$lib/components/ui/card';
   import { useRoute } from "$lib/desktop/route-context.svelte";
   import { apiService, API_SALES, API_OPERATIONS } from "$lib/services/api.svelte";
-  import type { OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
+  import type { AuditLogResponse, OrderResponse, OrderItemResponse, Establishment } from "$lib/types/dtos";
   import { generateReceiptHtml } from "$lib/utils/receipt-generator";
   import { ErrorState, InlineAlert, StatePanel, PageContainer } from '$lib/components/common';
   import { formatCurrency, formatDateTime } from "$lib/utils/formatUtils";
@@ -67,7 +67,7 @@
         loading = true;
         const [res, log] = await Promise.all([
           apiService.request<OrderResponse>(`${API_SALES}/orders/${id}`),
-          apiService.request<any[]>(`${API_SALES}/orders/${id}/audit`).catch(() => [])
+          apiService.request<AuditLogResponse[]>(`${API_SALES}/orders/${id}/audit`).catch(() => [])
         ]);
         if (!isCancelled) {
           order = res;
@@ -146,11 +146,11 @@
         services: i.services?.map((s) => ({
           name: s.serviceName,
           price: s.unitPrice,
-          adjustment: s.adjustmentAmount,
-          adjustmentReason: s.adjustmentReason,
-          instructions: s.instructions
+          adjustment: s.adjustmentAmount ?? undefined,
+          adjustmentReason: s.adjustmentReason ?? undefined,
+          instructions: s.instructions ?? undefined
         })) || [],
-        notes: i.notes,
+        notes: i.notes ?? undefined,
       })),
       total: order.totalAmount,
       amountPaid: order.amountPaid || 0,
@@ -162,7 +162,7 @@
         taxRegime: taxInfoParsed?.regime,
         contactPhone: taxInfoParsed?.contactPhone,
       },
-      pickupCode: order.pickupCode
+      pickupCode: order.pickupCode ?? undefined
     });
 
     const newWindow = window.open('', '_blank', 'width=400,height=600');

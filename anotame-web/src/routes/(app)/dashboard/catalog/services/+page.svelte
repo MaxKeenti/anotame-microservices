@@ -113,7 +113,7 @@
     fetchData();
   }
 
-  function getGarmentName(garmentTypeId?: string): string {
+  function getGarmentName(garmentTypeId?: string | null): string {
     const g = garments.find(g => g.id === garmentTypeId);
     return g?.name || '-';
   }

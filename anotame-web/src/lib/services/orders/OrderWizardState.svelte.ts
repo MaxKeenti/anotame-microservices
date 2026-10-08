@@ -1,21 +1,12 @@
 import { PersistedState } from 'runed';
-import type { CreateOrderRequest, OrderContentSource, OrderItemDto } from '$lib/types/dtos';
+import type { CreateOrderRequest, OrderContentSource, OrderItemDto, OrderItemServiceDto } from '$lib/types/dtos';
 import * as m from '$lib/paraglide/messages';
 
 export interface DraftOrderItem extends Partial<OrderItemDto> {
     garmentId?: string; // Used in wizard before mapping to garmentTypeId
     garmentName?: string;
     source?: OrderContentSource;
-    services: Array<{
-        serviceId: string | null;
-        source: OrderContentSource;
-        serviceName: string;
-        unitPrice: number;
-        durationMin: number;
-        adjustmentAmount?: number;
-        adjustmentReason?: string;
-        instructions?: string;
-    }>;
+    services: OrderItemServiceDto[];
     notes?: string;
 }
 
