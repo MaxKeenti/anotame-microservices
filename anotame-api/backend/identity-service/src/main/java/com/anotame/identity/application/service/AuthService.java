@@ -76,10 +76,9 @@ public class AuthService {
 
         private AuthResponse buildAuthResponse(User user) {
                 Set<String> roles = rolesFor(user);
-                UUID branchId = userRepository.findActiveBranchForUser(user.getId());
-                if (branchId == null) {
-                        branchId = defaultBranchId.orElse(null);
-                }
+                // Branch assignments belong to operations, whose database identity cannot read, so
+                // every token carries the configured branch.
+                UUID branchId = defaultBranchId.orElse(null);
                 var jwtToken = tokenGenerator.generateToken(user.getUsername(), user.getId(), branchId, roles);
 
                 var userResponse = mapToResponse(user);
