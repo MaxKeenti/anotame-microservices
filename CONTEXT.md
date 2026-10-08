@@ -66,6 +66,14 @@ _Avoid_: Order, task
 Money recorded against an **Order**. An order can be partially paid through multiple payments.
 _Avoid_: Sale, transaction
 
+**Workflow Mode**:
+How much of the order flow a shop works with. In the **Full** workflow an **Order** is received, in progress, ready, then delivered, and moves along from Operations. In the **Simple** workflow it is only received until it is delivered, all from Orders. The orders themselves are the same in both.
+_Avoid_: Simple orders, express orders (the mode belongs to the shop, not to an order)
+
+**Cancelled Order**:
+An **Order** that will not be made. It stays on record with its payments; money already paid is returned with a refund.
+_Avoid_: Deleted order (deleting removes an order created by mistake)
+
 ### Operations and KPIs
 
 **Capacity**:
