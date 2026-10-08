@@ -47,6 +47,10 @@
   const { form, enhance, errors, reset } = superForm(defaults(zod4(settingsSchema)), {
     id: 'settings-form',
     SPA: true,
+    // Keep what was just saved on screen. The default resets the form to the
+    // schema's empty values, which would also show the workflow as "full"
+    // whatever was stored, ready to be saved back by mistake.
+    resetForm: false,
     validators: zod4(settingsSchema),
     async onUpdate({ form: f }) {
       if (!f.valid) return;
