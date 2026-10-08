@@ -53,6 +53,9 @@ public class EstablishmentEntity {
     @Column(name = "at_risk_days_threshold", columnDefinition = "INTEGER DEFAULT 60")
     private Integer atRiskDaysThreshold = 60;
 
+    @Column(name = "workflow_mode", length = 20, nullable = false)
+    private String workflowMode = "FULL";
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

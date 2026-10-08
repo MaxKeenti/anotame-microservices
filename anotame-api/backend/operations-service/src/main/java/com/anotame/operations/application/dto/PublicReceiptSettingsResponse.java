@@ -11,4 +11,5 @@ public class PublicReceiptSettingsResponse {
     private String rfc;
     private String taxRegime;
     private String contactPhone;
+    private String workflowMode;
 }

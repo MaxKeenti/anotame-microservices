@@ -48,6 +48,7 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         entity.setCapacityThresholdGreen(establishment.getCapacityThresholdGreen());
         entity.setCapacityThresholdAmber(establishment.getCapacityThresholdAmber());
         entity.setAtRiskDaysThreshold(establishment.getAtRiskDaysThreshold());
+        entity.setWorkflowMode(establishment.getWorkflowMode());
 
         repository.persist(entity);
         return toDomain(entity);
@@ -66,6 +67,7 @@ public class EstablishmentPersistenceAdapter implements EstablishmentRepositoryP
         domain.setCapacityThresholdGreen(entity.getCapacityThresholdGreen());
         domain.setCapacityThresholdAmber(entity.getCapacityThresholdAmber());
         domain.setAtRiskDaysThreshold(entity.getAtRiskDaysThreshold());
+        domain.setWorkflowMode(entity.getWorkflowMode());
         return domain;
     }
 }
