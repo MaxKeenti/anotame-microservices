@@ -25,6 +25,7 @@ export const load: PageServerLoad = async ({ params, fetch, setHeaders }) => {
     rfc: null,
     taxRegime: null,
     contactPhone: null,
+    workflowMode: 'FULL',
   };
   try {
     const settingsResponse = await fetch('/api/operations/establishment/public-receipt-settings');

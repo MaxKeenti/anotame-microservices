@@ -29,7 +29,8 @@ public class PaymentService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new SalesNotFoundException("Order not found: " + orderId));
 
-        if ("CANCELLED".equals(order.getStatus())) {
+        // A cancelled order takes no more money, but what was already paid can still be returned.
+        if ("CANCELLED".equals(order.getStatus()) && request.amount().compareTo(BigDecimal.ZERO) >= 0) {
             throw new SalesUnprocessableException("Cannot record payment for a cancelled order");
         }
 
@@ -39,6 +40,9 @@ public class PaymentService {
         }
 
         BigDecimal newTotal = order.getAmountPaid().add(request.amount());
+        if (newTotal.compareTo(BigDecimal.ZERO) < 0) {
+            throw new SalesUnprocessableException("REFUND_EXCEEDS_PAID");
+        }
         if (newTotal.compareTo(order.getTotalAmount()) > 0) {
             throw new SalesUnprocessableException("Payment would exceed order total. Balance remaining: "
                     + order.getTotalAmount().subtract(order.getAmountPaid()));

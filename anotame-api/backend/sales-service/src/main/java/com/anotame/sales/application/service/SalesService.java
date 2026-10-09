@@ -75,6 +75,8 @@ public class SalesService {
 
     private static final Set<String> VALID_STATUSES = Set.of(
             "RECEIVED", "IN_PROGRESS", "READY", "DELIVERED", "CANCELLED");
+    /** Statuses an order can be handed over from; shops on the simple workflow deliver straight from RECEIVED. */
+    private static final Set<String> DELIVERABLE_STATUSES = Set.of("RECEIVED", "IN_PROGRESS", "READY");
     private static final Set<String> VALID_PAYMENT_METHODS = Set.of("CASH", "CARD", "TRANSFER");
     private static final String DEFAULT_PAYMENT_METHOD = "CASH";
     private static final String DELIVERY_SETTLEMENT_NOTE = "DELIVERY_SETTLEMENT";
@@ -472,8 +474,9 @@ public class SalesService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new SalesNotFoundException("Pedido no encontrado"));
 
-        if (!"READY".equals(order.getStatus())) {
-            throw new SalesConflictException("Solo se pueden entregar pedidos en estado LISTO");
+        String previousStatus = order.getStatus();
+        if (!DELIVERABLE_STATUSES.contains(previousStatus)) {
+            throw new SalesConflictException("No se puede entregar un pedido entregado o cancelado");
         }
 
         if (order.getPickupCode() == null || order.getPickupCode().isEmpty()) {
@@ -499,8 +502,37 @@ public class SalesService {
 
         auditLogRepositoryPort.save(buildAuditEntry(
                 orderId, userId, "status",
-                "READY", "DELIVERED",
+                previousStatus, "DELIVERED",
                 deliveredAt));
+    }
+
+    /**
+     * Cancels an order that will not be made. The order stays on record as CANCELLED, unlike
+     * {@link #deleteOrder}, which removes an order created by mistake. Money already paid is not
+     * touched: it is returned to the customer through a refund on the payment ledger.
+     */
+    @Transactional
+    public void cancelOrder(UUID orderId, UUID userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new SalesNotFoundException("Pedido no encontrado"));
+
+        String previousStatus = order.getStatus();
+        if ("CANCELLED".equals(previousStatus)) {
+            return;
+        }
+        if ("DELIVERED".equals(previousStatus)) {
+            throw new SalesConflictException("No se puede cancelar un pedido entregado");
+        }
+
+        OffsetDateTime cancelledAt = OffsetDateTime.now(ZoneId.systemDefault());
+        order.setStatus("CANCELLED");
+        order.setUpdatedAt(cancelledAt);
+        orderRepository.save(order);
+
+        auditLogRepositoryPort.save(buildAuditEntry(
+                orderId, userId, "status",
+                previousStatus, "CANCELLED",
+                cancelledAt));
     }
 
     private void settleRemainingBalance(Order order, UUID orderId, String requestedPaymentMethod,

@@ -10,6 +10,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { useIsMobile } from '$lib/hooks/use-mobile.svelte';
   import PickupCodeDialog from '$lib/components/orders/pickup-code-dialog.svelte';
+  import { confirmAndCancelOrder } from '$lib/services/orders/cancel-order';
   import { formatDate, toTimestamp } from '$lib/utils/formatUtils';
   import { adaptiveConfirm } from '$lib/components/ui/responsive/confirm-state.svelte';
   import { toast } from 'svelte-sonner';
@@ -167,20 +168,7 @@
   }
 
   async function handleCancelOrder(order: OrderSummaryResponse) {
-    const ok = await adaptiveConfirm({
-      title: m["operations.confirmCancelTitle"](),
-      description: m["operations.confirmCancelDesc"]({ ticket: order.ticketNumber })
-    });
-    if (!ok) return;
-
-    try {
-      await apiService.request(`${API_SALES}/orders/${order.id}`, { method: 'DELETE' });
-      toast.success(m["operations.toast.cancelSuccess"](), { description: order.ticketNumber });
-      refreshOperationOrders();
-    } catch (e: any) {
-      console.error(e);
-      toast.error(m["operations.toast.cancelError"](), { description: e?.message });
-    }
+    if (await confirmAndCancelOrder(order)) refreshOperationOrders();
   }
 
   function openDeliverDialog(order: OrderSummaryResponse) {

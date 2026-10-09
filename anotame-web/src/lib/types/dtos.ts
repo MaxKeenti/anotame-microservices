@@ -63,10 +63,13 @@ export interface PageResponse<T> {
 // These three are the backend's domain models, returned and accepted as they are, so the
 // contract carries no nullability for them; the fields below are the ones that can be unset.
 export type PublicReceiptSettings = OperationsSchemas['PublicReceiptSettingsResponse'];
+/** How much of the order flow the shop works with; see docs/adr/0011. */
+export type WorkflowMode = PublicReceiptSettings['workflowMode'];
 export type WorkDay = Unset<OperationsSchemas['WorkDay'], 'id' | 'openTime' | 'closeTime'>;
 export type Holiday = Unset<OperationsSchemas['Holiday'], 'id'>;
+// `workflowMode` is a plain string on the domain model; a save that leaves it out keeps the stored one.
 export type Establishment = Unset<
-  OperationsSchemas['Establishment'],
+  Omit<OperationsSchemas['Establishment'], 'workflowMode'> & { workflowMode: WorkflowMode },
   | 'id'
   | 'ownerName'
   | 'taxInfo'
@@ -76,6 +79,7 @@ export type Establishment = Unset<
   | 'atRiskDaysThreshold'
   | 'primaryColor'
   | 'fontFamily'
+  | 'workflowMode'
 >;
 
 // Identity

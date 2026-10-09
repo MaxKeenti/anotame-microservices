@@ -92,6 +92,12 @@ public class OrdersController {
         return RestResponse.ok();
     }
 
+    @PATCH
+    @Path("/{id}/cancel")
+    public void cancelOrder(@PathParam("id") UUID id) {
+        salesService.cancelOrder(id, requireUuidClaim("user_id"));
+    }
+
     @GET
     @Path("/{id}/audit")
     public List<AuditLogResponse> getAuditLog(@PathParam("id") UUID id) {

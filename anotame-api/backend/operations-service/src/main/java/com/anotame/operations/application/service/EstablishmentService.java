@@ -3,6 +3,7 @@ package com.anotame.operations.application.service;
 import com.anotame.operations.application.port.output.EstablishmentRepositoryPort;
 import com.anotame.operations.application.dto.PublicReceiptSettingsResponse;
 import com.anotame.operations.domain.model.Establishment;
+import com.anotame.operations.domain.model.WorkflowMode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,11 +21,20 @@ public class EstablishmentService {
             Establishment defaultEst = new Establishment();
             defaultEst.setName("My Store");
             defaultEst.setActive(true);
+            defaultEst.setWorkflowMode(WorkflowMode.FULL);
             return defaultEst;
         });
     }
 
     public Establishment updateSettings(Establishment establishment) {
+        String workflowMode = establishment.getWorkflowMode();
+        if (workflowMode == null) {
+            // A save replaces every column, so a client that does not know the
+            // setting must not reset it.
+            establishment.setWorkflowMode(getSettings().getWorkflowMode());
+        } else if (!WorkflowMode.isValid(workflowMode)) {
+            throw new IllegalArgumentException("Invalid workflow mode: " + workflowMode);
+        }
         return repository.save(establishment);
     }
 
@@ -37,6 +47,7 @@ public class EstablishmentService {
                 .rfc(text(taxInfo, "rfc"))
                 .taxRegime(text(taxInfo, "regime"))
                 .contactPhone(text(taxInfo, "contactPhone"))
+                .workflowMode(establishment.getWorkflowMode())
                 .build();
     }
 

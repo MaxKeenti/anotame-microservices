@@ -16,4 +16,6 @@ public class PublicReceiptSettingsResponse {
     private String taxRegime;
     @Schema(nullable = true)
     private String contactPhone;
+    @Schema(enumeration = {"FULL", "SIMPLE"})
+    private String workflowMode;
 }

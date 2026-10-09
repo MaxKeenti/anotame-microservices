@@ -7,6 +7,7 @@ import SettingsIcon from "@lucide/svelte/icons/settings";
 import CircleHelpIcon from "@lucide/svelte/icons/circle-help";
 import * as m from '$lib/paraglide/messages';
 import { menuItems, adminOnlyItems, type MenuItem } from './menu';
+import { workflowStore } from '$lib/stores/workflow.svelte';
 
 /**
  * An app groups related sections (menu items) under one dock icon, with its own
@@ -50,7 +51,11 @@ export const apps: AppDef[] = [
 
 const itemsByKey = new Map(menuItems.map((item) => [item.key, item]));
 
+/** Sections that only exist on the full workflow (docs/adr/0011). */
+const fullWorkflowOnlyItems = ["operations"];
+
 export function isSectionVisible(item: MenuItem, isAdmin: boolean): boolean {
+    if (workflowStore.simple && fullWorkflowOnlyItems.includes(item.key)) return false;
     return adminOnlyItems.includes(item.key) ? isAdmin : true;
 }
 

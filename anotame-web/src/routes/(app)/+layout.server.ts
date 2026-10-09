@@ -1,11 +1,14 @@
 import type { LayoutServerLoad } from './$types';
+import type { WorkflowMode } from '$lib/stores/workflow.svelte';
 
 export const load: LayoutServerLoad = async ({ fetch, depends }) => {
-	// Register dependency so invalidateAll() works if needed
-	depends('establishment:theme');
+	// Lets the business settings page refresh this after a save
+	depends('establishment:settings');
 
 	// ADD THEME LOADING:
 	let establishmentTheme = { primaryColor: null, fontFamily: null };
+	// null = not loaded; the client then keeps the last mode it knew
+	let workflowMode: WorkflowMode | null = null;
 
 	try {
 		const res = await fetch('/api/operations/establishment', {
@@ -21,6 +24,7 @@ export const load: LayoutServerLoad = async ({ fetch, depends }) => {
 				primaryColor: establishment.primaryColor || null,
 				fontFamily: establishment.fontFamily || null,
 			};
+			workflowMode = establishment.workflowMode === 'SIMPLE' ? 'SIMPLE' : 'FULL';
 		}
 	} catch (err) {
 		console.error('Failed to load tenant theme:', err);
@@ -29,5 +33,6 @@ export const load: LayoutServerLoad = async ({ fetch, depends }) => {
 
 	return {
 		establishmentTheme,
+		workflowMode,
 	};
 };

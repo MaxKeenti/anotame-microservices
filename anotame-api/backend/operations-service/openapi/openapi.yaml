@@ -31,6 +31,8 @@ components:
         atRiskDaysThreshold:
           type: integer
           format: int32
+        workflowMode:
+          type: string
     Holiday:
       type: object
       properties:
@@ -74,6 +76,11 @@ components:
           type:
           - string
           - "null"
+        workflowMode:
+          type: string
+          enum:
+          - FULL
+          - SIMPLE
     UUID:
       type: string
       format: uuid

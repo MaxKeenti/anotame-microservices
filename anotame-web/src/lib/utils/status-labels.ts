@@ -20,3 +20,19 @@ const STATUS_LABELS: Record<string, () => string> = {
 export function statusLabel(code: string): string {
   return STATUS_LABELS[code]?.() ?? code;
 }
+
+/** Statuses an order can still be delivered or cancelled from. */
+export const OPEN_ORDER_STATUSES = ['RECEIVED', 'IN_PROGRESS', 'READY'];
+
+export function isOpenOrderStatus(code: string): boolean {
+  return OPEN_ORDER_STATUSES.includes(code);
+}
+
+/**
+ * The status a shop on the simple workflow sees: the steps between received
+ * and delivered are not part of its flow, so an order still on one of them
+ * (left there before the switch) reads as received.
+ */
+export function workflowStatus(code: string, simple: boolean): string {
+  return simple && isOpenOrderStatus(code) ? 'RECEIVED' : code;
+}

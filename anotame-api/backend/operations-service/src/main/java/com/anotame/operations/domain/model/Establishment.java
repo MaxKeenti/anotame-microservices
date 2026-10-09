@@ -19,4 +19,5 @@ public class Establishment {
     private Integer capacityThresholdGreen = 50;
     private Integer capacityThresholdAmber = 85;
     private Integer atRiskDaysThreshold = 60;
+    private String workflowMode; // WorkflowMode value; null in a request means "leave unchanged"
 }

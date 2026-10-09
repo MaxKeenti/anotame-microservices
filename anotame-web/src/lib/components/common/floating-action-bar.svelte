@@ -6,6 +6,7 @@
   import { DOCK_SURFACE } from '$lib/components/layout/dock-surface';
   import { cn } from '$lib/utils';
   import { statusLabel } from '$lib/utils/status-labels';
+  import { workflowStore } from '$lib/stores/workflow.svelte';
   import * as m from '$lib/paraglide/messages';
 
   type Props = {
@@ -48,22 +49,26 @@
 >
   <span class="text-sm font-semibold text-foreground whitespace-nowrap">{m["common.selected"]({ count: String(count) })}</span>
 
-  <div class="flex items-center gap-2">
-    <AdaptiveSelect
-      bind:value={selectedStatus}
-      placeholder={m["order.bulk.changeStatus"]()}
-      items={statusItems}
-      class="min-w-40 text-sm" />
-    <Button
-      variant="default"
-      size="touch"
-      class="whitespace-nowrap"
-      disabled={!selectedStatus}
-      onclick={handleChangeStatus}
-    >
-      {m["common.apply"]()}
-    </Button>
-  </div>
+  <!-- On the simple workflow orders change status one at a time, where the
+       pickup code and the cancellation are confirmed. -->
+  {#if !workflowStore.simple}
+    <div class="flex items-center gap-2">
+      <AdaptiveSelect
+        bind:value={selectedStatus}
+        placeholder={m["order.bulk.changeStatus"]()}
+        items={statusItems}
+        class="min-w-40 text-sm" />
+      <Button
+        variant="default"
+        size="touch"
+        class="whitespace-nowrap"
+        disabled={!selectedStatus}
+        onclick={handleChangeStatus}
+      >
+        {m["common.apply"]()}
+      </Button>
+    </div>
+  {/if}
 
   {#snippet deleteButton()}
     <Button

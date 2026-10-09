@@ -129,6 +129,7 @@ export interface components {
             capacityThresholdAmber: number;
             /** Format: int32 */
             atRiskDaysThreshold: number;
+            workflowMode: string;
         };
         Holiday: {
             id: components["schemas"]["UUID"];
@@ -151,6 +152,8 @@ export interface components {
             rfc: string | null;
             taxRegime: string | null;
             contactPhone: string | null;
+            /** @enum {string} */
+            workflowMode: "FULL" | "SIMPLE";
         };
         /** Format: uuid */
         UUID: string;

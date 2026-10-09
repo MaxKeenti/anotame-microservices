@@ -89,6 +89,7 @@
   eyebrow={establishment.name}
   title={m['publicTicket.title']({ ticket: ticket.ticketNumber })}
   status={ticket.status}
+  workflowMode={establishment.workflowMode}
 >
   <TicketParties
     customerName={ticket.customerName}

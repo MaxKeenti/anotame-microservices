@@ -1335,6 +1335,27 @@ paths:
       - Orders Controller
       security:
       - SecurityScheme: []
+  /orders/{id}/cancel:
+    patch:
+      operationId: OrdersController_cancelOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/UUID"
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      summary: Cancel Order
+      tags:
+      - Orders Controller
+      security:
+      - SecurityScheme: []
   /orders/{id}/deliver:
     patch:
       operationId: OrdersController_deliverOrder

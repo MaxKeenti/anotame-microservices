@@ -13,6 +13,7 @@
   import CredentialsDialog from '$lib/components/users/credentials-dialog.svelte';
   import { paletteStore } from '$lib/stores/palette.svelte';
   import { tenantThemeStore } from '$lib/stores/tenant-theme.svelte';
+  import { workflowStore } from '$lib/stores/workflow.svelte';
   import { authService } from '$lib/services/auth.svelte';
   import * as m from '$lib/paraglide/messages';
   import { home, openHref, resolveApp, visibleApps, type VisibleApp } from '$lib/config/apps';
@@ -207,6 +208,13 @@
         tenantThemeStore.set(data.establishmentTheme);
       });
     }
+  });
+
+  // The establishment's workflow decides which sections and order actions
+  // exist; it changes when the business settings are saved.
+  $effect.pre(() => {
+    const mode = data.workflowMode;
+    untrack(() => workflowStore.set(mode));
   });
 
   // Unified CSS variable injection (User palette + Tenant theme)
