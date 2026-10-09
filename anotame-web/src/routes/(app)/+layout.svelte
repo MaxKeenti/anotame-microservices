@@ -3,7 +3,7 @@
   import AppDock, { type DockEntry } from '$lib/components/layout/app-dock.svelte';
   import AppShell from '$lib/components/layout/app-shell.svelte';
   import { page } from '$app/state';
-  import { goto, replaceState } from '$app/navigation';
+  import { afterNavigate, goto, replaceState } from '$app/navigation';
   import type { LayoutData } from './$types';
   import { useAuthGuard } from '$lib/guards/index.svelte';
   import LaunchpadModal from '$lib/components/layout/launchpad-modal.svelte';
@@ -75,10 +75,20 @@
     });
   });
 
+  // Shallow routing needs SvelteKit's router, which starts only after this
+  // layout's effects have run once during hydration. A `replaceState` before
+  // that throws and aborts hydration: windows restored from the last session
+  // never load and the router never starts. `afterNavigate` first fires as the
+  // router comes up, so effects it triggers run with the router ready.
+  let routerReady = $state(false);
+  afterNavigate(() => {
+    routerReady = true;
+  });
+
   // The address bar follows the focused window (shallow, so the desktop stays
   // mounted); reloading it reopens that window through the deep-link path.
   $effect(() => {
-    if (!desktopActive || page.url.pathname !== home.href) return;
+    if (!routerReady || !desktopActive || page.url.pathname !== home.href) return;
     const target = windowsStore.focused?.url ?? home.href;
     if (`${location.pathname}${location.search}` !== target) {
       untrack(() => replaceState(target, page.state));
